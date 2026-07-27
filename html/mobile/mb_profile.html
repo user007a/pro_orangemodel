@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>桔农通 - 我的</title>
+  <link rel="stylesheet" href="css/mobile-design-system.css">
+  <style>
+    .profile-section {
+      background: var(--gradient-header);
+      padding: calc(var(--safe-top) + 16px) var(--space-4) var(--space-6);
+      color: var(--text-on-primary);
+      border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+      box-shadow: var(--shadow-header);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .profile-section::before {
+      content: '';
+      position: absolute;
+      top: -50%; right: -30%;
+      width: 200px; height: 200px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 50%;
+    }
+
+    .profile-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+      position: relative;
+      z-index: 1;
+    }
+
+    .avatar-wrapper { position: relative; }
+
+    .avatar {
+      width: 72px; height: 72px;
+      border-radius: var(--radius-full);
+      background: rgba(255,255,255,0.2);
+      display: flex; align-items: center; justify-content: center;
+      border: 3px solid rgba(255,255,255,0.3);
+    }
+
+    .avatar svg { width: 36px; height: 36px; color: var(--text-on-primary); }
+
+    .avatar-edit {
+      position: absolute; bottom: 0; right: 0;
+      width: 28px; height: 28px;
+      background: var(--bg-white);
+      border-radius: var(--radius-full);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      box-shadow: var(--shadow-md);
+    }
+
+    .avatar-edit svg { width: 14px; height: 14px; color: var(--primary); }
+
+    .profile-info { flex: 1; }
+
+    .profile-name-row { display: flex; align-items: center; gap: var(--space-2); }
+
+    .profile-name {
+      font-size: var(--font-xl);
+      font-weight: var(--font-bold);
+    }
+
+    .role-tag {
+      font-size: var(--font-xs);
+      background: rgba(255,255,255,0.25);
+      padding: var(--space-0.5) var(--space-2);
+      border-radius: var(--radius-full);
+    }
+
+    .profile-area {
+      font-size: var(--font-sm);
+      opacity: 0.85;
+      margin-top: var(--space-1);
+    }
+
+    .profile-stats {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: var(--space-5);
+      padding: var(--space-3) var(--space-4);
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      border-radius: var(--radius-xl);
+      position: relative; z-index: 1;
+    }
+
+    .stat-item { display: flex; align-items: baseline; gap: 4px; white-space: nowrap; }
+
+    .stat-num {
+      font-size: 18px;
+      font-weight: var(--font-bold);
+      font-family: var(--font-family-number);
+      background: linear-gradient(135deg, #fff, rgba(255,255,255,0.7));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .stat-label { font-size: 12px; opacity: 0.85; white-space: nowrap; }
+
+    .menu-icon.green { background: var(--primary-50); color: var(--primary-700); }
+    .menu-icon.blue { background: var(--info-light); color: var(--info-dark); }
+    .menu-icon.orange { background: var(--warning-light); color: var(--warning-dark); }
+    .menu-icon.red { background: var(--error-light); color: var(--error-dark); }
+    .menu-icon.purple { background: var(--purple-bg); color: #7c3aed; }
+    .menu-icon.cyan { background: #ecfeff; color: #0e7490; }
+    .menu-icon.gray { background: var(--gray-100); color: var(--gray-500); }
+    .menu-icon.yellow { background: var(--harvest-50); color: var(--harvest-700); }
+
+    .menu-badge {
+      min-width: 22px; height: 22px;
+      background: var(--error); color: var(--text-on-primary);
+      border-radius: var(--radius-full);
+      font-size: var(--font-xs);
+      font-weight: var(--font-bold);
+      display: flex; align-items: center; justify-content: center;
+      padding: 0 6px;
+      margin-right: var(--space-2);
+      animation: pulse 2s infinite;
+    }
+
+    .modal-overlay {
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 2000;
+      display: none;
+      justify-content: center; align-items: center;
+      backdrop-filter: blur(4px);
+      animation: fadeIn 0.2s ease;
+    }
+
+    .modal-overlay.show { display: flex; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .modal-box {
+      background: var(--bg-white);
+      border-radius: var(--radius-xl);
+      padding: var(--space-6) var(--space-5);
+      width: 85%; max-width: 320px;
+      animation: slideUp 0.3s ease;
+    }
+
+    .modal-title {
+      font-size: var(--font-lg); font-weight: var(--font-bold);
+      text-align: center; margin-bottom: var(--space-3);
+    }
+
+    .modal-content {
+      font-size: var(--font-base); color: var(--text-secondary);
+      text-align: center; margin-bottom: var(--space-6);
+    }
+
+    .modal-btn-group { display: flex; gap: var(--space-3); }
+
+    .modal-btn {
+      flex: 1; height: 44px;
+      border-radius: var(--radius-full);
+      font-size: var(--font-base); font-weight: var(--font-semibold);
+      cursor: pointer;
+      border: none;
+    }
+
+    .modal-btn.cancel { background: var(--gray-100); color: var(--text-secondary); }
+    .modal-btn.confirm { background: var(--gradient-primary); color: var(--text-on-primary); }
+
+    .info-modal-box {
+      background: var(--bg-white);
+      border-radius: 24px;
+      width: 90%;
+      max-width: 380px;
+      max-height: 85vh;
+      overflow: hidden;
+      animation: slideUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    }
+
+    .info-modal-header {
+      padding: 20px 20px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      background: linear-gradient(135deg, var(--primary) 0%, #2d8f60 100%);
+      border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    }
+
+    .info-modal-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-on-primary);
+    }
+
+    .info-modal-close {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+      background: rgba(255,255,255,0.15);
+    }
+
+    .info-modal-close:hover { 
+      background: rgba(255,255,255,0.25);
+      transform: rotate(90deg);
+    }
+    .info-modal-close svg { width: 20px; height: 20px; color: var(--text-on-primary); }
+
+    .info-modal-body {
+      padding: 24px;
+      overflow-y: auto;
+      max-height: calc(80vh - 110px);
+    }
+
+    .feedback-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+      justify-content: center;
+    }
+
+    .feedback-tags::-webkit-scrollbar { display: none; }
+
+    .feedback-tag {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      background: var(--bg-white);
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: 2px solid var(--border);
+      flex-shrink: 0;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+    }
+
+    .feedback-tag:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      border-color: var(--primary);
+    }
+
+    .feedback-tag.active {
+      background: linear-gradient(135deg, var(--primary-light) 0%, rgba(46,158,90,0.1) 100%);
+      border-color: var(--primary);
+      box-shadow: 0 4px 16px rgba(46, 158, 90, 0.25);
+    }
+
+    .feedback-tag svg { width: 22px; height: 22px; color: var(--text-light); flex-shrink: 0; transition: color 0.3s ease; }
+    .feedback-tag.active svg { color: var(--primary); }
+    .feedback-tag:hover svg { color: var(--primary); }
+    .feedback-tag span { font-size: 14px; color: var(--text-secondary); white-space: nowrap; font-weight: 500; transition: color 0.3s ease; }
+    .feedback-tag.active span { color: var(--primary); font-weight: 600; }
+    .feedback-tag:hover span { color: var(--primary); }
+
+    .textarea-box {
+      width: 100%;
+      height: 140px;
+      padding: 16px;
+      background: var(--bg);
+      border-radius: 16px;
+      border: 2px solid var(--border);
+      font-size: 14px;
+      color: var(--text);
+      resize: none;
+      outline: none;
+      transition: all 0.3s ease;
+      line-height: 1.7;
+      margin-bottom: 20px;
+    }
+
+    .textarea-box:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(46, 158, 90, 0.12), 0 0 20px rgba(46, 158, 90, 0.08);
+    }
+
+    .textarea-box::placeholder {
+      color: var(--text-light);
+      font-size: 14px;
+    }
+
+    .info-contact-card {
+      background: var(--primary-light);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4);
+      margin-bottom: var(--space-4);
+    }
+
+    .info-contact-title {
+      font-size: var(--font-md);
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: var(--space-3);
+    }
+
+    .info-contact-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-2) 0;
+      border-bottom: 1px solid rgba(255,255,255,0.3);
+    }
+
+    .info-contact-item:last-child { border-bottom: none; }
+
+    .info-contact-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--bg-white);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .info-contact-icon svg { width: 20px; height: 20px; color: var(--primary); }
+
+    .info-contact-content { flex: 1; }
+
+    .info-contact-label {
+      font-size: var(--font-xs);
+      color: var(--primary);
+      opacity: 0.7;
+    }
+
+    .info-contact-value {
+      font-size: var(--font-base);
+      font-weight: 500;
+      color: var(--primary);
+      margin-top: 2px;
+    }
+
+    .info-section { margin-bottom: var(--space-4); }
+    .info-section-title {
+      font-size: var(--font-md);
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: var(--space-3);
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+    .info-section-title svg { width: 18px; height: 18px; }
+    .info-list { padding-left: var(--space-4); }
+    .info-list-item {
+      font-size: var(--font-sm);
+      color: var(--text-secondary);
+      line-height: 2;
+      position: relative;
+      padding-left: var(--space-3);
+    }
+    .info-list-item::before {
+      content: '•';
+      position: absolute;
+      left: 0;
+      color: var(--primary);
+    }
+
+    .skeleton-state { display: none; }
+    .mb-app.loading .real-content { display: none; }
+    .mb-app.loading .skeleton-state { display: block; }
+  </style>
+</head>
+<body>
+  <div class="mb-app loading">
+    <div class="skeleton-state">
+      <header class="profile-section">
+        <div class="profile-header">
+          <div class="mb-skeleton" style="width:72px;height:72px;border-radius:50%;"></div>
+          <div class="profile-info">
+            <div class="mb-skeleton" style="width:120px;height:24px;"></div>
+            <div class="mb-skeleton" style="width:160px;height:14px;margin-top:8px;"></div>
+          </div>
+        </div>
+        <div class="profile-stats">
+          <div class="stat-item"><div class="mb-skeleton" style="width:32px;height:20px;"></div><div class="mb-skeleton" style="width:20px;height:12px;margin-left:4px;"></div></div>
+          <div class="stat-item"><div class="mb-skeleton" style="width:32px;height:20px;"></div><div class="mb-skeleton" style="width:24px;height:12px;margin-left:4px;"></div></div>
+          <div class="stat-item"><div class="mb-skeleton" style="width:24px;height:20px;"></div><div class="mb-skeleton" style="width:24px;height:12px;margin-left:4px;"></div></div>
+          <div class="stat-item"><div class="mb-skeleton" style="width:40px;height:20px;"></div><div class="mb-skeleton" style="width:32px;height:12px;margin-left:4px;"></div></div>
+        </div>
+      </header>
+      <div class="content">
+        <div class="mb-list" style="margin: var(--space-4) 0;">
+          <div class="mb-list-item"><div class="mb-skeleton" style="width:40px;height:40px;border-radius:var(--radius-lg);"></div><div class="mb-skeleton" style="width:100px;height:16px;margin-left:12px;"></div></div>
+          <div class="mb-list-item"><div class="mb-skeleton" style="width:40px;height:40px;border-radius:var(--radius-lg);"></div><div class="mb-skeleton" style="width:100px;height:16px;margin-left:12px;"></div></div>
+        </div>
+        <div class="mb-list" style="margin: var(--space-4) 0;">
+          <div class="mb-list-item"><div class="mb-skeleton" style="width:40px;height:40px;border-radius:var(--radius-lg);"></div><div class="mb-skeleton" style="width:100px;height:16px;margin-left:12px;"></div></div>
+          <div class="mb-list-item"><div class="mb-skeleton" style="width:40px;height:40px;border-radius:var(--radius-lg);"></div><div class="mb-skeleton" style="width:100px;height:16px;margin-left:12px;"></div></div>
+        </div>
+        <div class="mb-list" style="margin: var(--space-4) 0;">
+          <div class="mb-list-item"><div class="mb-skeleton" style="width:40px;height:40px;border-radius:var(--radius-lg);"></div><div class="mb-skeleton" style="width:120px;height:16px;margin-left:12px;"></div></div>
+          <div class="mb-list-item"><div class="mb-skeleton" style="width:40px;height:40px;border-radius:var(--radius-lg);"></div><div class="mb-skeleton" style="width:100px;height:16px;margin-left:12px;"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="real-content">
+      <header class="profile-section">
+      <div class="profile-header">
+        <div class="avatar-wrapper">
+          <div class="avatar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+          </div>
+          <div class="avatar-edit" onclick="openProfile()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+            </svg>
+          </div>
+        </div>
+        <div class="profile-info">
+          <div class="profile-name-row">
+            <span class="profile-name">桔农张顺发</span>
+            <span class="role-tag">种植负责人</span>
+          </div>
+          <div class="profile-area">负责区域：南丰县 · 白舍镇 · 6块地块</div>
+        </div>
+      </div>
+
+      <div class="profile-stats">
+        <div class="stat-item">
+          <div class="stat-num">800</div>
+          <div class="stat-label">亩</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">2.8</div>
+          <div class="stat-label">万株</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">6</div>
+          <div class="stat-label">地块</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num">96%</div>
+          <div class="stat-label">良品率</div>
+        </div>
+      </div>
+    </header>
+
+    <div class="content">
+      <div class="mb-list" style="margin: var(--space-4) 0;">
+        <div class="mb-list-item" onclick="navigateTo('mb_data_orchard.html')">
+          <div class="mb-list-icon menu-icon green">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+            </svg>
+          </div>
+          <div class="mb-list-content">
+            <div class="mb-list-title">我的果园</div>
+          </div>
+          <div class="mb-list-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
+          </div>
+        </div>
+
+        
+
+        <div class="mb-list-item" onclick="navigateTo('mb_profile_records.html')">
+          <div class="mb-list-icon menu-icon orange">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+          </div>
+          <div class="mb-list-content">
+            <div class="mb-list-title">我的上报</div>
+          </div>
+          <div class="mb-list-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-list" style="margin: var(--space-4) 0;">
+        <div class="mb-list-item" onclick="navigateTo('mb_profile_center.html')">
+          <div class="mb-list-icon menu-icon blue">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+          </div>
+          <div class="mb-list-content">
+            <div class="mb-list-title">个人信息</div>
+          </div>
+          <div class="mb-list-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
+          </div>
+        </div>
+
+        <div class="mb-list-item" onclick="navigateTo('mb_profile_settings.html')">
+          <div class="mb-list-icon menu-icon gray">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+          </div>
+          <div class="mb-list-content">
+            <div class="mb-list-title">设置</div>
+          </div>
+          <div class="mb-list-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-list" style="margin: var(--space-4) 0;">
+        <div class="mb-list-item" onclick="showFeedbackModal()">
+          <div class="mb-list-icon menu-icon cyan">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M8 15s1.5-2 4-2 4 2 4 2"/>
+              <circle cx="12" cy="9" r="3"/>
+            </svg>
+          </div>
+          <div class="mb-list-content">
+            <div class="mb-list-title">帮助与反馈</div>
+          </div>
+          <div class="mb-list-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
+          </div>
+        </div>
+
+        <div class="mb-list-item" onclick="showContactModal()">
+          <div class="mb-list-icon menu-icon blue">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+            </svg>
+          </div>
+          <div class="mb-list-content">
+            <div class="mb-list-title">联系客服</div>
+          </div>
+          <div class="mb-list-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <button class="mb-btn mb-btn-secondary mb-btn-block" style="margin: var(--space-4);" onclick="confirmLogout()">退出登录</button>
+    </div>
+    </div>
+
+    <div class="mb-tab-bar">
+      <div class="mb-tab-item" onclick="navigateTo('mb_home.html')">首页</div>
+      <div class="mb-tab-item" onclick="navigateTo('mb_data.html')">监测</div>
+      <div class="mb-tab-item" onclick="navigateTo('mb_ai.html')">AI助手</div>
+      <div class="mb-tab-item" onclick="navigateTo('mb_disease.html')">病虫害</div>
+      <div class="mb-tab-item active">我的</div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal">
+    <div class="modal-box">
+      <div class="modal-title" id="modalTitle">操作提示</div>
+      <div class="modal-content" id="modalContent">确定要退出登录吗？</div>
+      <div class="modal-btn-group">
+        <button class="modal-btn cancel" onclick="closeModal()">取消</button>
+        <button class="modal-btn confirm" onclick="doLogout()">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 帮助与反馈弹窗 -->
+  <div class="modal-overlay" id="feedbackModal">
+    <div class="info-modal-box">
+      <div class="info-modal-header">
+        <div class="info-modal-title">帮助与反馈</div>
+        <div class="info-modal-close" onclick="closeInfoModal('feedbackModal')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </div>
+      </div>
+      <div class="info-modal-body">
+        <div class="feedback-tags">
+          <div class="feedback-tag" data-type="bug" onclick="selectFeedbackType('bug')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            <span>问题反馈</span>
+          </div>
+          <div class="feedback-tag" data-type="feature" onclick="selectFeedbackType('feature')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            <span>功能建议</span>
+          </div>
+          <div class="feedback-tag" data-type="question" onclick="selectFeedbackType('question')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            <span>使用疑问</span>
+          </div>
+          <div class="feedback-tag" data-type="other" onclick="selectFeedbackType('other')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <span>其他</span>
+          </div>
+        </div>
+        <textarea class="textarea-box" id="feedbackContent" placeholder="请详细描述您的问题或建议（至少5个字符）..."></textarea>
+        <button class="mb-btn mb-btn-primary mb-btn-block" onclick="submitFeedback()">提交反馈</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 联系客服弹窗 -->
+  <div class="modal-overlay" id="contactModal">
+    <div class="info-modal-box">
+      <div class="info-modal-header">
+        <div class="info-modal-title">联系客服</div>
+        <div class="info-modal-close" onclick="closeInfoModal('contactModal')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </div>
+      </div>
+      <div class="info-modal-body">
+        <div class="info-contact-card">
+          <div class="info-contact-title">联系方式</div>
+          <div class="info-contact-item">
+            <div class="info-contact-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            </div>
+            <div class="info-contact-content">
+              <div class="info-contact-label">客服电话</div>
+              <div class="info-contact-value">0794-3226027</div>
+            </div>
+          </div>
+          <div class="info-contact-item">
+            <div class="info-contact-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M8 2v4"/><path d="M16 2v4"/><path d="M3 10h18"/></svg>
+            </div>
+            <div class="info-contact-content">
+              <div class="info-contact-label">电子邮箱</div>
+              <div class="info-contact-value">service@junongtong.com</div>
+            </div>
+          </div>
+        </div>
+        <div class="info-section">
+          <div class="info-section-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            服务时间
+          </div>
+          <div class="info-list">
+            <div class="info-list-item">工作日：09:00 - 17:30</div>
+            <div class="info-list-item">周末：10:00 - 16:00</div>
+            <div class="info-list-item">节假日：10:00 - 16:00</div>
+          </div>
+        </div>
+        <div class="info-section">
+          <div class="info-section-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/></svg>
+            在线服务
+          </div>
+          <div class="info-list">
+            <div class="info-list-item">微信公众号：桔农通服务号</div>
+            <div class="info-list-item">QQ群：123456789</div>
+            <div class="info-list-item">在线时间：工作日 9:00-17:00</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function navigateTo(page) { window.location.href = page; }
+
+    function openModal(title, content) {
+      document.getElementById('modalTitle').textContent = title;
+      document.getElementById('modalContent').textContent = content;
+      document.getElementById('modal').classList.add('show');
+    }
+
+    function closeModal() { document.getElementById('modal').classList.remove('show'); }
+
+    function confirmLogout() { openModal('退出登录', '确定要退出登录吗？'); }
+
+    function doLogout() {
+      sessionStorage.removeItem('isLoggedIn');
+      window.location.href = 'mb_home.html';
+    }
+
+    function openProfile() {
+      openModal('个人信息', '用户ID：NJ2026001\n角色：地块负责人\n负责区域：南丰县');
+    }
+
+    function showFeedbackModal() {
+      var modal = document.getElementById('feedbackModal');
+      modal.classList.add('show');
+      document.body.style.overflow = 'hidden';
+      modal.onclick = function(e) {
+        if (e.target === modal) {
+          closeInfoModal('feedbackModal');
+        }
+      };
+    }
+
+    function showContactModal() {
+      var modal = document.getElementById('contactModal');
+      modal.classList.add('show');
+      document.body.style.overflow = 'hidden';
+      modal.onclick = function(e) {
+        if (e.target === modal) {
+          closeInfoModal('contactModal');
+        }
+      };
+    }
+
+    function closeInfoModal(id) {
+      document.getElementById(id).classList.remove('show');
+      document.body.style.overflow = '';
+    }
+
+    function selectFeedbackType(type) {
+      document.querySelectorAll('.feedback-tag').forEach(el => {
+        el.classList.remove('active');
+      });
+      document.querySelector(`[data-type="${type}"]`).classList.add('active');
+    }
+
+    function submitFeedback() {
+      var content = document.getElementById('feedbackContent').value;
+      if (!content || content.trim().length < 5) {
+        alert('请输入详细的反馈内容（至少5个字符）');
+        return;
+      }
+      document.getElementById('feedbackContent').value = '';
+      document.querySelectorAll('.feedback-tag').forEach(el => {
+        el.classList.remove('active');
+      });
+      closeInfoModal('feedbackModal');
+      openModal('提交成功', '感谢您的宝贵意见，我们会尽快处理');
+      document.body.style.overflow = 'hidden';
+    }
+
+    (function() {
+      var app = document.querySelector('.mb-app');
+      setTimeout(function() {
+        app.classList.remove('loading');
+      }, 600);
+    })();
+  </script>
+</body>
+</html>

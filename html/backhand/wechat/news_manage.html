@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>微信后台 - 资讯管理</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { margin: 0; padding: 0; background: #f0f2f5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; }
+    .page-header { padding: 20px 24px; background: #fff; border-bottom: 1px solid #e8ecf1; display: flex; justify-content: space-between; align-items: center; }
+    .page-title { font-size: 18px; font-weight: 600; color: #1b2a41; }
+    .page-subtitle { font-size: 14px; color: #8898aa; margin-top: 4px; }
+    
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+    .modal-overlay.active { display: flex; }
+    .modal-content { background: #fff; border-radius: 8px; width: 90%; max-width: 700px; max-height: 90vh; overflow-y: auto; }
+    .modal-header { padding: 16px 20px; border-bottom: 1px solid #e8ecf1; display: flex; justify-content: space-between; align-items: center; }
+    .modal-title { font-size: 16px; font-weight: 600; color: #1b2a41; }
+    .modal-body { padding: 20px; }
+    .modal-footer { padding: 16px 20px; border-top: 1px solid #e8ecf1; display: flex; justify-content: flex-end; gap: 12px; }
+    
+    .form-item { margin-bottom: 16px; }
+    .form-label { display: block; font-size: 14px; font-weight: 500; color: #525f7f; margin-bottom: 6px; }
+    .form-input { width: 100%; padding: 10px 12px; border: 1px solid #e6ebf1; border-radius: 6px; font-size: 14px; outline: none; }
+    .form-input:focus { border-color: #22a84a; }
+    .form-select { width: 100%; padding: 10px 12px; border: 1px solid #e6ebf1; border-radius: 6px; font-size: 14px; outline: none; }
+    .form-select:focus { border-color: #22a84a; }
+    .form-textarea { width: 100%; padding: 10px 12px; border: 1px solid #e6ebf1; border-radius: 6px; font-size: 14px; outline: none; min-height: 150px; resize: vertical; }
+    
+    .btn { padding: 8px 16px; border-radius: 6px; font-size: 14px; cursor: pointer; border: none; transition: all 0.2s; }
+    .btn-primary { background: #22a84a; color: #fff; }
+    .btn-primary:hover { background: #1e9441; }
+    .btn-secondary { background: #fff; color: #525f7f; border: 1px solid #e6ebf1; }
+    .btn-secondary:hover { background: #f7f8fc; }
+    .btn-publish { background: #f59e0b; color: #fff; }
+    .btn-publish:hover { background: #d97706; }
+    
+    .card { background: #fff; border-radius: 8px; margin: 24px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+    
+    .search-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+    .search-input { flex: 1; max-width: 400px; padding: 8px 12px; border: 1px solid #e6ebf1; border-radius: 6px; font-size: 14px; }
+    .filter-select { padding: 8px 12px; border: 1px solid #e6ebf1; border-radius: 6px; font-size: 14px; }
+    
+    .table-wrapper { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid #f0f2f5; }
+    th { background: #f7f8fc; font-weight: 600; color: #525f7f; font-size: 13px; }
+    td { font-size: 14px; color: #1b2a41; }
+    
+    .category-tag { padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 500; }
+    .category-news { background: #dbeafe; color: #2563eb; }
+    .category-learning { background: #dcfce7; color: #16a34a; }
+    .category-video { background: #fef3c7; color: #d97706; }
+    .category-law { background: #fce7f3; color: #db2777; }
+    
+    .status-badge { padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 500; }
+    .status-draft { background: #f3f4f6; color: #6b7280; }
+    .status-published { background: #e6f7ee; color: #10b981; }
+    
+    .pagination { display: flex; justify-content: flex-end; align-items: center; gap: 8px; margin-top: 20px; }
+    .page-btn { padding: 6px 12px; border: 1px solid #e6ebf1; border-radius: 4px; cursor: pointer; font-size: 13px; }
+    .page-btn.active { background: #22a84a; color: #fff; border-color: #22a84a; }
+    
+    .detail-info { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .detail-item { padding: 10px; background: #f7f8fc; border-radius: 6px; }
+    .detail-label { font-size: 12px; color: #8898aa; margin-bottom: 4px; }
+    .detail-value { font-size: 14px; color: #1b2a41; }
+    .detail-content { padding: 16px; background: #f7f8fc; border-radius: 8px; margin-top: 12px; }
+  
+    .stats-card { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 24px; }
+    .stat-item { background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); display: flex; align-items: center; justify-content: space-between; }
+    .stat-info { text-align: left; }
+    .stat-number { font-size: 24px; font-weight: 700; color: #1b2a41; margin-bottom: 2px; }
+    .stat-label { font-size: 12px; color: #8898aa; }
+    .stat-icon { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .stat-icon svg { width: 20px; height: 20px; }
+    .stat-icon.news { background: #dbeafe; color: #2563eb; }
+    .stat-icon.learning { background: #dcfce7; color: #16a34a; }
+    .stat-icon.law { background: #fce7f3; color: #db2777; }
+    .stat-icon.video { background: #fef3c7; color: #d97706; }
+  </style>
+</head>
+<body>
+  <div class="page-header">
+    <div>
+      <div class="page-title">资讯管理</div>
+      <div class="page-subtitle">管理微信端的农技资讯内容</div>
+    </div>
+    <button class="btn btn-primary" onclick="openAddModal()">+ 新增资讯</button>
+  </div>
+
+  <div class="stats-card" id="statsCard">
+  </div>
+
+  <div class="card">
+    <div class="search-bar">
+      <input type="text" class="search-input" id="searchInput" placeholder="搜索资讯标题..." oninput="searchNews()">
+      <select class="filter-select" id="categoryFilter" onchange="filterNews()">
+        <option value="all">全部分类</option>
+        <option value="资讯">资讯</option>
+        <option value="学习">学习</option>
+        <option value="视频">视频</option>
+        <option value="法规">法规</option>
+      </select>
+      <select class="filter-select" id="statusFilter" onchange="filterNews()">
+        <option value="all">全部状态</option>
+        <option value="草稿">草稿</option>
+        <option value="已发布">已发布</option>
+      </select>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>标题</th>
+            <th>分类</th>
+            <th>发布时间</th>
+            <th>阅读量</th>
+            <th>状态</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="newsTable">
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination" id="pagination">
+    </div>
+  </div>
+
+  <!-- 新增/编辑弹窗 -->
+  <div id="add-modal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title" id="add-modal-title">新增资讯</div>
+        <button class="btn btn-secondary" onclick="closeModal('add-modal')">关闭</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="edit-id">
+        <div class="form-item">
+          <label class="form-label">标题 *</label>
+          <input type="text" class="form-input" id="add-title" placeholder="请输入资讯标题">
+        </div>
+        <div class="form-item">
+          <label class="form-label">分类 *</label>
+          <select class="form-select" id="add-category">
+            <option value="资讯">资讯</option>
+            <option value="学习">学习</option>
+            <option value="视频">视频</option>
+            <option value="法规">法规</option>
+          </select>
+        </div>
+        <div class="form-item">
+          <label class="form-label">摘要</label>
+          <textarea class="form-textarea" id="add-summary" placeholder="请输入资讯摘要"></textarea>
+        </div>
+        <div class="form-item">
+          <label class="form-label">内容 *</label>
+          <textarea class="form-textarea" id="add-content" placeholder="请输入资讯内容"></textarea>
+        </div>
+        <div class="form-item">
+          <label class="form-label">状态</label>
+          <select class="form-select" id="add-status">
+            <option value="草稿">草稿</option>
+            <option value="已发布">已发布</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('add-modal')">取消</button>
+        <button class="btn btn-primary" onclick="submitAdd()">确认</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 查看弹窗 -->
+  <div id="detail-modal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title">资讯详情</div>
+        <button class="btn btn-secondary" onclick="closeModal('detail-modal')">关闭</button>
+      </div>
+      <div class="modal-body" id="detail-content">
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('detail-modal')">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 发布弹窗 -->
+  <div id="publish-modal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title">确认发布</div>
+        <button class="btn btn-secondary" onclick="closeModal('publish-modal')">关闭</button>
+      </div>
+      <div class="modal-body">
+        <p>确定要发布资讯 <span id="publish-title" style="font-weight:bold;"></span> 吗？</p>
+        <p style="font-size:12px;color:#8898aa;margin-top:8px;">发布后用户将在微信小程序端看到该资讯</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('publish-modal')">取消</button>
+        <button class="btn btn-primary" onclick="submitPublish()">确认发布</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 删除弹窗 -->
+  <div id="delete-modal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title">确认删除</div>
+        <button class="btn btn-secondary" onclick="closeModal('delete-modal')">关闭</button>
+      </div>
+      <div class="modal-body">
+        <p>确定要删除资讯 <span id="delete-name" style="font-weight:bold;"></span> 吗？</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('delete-modal')">取消</button>
+        <button class="btn btn-primary" onclick="submitDelete()">确认删除</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var newsData = [
+      { id: 'nw-001', title: '南丰蜜桔夏季病虫害综合防治技术要点', category: '资讯', summary: '高温高湿天气易引发多种病虫害，需加强监测和防治工作。', content: '高温高湿天气易引发多种病虫害，需加强监测和防治工作。本文详细介绍了夏季常见病虫害的识别特征和防治方法，包括红蜘蛛、蚜虫、炭疽病等的防治要点。', publishTime: '2026-07-22 10:30', views: '3258', status: '已发布' },
+      { id: 'nw-002', title: '果实膨大期科学施肥指南', category: '学习', summary: '根据土壤养分状况，合理搭配氮磷钾肥料，促进果实膨大。', content: '根据土壤养分状况，合理搭配氮磷钾肥料，促进果实膨大，提高产量和品质。本文介绍了果实膨大期的施肥原则和方法。', publishTime: '2026-07-21 14:15', views: '2196', status: '已发布' },
+      { id: 'nw-003', title: '高温天气果园管理注意事项', category: '资讯', summary: '持续高温对蜜桔生长不利，需采取降温措施。', content: '持续高温对蜜桔生长不利，需采取降温措施，保护果树健康生长。本文介绍了高温天气下的果园管理措施。', publishTime: '2026-07-20 09:00', views: '1856', status: '已发布' },
+      { id: 'nw-004', title: '精准灌溉技术视频教程', category: '视频', summary: '学习精准灌溉技术在蜜桔种植中的应用。', content: '本视频详细介绍了精准灌溉技术在蜜桔种植中的应用，包括土壤湿度监测、智能灌溉系统操作等内容。', publishTime: '2026-07-19 16:30', views: '1562', status: '已发布' },
+      { id: 'nw-005', title: '南丰蜜桔品质提升关键技术', category: '学习', summary: '通过科学管理，提高蜜桔甜度和外观品质。', content: '通过科学管理，提高蜜桔甜度和外观品质，增强市场竞争力。本文介绍了品质提升的关键技术措施。', publishTime: '2026-07-18 11:20', views: '2081', status: '已发布' },
+      { id: 'nw-006', title: '农产品质量安全法解读', category: '法规', summary: '解读新修订的农产品质量安全法相关内容。', content: '解读新修订的农产品质量安全法相关内容，包括生产者责任、质量追溯、监管措施等方面的规定。', publishTime: '2026-07-17 13:00', views: '1256', status: '已发布' },
+      { id: 'nw-007', title: '蜜桔夏季高温热害防范与补救措施', category: '资讯', summary: '持续高温影响蜜桔生长，需及时采取降温措施。', content: '持续高温影响蜜桔生长，需及时采取降温措施，减轻热害影响。本文介绍了热害防范和补救措施。', publishTime: '2026-07-16 10:45', views: '2156', status: '已发布' },
+      { id: 'nw-008', title: '蜜桔夏季修剪技术视频', category: '视频', summary: '学习蜜桔夏季修剪的正确方法。', content: '本视频展示了蜜桔夏季修剪的正确方法，包括修剪工具使用、修剪原则、不同树形的修剪技巧等。', publishTime: '2026-07-15 15:30', views: '1723', status: '已发布' },
+      { id: 'nw-009', title: '红蜘蛛综合防治方案', category: '学习', summary: '红蜘蛛是夏季主要害虫，需综合运用多种防治方法。', content: '红蜘蛛是夏季主要害虫，需综合运用农业、物理和化学防治方法。本文介绍了红蜘蛛的综合防治方案。', publishTime: '2026-07-14 09:15', views: '2890', status: '已发布' },
+      { id: 'nw-010', title: '农药管理条例解读', category: '法规', summary: '解读农药管理条例的相关规定和要求。', content: '解读农药管理条例的相关规定和要求，包括农药登记、生产、经营、使用等方面的管理规定。', publishTime: '2026-07-13 14:00', views: '986', status: '已发布' },
+      { id: 'nw-011', title: '叶面喷肥技术详解', category: '学习', summary: '叶面喷肥可快速补充养分，提高肥料利用率。', content: '叶面喷肥可快速补充养分，提高肥料利用率，增强树势。本文详细介绍了叶面喷肥的技术要点。', publishTime: '2026-07-12 11:30', views: '1654', status: '草稿' },
+      { id: 'nw-012', title: '果园夏季排水管理', category: '资讯', summary: '夏季多雨需加强排水，防止根系积水导致烂根。', content: '夏季多雨需加强排水，防止根系积水导致烂根。本文介绍了果园排水系统的建设和维护方法。', publishTime: '2026-07-11 16:45', views: '1432', status: '已发布' },
+      { id: 'nw-013', title: '蜜桔采摘技术视频', category: '视频', summary: '学习蜜桔采摘的正确方法和注意事项。', content: '本视频介绍了蜜桔采摘的正确方法和注意事项，包括采摘时间选择、采摘工具使用、果实处理等。', publishTime: '2026-07-10 10:00', views: '1890', status: '已发布' },
+      { id: 'nw-014', title: '乡村振兴促进法学习', category: '法规', summary: '学习乡村振兴促进法的重要内容。', content: '学习乡村振兴促进法的重要内容，了解国家对乡村振兴的支持政策和措施。', publishTime: '2026-07-09 13:20', views: '1123', status: '已发布' },
+      { id: 'nw-015', title: '秋季施肥技术要点', category: '学习', summary: '秋季是蜜桔施肥的关键时期。', content: '秋季是蜜桔施肥的关键时期，合理施肥可为来年丰收打下基础。本文介绍了秋季施肥的技术要点。', publishTime: '2026-07-08 09:45', views: '1567', status: '草稿' },
+      { id: 'nw-016', title: '蜜桔冻害防范技术', category: '资讯', summary: '冬季来临，需做好冻害防范工作。', content: '冬季来临，需做好冻害防范工作，保护果树安全越冬。本文介绍了冻害防范的技术措施。', publishTime: '2026-07-07 14:30', views: '1234', status: '已发布' },
+      { id: 'nw-017', title: '病虫害识别视频教程', category: '视频', summary: '学习常见病虫害的识别方法。', content: '本视频教程介绍了南丰蜜桔常见病虫害的识别方法，包括症状特征、发生规律等内容。', publishTime: '2026-07-06 11:00', views: '2345', status: '已发布' },
+      { id: 'nw-018', title: '农产品认证管理办法', category: '法规', summary: '了解农产品认证的相关规定和流程。', content: '了解农产品认证的相关规定和流程，包括绿色食品认证、有机食品认证等。', publishTime: '2026-07-05 15:00', views: '876', status: '草稿' },
+      { id: 'nw-019', title: '蜜桔疏果技术要点', category: '学习', summary: '合理疏果可提高果实品质和产量。', content: '合理疏果可提高果实品质和产量，本文介绍了蜜桔疏果的技术要点和时间安排。', publishTime: '2026-07-04 10:30', views: '1789', status: '已发布' },
+      { id: 'nw-020', title: '生态种植模式探讨', category: '资讯', summary: '探讨蜜桔生态种植的新模式和方法。', content: '探讨蜜桔生态种植的新模式和方法，包括生物防治、有机种植、循环农业等方面的内容。', publishTime: '2026-07-03 16:15', views: '1456', status: '已发布' }
+    ];
+
+    var originalNews = JSON.parse(JSON.stringify(newsData));
+    var currentPage = 1;
+    var pageSize = 10;
+    var deleteTargetId = null;
+    var publishTargetId = null;
+
+    function renderStats() {
+      var newsCount = originalNews.filter(function(n) { return n.category === '资讯'; }).length;
+      var learningCount = originalNews.filter(function(n) { return n.category === '学习'; }).length;
+      var lawCount = originalNews.filter(function(n) { return n.category === '法规'; }).length;
+      var videoCount = originalNews.filter(function(n) { return n.category === '视频'; }).length;
+      
+      var statsCard = document.getElementById('statsCard');
+      statsCard.innerHTML = `
+        <div class="stat-item">
+          <div class="stat-info">
+            <div class="stat-number">${newsCount}</div>
+            <div class="stat-label">图文资讯</div>
+          </div>
+          <div class="stat-icon news">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+          </div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-info">
+            <div class="stat-number">${learningCount}</div>
+            <div class="stat-label">知识学习</div>
+          </div>
+          <div class="stat-icon learning">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+          </div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-info">
+            <div class="stat-number">${lawCount}</div>
+            <div class="stat-label">政策法规</div>
+          </div>
+          <div class="stat-icon law">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+          </div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-info">
+            <div class="stat-number">${videoCount}</div>
+            <div class="stat-label">视频教程</div>
+          </div>
+          <div class="stat-icon video">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          </div>
+        </div>
+      `;
+    }
+
+    function getCategoryClass(category) {
+      switch(category) {
+        case '资讯': return 'category-news';
+        case '学习': return 'category-learning';
+        case '视频': return 'category-video';
+        case '法规': return 'category-law';
+        default: return 'category-news';
+      }
+    }
+
+    function renderTable() {
+      var tbody = document.getElementById('newsTable');
+      tbody.innerHTML = '';
+      
+      var start = (currentPage - 1) * pageSize;
+      var end = start + pageSize;
+      var displayNews = newsData.slice(start, end);
+      
+      displayNews.forEach(function(n) {
+        var categoryClass = getCategoryClass(n.category);
+        var statusClass = n.status === '已发布' ? 'status-published' : 'status-draft';
+        var publishBtn = n.status === '草稿' ? `<button class="btn btn-publish" onclick="openPublishModal('${n.id}', '${n.title}')">发布</button>` : '';
+        tbody.innerHTML += `
+          <tr>
+            <td>${n.title}</td>
+            <td><span class="category-tag ${categoryClass}">${n.category}</span></td>
+            <td>${n.publishTime}</td>
+            <td>${n.views}</td>
+            <td><span class="status-badge ${statusClass}">${n.status}</span></td>
+            <td>
+              <button class="btn btn-secondary" onclick="openDetailModal('${n.id}')">查看</button>
+              <button class="btn btn-secondary" onclick="openEditModal('${n.id}')">编辑</button>
+              ${publishBtn}
+              <button class="btn btn-secondary" onclick="openDeleteModal('${n.id}', '${n.title}')">删除</button>
+            </td>
+          </tr>
+        `;
+      });
+      
+      renderPagination();
+    }
+
+    function renderPagination() {
+      var totalPages = Math.ceil(newsData.length / pageSize);
+      var pagination = document.getElementById('pagination');
+      pagination.innerHTML = '';
+      
+      if (currentPage > 1) {
+        pagination.innerHTML += `<button class="page-btn" onclick="goPage(${currentPage - 1})">上一页</button>`;
+      }
+      
+      for (var i = 1; i <= totalPages; i++) {
+        var active = i === currentPage ? 'active' : '';
+        pagination.innerHTML += `<button class="page-btn ${active}" onclick="goPage(${i})">${i}</button>`;
+      }
+      
+      if (currentPage < totalPages) {
+        pagination.innerHTML += `<button class="page-btn" onclick="goPage(${currentPage + 1})">下一页</button>`;
+      }
+    }
+
+    function goPage(page) {
+      currentPage = page;
+      renderTable();
+    }
+
+    function searchNews() {
+      var keyword = document.getElementById('searchInput').value.toLowerCase();
+      newsData = originalNews.filter(function(n) {
+        return n.title.toLowerCase().includes(keyword);
+      });
+      filterNews();
+    }
+
+    function filterNews() {
+      var category = document.getElementById('categoryFilter').value;
+      var status = document.getElementById('statusFilter').value;
+      
+      newsData = originalNews.filter(function(n) {
+        var matchCategory = category === 'all' || n.category === category;
+        var matchStatus = status === 'all' || n.status === status;
+        var keyword = document.getElementById('searchInput').value.toLowerCase();
+        var matchKeyword = !keyword || n.title.toLowerCase().includes(keyword);
+        return matchCategory && matchStatus && matchKeyword;
+      });
+      
+      currentPage = 1;
+      renderTable();
+    }
+
+    function openAddModal() {
+      document.getElementById('add-modal-title').textContent = '新增资讯';
+      document.getElementById('edit-id').value = '';
+      document.getElementById('add-title').value = '';
+      document.getElementById('add-category').value = '资讯';
+      document.getElementById('add-summary').value = '';
+      document.getElementById('add-content').value = '';
+      document.getElementById('add-status').value = '草稿';
+      document.getElementById('add-modal').classList.add('active');
+    }
+
+    function openEditModal(id) {
+      var n = newsData.find(function(item) { return item.id === id; });
+      if (!n) return;
+      document.getElementById('add-modal-title').textContent = '编辑资讯';
+      document.getElementById('edit-id').value = n.id;
+      document.getElementById('add-title').value = n.title;
+      document.getElementById('add-category').value = n.category;
+      document.getElementById('add-summary').value = n.summary;
+      document.getElementById('add-content').value = n.content;
+      document.getElementById('add-status').value = n.status;
+      document.getElementById('add-modal').classList.add('active');
+    }
+
+    function submitAdd() {
+      var id = document.getElementById('edit-id').value;
+      var title = document.getElementById('add-title').value.trim();
+      var category = document.getElementById('add-category').value;
+      var summary = document.getElementById('add-summary').value.trim();
+      var content = document.getElementById('add-content').value.trim();
+      var status = document.getElementById('add-status').value;
+      
+      if (!title || !content) {
+        alert('请填写必填项');
+        return;
+      }
+      
+      if (id) {
+        var index = originalNews.findIndex(function(item) { return item.id === id; });
+        if (index > -1) {
+          originalNews[index] = { ...originalNews[index], title, category, summary, content, status };
+        }
+      } else {
+        var newId = 'nw-' + String(originalNews.length + 1).padStart(3, '0');
+        var now = new Date();
+        var timeStr = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0') + ' ' + String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+        originalNews.unshift({ id: newId, title, category, summary, content, publishTime: timeStr, views: '0', status });
+      }
+      
+      closeModal('add-modal');
+      renderStats();
+      filterNews();
+      alert(id ? '编辑成功' : '新增成功');
+    }
+
+    function openDetailModal(id) {
+      var n = newsData.find(function(item) { return item.id === id; });
+      if (!n) return;
+      var categoryClass = getCategoryClass(n.category);
+      var statusClass = n.status === '已发布' ? 'status-published' : 'status-draft';
+      document.getElementById('detail-content').innerHTML = `
+        <div class="detail-info">
+          <div class="detail-item"><div class="detail-label">资讯ID</div><div class="detail-value">${n.id}</div></div>
+          <div class="detail-item"><div class="detail-label">标题</div><div class="detail-value">${n.title}</div></div>
+          <div class="detail-item"><div class="detail-label">分类</div><div class="detail-value"><span class="category-tag ${categoryClass}">${n.category}</span></div></div>
+          <div class="detail-item"><div class="detail-label">发布时间</div><div class="detail-value">${n.publishTime}</div></div>
+          <div class="detail-item"><div class="detail-label">阅读量</div><div class="detail-value">${n.views}</div></div>
+          <div class="detail-item"><div class="detail-label">状态</div><div class="detail-value"><span class="status-badge ${statusClass}">${n.status}</span></div></div>
+        </div>
+        <div class="detail-content">
+          <div style="font-size:12px;color:#8898aa;margin-bottom:8px;">摘要</div>
+          <div style="font-size:14px;color:#1b2a41;">${n.summary}</div>
+        </div>
+        <div class="detail-content">
+          <div style="font-size:12px;color:#8898aa;margin-bottom:8px;">内容</div>
+          <div style="font-size:14px;color:#1b2a41;line-height:1.6;">${n.content}</div>
+        </div>
+      `;
+      document.getElementById('detail-modal').classList.add('active');
+    }
+
+    function openPublishModal(id, title) {
+      publishTargetId = id;
+      document.getElementById('publish-title').textContent = title;
+      document.getElementById('publish-modal').classList.add('active');
+    }
+
+    function submitPublish() {
+      if (!publishTargetId) return;
+      var index = originalNews.findIndex(function(item) { return item.id === publishTargetId; });
+      if (index > -1) {
+        originalNews[index].status = '已发布';
+        var now = new Date();
+        originalNews[index].publishTime = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0') + ' ' + String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+      }
+      closeModal('publish-modal');
+      filterNews();
+      alert('发布成功');
+      publishTargetId = null;
+    }
+
+    function openDeleteModal(id, name) {
+      deleteTargetId = id;
+      document.getElementById('delete-name').textContent = name;
+      document.getElementById('delete-modal').classList.add('active');
+    }
+
+    function submitDelete() {
+      if (!deleteTargetId) return;
+      originalNews = originalNews.filter(function(item) { return item.id !== deleteTargetId; });
+      closeModal('delete-modal');
+      renderStats();
+      filterNews();
+      alert('删除成功');
+      deleteTargetId = null;
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('active');
+    }
+
+    renderStats();
+    renderTable();
+  </script>
+</body>
+</html>

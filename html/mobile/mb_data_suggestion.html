@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>桔农通 - 智能建议</title>
+  <link rel="stylesheet" href="css/mobile-design-system.css">
+  <style>
+    .page-header {
+      position: relative;
+      background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+      padding: 44px 16px 20px;
+      color: var(--bg-white);
+    }
+    
+    .header-back {
+      position: absolute;
+      left: 12px;
+      top: 44px;
+      width: 36px;
+      height: 36px;
+      background: rgba(255,255,255,0.2);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    
+    .header-back svg { width: 18px; height: 18px; }
+    
+    .header-content { padding-left: 44px; }
+    .header-title { font-size: var(--font-xl); font-weight: 700; }
+    .header-sub { font-size: var(--font-sm); opacity: 0.85; margin-top: 4px; }
+
+    .assistant-section { padding: 16px; }
+    
+    .assistant-card {
+      background: var(--bg-white);
+      border-radius: var(--radius-xl);
+      padding: 20px;
+      display: flex;
+      gap: 16px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-card);
+    }
+    
+    .assistant-avatar {
+      width: 72px; height: 72px;
+      border-radius: 50%;
+      background: var(--primary-100);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(46, 158, 90, 0.2);
+    }
+    
+    .assistant-info { flex: 1; }
+    
+    .assistant-name {
+      font-size: var(--font-base);
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    
+    .assistant-desc {
+      font-size: var(--font-xs);
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .card {
+      background: var(--bg-white);
+      border-radius: var(--radius-xl);
+      padding: 20px;
+      margin: 0 16px 16px;
+      box-shadow: var(--shadow-card);
+    }
+    
+    .card-title {
+      font-size: var(--font-base);
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .card-title svg {
+      width: 18px;
+      height: 18px;
+      color: var(--primary);
+    }
+
+    .form-item {
+      margin-bottom: 16px;
+    }
+    
+    .form-label {
+      font-size: var(--font-sm);
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+      display: block;
+    }
+    
+    .form-input {
+      width: 100%;
+      height: 44px;
+      padding: 0 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      font-size: var(--font-base);
+      color: var(--text);
+      background: var(--bg-white);
+      transition: all var(--transition-fast);
+      box-sizing: border-box;
+    }
+    
+    .form-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-light);
+    }
+    
+    .form-input::placeholder { color: var(--text-light); }
+    
+    .form-select {
+      height: 44px;
+      padding: 0 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      font-size: var(--font-base);
+      color: var(--text);
+      background: var(--bg-white);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    
+    .form-select:focus, .form-select:active {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-light);
+    }
+    
+    .form-select svg {
+      width: 16px;
+      height: 16px;
+      color: var(--text-light);
+    }
+    
+    .form-select-value {
+      color: var(--text-secondary);
+    }
+
+    .btn {
+      height: 48px;
+      border-radius: var(--radius-full);
+      font-size: var(--font-base);
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all var(--transition-fast);
+    }
+    
+    .btn:active { transform: scale(0.98); }
+    
+    .btn-block {
+      width: 100%;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+      color: var(--bg-white);
+      box-shadow: 0 4px 14px rgba(34, 168, 74, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    
+    .btn-primary svg { width: 18px; height: 18px; }
+
+    .questions-card {
+      background: var(--bg-white);
+      border-radius: var(--radius-xl);
+      padding: 20px;
+      margin: 0 16px 16px;
+      box-shadow: var(--shadow-card);
+    }
+    
+    .questions-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    
+    .questions-title {
+      font-size: var(--font-md);
+      font-weight: 600;
+      color: var(--text);
+    }
+    
+    .question-item {
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border-light);
+      cursor: pointer;
+      transition: background var(--transition-fast);
+    }
+    
+    .question-item:last-child { border-bottom: none; }
+    .question-item:active { background: var(--gray-50); }
+    
+    .question-text {
+      font-size: var(--font-sm);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    .modal-box {
+      background: var(--bg-white);
+      border-radius: var(--radius-xl);
+      padding: 32px 24px;
+      width: 85%;
+      max-width: 320px;
+      text-align: center;
+    }
+    
+    .modal-icon {
+      width: 72px;
+      height: 72px;
+      margin: 0 auto 16px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .modal-icon.success { background: var(--success-bg); }
+    .modal-icon.success svg { width: 40px; height: 40px; color: var(--success); }
+    
+    .modal-title {
+      font-size: var(--font-lg);
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 10px;
+    }
+    
+    .modal-desc {
+      font-size: var(--font-sm);
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+    
+    .modal-btn {
+      width: 100%;
+      height: 44px;
+      background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+      color: var(--bg-white);
+      border: none;
+      border-radius: var(--radius-full);
+      font-size: var(--font-base);
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    .suggestion-content {
+      background: var(--primary-light);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      text-align: left;
+      margin-top: 16px;
+    }
+    
+    .suggestion-title {
+      font-size: var(--font-sm);
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .suggestion-text {
+      font-size: var(--font-sm);
+      color: var(--text-secondary);
+      line-height: 1.6;
+      white-space: pre-line;
+    }
+
+    .picker-option {
+      padding: 14px;
+      border-radius: var(--radius-md);
+      background: var(--bg);
+      margin-bottom: 8px;
+      cursor: pointer;
+      font-size: var(--font-base);
+      color: var(--text);
+      transition: all var(--transition-fast);
+    }
+    
+    .picker-option:hover {
+      background: var(--primary-light);
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid var(--primary);
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    .skeleton-state { display: none; }
+    .mb-app.loading .real-content { display: none; }
+    .mb-app.loading .skeleton-state { display: block; }
+  </style>
+</head>
+<body>
+  <div class="mb-app loading">
+    <div class="skeleton-state">
+      <div class="page-header">
+        <div style="width:36px;height:36px;"></div>
+        <div class="header-content">
+          <div class="mb-skeleton" style="width:100px;height:24px;"></div>
+          <div class="mb-skeleton" style="width:160px;height:14px;margin-top:6px;"></div>
+        </div>
+      </div>
+      <div class="assistant-section">
+        <div class="assistant-card">
+          <div class="mb-skeleton" style="width:72px;height:72px;border-radius:50%;"></div>
+          <div style="flex:1;">
+            <div class="mb-skeleton" style="width:80px;height:16px;margin-bottom:4px;"></div>
+            <div class="mb-skeleton" style="width:100%;height:12px;margin-bottom:4px;"></div>
+            <div class="mb-skeleton" style="width:80%;height:12px;"></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="mb-skeleton" style="width:80px;height:16px;margin-bottom:16px;"></div>
+        <div class="mb-skeleton" style="width:100%;height:44px;border-radius:var(--radius-lg);margin-bottom:16px;"></div>
+        <div class="mb-skeleton" style="width:100%;height:44px;border-radius:var(--radius-lg);"></div>
+      </div>
+      <div class="questions-card">
+        <div class="mb-skeleton" style="width:100px;height:16px;margin-bottom:12px;"></div>
+        <div class="mb-skeleton-line long"></div>
+        <div class="mb-skeleton-line long"></div>
+        <div class="mb-skeleton-line long"></div>
+        <div class="mb-skeleton-line long"></div>
+      </div>
+      <div style="padding: 0 16px 16px;">
+        <div class="mb-skeleton" style="width:100%;height:48px;border-radius:var(--radius-full);"></div>
+      </div>
+    </div>
+
+    <div class="real-content">
+      <div class="page-header">
+      <div class="header-back" onclick="goBack()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M15 18l-6-6 6-6"/>
+        </svg>
+      </div>
+      <div class="header-content">
+        <div class="header-title">智能建议</div>
+        <div class="header-sub">AI助力科学种植决策</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          <path d="M9 12l2 2 4-4"/>
+        </svg>
+        土壤监测分析
+      </div>
+      <div class="form-item">
+        <label class="form-label">选择地块</label>
+        <div class="form-select" onclick="showPicker('orchard', this)">
+          <span class="form-select-value">请选择地块</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+      </div>
+      <div class="form-item">
+        <label class="form-label">土壤湿度(%)</label>
+        <input type="number" class="form-input" placeholder="请输入土壤湿度" id="moistureInput">
+      </div>
+      <button class="btn btn-primary btn-block" onclick="generateSuggestion()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 1 1 7.072 0l-.548.547A3.374 3.374 0 0 0 14 18.469V19a2 2 0 1 1-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+        </svg>
+        生成智能建议
+      </button>
+    </div>
+    </div>
+
+    <div class="modal-overlay" id="loadingModal">
+    <div class="modal-box">
+      <div class="modal-icon" style="background: var(--primary-light);">
+        <div class="loading-spinner"></div>
+      </div>
+      <div class="modal-title">AI正在分析...</div>
+      <div class="modal-desc">请稍候，正在生成智能建议</div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="resultModal">
+    <div class="modal-box" style="text-align: left;">
+      <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <div class="modal-title" style="margin-bottom: 0;">智能建议结果</div>
+        <div class="modal-close" onclick="closeResultModal()" style="cursor: pointer;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </div>
+      </div>
+      <div class="suggestion-content">
+        <div class="suggestion-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <path d="M9 12l2 2 4-4"/>
+          </svg>
+          AI分析建议
+        </div>
+        <div class="suggestion-text" id="suggestionText"></div>
+      </div>
+      <button class="modal-btn" onclick="closeResultModal()" style="margin-top: 20px;">已了解</button>
+    </div>
+  </div>
+
+  <script>
+    var currentPickerTarget;
+    
+    var pickerData = {
+      orchard: ['1号早熟蜜桔区', '2号中熟蜜桔区', '3号晚熟蜜桔区', '4号试验田']
+    };
+
+    var hotQuestions = {
+      q1: '根据南丰蜜桔夏季生长特点，病虫害防治要点如下：\n\n**一、主要病虫害**\n1. **黄龙病**：由柑桔木虱传播，是毁灭性病害\n2. **溃疡病**：高温多雨易爆发\n3. **潜叶蛾**：危害新梢嫩叶\n4. **红蜘蛛**：高温干旱易发生\n\n**二、防治措施**\n1. 加强果园通风透光\n2. 及时清除病虫枝\n3. 科学使用农药，轮换用药\n4. 保护天敌，生物防治\n\n**三、药剂选择**\n- 杀菌剂：代森锰锌、多菌灵等\n- 杀虫剂：阿维菌素、吡虫啉等',
+      q2: '提高南丰蜜桔果实品质需要综合管理：\n\n**一、品种优化**\n- 选择优良品种如南丰蜜桔早熟系\n- 保持品种纯度\n\n**二、果园管理**\n1. 合理密植，保证通风透光\n2. 科学修剪，改善光照条件\n3. 疏花疏果，保持合理负载\n\n**三、水肥管理**\n1. 增施有机肥，改善土壤结构\n2. 注重钾肥和钙肥的使用\n3. 适时灌溉，保持土壤湿润\n\n**四、病虫害防治**\n- 综合防治，减少病虫危害\n- 合理使用农药，遵守安全间隔期',
+      q3: '南丰蜜桔施肥应根据生长周期科学安排：\n\n**一、基肥（最重要）**\n- 时间：秋季落叶后至封冻前\n- 肥料：以有机肥为主，配合磷钾肥\n\n**二、追肥**\n1. 萌芽前追肥（3月）：氮肥为主\n2. 花后追肥（4月下旬）：氮磷钾复合肥\n3. 果实膨大期追肥（6-7月）：钾肥为主\n4. 花芽分化期追肥（8月）：磷钾肥为主\n\n**三、叶面喷肥**\n- 花期：喷硼肥，提高坐果率\n- 幼果期：喷钙肥，预防裂果\n- 生长期：喷磷酸二氢钾，增强树势',
+      q4: '南丰蜜桔果园科学灌溉要点：\n\n**一、灌溉时期**\n1. 萌芽开花期（3-4月）：保持土壤湿润\n2. 果实膨大期（6-8月）：保证充足水分\n3. 花芽分化期（9月）：适度控水\n4. 采前控水（10月）：提高果实品质\n\n**二、灌溉方式**\n1. 滴灌：节水高效，保持土壤湿润\n2. 喷灌：适合大面积果园\n3. 沟灌：传统方式，注意排水\n\n**三、灌溉原则**\n1. 少量多次，避免大水漫灌\n2. 避免中午高温灌溉\n3. 雨季注意排水，防止积水\n4. 根据土壤墒情合理灌溉'
+    };
+    
+    function goBack() { window.history.back(); }
+    function navigateTo(page) { window.location.href = page; }
+    
+    function showPicker(type, target) {
+      currentPickerTarget = target;
+      document.getElementById('pickerTitle').textContent = '请选择地块';
+      var content = '';
+      pickerData[type].forEach(function(item) {
+        content += '<div class="picker-option" onclick="selectPickerValue(\'' + item + '\')">' + item + '</div>';
+      });
+      document.getElementById('pickerContent').innerHTML = content;
+      document.getElementById('pickerModal').classList.add('show');
+    }
+    
+    function selectPickerValue(value) {
+      currentPickerTarget.querySelector('.form-select-value').textContent = value;
+      currentPickerTarget.querySelector('.form-select-value').style.color = 'var(--text)';
+      closePicker();
+    }
+    
+    function closePicker() {
+      document.getElementById('pickerModal').classList.remove('show');
+    }
+    
+    function generateSuggestion() {
+      var moisture = document.getElementById('moistureInput').value;
+      if (!moisture) {
+        alert('请输入土壤湿度');
+        return;
+      }
+      
+      document.getElementById('loadingModal').classList.add('show');
+      
+      setTimeout(function() {
+        document.getElementById('loadingModal').classList.remove('show');
+        
+        var moistureValue = parseFloat(moisture);
+        var suggestion = '';
+        
+        if (moistureValue < 40) {
+          suggestion = '根据您输入的土壤湿度（' + moistureValue + '%），当前土壤处于干旱状态，建议立即进行滴灌灌溉，灌水量约为每亩30-40立方米。同时建议叶面喷施0.2%磷酸二氢钾溶液，缓解干旱对果树的影响。注意在早晚时段灌溉，避免中午高温浇水。';
+        } else if (moistureValue < 60) {
+          suggestion = '根据您输入的土壤湿度（' + moistureValue + '%），当前土壤湿度适中，建议保持正常灌溉管理。近期可进行叶面喷肥，补充微量元素，促进果实膨大。注意观察天气预报，做好暴雨防范准备。';
+        } else {
+          suggestion = '根据您输入的土壤湿度（' + moistureValue + '%），当前土壤湿度充足，建议适当减少灌水量，注意果园排水，防止根系积水。可进行适度修剪，增加通风透光，预防病害发生。';
+        }
+        
+        document.getElementById('suggestionText').textContent = suggestion;
+        document.getElementById('resultModal').classList.add('show');
+      }, 2000);
+    }
+    
+    function closeResultModal() {
+      document.getElementById('resultModal').classList.remove('show');
+    }
+    
+    function showHotQuestion(qId) {
+      var raw = hotQuestions[qId];
+      var html = raw.replace(/\*\*(.+?)\*\*/g, '<strong style="color: var(--text);">$1</strong>');
+      document.getElementById('suggestionText').innerHTML = html;
+      document.getElementById('resultModal').classList.add('show');
+    }
+
+    (function() {
+      var app = document.querySelector('.mb-app');
+      setTimeout(function() {
+        app.classList.remove('loading');
+      }, 600);
+    })();
+  </script>
+</body>
+</html>

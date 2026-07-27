@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>预警模板 - 南丰蜜桔模型管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        body { margin: 0; padding: 0; background-color: #F0F2F5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans SC', sans-serif; }
+        .content-wrapper { padding: 24px; height: 100vh; overflow-y: auto; }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.5); z-index: 1000; align-items: center; justify-content: center; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background-color: white; border-radius: 12px; width: 90%; max-width: 600px; max-height: 85vh; overflow-y: auto; }
+        .pagination-btn.active { background-color: #16A34A; color: white; border-color: #16A34A; }
+    </style>
+</head>
+<body>
+    <div class="content-wrapper">
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800">预警模板</h1>
+                <p class="text-gray-500 mt-1">设置预警消息的发送内容模板</p>
+            </div>
+            <div class="flex items-center space-x-2">
+                <button onclick="openAddModal()" class="px-4 py-2 text-white rounded-lg text-sm hover:bg-green-700 flex items-center transition" style="background-color: #16A34A;">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    新增模板
+                </button>
+                <button onclick="openFlowSettingModal()" class="px-4 py-2 text-white rounded-lg text-sm hover:bg-blue-700 flex items-center transition" style="background-color: #2563EB;">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                    流程设置
+                </button>
+            </div>
+        </div>
+
+        <!-- 统计数据 -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">模板总数</p>
+                        <h3 class="text-2xl font-bold text-gray-800 mt-1" id="stat-total">35</h3>
+                    </div>
+                    <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">已启用</p>
+                        <h3 class="text-2xl font-bold text-green-600 mt-1" id="stat-enabled">28</h3>
+                    </div>
+                    <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                        <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">已禁用</p>
+                        <h3 class="text-2xl font-bold text-gray-600 mt-1" id="stat-disabled">4</h3>
+                    </div>
+                    <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+                        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">待审核</p>
+                        <h3 class="text-2xl font-bold text-orange-600 mt-1" id="stat-pending">3</h3>
+                    </div>
+                    <div class="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
+                        <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 搜索栏 -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 mb-6">
+            <div class="p-4 border-b border-gray-100">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                    <div class="flex flex-wrap gap-3">
+                        <div class="relative">
+                            <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                            <input type="text" id="search-keyword" placeholder="搜索模板名称" class="w-64 pl-9 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500" oninput="filterTemplates()">
+                        </div>
+                        <select id="search-status" class="px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500" onchange="filterTemplates()">
+                            <option value="">全部状态</option>
+                            <option value="已启用">已启用</option>
+                            <option value="已禁用">已禁用</option>
+                            <option value="待审核">待审核</option>
+                        </select>
+                        <select id="search-level" class="px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500" onchange="filterTemplates()">
+                            <option value="">全部级别</option>
+                            <option value="红色预警">红色预警</option>
+                            <option value="橙色预警">橙色预警</option>
+                            <option value="黄色预警">黄色预警</option>
+                            <option value="蓝色预警">蓝色预警</option>
+                            <option value="普通消息">普通消息</option>
+                        </select>
+                    </div>
+                    <button onclick="resetSearch()" class="px-4 py-2 border border-gray-300 text-gray-600 rounded-lg text-sm hover:bg-gray-50">重置</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 数据列表 -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">模板名称</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">适用级别</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">发送渠道</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">创建时间</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100" id="template-table-body"></tbody>
+                </table>
+                <div id="empty-tip" class="hidden py-12 text-center text-gray-400 text-sm">
+                    <p>暂无匹配的模板数据</p>
+                </div>
+            </div>
+
+            <!-- 分页 -->
+            <div class="px-6 py-4 border-t border-gray-100 flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <p class="text-sm text-gray-500" id="page-info">共 0 条记录</p>
+                    <select id="page-size" onchange="changePageSize()" class="px-2 py-1 border border-gray-300 rounded text-sm text-gray-600">
+                        <option value="5">5条/页</option>
+                        <option value="10">10条/页</option>
+                        <option value="20">20条/页</option>
+                    </select>
+                </div>
+                <div class="flex items-center space-x-2" id="pagination"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新增模板弹窗 -->
+    <div id="add-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    新增模板
+                </h3>
+                <button onclick="closeModal('add-modal')" class="p-1 hover:bg-gray-100 rounded">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">模板名称 <span class="text-red-500">*</span></label>
+                        <input type="text" id="add-name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="请输入模板名称">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">适用级别 <span class="text-red-500">*</span></label>
+                        <select id="add-level" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                            <option value="红色预警">红色预警</option>
+                            <option value="橙色预警">橙色预警</option>
+                            <option value="黄色预警">黄色预警</option>
+                            <option value="蓝色预警">蓝色预警</option>
+                            <option value="普通消息">普通消息</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">发送渠道</label>
+                        <select id="add-channel" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                            <option value="短信">短信</option>
+                            <option value="APP推送">APP推送</option>
+                            <option value="微信小程序">微信小程序</option>
+                            <option value="短信+APP">短信+APP</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">模板内容 <span class="text-red-500">*</span></label>
+                        <textarea id="add-content" rows="4" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="请输入模板内容，如：【南丰蜜桔】尊敬的{name}，您果园检测到{alert}，请及时处理。"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="p-4 border-t border-gray-200 flex justify-end space-x-3">
+                <button onclick="closeModal('add-modal')" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm">取消</button>
+                <button onclick="submitAdd()" class="px-4 py-2 text-white rounded-lg hover:bg-green-700 text-sm" style="background-color: #16A34A;">确认添加</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑模板弹窗 -->
+    <div id="edit-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                    编辑模板
+                </h3>
+                <button onclick="closeModal('edit-modal')" class="p-1 hover:bg-gray-100 rounded">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">模板名称 <span class="text-red-500">*</span></label>
+                        <input type="text" id="edit-name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">适用级别 <span class="text-red-500">*</span></label>
+                        <select id="edit-level" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                            <option value="红色预警">红色预警</option>
+                            <option value="橙色预警">橙色预警</option>
+                            <option value="黄色预警">黄色预警</option>
+                            <option value="蓝色预警">蓝色预警</option>
+                            <option value="普通消息">普通消息</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">发送渠道</label>
+                        <select id="edit-channel" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                            <option value="短信">短信</option>
+                            <option value="APP推送">APP推送</option>
+                            <option value="微信小程序">微信小程序</option>
+                            <option value="短信+APP">短信+APP</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">模板内容 <span class="text-red-500">*</span></label>
+                        <textarea id="edit-content" rows="4" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">状态</label>
+                        <select id="edit-status" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                            <option value="已启用">已启用</option>
+                            <option value="已禁用">已禁用</option>
+                            <option value="待审核">待审核</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="p-4 border-t border-gray-200 flex justify-end space-x-3">
+                <button onclick="closeModal('edit-modal')" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm">取消</button>
+                <button onclick="submitEdit()" class="px-4 py-2 text-white rounded-lg hover:bg-green-700 text-sm" style="background-color: #16A34A;">保存修改</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 审核模板弹窗 -->
+    <div id="audit-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    审核模板
+                </h3>
+                <button onclick="closeModal('audit-modal')" class="p-1 hover:bg-gray-100 rounded">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="mb-4">
+                    <p class="text-sm text-gray-500 mb-1">模板名称</p>
+                    <p id="audit-name" class="text-base font-medium text-gray-800 bg-gray-50 px-3 py-2 rounded"></p>
+                </div>
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <p class="text-sm text-gray-500 mb-1">适用级别</p>
+                        <p id="audit-level" class="text-sm text-gray-800 bg-gray-50 px-3 py-2 rounded"></p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500 mb-1">发送渠道</p>
+                        <p id="audit-channel" class="text-sm text-gray-800 bg-gray-50 px-3 py-2 rounded"></p>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <p class="text-sm text-gray-500 mb-1">模板内容</p>
+                    <p id="audit-content" class="text-sm text-gray-800 bg-gray-50 px-3 py-3 rounded leading-relaxed"></p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500 mb-1">审核意见</p>
+                    <textarea id="audit-comment" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="请输入审核意见（可选）"></textarea>
+                </div>
+            </div>
+            <div class="p-4 border-t border-gray-200 flex justify-end space-x-3">
+                <button onclick="closeModal('audit-modal')" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm">取消</button>
+                <button onclick="rejectAudit()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm">驳回</button>
+                <button onclick="approveAudit()" class="px-4 py-2 text-white rounded-lg hover:bg-green-700 text-sm" style="background-color: #16A34A;">通过审核</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 删除确认弹窗 -->
+    <div id="delete-modal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    删除确认
+                </h3>
+                <button onclick="closeModal('delete-modal')" class="p-1 hover:bg-gray-100 rounded">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
+                        <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.66 1.732-3L13.732 4c-.77-1.34-2.694-1.34-3.464 0L3.34 16c-.77 1.34.192 3 1.732 3z"/></svg>
+                    </div>
+                    <div>
+                        <p class="font-medium text-gray-800">确认删除该模板？</p>
+                        <p class="text-sm text-gray-500 mt-1">删除后将无法恢复，请谨慎操作。</p>
+                    </div>
+                </div>
+                <p class="text-sm text-gray-600">要删除的模板：<span id="delete-name" class="font-medium text-gray-800"></span></p>
+            </div>
+            <div class="p-4 border-t border-gray-200 flex justify-end space-x-3">
+                <button onclick="closeModal('delete-modal')" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm">取消</button>
+                <button onclick="submitDelete()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm">确认删除</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 流程设置弹窗 -->
+    <div id="flow-setting-modal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                    流程设置
+                </h3>
+                <button onclick="closeModal('flow-setting-modal')" class="p-1 hover:bg-gray-100 rounded">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">审批流程</label>
+                        <select id="flow-approval" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                            <option value="一级审批">一级审批（直接审批）</option>
+                            <option value="二级审批">二级审批（主管+经理）</option>
+                            <option value="三级审批">三级审批（主管+经理+总监）</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">发送流程</label>
+                        <select id="flow-send" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                            <option value="审核后发送">审核后立即发送</option>
+                            <option value="定时发送">定时发送</option>
+                            <option value="手动触发">手动触发发送</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">重试机制</label>
+                        <select id="flow-retry" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                            <option value="不重试">不重试</option>
+                            <option value="重试1次">重试1次</option>
+                            <option value="重试3次">重试3次（间隔5分钟）</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">通知方式</label>
+                        <div class="space-y-2">
+                            <label class="flex items-center"><input type="checkbox" id="flow-notify-sms" checked class="mr-2"> 短信通知</label>
+                            <label class="flex items-center"><input type="checkbox" id="flow-notify-app" checked class="mr-2"> APP推送</label>
+                            <label class="flex items-center"><input type="checkbox" id="flow-notify-wechat" class="mr-2"> 微信通知</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="p-4 border-t border-gray-200 flex justify-end space-x-3">
+                <button onclick="closeModal('flow-setting-modal')" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm">取消</button>
+                <button onclick="saveFlowSetting()" class="px-4 py-2 text-white rounded-lg hover:bg-blue-700 text-sm" style="background-color: #2563EB;">保存设置</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 内容设置弹窗 -->
+    <div id="content-setting-modal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    内容设置 - <span id="content-setting-name" class="text-green-600"></span>
+                </h3>
+                <button onclick="closeModal('content-setting-modal')" class="p-1 hover:bg-gray-100 rounded">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">短信内容模板</label>
+                        <textarea id="content-sms" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm" placeholder="短信发送内容模板..."></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">APP推送内容</label>
+                        <textarea id="content-app" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm" placeholder="APP推送内容模板..."></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">微信小程序内容</label>
+                        <textarea id="content-wechat" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm" placeholder="微信小程序推送内容模板..."></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">附加参数</label>
+                        <div class="flex flex-wrap gap-2" id="content-params">
+                            <span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">{name}</span>
+                            <span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">{alert}</span>
+                            <span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">{value}</span>
+                            <span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">{time}</span>
+                            <span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">{area}</span>
+                            <span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">{action}</span>
+                            <span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">{date}</span>
+                            <span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">{temp}</span>
+                            <span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">{rain}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="p-4 border-t border-gray-200 flex justify-end space-x-3">
+                <button onclick="closeModal('content-setting-modal')" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm">取消</button>
+                <button onclick="saveContentSetting()" class="px-4 py-2 text-white rounded-lg hover:bg-purple-700 text-sm" style="background-color: #7C3AED;">保存内容设置</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const LEVEL_STYLES = {
+            '红色预警': 'bg-red-100 text-red-700',
+            '橙色预警': 'bg-orange-100 text-orange-700',
+            '黄色预警': 'bg-yellow-100 text-yellow-700',
+            '蓝色预警': 'bg-blue-100 text-blue-700',
+            '普通消息': 'bg-gray-100 text-gray-700'
+        };
+        const STATUS_STYLES = {
+            '已启用': 'bg-green-100 text-green-700',
+            '已禁用': 'bg-gray-100 text-gray-700',
+            '待审核': 'bg-orange-100 text-orange-700'
+        };
+
+        let templates = [
+            { id: 1, name: '病虫害预警模板', level: '红色预警', channel: '短信+APP', status: '已启用', content: '【南丰蜜桔】尊敬的{name}，您果园检测到{alert}，虫口密度{value}，已超出预警阈值，请于{time}前进行防治处理。', created: '2026-07-15 09:30' },
+            { id: 2, name: '气象灾害预警模板', level: '橙色预警', channel: '短信', status: '已启用', content: '【南丰蜜桔】{area}预计出现{alert}，请及时做好防护措施，联系电话：0794-XXXXXXX。', created: '2026-07-14 14:20' },
+            { id: 3, name: '长势异常预警模板', level: '黄色预警', channel: 'APP推送', status: '已启用', content: '【南丰蜜桔】您的果园{area}检测到{alert}，建议{action}，详情请查看APP。', created: '2026-07-13 10:15' },
+            { id: 4, name: '品质预警模板', level: '蓝色预警', channel: '微信小程序', status: '已启用', content: '【南丰蜜桔】采前品质检测：{metric}为{value}，低于标准值，请关注果实品质。', created: '2026-07-12 16:45' },
+            { id: 5, name: '农事提醒模板', level: '普通消息', channel: 'APP推送', status: '已启用', content: '【南丰蜜桔】提醒：{date} {action}，请按时执行农事操作。', created: '2026-07-11 09:00' },
+            { id: 6, name: '高温热害预警模板', level: '红色预警', channel: '短信+APP', status: '已启用', content: '【南丰蜜桔】高温红色预警！预计最高气温{temp}°C，请立即采取遮阳、喷水降温措施。', created: '2026-07-10 11:30' },
+            { id: 7, name: '暴雨洪涝预警模板', level: '橙色预警', channel: '短信', status: '已启用', content: '【南丰蜜桔】暴雨橙色预警：预计{area}降雨量{rain}mm，请提前疏通排水沟渠。', created: '2026-07-09 14:00' },
+            { id: 8, name: '寒潮低温预警模板', level: '黄色预警', channel: '短信', status: '已禁用', content: '【南丰蜜桔】寒潮预警：预计最低气温{temp}°C，请做好防冻保暖措施。', created: '2026-07-08 10:20' },
+            { id: 9, name: '台风预警模板', level: '蓝色预警', channel: '短信+APP', status: '待审核', content: '【南丰蜜桔】台风预警：预计{level}级台风影响{area}，请加固果园设施。', created: '2026-07-07 15:30' },
+            { id: 10, name: '红蜘蛛防治模板', level: '红色预警', channel: '短信', status: '已启用', content: '【南丰蜜桔】红蜘蛛预警：虫口密度{value}头/叶，建议使用阿维菌素或螺螨酯进行防治。', created: '2026-07-06 09:15' },
+            { id: 11, name: '锈壁虱防治模板', level: '橙色预警', channel: 'APP推送', status: '已启用', content: '【南丰蜜桔】锈壁虱预警：监测到{value}头/视野，建议及时喷施螺螨酯。', created: '2026-07-05 11:00' },
+            { id: 12, name: '潜叶蛾防治模板', level: '黄色预警', channel: '微信小程序', status: '已启用', content: '【南丰蜜桔】潜叶蛾预警：新梢受害率{value}%，建议喷施氯氰菊酯防治。', created: '2026-07-04 14:30' },
+            { id: 13, name: '炭疽病防治模板', level: '橙色预警', channel: '短信', status: '已启用', content: '【南丰蜜桔】炭疽病预警：病叶率{value}%，建议喷施咪鲜胺或代森锰锌。', created: '2026-07-03 10:00' },
+            { id: 14, name: '溃疡病防治模板', level: '红色预警', channel: '短信+APP', status: '已启用', content: '【南丰蜜桔】溃疡病预警：病叶率{value}%，台风暴雨后高发，建议喷施铜制剂。', created: '2026-07-02 09:00' },
+            { id: 15, name: '缺素症提醒模板', level: '蓝色预警', channel: 'APP推送', status: '已启用', content: '【南丰蜜桔】营养检测：{element}含量{value}，低于标准值，建议补充{element}肥。', created: '2026-07-01 16:00' },
+            { id: 16, name: '土壤干旱预警模板', level: '黄色预警', channel: '短信', status: '已启用', content: '【南丰蜜桔】土壤干旱预警：土壤湿度{value}%，低于25%，请及时灌溉。', created: '2026-06-30 10:30' },
+            { id: 17, name: '裂果预警模板', level: '橙色预警', channel: '短信+APP', status: '已启用', content: '【南丰蜜桔】裂果预警：干旱后预计降雨{rain}mm，裂果风险较高，请保持水分均衡。', created: '2026-06-29 14:00' },
+            { id: 18, name: '异常落果预警模板', level: '红色预警', channel: '短信', status: '已启用', content: '【南丰蜜桔】异常落果预警：单株落果率{value}%，请排查原因并及时处理。', created: '2026-06-28 09:30' },
+            { id: 19, name: '糖度偏低预警模板', level: '蓝色预警', channel: '微信小程序', status: '已启用', content: '【南丰蜜桔】品质预警：预测糖度{value}°Bx，低于11°Bx标准，建议增施钾肥。', created: '2026-06-27 11:00' },
+            { id: 20, name: '果径偏小预警模板', level: '黄色预警', channel: 'APP推送', status: '已启用', content: '【南丰蜜桔】果径预警：平均果径{value}mm，低于35mm标准，建议疏果增肥。', created: '2026-06-26 15:30' },
+            { id: 21, name: '粉虱防治模板', level: '黄色预警', channel: '短信', status: '已启用', content: '【南丰蜜桔】粉虱预警：虫口密度{value}头/叶，建议黄板诱杀+吡虫啉喷雾。', created: '2026-06-25 10:00' },
+            { id: 22, name: '蚜虫防治模板', level: '黄色预警', channel: 'APP推送', status: '已启用', content: '【南丰蜜桔】蚜虫预警：新梢受害率{value}%，建议喷施吡虫啉或啶虫脒。', created: '2026-06-24 13:00' },
+            { id: 23, name: '黑星病防治模板', level: '蓝色预警', channel: '微信小程序', status: '已禁用', content: '【南丰蜜桔】黑星病预警：病果率{value}%，建议喷施苯醚甲环唑防治。', created: '2026-06-23 09:00' },
+            { id: 24, name: '树脂病防治模板', level: '橙色预警', channel: '短信', status: '已启用', content: '【南丰蜜桔】树脂病预警：病枝率{value}%，高温多雨季节注意防治，建议修剪病枝。', created: '2026-06-22 14:30' },
+            { id: 25, name: '冰雹预警模板', level: '红色预警', channel: '短信+APP', status: '已启用', content: '【南丰蜜桔】冰雹红色预警：强对流天气，{area}可能出现冰雹，请做好防护。', created: '2026-06-21 10:00' },
+            { id: 26, name: '连阴雨预警模板', level: '黄色预警', channel: '短信', status: '已启用', content: '【南丰蜜桔】连阴雨预警：预计连续阴雨{days}天，注意病害防治和排水。', created: '2026-06-20 11:00' },
+            { id: 27, name: '树势衰弱预警模板', level: '橙色预警', channel: 'APP推送', status: '已启用', content: '【南丰蜜桔】树势预警：叶色黄化率{value}%，建议追施肥料改善树势。', created: '2026-06-19 15:00' },
+            { id: 28, name: '根系缺氧预警模板', level: '黄色预警', channel: '微信小程序', status: '已启用', content: '【南丰蜜桔】根系预警：土壤氧含量{value}%，雨后积水，请及时排水松土。', created: '2026-06-18 09:30' },
+            { id: 29, name: '果实畸形预警模板', level: '蓝色预警', channel: 'APP推送', status: '待审核', content: '【南丰蜜桔】畸形果预警：畸形果率{value}%，建议排查营养失衡和虫害因素。', created: '2026-06-17 10:00' },
+            { id: 30, name: '酸度偏高预警模板', level: '蓝色预警', channel: '微信小程序', status: '已启用', content: '【南丰蜜桔】酸度预警：酸度{value}%，高于1.2%标准，建议适当延迟采收。', created: '2026-06-16 14:00' },
+            { id: 31, name: '蒂腐病防治模板', level: '蓝色预警', channel: '短信', status: '已禁用', content: '【南丰蜜桔】蒂腐病预警：病蒂率{value}%，成熟期注意防治，建议喷施杀菌剂。', created: '2026-06-15 09:00' },
+            { id: 32, name: '脚腐病防治模板', level: '黄色预警', channel: 'APP推送', status: '已启用', content: '【南丰蜜桔】脚腐病预警：病株率{value}%，低洼地块注意排水，刮治涂药。', created: '2026-06-14 11:30' },
+            { id: 33, name: '缺镁预警模板', level: '蓝色预警', channel: '微信小程序', status: '已启用', content: '【南丰蜜桔】缺镁预警：叶片含镁量{value}%，建议喷施硫酸镁叶面肥。', created: '2026-06-13 10:00' },
+            { id: 34, name: '日灼果预警模板', level: '黄色预警', channel: '短信+APP', status: '待审核', content: '【南丰蜜桔】日灼预警：果面温度{value}°C，阳光直射强烈，建议遮阳防晒。', created: '2026-06-12 14:30' },
+            { id: 35, name: '可溶性固形物预警模板', level: '黄色预警', channel: 'APP推送', status: '已启用', content: '【南丰蜜桔】固形物预警：含量{value}%，低于10%标准，建议加强营养管理。', created: '2026-06-11 09:00' }
+        ];
+
+        let currentPage = 1;
+        let pageSize = 5;
+        let filteredTemplates = templates.slice();
+        let editTargetId = null;
+        let deleteTargetId = null;
+        let auditTargetId = null;
+
+        function escapeHtml(str) {
+            if (str === null || str === undefined) return '';
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+
+        function updateStats() {
+            document.getElementById('stat-total').textContent = templates.length;
+            document.getElementById('stat-enabled').textContent = templates.filter(t => t.status === '已启用').length;
+            document.getElementById('stat-disabled').textContent = templates.filter(t => t.status === '已禁用').length;
+            document.getElementById('stat-pending').textContent = templates.filter(t => t.status === '待审核').length;
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('template-table-body');
+            const emptyTip = document.getElementById('empty-tip');
+            const total = filteredTemplates.length;
+            const totalPages = Math.max(1, Math.ceil(total / pageSize));
+            if (currentPage > totalPages) currentPage = totalPages;
+
+            const start = (currentPage - 1) * pageSize;
+            const end = Math.min(start + pageSize, total);
+            const pageData = filteredTemplates.slice(start, end);
+
+            if (pageData.length === 0) {
+                tbody.innerHTML = '';
+                emptyTip.classList.remove('hidden');
+            } else {
+                emptyTip.classList.add('hidden');
+                tbody.innerHTML = pageData.map(t => {
+                    const levelStyle = LEVEL_STYLES[t.level] || 'bg-gray-100 text-gray-700';
+                    const statusStyle = STATUS_STYLES[t.status] || 'bg-gray-100 text-gray-700';
+                    return `
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4">
+                                <div class="flex items-center">
+                                    <div class="font-medium text-gray-900">${escapeHtml(t.name)}</div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="px-2 py-1 ${levelStyle} text-xs rounded-full">${escapeHtml(t.level)}</span>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-600">${escapeHtml(t.channel)}</td>
+                            <td class="px-6 py-4">
+                                <span class="px-2 py-1 ${statusStyle} text-xs rounded-full">${escapeHtml(t.status)}</span>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-500">${escapeHtml(t.created)}</td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center justify-center space-x-2">
+                                    <button onclick="openEditModal(${t.id})" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded" title="编辑">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                    </button>
+                                    <button onclick="openAuditModal(${t.id})" class="p-1.5 text-orange-600 hover:bg-orange-50 rounded" title="审核">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    </button>
+                                    <button onclick="openDeleteModal(${t.id})" class="p-1.5 text-red-600 hover:bg-red-50 rounded" title="删除">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                    </button>
+                                    <button onclick="openContentSettingModal(${t.id})" class="p-1.5 text-purple-600 hover:bg-purple-50 rounded" title="内容设置">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+
+            document.getElementById('page-info').textContent = total === 0 ? '共 0 条记录' : `第 ${start + 1}-${end} 条，共 ${total} 条记录`;
+            renderPagination(totalPages);
+        }
+
+        function renderPagination(totalPages) {
+            const pagination = document.getElementById('pagination');
+            let html = '';
+            html += `<button onclick="prevPage()" class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50 ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''}">上一页</button>`;
+            let start = Math.max(1, currentPage - 2);
+            let end = Math.min(totalPages, start + 4);
+            if (end - start < 4) start = Math.max(1, end - 4);
+            if (start > 1) {
+                html += `<button onclick="changePage(1)" class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50">1</button>`;
+                if (start > 2) html += `<span class="px-2 text-gray-400">...</span>`;
+            }
+            for (let i = start; i <= end; i++) {
+                html += `<button onclick="changePage(${i})" class="pagination-btn px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50 ${i === currentPage ? 'active' : ''}">${i}</button>`;
+            }
+            if (end < totalPages) {
+                if (end < totalPages - 1) html += `<span class="px-2 text-gray-400">...</span>`;
+                html += `<button onclick="changePage(${totalPages})" class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50">${totalPages}</button>`;
+            }
+            html += `<button onclick="nextPage()" class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50 ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''}">下一页</button>`;
+            pagination.innerHTML = html;
+        }
+
+        function changePage(page) {
+            const totalPages = Math.max(1, Math.ceil(filteredTemplates.length / pageSize));
+            if (page < 1 || page > totalPages) return;
+            currentPage = page;
+            renderTable();
+        }
+
+        function prevPage() {
+            if (currentPage > 1) { currentPage--; renderTable(); }
+        }
+
+        function nextPage() {
+            const totalPages = Math.max(1, Math.ceil(filteredTemplates.length / pageSize));
+            if (currentPage < totalPages) { currentPage++; renderTable(); }
+        }
+
+        function changePageSize() {
+            pageSize = parseInt(document.getElementById('page-size').value);
+            currentPage = 1;
+            renderTable();
+        }
+
+        function filterTemplates() {
+            const keyword = document.getElementById('search-keyword').value.trim().toLowerCase();
+            const status = document.getElementById('search-status').value;
+            const level = document.getElementById('search-level').value;
+            filteredTemplates = templates.filter(t => {
+                const matchKeyword = !keyword || t.name.toLowerCase().includes(keyword);
+                const matchStatus = !status || t.status === status;
+                const matchLevel = !level || t.level === level;
+                return matchKeyword && matchStatus && matchLevel;
+            });
+            currentPage = 1;
+            renderTable();
+        }
+
+        function resetSearch() {
+            document.getElementById('search-keyword').value = '';
+            document.getElementById('search-status').value = '';
+            document.getElementById('search-level').value = '';
+            filteredTemplates = templates.slice();
+            currentPage = 1;
+            renderTable();
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function openAddModal() {
+            document.getElementById('add-name').value = '';
+            document.getElementById('add-level').value = '红色预警';
+            document.getElementById('add-channel').value = '短信';
+            document.getElementById('add-content').value = '';
+            document.getElementById('add-modal').classList.add('active');
+        }
+
+        function submitAdd() {
+            const name = document.getElementById('add-name').value.trim();
+            const level = document.getElementById('add-level').value;
+            const channel = document.getElementById('add-channel').value;
+            const content = document.getElementById('add-content').value.trim();
+            if (!name || !content) { alert('请完整填写模板名称和内容'); return; }
+            const now = new Date();
+            const pad = (n) => String(n).padStart(2, '0');
+            const created = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+            const newId = templates.length ? Math.max(...templates.map(t => t.id)) + 1 : 1;
+            templates.unshift({ id: newId, name, level, channel, status: '待审核', content, created });
+            closeModal('add-modal');
+            filteredTemplates = applyCurrentFilter();
+            currentPage = 1;
+            updateStats();
+            renderTable();
+            alert('模板添加成功！');
+        }
+
+        function openEditModal(id) {
+            const t = templates.find(x => x.id === id);
+            if (!t) return;
+            editTargetId = id;
+            document.getElementById('edit-name').value = t.name;
+            document.getElementById('edit-level').value = t.level;
+            document.getElementById('edit-channel').value = t.channel;
+            document.getElementById('edit-content').value = t.content;
+            document.getElementById('edit-status').value = t.status;
+            document.getElementById('edit-modal').classList.add('active');
+        }
+
+        function submitEdit() {
+            if (editTargetId === null) return;
+            const name = document.getElementById('edit-name').value.trim();
+            const level = document.getElementById('edit-level').value;
+            const channel = document.getElementById('edit-channel').value;
+            const content = document.getElementById('edit-content').value.trim();
+            const status = document.getElementById('edit-status').value;
+            if (!name || !content) { alert('请完整填写模板名称和内容'); return; }
+            const t = templates.find(x => x.id === editTargetId);
+            if (t) { t.name = name; t.level = level; t.channel = channel; t.content = content; t.status = status; }
+            closeModal('edit-modal');
+            editTargetId = null;
+            filteredTemplates = applyCurrentFilter();
+            updateStats();
+            renderTable();
+            alert('模板修改成功！');
+        }
+
+        function openAuditModal(id) {
+            const t = templates.find(x => x.id === id);
+            if (!t) return;
+            auditTargetId = id;
+            document.getElementById('audit-name').textContent = t.name;
+            document.getElementById('audit-level').textContent = t.level;
+            document.getElementById('audit-channel').textContent = t.channel;
+            document.getElementById('audit-content').textContent = t.content;
+            document.getElementById('audit-comment').value = '';
+            document.getElementById('audit-modal').classList.add('active');
+        }
+
+        function approveAudit() {
+            if (auditTargetId === null) return;
+            const t = templates.find(x => x.id === auditTargetId);
+            if (t) t.status = '已启用';
+            closeModal('audit-modal');
+            auditTargetId = null;
+            filteredTemplates = applyCurrentFilter();
+            updateStats();
+            renderTable();
+            alert('审核通过！模板已启用。');
+        }
+
+        function rejectAudit() {
+            if (auditTargetId === null) return;
+            const t = templates.find(x => x.id === auditTargetId);
+            if (t) t.status = '已禁用';
+            closeModal('audit-modal');
+            auditTargetId = null;
+            filteredTemplates = applyCurrentFilter();
+            updateStats();
+            renderTable();
+            alert('审核已驳回，模板已禁用。');
+        }
+
+        function openDeleteModal(id) {
+            const t = templates.find(x => x.id === id);
+            if (!t) return;
+            deleteTargetId = id;
+            document.getElementById('delete-name').textContent = t.name;
+            document.getElementById('delete-modal').classList.add('active');
+        }
+
+        function submitDelete() {
+            if (deleteTargetId === null) return;
+            templates = templates.filter(x => x.id !== deleteTargetId);
+            closeModal('delete-modal');
+            deleteTargetId = null;
+            filteredTemplates = applyCurrentFilter();
+            const totalPages = Math.max(1, Math.ceil(filteredTemplates.length / pageSize));
+            if (currentPage > totalPages) currentPage = totalPages;
+            updateStats();
+            renderTable();
+            alert('模板删除成功！');
+        }
+
+        function applyCurrentFilter() {
+            const keyword = document.getElementById('search-keyword').value.trim().toLowerCase();
+            const status = document.getElementById('search-status').value;
+            const level = document.getElementById('search-level').value;
+            return templates.filter(t => {
+                const matchKeyword = !keyword || t.name.toLowerCase().includes(keyword);
+                const matchStatus = !status || t.status === status;
+                const matchLevel = !level || t.level === level;
+                return matchKeyword && matchStatus && matchLevel;
+            });
+        }
+
+        document.addEventListener('click', (e) => {
+            ['add-modal', 'edit-modal', 'audit-modal', 'delete-modal', 'flow-setting-modal', 'content-setting-modal'].forEach(id => {
+                const modal = document.getElementById(id);
+                if (!modal) return;
+                if (e.target === modal) modal.classList.remove('active');
+            });
+        });
+
+        function openFlowSettingModal() {
+            document.getElementById('flow-setting-modal').classList.add('active');
+        }
+
+        function saveFlowSetting() {
+            const approval = document.getElementById('flow-approval').value;
+            const send = document.getElementById('flow-send').value;
+            const retry = document.getElementById('flow-retry').value;
+            const sms = document.getElementById('flow-notify-sms').checked;
+            const app = document.getElementById('flow-notify-app').checked;
+            const wechat = document.getElementById('flow-notify-wechat').checked;
+            console.log('流程设置已保存：', { approval, send, retry, sms, app, wechat });
+            closeModal('flow-setting-modal');
+            alert('流程设置保存成功！');
+        }
+
+        let contentSettingTargetId = null;
+
+        function openContentSettingModal(id) {
+            const t = templates.find(x => x.id === id);
+            if (!t) return;
+            contentSettingTargetId = id;
+            document.getElementById('content-setting-name').textContent = t.name;
+            document.getElementById('content-sms').value = t.content || '';
+            document.getElementById('content-app').value = t.content || '';
+            document.getElementById('content-wechat').value = t.content || '';
+            document.getElementById('content-setting-modal').classList.add('active');
+        }
+
+        function saveContentSetting() {
+            if (contentSettingTargetId === null) return;
+            const smsContent = document.getElementById('content-sms').value.trim();
+            const appContent = document.getElementById('content-app').value.trim();
+            const wechatContent = document.getElementById('content-wechat').value.trim();
+            if (!smsContent && !appContent && !wechatContent) {
+                alert('请至少填写一个渠道的发送内容');
+                return;
+            }
+            console.log('内容设置已保存：', { smsContent, appContent, wechatContent });
+            closeModal('content-setting-modal');
+            contentSettingTargetId = null;
+            alert('内容设置保存成功！');
+        }
+
+        updateStats();
+        renderTable();
+    </script>
+</body>
+</html>

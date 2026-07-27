@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>南丰蜜桔人工数据采集 - 数据管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        body { margin: 0; padding: 0; background-color: #F0F2F5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans SC', sans-serif; }
+        .content-wrapper { padding: 24px; height: 100vh; overflow-y: auto; }
+    </style>
+</head>
+<body>
+    <div class="content-wrapper">
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h1 class="text-xl font-bold text-gray-800">人工上报</h1>
+                <p class="text-gray-500 text-sm mt-1">管理农技人员和农户人工录入的数据</p>
+            </div>
+            <div class="flex items-center space-x-3">
+                <div class="relative">
+                    <iconify-icon icon="material-symbols:search" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2"></iconify-icon>
+                    <input type="text" id="search-input" placeholder="搜索数据记录..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm w-64" oninput="filterData()">
+                </div>
+                <button onclick="openExportModal()" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 text-sm flex items-center">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                    导出数据
+                </button>
+                <button onclick="openAddModal()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm flex items-center">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    录入数据
+                </button>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 mb-6">
+            <div class="p-4 border-b border-gray-200">
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2">
+                        <span class="text-sm text-gray-600">数据类型:</span>
+                        <select id="type-filter" class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm" onchange="filterData()">
+                            <option value="">全部类型</option>
+                            <option value="土壤养分">土壤养分</option>
+                            <option value="土壤墒情">土壤墒情</option>
+                            <option value="温湿度">温湿度</option>
+                            <option value="农事操作">农事操作</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-sm text-gray-600">数据状态:</span>
+                        <select id="status-filter" class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm" onchange="filterData()">
+                            <option value="">全部状态</option>
+                            <option value="已审核">已审核</option>
+                            <option value="待审核">待审核</option>
+                            <option value="已驳回">已驳回</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-sm text-gray-600">录入时间:</span>
+                        <input type="date" id="date-start" class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm">
+                        <span class="text-gray-400">至</span>
+                        <input type="date" id="date-end" class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm">
+                    </div>
+                    <button onclick="filterData()" class="px-4 py-1.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm">
+                        查询
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="bg-gray-50 border-b border-gray-200">
+                            <th class="text-left py-3 px-4 font-semibold text-gray-600">数据ID</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-600">数据类型</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-600">所属地块</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-600">录入人员</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-600">录入时间</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-600">数据状态</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-600">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="data-table-body">
+                        <tr class="border-b border-gray-100 hover:bg-gray-50" data-id="DAT-202607001" data-code="SC-20260722-001" data-person="张农技" data-plot="南丰县XX果园-A地块" data-type="土壤养分" data-collect-type="土壤数据" data-collect-time="2026-07-22 10:30" data-detail="氮含量:120mg/kg, 磷含量:45mg/kg, 钾含量:200mg/kg, 有机质:2.8%" data-note="果园A区表层土壤取样检测" data-status="已审核">
+                            <td class="py-3 px-4 text-gray-600">DAT-202607001</td>
+                            <td class="py-3 px-4"><span class="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded">土壤养分</span></td>
+                            <td class="py-3 px-4">南丰县XX果园-A地块</td>
+                            <td class="py-3 px-4">张农技</td>
+                            <td class="py-3 px-4">2026-07-22 10:30</td>
+                            <td class="py-3 px-4"><span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded">已审核</span></td>
+                            <td class="py-3 px-4">
+                                <button onclick="openDetailModal('DAT-202607001')" class="text-blue-600 hover:text-blue-700 mr-3">查看</button>
+                                <button onclick="openDeleteModal('DAT-202607001')" class="text-red-600 hover:text-red-700">删除</button>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-100 hover:bg-gray-50" data-id="DAT-202607002" data-code="SC-20260722-002" data-person="李农户" data-plot="南丰县XX果园-B地块" data-type="土壤墒情" data-collect-type="土壤数据" data-collect-time="2026-07-22 09:15" data-detail="土壤湿度:62%, 土壤温度:28.5℃, 土壤EC值:1.2mS/cm" data-note="果园B区深层土壤墒情监测" data-status="待审核">
+                            <td class="py-3 px-4 text-gray-600">DAT-202607002</td>
+                            <td class="py-3 px-4"><span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded">土壤墒情</span></td>
+                            <td class="py-3 px-4">南丰县XX果园-B地块</td>
+                            <td class="py-3 px-4">李农户</td>
+                            <td class="py-3 px-4">2026-07-22 09:15</td>
+                            <td class="py-3 px-4"><span class="px-2 py-1 bg-yellow-100 text-yellow-700 text-xs rounded">待审核</span></td>
+                            <td class="py-3 px-4">
+                                <button onclick="openDetailModal('DAT-202607002')" class="text-blue-600 hover:text-blue-700 mr-3">查看</button>
+                                <button onclick="openAuditModal('DAT-202607002')" class="text-green-600 hover:text-green-700 mr-3">审核</button>
+                                <button onclick="openDeleteModal('DAT-202607002')" class="text-red-600 hover:text-red-700">删除</button>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-100 hover:bg-gray-50" data-id="DAT-202607003" data-code="SC-20260721-001" data-person="王农技" data-plot="南丰县XX合作社-1号园" data-type="温湿度" data-collect-type="气象数据" data-collect-time="2026-07-21 16:45" data-detail="气温:32.5℃, 湿度:75%, 露点温度:24.8℃" data-note="高温天气温湿度监测" data-status="已审核">
+                            <td class="py-3 px-4 text-gray-600">DAT-202607003</td>
+                            <td class="py-3 px-4"><span class="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded">温湿度</span></td>
+                            <td class="py-3 px-4">南丰县XX合作社-1号园</td>
+                            <td class="py-3 px-4">王农技</td>
+                            <td class="py-3 px-4">2026-07-21 16:45</td>
+                            <td class="py-3 px-4"><span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded">已审核</span></td>
+                            <td class="py-3 px-4">
+                                <button onclick="openDetailModal('DAT-202607003')" class="text-blue-600 hover:text-blue-700 mr-3">查看</button>
+                                <button onclick="openDeleteModal('DAT-202607003')" class="text-red-600 hover:text-red-700">删除</button>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-100 hover:bg-gray-50" data-id="DAT-202607004" data-code="SC-20260721-002" data-person="赵农户" data-plot="南丰县XX种植大户-东园" data-type="农事操作" data-collect-type="物候数据" data-collect-time="2026-07-21 14:20" data-detail="操作类型:追肥, 肥料:复合肥, 用量:15kg/亩, 方式:穴施" data-note="膨大期追肥操作记录" data-status="已审核">
+                            <td class="py-3 px-4 text-gray-600">DAT-202607004</td>
+                            <td class="py-3 px-4"><span class="px-2 py-1 bg-orange-100 text-orange-700 text-xs rounded">农事操作</span></td>
+                            <td class="py-3 px-4">南丰县XX种植大户-东园</td>
+                            <td class="py-3 px-4">赵农户</td>
+                            <td class="py-3 px-4">2026-07-21 14:20</td>
+                            <td class="py-3 px-4"><span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded">已审核</span></td>
+                            <td class="py-3 px-4">
+                                <button onclick="openDetailModal('DAT-202607004')" class="text-blue-600 hover:text-blue-700 mr-3">查看</button>
+                                <button onclick="openDeleteModal('DAT-202607004')" class="text-red-600 hover:text-red-700">删除</button>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-100 hover:bg-gray-50" data-id="DAT-202607005" data-code="SC-20260720-001" data-person="孙农户" data-plot="南丰县XX果园-C地块" data-type="土壤养分" data-collect-type="土壤数据" data-collect-time="2026-07-20 11:00" data-detail="氮含量:80mg/kg, 磷含量:30mg/kg, 钾含量:150mg/kg" data-note="果园C区土壤养分补充检测" data-status="已驳回">
+                            <td class="py-3 px-4 text-gray-600">DAT-202607005</td>
+                            <td class="py-3 px-4"><span class="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded">土壤养分</span></td>
+                            <td class="py-3 px-4">南丰县XX果园-C地块</td>
+                            <td class="py-3 px-4">孙农户</td>
+                            <td class="py-3 px-4">2026-07-20 11:00</td>
+                            <td class="py-3 px-4"><span class="px-2 py-1 bg-red-100 text-red-700 text-xs rounded">已驳回</span></td>
+                            <td class="py-3 px-4">
+                                <button onclick="openDetailModal('DAT-202607005')" class="text-blue-600 hover:text-blue-700 mr-3">查看</button>
+                                <button onclick="openDeleteModal('DAT-202607005')" class="text-red-600 hover:text-red-700">删除</button>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-100 hover:bg-gray-50" data-id="DAT-202607006" data-code="SC-20260720-002" data-person="周农技" data-plot="南丰县XX合作社-2号园" data-type="土壤墒情" data-collect-type="土壤数据" data-collect-time="2026-07-20 08:30" data-detail="土壤湿度:58%, 土壤温度:27.8℃, pH:6.0" data-note="合作社2号园墒情监测" data-status="已审核">
+                            <td class="py-3 px-4 text-gray-600">DAT-202607006</td>
+                            <td class="py-3 px-4"><span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded">土壤墒情</span></td>
+                            <td class="py-3 px-4">南丰县XX合作社-2号园</td>
+                            <td class="py-3 px-4">周农技</td>
+                            <td class="py-3 px-4">2026-07-20 08:30</td>
+                            <td class="py-3 px-4"><span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded">已审核</span></td>
+                            <td class="py-3 px-4">
+                                <button onclick="openDetailModal('DAT-202607006')" class="text-blue-600 hover:text-blue-700 mr-3">查看</button>
+                                <button onclick="openDeleteModal('DAT-202607006')" class="text-red-600 hover:text-red-700">删除</button>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-100 hover:bg-gray-50" data-id="DAT-202607007" data-code="SC-20260719-001" data-person="吴农户" data-plot="南丰县XX果园-D地块" data-type="温湿度" data-collect-type="气象数据" data-collect-time="2026-07-19 15:20" data-detail="气温:30.2℃, 湿度:82%, 降雨量:5mm" data-note="雨后温湿度监测" data-status="待审核">
+                            <td class="py-3 px-4 text-gray-600">DAT-202607007</td>
+                            <td class="py-3 px-4"><span class="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded">温湿度</span></td>
+                            <td class="py-3 px-4">南丰县XX果园-D地块</td>
+                            <td class="py-3 px-4">吴农户</td>
+                            <td class="py-3 px-4">2026-07-19 15:20</td>
+                            <td class="py-3 px-4"><span class="px-2 py-1 bg-yellow-100 text-yellow-700 text-xs rounded">待审核</span></td>
+                            <td class="py-3 px-4">
+                                <button onclick="openDetailModal('DAT-202607007')" class="text-blue-600 hover:text-blue-700 mr-3">查看</button>
+                                <button onclick="openAuditModal('DAT-202607007')" class="text-green-600 hover:text-green-700 mr-3">审核</button>
+                                <button onclick="openDeleteModal('DAT-202607007')" class="text-red-600 hover:text-red-700">删除</button>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-100 hover:bg-gray-50" data-id="DAT-202607008" data-code="SC-20260719-002" data-person="郑农户" data-plot="南丰县XX种植大户-西园" data-type="农事操作" data-collect-type="病虫害数据" data-collect-time="2026-07-19 10:00" data-detail="操作类型:病虫害防治, 药剂:阿维菌素, 浓度:1:1000, 方式:喷雾" data-note="红蜘蛛防治操作记录" data-status="已审核">
+                            <td class="py-3 px-4 text-gray-600">DAT-202607008</td>
+                            <td class="py-3 px-4"><span class="px-2 py-1 bg-orange-100 text-orange-700 text-xs rounded">农事操作</span></td>
+                            <td class="py-3 px-4">南丰县XX种植大户-西园</td>
+                            <td class="py-3 px-4">郑农户</td>
+                            <td class="py-3 px-4">2026-07-19 10:00</td>
+                            <td class="py-3 px-4"><span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded">已审核</span></td>
+                            <td class="py-3 px-4">
+                                <button onclick="openDetailModal('DAT-202607008')" class="text-blue-600 hover:text-blue-700 mr-3">查看</button>
+                                <button onclick="openDeleteModal('DAT-202607008')" class="text-red-600 hover:text-red-700">删除</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="px-4 py-3 bg-gray-50 border-t border-gray-200 flex items-center justify-between">
+                <p class="text-sm text-gray-500">共 <span id="total-count">8</span> 条记录</p>
+                <div id="pagination-controls" class="flex items-center space-x-2"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 录入数据弹窗 -->
+    <div id="add-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center">
+        <div style="background:#fff;border-radius:12px;width:90%;max-width:500px;max-height:85vh;overflow-y:auto">
+            <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+                <h3 style="font-size:18px;font-weight:600;color:#1f2937">录入数据</h3>
+                <button onclick="closeModal('add-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
+            </div>
+            <div style="padding:24px;display:flex;flex-direction:column;gap:16px">
+                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">采集编号</label><input type="text" id="add-code" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box" placeholder="请输入采集编号，如 SC-20260722-006"></div>
+                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">采集人 <span style="color:#ef4444">*</span></label><input type="text" id="add-person" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box" placeholder="请输入采集人姓名"></div>
+                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">地块名称 <span style="color:#ef4444">*</span></label><input type="text" id="add-plot" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box" placeholder="请输入地块名称"></div>
+                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">采集类型</label><select id="add-collect-type" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"><option value="土壤数据">土壤数据</option><option value="气象数据">气象数据</option><option value="物候数据">物候数据</option><option value="病虫害数据">病虫害数据</option><option value="产量数据">产量数据</option></select></div>
+                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">采集时间 <span style="color:#ef4444">*</span></label><input type="datetime-local" id="add-collect-time" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"></div>
+                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">数据详情</label><textarea id="add-detail" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box" rows="3" placeholder="请输入数据详情，如：土壤湿度:62%, 土壤温度:28.5℃"></textarea></div>
+                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">备注</label><textarea id="add-note" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box" rows="2" placeholder="请输入备注信息"></textarea></div>
+            </div>
+            <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:12px">
+                <button onclick="closeModal('add-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
+                <button onclick="saveData()" style="padding:8px 16px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">确认添加</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 导出数据弹窗 -->
+    <div id="export-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center">
+        <div style="background:#fff;border-radius:12px;width:90%;max-width:400px">
+            <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+                <h3 style="font-size:18px;font-weight:600;color:#1f2937">导出数据</h3>
+                <button onclick="closeModal('export-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
+            </div>
+            <div style="padding:24px">
+                <div style="margin-bottom:16px"><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">导出格式</label><select id="export-format" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"><option value="Excel">Excel (.xlsx)</option><option value="CSV">CSV (.csv)</option><option value="PDF">PDF (.pdf)</option></select></div>
+            </div>
+            <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:12px">
+                <button onclick="closeModal('export-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
+                <button onclick="confirmExport()" style="padding:8px 16px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">确认导出</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 查看详情弹窗 -->
+    <div id="detail-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center">
+        <div style="background:#fff;border-radius:12px;width:90%;max-width:500px;max-height:85vh;overflow-y:auto">
+            <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+                <h3 style="font-size:18px;font-weight:600;color:#1f2937">数据详情</h3>
+                <button onclick="closeModal('detail-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
+            </div>
+            <div style="padding:24px">
+                <div style="display:flex;flex-direction:column;gap:12px">
+                    <div style="display:flex;justify-content:space-between;padding:12px;background:#f9fafb;border-radius:8px"><span style="font-size:14px;color:#6b7280">数据ID</span><span style="font-size:14px;font-weight:500;color:#1f2937" id="detail-id">-</span></div>
+                    <div style="display:flex;justify-content:space-between;padding:12px;background:#f9fafb;border-radius:8px"><span style="font-size:14px;color:#6b7280">采集编号</span><span style="font-size:14px;font-weight:500;color:#1f2937" id="detail-code">-</span></div>
+                    <div style="display:flex;justify-content:space-between;padding:12px;background:#f9fafb;border-radius:8px"><span style="font-size:14px;color:#6b7280">采集人</span><span style="font-size:14px;font-weight:500;color:#1f2937" id="detail-person">-</span></div>
+                    <div style="display:flex;justify-content:space-between;padding:12px;background:#f9fafb;border-radius:8px"><span style="font-size:14px;color:#6b7280">地块名称</span><span style="font-size:14px;font-weight:500;color:#1f2937" id="detail-plot">-</span></div>
+                    <div style="display:flex;justify-content:space-between;padding:12px;background:#f9fafb;border-radius:8px"><span style="font-size:14px;color:#6b7280">数据类型</span><span style="font-size:14px;font-weight:500;color:#1f2937" id="detail-type">-</span></div>
+                    <div style="display:flex;justify-content:space-between;padding:12px;background:#f9fafb;border-radius:8px"><span style="font-size:14px;color:#6b7280">采集类型</span><span style="font-size:14px;font-weight:500;color:#1f2937" id="detail-collect-type">-</span></div>
+                    <div style="display:flex;justify-content:space-between;padding:12px;background:#f9fafb;border-radius:8px"><span style="font-size:14px;color:#6b7280">采集时间</span><span style="font-size:14px;font-weight:500;color:#1f2937" id="detail-collect-time">-</span></div>
+                    <div style="display:flex;justify-content:space-between;padding:12px;background:#f9fafb;border-radius:8px"><span style="font-size:14px;color:#6b7280">审核状态</span><span style="font-size:14px;font-weight:500;color:#059669" id="detail-status">-</span></div>
+                    <div style="padding:12px;background:#f9fafb;border-radius:8px"><span style="font-size:14px;color:#6b7280;display:block;margin-bottom:4px">数据详情</span><p style="font-size:14px;color:#1f2937;margin:0" id="detail-detail">-</p></div>
+                    <div style="padding:12px;background:#f9fafb;border-radius:8px"><span style="font-size:14px;color:#6b7280;display:block;margin-bottom:4px">备注</span><p style="font-size:14px;color:#1f2937;margin:0" id="detail-note">-</p></div>
+                </div>
+            </div>
+            <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end">
+                <button onclick="closeModal('detail-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 审核弹窗 -->
+    <div id="audit-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center">
+        <div style="background:#fff;border-radius:12px;width:90%;max-width:500px;max-height:85vh;overflow-y:auto">
+            <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+                <h3 style="font-size:18px;font-weight:600;color:#1f2937">数据审核</h3>
+                <button onclick="closeModal('audit-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
+            </div>
+            <div style="padding:24px">
+                <div style="background:#f9fafb;border-radius:8px;padding:12px;margin-bottom:16px">
+                    <div style="display:flex;flex-direction:column;gap:8px">
+                        <div style="display:flex;justify-content:space-between"><span style="font-size:13px;color:#6b7280">数据ID</span><span style="font-size:13px;font-weight:500;color:#1f2937" id="audit-id">-</span></div>
+                        <div style="display:flex;justify-content:space-between"><span style="font-size:13px;color:#6b7280">采集人</span><span style="font-size:13px;font-weight:500;color:#1f2937" id="audit-person">-</span></div>
+                        <div style="display:flex;justify-content:space-between"><span style="font-size:13px;color:#6b7280">地块名称</span><span style="font-size:13px;font-weight:500;color:#1f2937" id="audit-plot">-</span></div>
+                        <div><span style="font-size:13px;color:#6b7280;display:block;margin-bottom:2px">数据详情</span><span style="font-size:13px;color:#1f2937" id="audit-detail">-</span></div>
+                    </div>
+                </div>
+                <div style="margin-bottom:16px">
+                    <label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:8px">审核结果</label>
+                    <div style="display:flex;gap:16px">
+                        <label style="display:flex;align-items:center;cursor:pointer"><input type="radio" name="audit-result" value="通过" checked style="margin-right:4px"><span style="font-size:14px;color:#374151">通过</span></label>
+                        <label style="display:flex;align-items:center;cursor:pointer"><input type="radio" name="audit-result" value="驳回" style="margin-right:4px"><span style="font-size:14px;color:#374151">驳回</span></label>
+                    </div>
+                </div>
+                <div>
+                    <label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">审核意见</label>
+                    <textarea id="audit-comment" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box" rows="3" placeholder="请输入审核意见"></textarea>
+                </div>
+            </div>
+            <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:12px">
+                <button onclick="closeModal('audit-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
+                <button onclick="submitAudit()" style="padding:8px 16px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">确认审核</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 删除确认弹窗 -->
+    <div id="delete-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center">
+        <div style="background:#fff;border-radius:12px;width:90%;max-width:400px">
+            <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+                <h3 style="font-size:18px;font-weight:600;color:#1f2937">删除确认</h3>
+                <button onclick="closeModal('delete-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
+            </div>
+            <div style="padding:24px;text-align:center">
+                <div style="width:60px;height:60px;background:#fee2e2;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px"><span style="font-size:28px;color:#dc2626">!</span></div>
+                <h3 style="font-size:18px;font-weight:600;color:#1f2937;margin-bottom:8px">确认删除</h3>
+                <p style="font-size:14px;color:#6b7280;margin-bottom:24px">确定要删除数据记录「<span id="delete-name" style="font-weight:500;color:#1f2937"></span>」吗？此操作不可撤销。</p>
+                <div style="display:flex;justify-content:center;gap:12px">
+                    <button onclick="closeModal('delete-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
+                    <button onclick="confirmDelete()" style="padding:8px 16px;background:#dc2626;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">确认删除</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentPage = 1;
+        let pageSize = 10;
+        let deleteId = null;
+        let auditId = null;
+
+        function showModal(id) { var m = document.getElementById(id); if (m) m.style.display = 'flex'; }
+        function hideModal(id) { var m = document.getElementById(id); if (m) m.style.display = 'none'; }
+        function closeModal(id) { hideModal(id); }
+
+        function initPagination() {
+            showPage(1);
+        }
+
+        function showPage(page) {
+            currentPage = page;
+            const allRows = document.querySelectorAll('#data-table-body tr');
+            const filteredRows = Array.from(allRows).filter(r => r.dataset.filtered !== 'false');
+            const totalPages = Math.max(1, Math.ceil(filteredRows.length / pageSize));
+
+            allRows.forEach(row => { row.style.display = 'none'; });
+
+            const start = (page - 1) * pageSize;
+            const end = start + pageSize;
+            filteredRows.slice(start, end).forEach(row => { row.style.display = ''; });
+
+            document.getElementById('total-count').textContent = filteredRows.length;
+
+            const paginationDiv = document.getElementById('pagination-controls');
+            paginationDiv.innerHTML = '';
+
+            const prevBtn = document.createElement('button');
+            prevBtn.className = 'px-3 py-1 bg-white border border-gray-300 rounded text-sm ' + (currentPage <= 1 ? 'text-gray-300 cursor-not-allowed' : 'text-gray-600 hover:bg-gray-50');
+            prevBtn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>';
+            prevBtn.onclick = function() { if (currentPage > 1) showPage(currentPage - 1); };
+            paginationDiv.appendChild(prevBtn);
+
+            for (var i = 1; i <= totalPages; i++) {
+                var pageBtn = document.createElement('button');
+                pageBtn.className = 'px-3 py-1 rounded text-sm ' + (i === currentPage ? 'bg-green-600 text-white' : 'bg-white border border-gray-300 text-gray-600 hover:bg-gray-50');
+                pageBtn.textContent = i;
+                (function(p) { pageBtn.onclick = function() { showPage(p); }; })(i);
+                paginationDiv.appendChild(pageBtn);
+            }
+
+            var nextBtn = document.createElement('button');
+            nextBtn.className = 'px-3 py-1 bg-white border border-gray-300 rounded text-sm ' + (currentPage >= totalPages ? 'text-gray-300 cursor-not-allowed' : 'text-gray-600 hover:bg-gray-50');
+            nextBtn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>';
+            nextBtn.onclick = function() { if (currentPage < totalPages) showPage(currentPage + 1); };
+            paginationDiv.appendChild(nextBtn);
+
+            var pageSizeSelect = document.createElement('select');
+            pageSizeSelect.className = 'px-3 py-1 border border-gray-300 rounded text-sm ml-2';
+            pageSizeSelect.innerHTML = '<option value="10">10条/页</option><option value="20">20条/页</option><option value="25">25条/页</option>';
+            pageSizeSelect.value = pageSize;
+            pageSizeSelect.onchange = function() { pageSize = parseInt(pageSizeSelect.value); currentPage = 1; showPage(1); };
+            paginationDiv.appendChild(pageSizeSelect);
+        }
+
+        function openAddModal() {
+            document.getElementById('add-code').value = '';
+            document.getElementById('add-person').value = '';
+            document.getElementById('add-plot').value = '';
+            document.getElementById('add-collect-type').value = '土壤数据';
+            document.getElementById('add-collect-time').value = '';
+            document.getElementById('add-detail').value = '';
+            document.getElementById('add-note').value = '';
+            showModal('add-modal');
+        }
+
+        function openExportModal() {
+            document.getElementById('export-format').value = 'Excel';
+            showModal('export-modal');
+        }
+
+        function confirmExport() {
+            var format = document.getElementById('export-format').value;
+            alert('数据导出成功！\n导出格式: ' + format + '\n导出记录数: ' + document.getElementById('total-count').textContent + ' 条');
+            closeModal('export-modal');
+        }
+
+        function openDetailModal(id) {
+            var row = document.querySelector('tr[data-id="' + id + '"]');
+            if (row) {
+                document.getElementById('detail-id').textContent = id;
+                document.getElementById('detail-code').textContent = row.getAttribute('data-code') || '-';
+                document.getElementById('detail-person').textContent = row.getAttribute('data-person') || '-';
+                document.getElementById('detail-plot').textContent = row.getAttribute('data-plot') || '-';
+                document.getElementById('detail-type').textContent = row.getAttribute('data-type') || '-';
+                document.getElementById('detail-collect-type').textContent = row.getAttribute('data-collect-type') || '-';
+                document.getElementById('detail-collect-time').textContent = row.getAttribute('data-collect-time') || '-';
+                document.getElementById('detail-detail').textContent = row.getAttribute('data-detail') || '-';
+                document.getElementById('detail-note').textContent = row.getAttribute('data-note') || '-';
+
+                var status = row.getAttribute('data-status');
+                var statusEl = document.getElementById('detail-status');
+                statusEl.textContent = status || '-';
+                if (status === '已审核') { statusEl.style.color = '#059669'; }
+                else if (status === '待审核') { statusEl.style.color = '#d97706'; }
+                else { statusEl.style.color = '#dc2626'; }
+            }
+            showModal('detail-modal');
+        }
+
+        function openAuditModal(id) {
+            auditId = id;
+            var row = document.querySelector('tr[data-id="' + id + '"]');
+            if (row) {
+                document.getElementById('audit-id').textContent = id;
+                document.getElementById('audit-person').textContent = row.getAttribute('data-person') || '-';
+                document.getElementById('audit-plot').textContent = row.getAttribute('data-plot') || '-';
+                document.getElementById('audit-detail').textContent = row.getAttribute('data-detail') || '-';
+            }
+            document.getElementById('audit-comment').value = '';
+            var radios = document.getElementsByName('audit-result');
+            if (radios.length > 0) radios[0].checked = true;
+            showModal('audit-modal');
+        }
+
+        function openDeleteModal(id) {
+            deleteId = id;
+            document.getElementById('delete-name').textContent = id;
+            showModal('delete-modal');
+        }
+
+        function saveData() {
+            var code = document.getElementById('add-code').value;
+            var person = document.getElementById('add-person').value;
+            var plot = document.getElementById('add-plot').value;
+            var collectType = document.getElementById('add-collect-type').value;
+            var collectTime = document.getElementById('add-collect-time').value;
+
+            if (!person || !plot || !collectTime) {
+                alert('请填写采集人、地块名称和采集时间');
+                return;
+            }
+
+            alert('数据录入成功！\n采集编号: ' + (code || '自动生成') + '\n采集人: ' + person + '\n地块: ' + plot + '\n类型: ' + collectType);
+            closeModal('add-modal');
+        }
+
+        function submitAudit() {
+            var resultEl = document.querySelector('input[name="audit-result"]:checked');
+            var result = resultEl ? resultEl.value : '通过';
+            var comment = document.getElementById('audit-comment').value;
+
+            alert('审核提交成功！\n审核ID: ' + auditId + '\n结果: ' + result + '\n意见: ' + (comment || '无'));
+            closeModal('audit-modal');
+        }
+
+        function confirmDelete() {
+            alert('数据删除成功！\n删除ID: ' + deleteId);
+            closeModal('delete-modal');
+        }
+
+        function filterData() {
+            var searchTerm = document.getElementById('search-input').value.toLowerCase();
+            var typeFilter = document.getElementById('type-filter').value;
+            var statusFilter = document.getElementById('status-filter').value;
+
+            var rows = document.querySelectorAll('#data-table-body tr');
+
+            rows.forEach(function(row) {
+                var id = row.getAttribute('data-id').toLowerCase();
+                var type = row.getAttribute('data-type');
+                var status = row.getAttribute('data-status');
+                var plot = (row.getAttribute('data-plot') || '').toLowerCase();
+                var person = (row.getAttribute('data-person') || '').toLowerCase();
+
+                var matchesSearch = id.includes(searchTerm) || plot.includes(searchTerm) || person.includes(searchTerm);
+                var matchesType = !typeFilter || type === typeFilter;
+                var matchesStatus = !statusFilter || status === statusFilter;
+
+                row.dataset.filtered = (matchesSearch && matchesType && matchesStatus) ? 'true' : 'false';
+            });
+
+            currentPage = 1;
+            showPage(1);
+        }
+
+        // 点击遮罩关闭弹窗
+        document.addEventListener('click', function(e) {
+            var ids = ['add-modal', 'export-modal', 'detail-modal', 'audit-modal', 'delete-modal'];
+            for (var i = 0; i < ids.length; i++) {
+                var m = document.getElementById(ids[i]);
+                if (m && m.style.display === 'flex') {
+                    var inner = m.children[0];
+                    if (inner && !inner.contains(e.target) && e.target === m) {
+                        m.style.display = 'none';
+                    }
+                }
+            }
+        });
+
+        window.onload = function() {
+            initPagination();
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,681 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>产量预测 - 南丰蜜桔模型管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { margin: 0; padding: 0; background-color: #F0F2F5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans SC', sans-serif; }
+        .content-wrapper { padding: 24px; height: 100vh; overflow-y: auto; }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.5); z-index: 1000; align-items: center; justify-content: center; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background-color: white; border-radius: 12px; width: 90%; max-width: 600px; max-height: 85vh; overflow-y: auto; }
+    </style>
+</head>
+<body>
+    <div class="content-wrapper">
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800">产量预测</h1>
+                <p class="text-gray-500 mt-1">监控产量预测数据（亩产量、总产量、年对比）</p>
+            </div>
+            <div class="flex items-center space-x-3">
+                <select class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+                    <option>全部区域</option>
+                    <option>南丰镇</option>
+                    <option>太和镇</option>
+                    <option>白舍镇</option>
+                </select>
+                <select class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+                    <option>预测年份</option>
+                    <option>2026年</option>
+                    <option>2025年</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">预测总产量</p>
+                        <h3 class="text-2xl font-bold text-gray-800 mt-1">13.2万吨</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                        <iconify-icon icon="material-symbols:package" class="w-6 h-6 text-green-600"></iconify-icon>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">平均亩产量</p>
+                        <h3 class="text-2xl font-bold text-blue-600 mt-1">4,050斤</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                        <iconify-icon icon="material-symbols:scale" class="w-6 h-6 text-blue-600"></iconify-icon>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">较上年增长</p>
+                        <h3 class="text-2xl font-bold text-green-600 mt-1">+4.8%</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">种植总面积</p>
+                        <h3 class="text-2xl font-bold text-gray-800 mt-1">6.5万亩</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                    <iconify-icon icon="material-symbols:bar-chart" class="w-5 h-5 mr-2 text-green-600"></iconify-icon>
+                    各乡镇产量预测
+                </h3>
+                <div class="h-64">
+                    <canvas id="townYieldChart"></canvas>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                    年度产量对比
+                </h3>
+                <div class="h-64">
+                    <canvas id="annualTrendChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="p-4 border-b border-gray-100">
+                    <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                        <iconify-icon icon="material-symbols:award" class="w-5 h-5 mr-2 text-yellow-500"></iconify-icon>
+                        高产地块排名
+                    </h3>
+                </div>
+                <div class="p-4 space-y-3">
+                    <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                        <div class="flex items-center">
+                            <span class="w-6 h-6 bg-green-500 text-white rounded-full flex items-center justify-center text-xs font-bold mr-3">1</span>
+                            <div>
+                                <p class="text-sm font-medium text-gray-800">NF-001</p>
+                                <p class="text-xs text-gray-500">南丰镇示范果园</p>
+                            </div>
+                        </div>
+                        <span class="text-lg font-bold text-green-600">4,250斤</span>
+                    </div>
+                    <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                        <div class="flex items-center">
+                            <span class="w-6 h-6 bg-green-500 text-white rounded-full flex items-center justify-center text-xs font-bold mr-3">2</span>
+                            <div>
+                                <p class="text-sm font-medium text-gray-800">NF-008</p>
+                                <p class="text-xs text-gray-500">白舍镇果园</p>
+                            </div>
+                        </div>
+                        <span class="text-lg font-bold text-green-600">4,120斤</span>
+                    </div>
+                    <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                        <div class="flex items-center">
+                            <span class="w-6 h-6 bg-green-500 text-white rounded-full flex items-center justify-center text-xs font-bold mr-3">3</span>
+                            <div>
+                                <p class="text-sm font-medium text-gray-800">NF-006</p>
+                                <p class="text-xs text-gray-500">太和镇果园</p>
+                            </div>
+                        </div>
+                        <span class="text-lg font-bold text-green-600">4,080斤</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="p-4 border-b border-gray-100">
+                    <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                        <iconify-icon icon="material-symbols:calendar" class="w-5 h-5 mr-2 text-blue-600"></iconify-icon>
+                        月度产量预测
+                    </h3>
+                </div>
+                <div class="p-4 space-y-2">
+                    <div>
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="text-sm text-gray-600">7月</span>
+                            <span class="text-sm font-medium text-gray-800">膨大期</span>
+                        </div>
+                        <div class="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                            <div class="w-[15%] h-full bg-yellow-500 rounded-full"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="text-sm text-gray-600">8月</span>
+                            <span class="text-sm font-medium text-gray-800">膨大期</span>
+                        </div>
+                        <div class="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                            <div class="w-[25%] h-full bg-yellow-500 rounded-full"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="text-sm text-gray-600">9月</span>
+                            <span class="text-sm font-medium text-gray-800">2.8万吨</span>
+                        </div>
+                        <div class="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                            <div class="w-[60%] h-full bg-green-500 rounded-full"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="text-sm text-gray-600">10月</span>
+                            <span class="text-sm font-medium text-gray-800">4.5万吨</span>
+                        </div>
+                        <div class="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                            <div class="w-[95%] h-full bg-green-500 rounded-full"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="text-sm text-gray-600">11月</span>
+                            <span class="text-sm font-medium text-gray-800">5.2万吨</span>
+                        </div>
+                        <div class="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                            <div class="w-full h-full bg-green-500 rounded-full"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="p-4 border-b border-gray-100">
+                    <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        预测说明
+                    </h3>
+                </div>
+                <div class="p-4">
+                    <div class="space-y-3 text-sm text-gray-600">
+                        <div class="flex items-start">
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            <span>基于历史产量数据和当前膨大期长势预测</span>
+                        </div>
+                        <div class="flex items-start">
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            <span>结合夏季高温气象条件和病虫害防治效果</span>
+                        </div>
+                        <div class="flex items-start">
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            <span>预测准确率约为92%</span>
+                        </div>
+                        <div class="flex items-start">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            <span>实际产量受采摘时间和市场需求影响</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mt-6">
+            <div class="p-4 border-b border-gray-100 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                    <iconify-icon icon="material-symbols:table-chart" class="w-5 h-5 mr-2 text-green-600"></iconify-icon>
+                    预测记录管理
+                </h3>
+                <div class="flex items-center space-x-3">
+                    <input type="text" id="search-input" placeholder="搜索地块编号/名称/区域..." class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 w-64" oninput="searchPredictions()">
+                    <button onclick="openAddModal()" class="px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition flex items-center">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        新增预测
+                    </button>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="bg-gray-50">
+                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">地块编号</th>
+                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">地块名称</th>
+                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">区域</th>
+                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">预测亩产(斤)</th>
+                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">预测总产(吨)</th>
+                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">置信度</th>
+                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">更新时间</th>
+                            <th class="text-center px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">状态</th>
+                            <th class="text-center px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100" id="predict-table-body"></tbody>
+                </table>
+            </div>
+            <div class="p-4 border-t border-gray-100 flex items-center justify-between">
+                <p id="pagination-info" class="text-sm text-gray-500">显示 0-0 条，共 0 条</p>
+                <div id="pagination-buttons" class="flex items-center space-x-1"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="edit-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                    <iconify-icon icon="material-symbols:edit-note" class="w-5 h-5 mr-2 text-green-600"></iconify-icon>
+                    <span id="modal-title">新增产量预测</span>
+                </h3>
+                <button onclick="closeModal('edit-modal')" class="p-1 hover:bg-gray-100 rounded">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">地块编号</label>
+                        <input type="text" id="form-id" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="如 NF-001">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">地块名称</label>
+                        <input type="text" id="form-name" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="如 南丰镇示范果园">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">所属区域</label>
+                        <select id="form-area" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+                            <option>南丰镇</option>
+                            <option>市山镇</option>
+                            <option>太和镇</option>
+                            <option>白舍镇</option>
+                            <option>桑田镇</option>
+                            <option>洽湾镇</option>
+                            <option>琴城镇</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">预测亩产(斤)</label>
+                        <input type="number" id="form-yield" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="如 4250">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">预测总产(吨)</label>
+                        <input type="number" step="0.01" id="form-total" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="如 21.25">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">置信度(%)</label>
+                        <input type="number" id="form-confidence" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="如 90">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">状态</label>
+                        <select id="form-status" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+                            <option value="正常">正常</option>
+                            <option value="关注">关注</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="p-4 border-t border-gray-200 flex justify-end space-x-3">
+                <button onclick="closeModal('edit-modal')" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm">取消</button>
+                <button onclick="submitPrediction()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="detail-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                    预测详情
+                </h3>
+                <button onclick="closeModal('detail-modal')" class="p-1 hover:bg-gray-100 rounded">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="flex items-center mb-4">
+                    <h4 class="text-xl font-bold text-gray-800" id="detail-name">南丰镇示范果园</h4>
+                    <span id="detail-status" class="ml-3 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">正常</span>
+                </div>
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="p-3 bg-gray-50 rounded-lg">
+                        <p class="text-xs text-gray-500">地块编号</p>
+                        <p class="text-sm font-medium text-gray-800" id="detail-id">NF-001</p>
+                    </div>
+                    <div class="p-3 bg-gray-50 rounded-lg">
+                        <p class="text-xs text-gray-500">所属区域</p>
+                        <p class="text-sm font-medium text-gray-800" id="detail-area">南丰镇</p>
+                    </div>
+                    <div class="p-3 bg-gray-50 rounded-lg">
+                        <p class="text-xs text-gray-500">预测亩产</p>
+                        <p class="text-sm font-medium text-green-600" id="detail-yield">4,250 斤</p>
+                    </div>
+                    <div class="p-3 bg-gray-50 rounded-lg">
+                        <p class="text-xs text-gray-500">预测总产</p>
+                        <p class="text-sm font-medium text-gray-800" id="detail-total">21.25 吨</p>
+                    </div>
+                    <div class="p-3 bg-gray-50 rounded-lg">
+                        <p class="text-xs text-gray-500">置信度</p>
+                        <p class="text-sm font-medium text-gray-800" id="detail-confidence">95%</p>
+                    </div>
+                    <div class="p-3 bg-gray-50 rounded-lg">
+                        <p class="text-xs text-gray-500">更新时间</p>
+                        <p class="text-sm font-medium text-gray-800" id="detail-update-time">2026-07-22 09:30</p>
+                    </div>
+                </div>
+                <div class="p-3 bg-green-50 rounded-lg flex items-start">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <span class="text-sm text-gray-600">当前为膨大期，预测数据基于历史产量和当前长势综合评估</span>
+                </div>
+            </div>
+            <div class="p-4 border-t border-gray-200 flex justify-end">
+                <button onclick="closeModal('detail-modal')" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="delete-modal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="p-6">
+                <div class="flex items-center mb-4">
+                    <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center mr-3">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.66 1.732-3L13.732 4c-.77-1.34-2.694-1.34-3.464 0L3.34 16c-.77 1.34.192 3 1.732 3z"/></svg>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-800">确认删除</h3>
+                </div>
+                <p class="text-sm text-gray-600 mb-6">确定要删除这条预测记录吗？此操作不可撤销。</p>
+                <div class="flex justify-end space-x-3">
+                    <button onclick="closeModal('delete-modal')" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm">取消</button>
+                    <button onclick="confirmDelete()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm">确认删除</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const allPredictions = [
+            { id: 'NF-001', name: '南丰镇示范果园', area: '南丰镇', yield: 4250, total: 21.25, confidence: 95, updateTime: '2026-07-22 09:30', status: '正常' },
+            { id: 'NF-008', name: '白舍镇果园', area: '白舍镇', yield: 4120, total: 16.48, confidence: 93, updateTime: '2026-07-22 09:25', status: '正常' },
+            { id: 'NF-006', name: '太和镇果园', area: '太和镇', yield: 4080, total: 14.28, confidence: 92, updateTime: '2026-07-22 09:20', status: '正常' },
+            { id: 'NF-012', name: '市山镇果园', area: '市山镇', yield: 3950, total: 19.75, confidence: 91, updateTime: '2026-07-22 09:15', status: '正常' },
+            { id: 'NF-015', name: '桑田镇果园', area: '桑田镇', yield: 3880, total: 11.64, confidence: 90, updateTime: '2026-07-22 09:10', status: '正常' },
+            { id: 'NF-020', name: '傅坊乡果园', area: '傅坊乡', yield: 3720, total: 9.30, confidence: 88, updateTime: '2026-07-22 09:05', status: '关注' },
+            { id: 'NF-022', name: '琴城镇果园', area: '琴城镇', yield: 3650, total: 12.78, confidence: 87, updateTime: '2026-07-22 09:00', status: '关注' },
+            { id: 'NF-025', name: '莱溪乡果园', area: '莱溪乡', yield: 3580, total: 8.95, confidence: 85, updateTime: '2026-07-22 08:55', status: '正常' },
+            { id: 'NF-028', name: '洽湾镇果园', area: '洽湾镇', yield: 3920, total: 13.72, confidence: 90, updateTime: '2026-07-22 08:50', status: '正常' },
+            { id: 'NF-030', name: '三溪乡果园', area: '三溪乡', yield: 3450, total: 6.90, confidence: 83, updateTime: '2026-07-22 08:45', status: '关注' },
+            { id: 'NF-033', name: '东坪乡果园', area: '东坪乡', yield: 3680, total: 7.36, confidence: 86, updateTime: '2026-07-22 08:40', status: '正常' },
+            { id: 'NF-035', name: '紫霄镇果园', area: '紫霄镇', yield: 3850, total: 11.55, confidence: 89, updateTime: '2026-07-22 08:35', status: '正常' }
+        ];
+
+        let filteredPredictions = allPredictions.slice();
+        let currentPage = 1;
+        const pageSize = 5;
+        let editingId = null;
+        let deletingId = null;
+
+        function searchPredictions() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            filteredPredictions = allPredictions.filter(p =>
+                p.id.toLowerCase().includes(searchTerm) ||
+                p.name.toLowerCase().includes(searchTerm) ||
+                p.area.toLowerCase().includes(searchTerm)
+            );
+            currentPage = 1;
+            renderTable();
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('predict-table-body');
+            const total = filteredPredictions.length;
+            const totalPages = Math.max(1, Math.ceil(total / pageSize));
+            if (currentPage > totalPages) currentPage = totalPages;
+
+            const start = (currentPage - 1) * pageSize;
+            const end = Math.min(start + pageSize, total);
+            const pageData = filteredPredictions.slice(start, end);
+
+            if (pageData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" class="px-6 py-8 text-center text-gray-400">暂无数据</td></tr>';
+            } else {
+                tbody.innerHTML = pageData.map((p, idx) => {
+                    const actualIndex = start + idx;
+                    return '<tr class="hover:bg-gray-50">' +
+                        '<td class="px-6 py-4 text-sm text-gray-800 font-medium">' + p.id + '</td>' +
+                        '<td class="px-6 py-4 text-sm text-gray-600">' + p.name + '</td>' +
+                        '<td class="px-6 py-4 text-sm text-gray-600">' + p.area + '</td>' +
+                        '<td class="px-6 py-4 text-sm font-medium text-green-600">' + p.yield.toLocaleString() + '</td>' +
+                        '<td class="px-6 py-4 text-sm text-gray-600">' + p.total + '</td>' +
+                        '<td class="px-6 py-4 text-sm text-gray-600">' + p.confidence + '%</td>' +
+                        '<td class="px-6 py-4 text-sm text-gray-500">' + p.updateTime + '</td>' +
+                        '<td class="px-6 py-4 text-center"><span class="px-2 py-0.5 ' + (p.status === '正常' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700') + ' text-xs rounded-full">' + p.status + '</span></td>' +
+                        '<td class="px-6 py-4"><div class="flex items-center justify-center space-x-1">' +
+                        '<button onclick="openDetailModal(' + actualIndex + ')" class="p-1.5 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded" title="查看"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button>' +
+                        '<button onclick="openEditModal(' + actualIndex + ')" class="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded" title="编辑"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>' +
+                        '<button onclick="openDeleteModal(' + actualIndex + ')" class="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded" title="删除"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>' +
+                        '</div></td>' +
+                        '</tr>';
+                }).join('');
+            }
+
+            document.getElementById('pagination-info').textContent = '显示 ' + (total > 0 ? start + 1 : 0) + '-' + end + ' 条，共 ' + total + ' 条';
+
+            let html = '<button onclick="prevPage()" class="px-3 py-1 text-sm ' + (currentPage === 1 ? 'bg-gray-50 text-gray-400 cursor-not-allowed' : 'bg-gray-100 text-gray-700 hover:bg-gray-200') + ' rounded">上一页</button>';
+            for (let i = 1; i <= totalPages; i++) {
+                html += '<button onclick="changePage(' + i + ')" class="px-3 py-1 text-sm ' + (i === currentPage ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200') + ' rounded">' + i + '</button>';
+            }
+            html += '<button onclick="nextPage()" class="px-3 py-1 text-sm ' + (currentPage === totalPages ? 'bg-gray-50 text-gray-400 cursor-not-allowed' : 'bg-gray-100 text-gray-700 hover:bg-gray-200') + ' rounded">下一页</button>';
+            document.getElementById('pagination-buttons').innerHTML = html;
+        }
+
+        function prevPage() {
+            if (currentPage > 1) { currentPage--; renderTable(); }
+        }
+
+        function nextPage() {
+            const totalPages = Math.max(1, Math.ceil(filteredPredictions.length / pageSize));
+            if (currentPage < totalPages) { currentPage++; renderTable(); }
+        }
+
+        function changePage(page) {
+            currentPage = page;
+            renderTable();
+        }
+
+        function openAddModal() {
+            editingId = null;
+            document.getElementById('modal-title').textContent = '新增产量预测';
+            document.getElementById('form-id').value = '';
+            document.getElementById('form-id').readOnly = false;
+            document.getElementById('form-name').value = '';
+            document.getElementById('form-area').value = '南丰镇';
+            document.getElementById('form-yield').value = '';
+            document.getElementById('form-total').value = '';
+            document.getElementById('form-confidence').value = '90';
+            document.getElementById('form-status').value = '正常';
+            document.getElementById('edit-modal').classList.add('active');
+        }
+
+        function openEditModal(index) {
+            const p = filteredPredictions[index];
+            if (!p) return;
+            editingId = p.id;
+            document.getElementById('modal-title').textContent = '编辑产量预测';
+            document.getElementById('form-id').value = p.id;
+            document.getElementById('form-id').readOnly = true;
+            document.getElementById('form-name').value = p.name;
+            document.getElementById('form-area').value = p.area;
+            document.getElementById('form-yield').value = p.yield;
+            document.getElementById('form-total').value = p.total;
+            document.getElementById('form-confidence').value = p.confidence;
+            document.getElementById('form-status').value = p.status;
+            document.getElementById('edit-modal').classList.add('active');
+        }
+
+        function openDetailModal(index) {
+            const p = filteredPredictions[index];
+            if (!p) return;
+            document.getElementById('detail-id').textContent = p.id;
+            document.getElementById('detail-name').textContent = p.name;
+            document.getElementById('detail-area').textContent = p.area;
+            document.getElementById('detail-yield').textContent = p.yield.toLocaleString() + ' 斤';
+            document.getElementById('detail-total').textContent = p.total + ' 吨';
+            document.getElementById('detail-confidence').textContent = p.confidence + '%';
+            document.getElementById('detail-update-time').textContent = p.updateTime;
+            const badge = document.getElementById('detail-status');
+            badge.textContent = p.status;
+            badge.className = 'ml-3 px-2 py-0.5 text-xs rounded-full ' + (p.status === '正常' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700');
+            document.getElementById('detail-modal').classList.add('active');
+        }
+
+        function openDeleteModal(index) {
+            const p = filteredPredictions[index];
+            if (!p) return;
+            deletingId = p.id;
+            document.getElementById('delete-modal').classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function submitPrediction() {
+            const id = document.getElementById('form-id').value.trim();
+            const name = document.getElementById('form-name').value.trim();
+            const area = document.getElementById('form-area').value;
+            const yieldVal = parseFloat(document.getElementById('form-yield').value);
+            const total = parseFloat(document.getElementById('form-total').value);
+            const confidence = parseInt(document.getElementById('form-confidence').value);
+            const status = document.getElementById('form-status').value;
+
+            if (!id || !name || !yieldVal || !total) {
+                alert('请填写完整信息');
+                return;
+            }
+
+            const now = '2026-07-22 10:30:00';
+
+            if (editingId) {
+                const p = allPredictions.find(x => x.id === editingId);
+                if (p) {
+                    p.name = name;
+                    p.area = area;
+                    p.yield = yieldVal;
+                    p.total = total;
+                    p.confidence = confidence;
+                    p.status = status;
+                    p.updateTime = now;
+                }
+            } else {
+                if (allPredictions.some(x => x.id === id)) {
+                    alert('地块编号已存在');
+                    return;
+                }
+                allPredictions.unshift({ id: id, name: name, area: area, yield: yieldVal, total: total, confidence: confidence, updateTime: now, status: status });
+            }
+
+            closeModal('edit-modal');
+            searchPredictions();
+        }
+
+        function confirmDelete() {
+            const idx = allPredictions.findIndex(x => x.id === deletingId);
+            if (idx > -1) {
+                allPredictions.splice(idx, 1);
+            }
+            closeModal('delete-modal');
+            deletingId = null;
+            searchPredictions();
+        }
+
+        document.addEventListener('click', (e) => {
+            ['edit-modal', 'detail-modal', 'delete-modal'].forEach(id => {
+                const modal = document.getElementById(id);
+                if (modal.classList.contains('active') && !modal.contains(e.target) && !e.target.closest('[onclick^="open"]')) {
+                    modal.classList.remove('active');
+                }
+            });
+        });
+
+        renderTable();
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const ctx1 = document.getElementById('townYieldChart').getContext('2d');
+            new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: ['南丰镇', '市山镇', '太和镇', '白舍镇', '桑田镇', '洽湾镇', '琴城镇'],
+                    datasets: [{
+                        label: '预测产量(吨)',
+                        data: [3200, 2800, 2500, 2200, 1800, 1500, 1200],
+                        backgroundColor: ['#3B82F6', '#16A34A', '#8B5CF6', '#F97316', '#EF4444', '#06B6D4', '#84CC16'],
+                        borderRadius: 6,
+                        borderSkipped: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { callback: (value) => value / 1000 + 'k' }
+                        }
+                    }
+                }
+            });
+
+            const ctx2 = document.getElementById('annualTrendChart').getContext('2d');
+            new Chart(ctx2, {
+                type: 'line',
+                data: {
+                    labels: ['2020', '2021', '2022', '2023', '2024', '2025', '2026'],
+                    datasets: [{
+                        label: '实际产量(万吨)',
+                        data: [9.8, 10.5, 11.2, 10.8, 11.5, 12.6, 13.2],
+                        borderColor: '#16A34A',
+                        backgroundColor: 'rgba(22, 163, 74, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.3,
+                        pointBackgroundColor: '#16A34A',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top', labels: { font: { size: 12 } } }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: 8,
+                            ticks: { callback: (value) => value + '万' }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

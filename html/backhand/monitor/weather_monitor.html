@@ -1,0 +1,1567 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>气象数据库 - 南丰蜜桔模型管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { margin: 0; padding: 0; background-color: #F0F2F5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans SC', sans-serif; overflow: visible !important; }
+        .content-wrapper { padding: 24px; min-height: 100%; overflow: visible !important; }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.5); z-index: 9999; align-items: center; justify-content: center; overflow: auto; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background-color: white; border-radius: 12px; width: 97%; max-width: 1500px; max-height: 98vh; overflow-y: auto; }
+    </style>
+</head>
+<body>
+    <div class="content-wrapper">
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800">气象数据库</h1>
+                <p class="text-gray-500 mt-1">气象传感器数据管理</p>
+            </div>
+            <div class="flex items-center space-x-3">
+                <input type="text" id="search-input" placeholder="搜索站点名称..." class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 w-48" oninput="filterStations()">
+                <select id="status-filter" class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500" onchange="filterStations()">
+                    <option value="">全部状态</option>
+                    <option value="在线">在线</option>
+                    <option value="离线">离线</option>
+                </select>
+                <button onclick="refreshData()" class="px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition flex items-center">
+                    <iconify-icon icon="material-symbols:refresh" class="w-4 h-4 mr-1"></iconify-icon>
+                    刷新数据
+                </button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-6 gap-4 mb-6">
+            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">当前温度</p>
+                        <h3 class="text-2xl font-bold text-red-600 mt-1">35.2°C</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                        <iconify-icon icon="material-symbols:thermostat" class="w-6 h-6 text-red-500"></iconify-icon>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">空气湿度</p>
+                        <h3 class="text-2xl font-bold text-blue-600 mt-1">55%</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                        <iconify-icon icon="material-symbols:water" class="w-6 h-6 text-blue-500"></iconify-icon>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">光照强度</p>
+                        <h3 class="text-2xl font-bold text-yellow-600 mt-1">12500 lux</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
+                        <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">土壤湿度</p>
+                        <h3 class="text-2xl font-bold text-orange-600 mt-1">32%</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
+                        <iconify-icon icon="material-symbols:leaf" class="w-6 h-6 text-orange-500"></iconify-icon>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">风速</p>
+                        <h3 class="text-2xl font-bold text-gray-800 mt-1">2.8 m/s</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
+                        <iconify-icon icon="material-symbols:air" class="w-6 h-6 text-gray-500"></iconify-icon>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">降雨量</p>
+                        <h3 class="text-2xl font-bold text-gray-400 mt-1">0 mm</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
+                        <iconify-icon icon="material-symbols:cloud-rain" class="w-6 h-6 text-gray-400"></iconify-icon>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                    <iconify-icon icon="material-symbols:line-chart" class="w-5 h-5 mr-2 text-blue-600"></iconify-icon>
+                    温湿度变化趋势
+                </h3>
+                <div class="h-80">
+                    <canvas id="weatherTrendChart"></canvas>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                        <iconify-icon icon="material-symbols:cloud" class="w-5 h-5 mr-2 text-blue-600"></iconify-icon>
+                        天气状况
+                    </h3>
+                    <div class="flex items-center justify-center">
+                        <div class="text-center">
+                            <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                            <p class="text-xl font-bold text-gray-800 mt-2">晴</p>
+                            <p class="text-sm text-gray-500 mt-1">能见度: 8km</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                        <iconify-icon icon="material-symbols:calendar" class="w-5 h-5 mr-2 text-gray-600"></iconify-icon>
+                        未来3天预报
+                    </h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">今天</span>
+                            <div class="flex items-center space-x-3">
+                                <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                                <span class="text-sm text-gray-800">38°C / 26°C</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">明天</span>
+                            <div class="flex items-center space-x-3">
+                                <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                                <span class="text-sm text-gray-800">39°C / 27°C</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">后天</span>
+                            <div class="flex items-center space-x-3">
+                                <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                                <span class="text-sm text-red-600">40°C / 28°C</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="p-4 border-b border-gray-100">
+                <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                    <iconify-icon icon="material-symbols:sensors" class="w-5 h-5 mr-2 text-gray-600"></iconify-icon>
+                    气象站点列表
+                </h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="bg-gray-50">
+                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">站点名称</th>
+                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">位置</th>
+                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">温度</th>
+                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">湿度</th>
+                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">光照</th>
+                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">土壤湿度</th>
+                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">更新时间</th>
+                            <th class="text-center px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">状态</th>
+                            <th class="text-center px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100" id="station-table-body">
+                        <tr class="hover:bg-gray-50" data-id="南丰镇气象站" data-status="在线">
+                            <td class="px-6 py-4 text-sm text-gray-800 font-medium">南丰镇气象站</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">南丰镇中心</td>
+                            <td class="px-6 py-4 text-sm text-red-600">35.2°C</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">55%</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">12500 lux</td>
+                            <td class="px-6 py-4 text-sm text-orange-600">32%</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">2026-07-22 10:00</td>
+                            <td class="px-6 py-4">
+                                <span class="flex items-center">
+                                    <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                                    <span class="text-xs text-green-600">在线</span>
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex space-x-2">
+                                    <button onclick="openDetailModal('南丰镇气象站')" class="p-1.5 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded" title="查看详情"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button>
+                                    <button onclick="openEditModal('南丰镇气象站')" class="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded" title="编辑"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50" data-id="市山镇气象站" data-status="在线">
+                            <td class="px-6 py-4 text-sm text-gray-800 font-medium">市山镇气象站</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">市山镇果园</td>
+                            <td class="px-6 py-4 text-sm text-red-600">36.1°C</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">52%</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">13200 lux</td>
+                            <td class="px-6 py-4 text-sm text-orange-600">28%</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">2026-07-22 09:58</td>
+                            <td class="px-6 py-4">
+                                <span class="flex items-center">
+                                    <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                                    <span class="text-xs text-green-600">在线</span>
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex space-x-2"><button onclick="openDetailModal('市山镇气象站')" class="p-1.5 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded" title="查看详情"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button><button onclick="openEditModal('市山镇气象站')" class="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded" title="编辑"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button></div>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50" data-id="太和镇气象站" data-status="离线">
+                            <td class="px-6 py-4 text-sm text-gray-800 font-medium">太和镇气象站</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">太和镇基地</td>
+                            <td class="px-6 py-4 text-sm text-gray-400">-</td>
+                            <td class="px-6 py-4 text-sm text-gray-400">-</td>
+                            <td class="px-6 py-4 text-sm text-gray-400">-</td>
+                            <td class="px-6 py-4 text-sm text-gray-400">-</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">2026-07-22 08:30</td>
+                            <td class="px-6 py-4">
+                                <span class="flex items-center">
+                                    <span class="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
+                                    <span class="text-xs text-red-600">离线</span>
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex space-x-2"><button onclick="openDetailModal('太和镇气象站')" class="p-1.5 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded" title="查看详情"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button><button onclick="openEditModal('太和镇气象站')" class="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded" title="编辑"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button></div>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50" data-id="莱溪乡气象站" data-status="在线">
+                            <td class="px-6 py-4 text-sm text-gray-800 font-medium">莱溪乡气象站</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">莱溪乡蜜桔基地</td>
+                            <td class="px-6 py-4 text-sm text-red-600">34.8°C</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">53%</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">11800 lux</td>
+                            <td class="px-6 py-4 text-sm text-orange-600">30%</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">2026-07-22 10:02</td>
+                            <td class="px-6 py-4">
+                                <span class="flex items-center">
+                                    <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                                    <span class="text-xs text-green-600">在线</span>
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex space-x-2"><button onclick="openDetailModal('莱溪乡气象站')" class="p-1.5 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded" title="查看详情"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button><button onclick="openEditModal('莱溪乡气象站')" class="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded" title="编辑"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button></div>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50" data-id="洽湾镇气象站" data-status="在线">
+                            <td class="px-6 py-4 text-sm text-gray-800 font-medium">洽湾镇气象站</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">洽湾镇桔园</td>
+                            <td class="px-6 py-4 text-sm text-red-600">35.5°C</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">51%</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">12800 lux</td>
+                            <td class="px-6 py-4 text-sm text-orange-600">29%</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">2026-07-22 10:05</td>
+                            <td class="px-6 py-4">
+                                <span class="flex items-center">
+                                    <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                                    <span class="text-xs text-green-600">在线</span>
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex space-x-2"><button onclick="openDetailModal('洽湾镇气象站')" class="p-1.5 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded" title="查看详情"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button><button onclick="openEditModal('洽湾镇气象站')" class="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded" title="编辑"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button></div>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50" data-id="白舍镇气象站" data-status="在线">
+                            <td class="px-6 py-4 text-sm text-gray-800 font-medium">白舍镇气象站</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">白舍镇示范区</td>
+                            <td class="px-6 py-4 text-sm text-red-600">36.2°C</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">48%</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">13500 lux</td>
+                            <td class="px-6 py-4 text-sm text-orange-600">25%</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">2026-07-22 09:55</td>
+                            <td class="px-6 py-4">
+                                <span class="flex items-center">
+                                    <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                                    <span class="text-xs text-green-600">在线</span>
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex space-x-2"><button onclick="openDetailModal('白舍镇气象站')" class="p-1.5 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded" title="查看详情"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button><button onclick="openEditModal('白舍镇气象站')" class="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded" title="编辑"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button></div>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50" data-id="紫霄镇气象站" data-status="在线">
+                            <td class="px-6 py-4 text-sm text-gray-800 font-medium">紫霄镇气象站</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">紫霄镇试验田</td>
+                            <td class="px-6 py-4 text-sm text-red-600">33.8°C</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">58%</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">10200 lux</td>
+                            <td class="px-6 py-4 text-sm text-orange-600">33%</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">2026-07-22 10:01</td>
+                            <td class="px-6 py-4">
+                                <span class="flex items-center">
+                                    <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                                    <span class="text-xs text-green-600">在线</span>
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex space-x-2"><button onclick="openDetailModal('紫霄镇气象站')" class="p-1.5 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded" title="查看详情"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button><button onclick="openEditModal('紫霄镇气象站')" class="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded" title="编辑"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button></div>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50" data-id="东坪乡气象站" data-status="离线">
+                            <td class="px-6 py-4 text-sm text-gray-800 font-medium">东坪乡气象站</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">东坪乡果园</td>
+                            <td class="px-6 py-4 text-sm text-gray-400">-</td>
+                            <td class="px-6 py-4 text-sm text-gray-400">-</td>
+                            <td class="px-6 py-4 text-sm text-gray-400">-</td>
+                            <td class="px-6 py-4 text-sm text-gray-400">-</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">2026-07-20 16:30</td>
+                            <td class="px-6 py-4">
+                                <span class="flex items-center">
+                                    <span class="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
+                                    <span class="text-xs text-red-600">离线</span>
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex space-x-2"><button onclick="openDetailModal('东坪乡气象站')" class="p-1.5 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded" title="查看详情"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button><button onclick="openEditModal('东坪乡气象站')" class="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded" title="编辑"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button></div>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50" data-id="三溪乡气象站" data-status="在线">
+                            <td class="px-6 py-4 text-sm text-gray-800 font-medium">三溪乡气象站</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">三溪乡南山桔园</td>
+                            <td class="px-6 py-4 text-sm text-red-600">35.0°C</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">54%</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">12100 lux</td>
+                            <td class="px-6 py-4 text-sm text-orange-600">31%</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">2026-07-22 09:58</td>
+                            <td class="px-6 py-4">
+                                <span class="flex items-center">
+                                    <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                                    <span class="text-xs text-green-600">在线</span>
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex space-x-2"><button onclick="openDetailModal('三溪乡气象站')" class="p-1.5 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded" title="查看详情"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button><button onclick="openEditModal('三溪乡气象站')" class="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded" title="编辑"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button></div>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50" data-id="傅坊乡气象站" data-status="在线">
+                            <td class="px-6 py-4 text-sm text-gray-800 font-medium">傅坊乡气象站</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">傅坊乡蜜桔基地</td>
+                            <td class="px-6 py-4 text-sm text-red-600">34.5°C</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">56%</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">11500 lux</td>
+                            <td class="px-6 py-4 text-sm text-orange-600">34%</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">2026-07-22 10:00</td>
+                            <td class="px-6 py-4">
+                                <span class="flex items-center">
+                                    <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                                    <span class="text-xs text-green-600">在线</span>
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex space-x-2"><button onclick="openDetailModal('傅坊乡气象站')" class="p-1.5 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded" title="查看详情"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button><button onclick="openEditModal('傅坊乡气象站')" class="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded" title="编辑"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button></div>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50" data-id="琴城镇气象站" data-status="在线">
+                            <td class="px-6 py-4 text-sm text-gray-800 font-medium">琴城镇气象站</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">琴城镇中心桔园</td>
+                            <td class="px-6 py-4 text-sm text-red-600">36.8°C</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">47%</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">13800 lux</td>
+                            <td class="px-6 py-4 text-sm text-orange-600">24%</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">2026-07-22 10:03</td>
+                            <td class="px-6 py-4">
+                                <span class="flex items-center">
+                                    <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                                    <span class="text-xs text-green-600">在线</span>
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex space-x-2"><button onclick="openDetailModal('琴城镇气象站')" class="p-1.5 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded" title="查看详情"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button><button onclick="openEditModal('琴城镇气象站')" class="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded" title="编辑"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button></div>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50" data-id="桑田镇气象站" data-status="在线">
+                            <td class="px-6 py-4 text-sm text-gray-800 font-medium">桑田镇气象站</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">桑田镇示范园</td>
+                            <td class="px-6 py-4 text-sm text-red-600">35.3°C</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">52%</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">12600 lux</td>
+                            <td class="px-6 py-4 text-sm text-orange-600">28%</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">2026-07-22 09:56</td>
+                            <td class="px-6 py-4">
+                                <span class="flex items-center">
+                                    <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                                    <span class="text-xs text-green-600">在线</span>
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex space-x-2"><button onclick="openDetailModal('桑田镇气象站')" class="p-1.5 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded" title="查看详情"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button><button onclick="openEditModal('桑田镇气象站')" class="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded" title="编辑"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button></div>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50" data-id="潭湖气象站" data-status="在线">
+                            <td class="px-6 py-4 text-sm text-gray-800 font-medium">潭湖气象站</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">潭湖水库周边</td>
+                            <td class="px-6 py-4 text-sm text-red-600">34.2°C</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">60%</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">10900 lux</td>
+                            <td class="px-6 py-4 text-sm text-orange-600">36%</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">2026-07-22 10:04</td>
+                            <td class="px-6 py-4">
+                                <span class="flex items-center">
+                                    <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                                    <span class="text-xs text-green-600">在线</span>
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex space-x-2"><button onclick="openDetailModal('潭湖气象站')" class="p-1.5 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded" title="查看详情"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button><button onclick="openEditModal('潭湖气象站')" class="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded" title="编辑"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button></div>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50" data-id="军峰山气象站" data-status="在线">
+                            <td class="px-6 py-4 text-sm text-gray-800 font-medium">军峰山气象站</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">军峰山半山腰</td>
+                            <td class="px-6 py-4 text-sm text-red-600">29.5°C</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">72%</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">8900 lux</td>
+                            <td class="px-6 py-4 text-sm text-orange-600">42%</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">2026-07-22 09:50</td>
+                            <td class="px-6 py-4">
+                                <span class="flex items-center">
+                                    <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                                    <span class="text-xs text-green-600">在线</span>
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex space-x-2"><button onclick="openDetailModal('军峰山气象站')" class="p-1.5 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded" title="查看详情"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button><button onclick="openEditModal('军峰山气象站')" class="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded" title="编辑"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button></div>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50" data-id="荷田气象站" data-status="在线">
+                            <td class="px-6 py-4 text-sm text-gray-800 font-medium">荷田气象站</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">荷田村桔园</td>
+                            <td class="px-6 py-4 text-sm text-red-600">35.7°C</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">50%</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">13100 lux</td>
+                            <td class="px-6 py-4 text-sm text-orange-600">27%</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">2026-07-22 10:01</td>
+                            <td class="px-6 py-4">
+                                <span class="flex items-center">
+                                    <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                                    <span class="text-xs text-green-600">在线</span>
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex space-x-2"><button onclick="openDetailModal('荷田气象站')" class="p-1.5 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded" title="查看详情"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button><button onclick="openEditModal('荷田气象站')" class="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded" title="编辑"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button></div>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50" data-id="双田气象站" data-status="在线">
+                            <td class="px-6 py-4 text-sm text-gray-800 font-medium">双田气象站</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">双田镇蜜桔园</td>
+                            <td class="px-6 py-4 text-sm text-red-600">35.1°C</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">53%</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">12400 lux</td>
+                            <td class="px-6 py-4 text-sm text-orange-600">32%</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">2026-07-22 09:57</td>
+                            <td class="px-6 py-4">
+                                <span class="flex items-center">
+                                    <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                                    <span class="text-xs text-green-600">在线</span>
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex space-x-2"><button onclick="openDetailModal('双田气象站')" class="p-1.5 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded" title="查看详情"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button><button onclick="openEditModal('双田气象站')" class="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded" title="编辑"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button></div>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50" data-id="古城气象站" data-status="在线">
+                            <td class="px-6 py-4 text-sm text-gray-800 font-medium">古城气象站</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">古城蜜桔示范区</td>
+                            <td class="px-6 py-4 text-sm text-red-600">36.0°C</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">49%</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">13400 lux</td>
+                            <td class="px-6 py-4 text-sm text-orange-600">26%</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">2026-07-22 10:06</td>
+                            <td class="px-6 py-4">
+                                <span class="flex items-center">
+                                    <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                                    <span class="text-xs text-green-600">在线</span>
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex space-x-2"><button onclick="openDetailModal('古城气象站')" class="p-1.5 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded" title="查看详情"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button><button onclick="openEditModal('古城气象站')" class="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded" title="编辑"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button></div>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50" data-id="石咀气象站" data-status="离线">
+                            <td class="px-6 py-4 text-sm text-gray-800 font-medium">石咀气象站</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">石咀蜜桔基地</td>
+                            <td class="px-6 py-4 text-sm text-gray-400">-</td>
+                            <td class="px-6 py-4 text-sm text-gray-400">-</td>
+                            <td class="px-6 py-4 text-sm text-gray-400">-</td>
+                            <td class="px-6 py-4 text-sm text-gray-400">-</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">2026-07-19 14:20</td>
+                            <td class="px-6 py-4">
+                                <span class="flex items-center">
+                                    <span class="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
+                                    <span class="text-xs text-red-600">离线</span>
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex space-x-2"><button onclick="openDetailModal('石咀气象站')" class="p-1.5 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded" title="查看详情"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button><button onclick="openEditModal('石咀气象站')" class="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded" title="编辑"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button></div>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50" data-id="河东气象站" data-status="在线">
+                            <td class="px-6 py-4 text-sm text-gray-800 font-medium">河东气象站</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">河东新区桔园</td>
+                            <td class="px-6 py-4 text-sm text-red-600">34.9°C</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">55%</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">11900 lux</td>
+                            <td class="px-6 py-4 text-sm text-orange-600">33%</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">2026-07-22 10:00</td>
+                            <td class="px-6 py-4">
+                                <span class="flex items-center">
+                                    <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                                    <span class="text-xs text-green-600">在线</span>
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex space-x-2"><button onclick="openDetailModal('河东气象站')" class="p-1.5 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded" title="查看详情"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button><button onclick="openEditModal('河东气象站')" class="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded" title="编辑"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button></div>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50" data-id="里塔气象站" data-status="在线">
+                            <td class="px-6 py-4 text-sm text-gray-800 font-medium">里塔气象站</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">里塔镇蜜桔园</td>
+                            <td class="px-6 py-4 text-sm text-red-600">35.4°C</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">51%</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">12700 lux</td>
+                            <td class="px-6 py-4 text-sm text-orange-600">29%</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">2026-07-22 09:59</td>
+                            <td class="px-6 py-4">
+                                <span class="flex items-center">
+                                    <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                                    <span class="text-xs text-green-600">在线</span>
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex space-x-2"><button onclick="openDetailModal('里塔气象站')" class="p-1.5 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded" title="查看详情"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button><button onclick="openEditModal('里塔气象站')" class="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded" title="编辑"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button></div>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50" data-id="新丰气象站" data-status="在线">
+                            <td class="px-6 py-4 text-sm text-gray-800 font-medium">新丰气象站</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">新丰街桔园</td>
+                            <td class="px-6 py-4 text-sm text-red-600">34.6°C</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">57%</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">11300 lux</td>
+                            <td class="px-6 py-4 text-sm text-orange-600">35%</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">2026-07-22 10:02</td>
+                            <td class="px-6 py-4">
+                                <span class="flex items-center">
+                                    <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                                    <span class="text-xs text-green-600">在线</span>
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex space-x-2"><button onclick="openDetailModal('新丰气象站')" class="p-1.5 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded" title="查看详情"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button><button onclick="openEditModal('新丰气象站')" class="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded" title="编辑"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button></div>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50" data-id="万坊气象站" data-status="在线">
+                            <td class="px-6 py-4 text-sm text-gray-800 font-medium">万坊气象站</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">万坊镇桔园</td>
+                            <td class="px-6 py-4 text-sm text-red-600">35.8°C</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">49%</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">13200 lux</td>
+                            <td class="px-6 py-4 text-sm text-orange-600">28%</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">2026-07-22 09:54</td>
+                            <td class="px-6 py-4">
+                                <span class="flex items-center">
+                                    <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                                    <span class="text-xs text-green-600">在线</span>
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex space-x-2"><button onclick="openDetailModal('万坊气象站')" class="p-1.5 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded" title="查看详情"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button><button onclick="openEditModal('万坊气象站')" class="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded" title="编辑"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button></div>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50" data-id="杨桥气象站" data-status="在线">
+                            <td class="px-6 py-4 text-sm text-gray-800 font-medium">杨桥气象站</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">杨桥蜜桔基地</td>
+                            <td class="px-6 py-4 text-sm text-red-600">34.3°C</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">59%</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">10800 lux</td>
+                            <td class="px-6 py-4 text-sm text-orange-600">37%</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">2026-07-22 10:03</td>
+                            <td class="px-6 py-4">
+                                <span class="flex items-center">
+                                    <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                                    <span class="text-xs text-green-600">在线</span>
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex space-x-2"><button onclick="openDetailModal('杨桥气象站')" class="p-1.5 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded" title="查看详情"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button><button onclick="openEditModal('杨桥气象站')" class="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded" title="编辑"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button></div>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50" data-id="瑶浦气象站" data-status="在线">
+                            <td class="px-6 py-4 text-sm text-gray-800 font-medium">瑶浦气象站</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">瑶浦村桔园</td>
+                            <td class="px-6 py-4 text-sm text-red-600">35.6°C</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">50%</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">13000 lux</td>
+                            <td class="px-6 py-4 text-sm text-orange-600">30%</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">2026-07-22 10:05</td>
+                            <td class="px-6 py-4">
+                                <span class="flex items-center">
+                                    <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                                    <span class="text-xs text-green-600">在线</span>
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex space-x-2"><button onclick="openDetailModal('瑶浦气象站')" class="p-1.5 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded" title="查看详情"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button><button onclick="openEditModal('瑶浦气象站')" class="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded" title="编辑"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button></div>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50" data-id="竺由气象站" data-status="在线">
+                            <td class="px-6 py-4 text-sm text-gray-800 font-medium">竺由气象站</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">竺由蜜桔园</td>
+                            <td class="px-6 py-4 text-sm text-red-600">33.9°C</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">62%</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">10500 lux</td>
+                            <td class="px-6 py-4 text-sm text-orange-600">38%</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">2026-07-22 09:51</td>
+                            <td class="px-6 py-4">
+                                <span class="flex items-center">
+                                    <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                                    <span class="text-xs text-green-600">在线</span>
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex space-x-2"><button onclick="openDetailModal('竺由气象站')" class="p-1.5 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded" title="查看详情"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button><button onclick="openEditModal('竺由气象站')" class="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded" title="编辑"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button></div>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50" data-id="溪湖气象站" data-status="在线">
+                            <td class="px-6 py-4 text-sm text-gray-800 font-medium">溪湖气象站</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">溪湖水库桔园</td>
+                            <td class="px-6 py-4 text-sm text-red-600">34.1°C</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">61%</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">10700 lux</td>
+                            <td class="px-6 py-4 text-sm text-orange-600">39%</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">2026-07-22 09:53</td>
+                            <td class="px-6 py-4">
+                                <span class="flex items-center">
+                                    <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                                    <span class="text-xs text-green-600">在线</span>
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex space-x-2"><button onclick="openDetailModal('溪湖气象站')" class="p-1.5 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded" title="查看详情"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button><button onclick="openEditModal('溪湖气象站')" class="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded" title="编辑"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button></div>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50" data-id="茅排气象站" data-status="在线">
+                            <td class="px-6 py-4 text-sm text-gray-800 font-medium">茅排气象站</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">茅排乡桔园</td>
+                            <td class="px-6 py-4 text-sm text-red-600">35.9°C</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">48%</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">13300 lux</td>
+                            <td class="px-6 py-4 text-sm text-orange-600">26%</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">2026-07-22 09:55</td>
+                            <td class="px-6 py-4">
+                                <span class="flex items-center">
+                                    <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                                    <span class="text-xs text-green-600">在线</span>
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex space-x-2"><button onclick="openDetailModal('茅排气象站')" class="p-1.5 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded" title="查看详情"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button><button onclick="openEditModal('茅排气象站')" class="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded" title="编辑"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button></div>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50" data-id="甘泉气象站" data-status="离线">
+                            <td class="px-6 py-4 text-sm text-gray-800 font-medium">甘泉气象站</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">甘泉示范区</td>
+                            <td class="px-6 py-4 text-sm text-gray-400">-</td>
+                            <td class="px-6 py-4 text-sm text-gray-400">-</td>
+                            <td class="px-6 py-4 text-sm text-gray-400">-</td>
+                            <td class="px-6 py-4 text-sm text-gray-400">-</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">2026-07-18 11:00</td>
+                            <td class="px-6 py-4">
+                                <span class="flex items-center">
+                                    <span class="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
+                                    <span class="text-xs text-red-600">离线</span>
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex space-x-2"><button onclick="openDetailModal('甘泉气象站')" class="p-1.5 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded" title="查看详情"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button><button onclick="openEditModal('甘泉气象站')" class="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded" title="编辑"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button></div>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50" data-id="高坪气象站" data-status="在线">
+                            <td class="px-6 py-4 text-sm text-gray-800 font-medium">高坪气象站</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">高坪蜜桔园</td>
+                            <td class="px-6 py-4 text-sm text-red-600">34.7°C</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">54%</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">11600 lux</td>
+                            <td class="px-6 py-4 text-sm text-orange-600">32%</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">2026-07-22 10:00</td>
+                            <td class="px-6 py-4">
+                                <span class="flex items-center">
+                                    <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                                    <span class="text-xs text-green-600">在线</span>
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex space-x-2"><button onclick="openDetailModal('高坪气象站')" class="p-1.5 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded" title="查看详情"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button><button onclick="openEditModal('高坪气象站')" class="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded" title="编辑"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button></div>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50" data-id="下洋气象站" data-status="在线">
+                            <td class="px-6 py-4 text-sm text-gray-800 font-medium">下洋气象站</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">下洋桔园基地</td>
+                            <td class="px-6 py-4 text-sm text-red-600">35.3°C</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">52%</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">12300 lux</td>
+                            <td class="px-6 py-4 text-sm text-orange-600">31%</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">2026-07-22 09:58</td>
+                            <td class="px-6 py-4">
+                                <span class="flex items-center">
+                                    <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                                    <span class="text-xs text-green-600">在线</span>
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex space-x-2"><button onclick="openDetailModal('下洋气象站')" class="p-1.5 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded" title="查看详情"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button><button onclick="openEditModal('下洋气象站')" class="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded" title="编辑"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button></div>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50" data-id="水南气象站" data-status="在线">
+                            <td class="px-6 py-4 text-sm text-gray-800 font-medium">水南气象站</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">水南蜜桔园</td>
+                            <td class="px-6 py-4 text-sm text-red-600">36.3°C</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">46%</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">13600 lux</td>
+                            <td class="px-6 py-4 text-sm text-orange-600">23%</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">2026-07-22 10:04</td>
+                            <td class="px-6 py-4">
+                                <span class="flex items-center">
+                                    <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                                    <span class="text-xs text-green-600">在线</span>
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex space-x-2"><button onclick="openDetailModal('水南气象站')" class="p-1.5 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded" title="查看详情"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button><button onclick="openEditModal('水南气象站')" class="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded" title="编辑"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button></div>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50" data-id="坪山气象站" data-status="在线">
+                            <td class="px-6 py-4 text-sm text-gray-800 font-medium">坪山气象站</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">坪山村桔园</td>
+                            <td class="px-6 py-4 text-sm text-red-600">34.4°C</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">58%</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">11100 lux</td>
+                            <td class="px-6 py-4 text-sm text-orange-600">35%</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">2026-07-22 10:01</td>
+                            <td class="px-6 py-4">
+                                <span class="flex items-center">
+                                    <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                                    <span class="text-xs text-green-600">在线</span>
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex space-x-2"><button onclick="openDetailModal('坪山气象站')" class="p-1.5 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded" title="查看详情"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button><button onclick="openEditModal('坪山气象站')" class="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded" title="编辑"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button></div>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50" data-id="大源气象站" data-status="在线">
+                            <td class="px-6 py-4 text-sm text-gray-800 font-medium">大源气象站</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">大源蜜桔基地</td>
+                            <td class="px-6 py-4 text-sm text-red-600">35.2°C</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">53%</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">12200 lux</td>
+                            <td class="px-6 py-4 text-sm text-orange-600">30%</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">2026-07-22 09:56</td>
+                            <td class="px-6 py-4">
+                                <span class="flex items-center">
+                                    <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                                    <span class="text-xs text-green-600">在线</span>
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex space-x-2"><button onclick="openDetailModal('大源气象站')" class="p-1.5 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded" title="查看详情"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button><button onclick="openEditModal('大源气象站')" class="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded" title="编辑"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button></div>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50" data-id="石峡气象站" data-status="在线">
+                            <td class="px-6 py-4 text-sm text-gray-800 font-medium">石峡气象站</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">石峡乡桔园</td>
+                            <td class="px-6 py-4 text-sm text-red-600">33.6°C</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">64%</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">10300 lux</td>
+                            <td class="px-6 py-4 text-sm text-orange-600">40%</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">2026-07-22 09:52</td>
+                            <td class="px-6 py-4">
+                                <span class="flex items-center">
+                                    <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                                    <span class="text-xs text-green-600">在线</span>
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex space-x-2"><button onclick="openDetailModal('石峡气象站')" class="p-1.5 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded" title="查看详情"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button><button onclick="openEditModal('石峡气象站')" class="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded" title="编辑"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button></div>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50" data-id="桃源气象站" data-status="在线">
+                            <td class="px-6 py-4 text-sm text-gray-800 font-medium">桃源气象站</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">桃源蜜桔园</td>
+                            <td class="px-6 py-4 text-sm text-red-600">34.0°C</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">60%</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">10600 lux</td>
+                            <td class="px-6 py-4 text-sm text-orange-600">38%</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">2026-07-22 10:02</td>
+                            <td class="px-6 py-4">
+                                <span class="flex items-center">
+                                    <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                                    <span class="text-xs text-green-600">在线</span>
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex space-x-2"><button onclick="openDetailModal('桃源气象站')" class="p-1.5 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded" title="查看详情"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button><button onclick="openEditModal('桃源气象站')" class="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded" title="编辑"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button></div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="px-6 py-4 border-t border-gray-100 flex items-center justify-between">
+                <p class="text-sm text-gray-500" id="station-record-count">共 35 个站点</p>
+                <div class="flex items-center space-x-2" id="station-pagination">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="detail-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                    <span id="detail-title">站点详情</span>
+                </h3>
+                <button onclick="closeModal('detail-modal')" class="p-1 hover:bg-gray-100 rounded">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center mb-4">
+                    <h4 class="text-xl font-bold text-gray-800" id="detail-name">南丰镇气象站</h4>
+                    <span id="detail-status-badge" class="ml-3 px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">在线</span>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-5">
+                    <div class="lg:col-span-1">
+                        <h5 class="text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                            <iconify-icon icon="material-symbols:map-pin" class="w-4 h-4 mr-2 text-blue-500"></iconify-icon>
+                            站点位置信息
+                        </h5>
+                        <div class="space-y-2">
+                            <div class="p-2.5 bg-gray-50 rounded-lg">
+                                <p class="text-xs text-gray-500">站点编号</p>
+                                <p class="text-sm font-medium text-gray-800" id="detail-station-id">NF-001</p>
+                            </div>
+                            <div class="p-2.5 bg-gray-50 rounded-lg">
+                                <p class="text-xs text-gray-500">站点位置</p>
+                                <p class="text-sm font-medium text-gray-800" id="detail-location">南丰镇中心</p>
+                            </div>
+                            <div class="p-2.5 bg-gray-50 rounded-lg">
+                                <p class="text-xs text-gray-500">经度</p>
+                                <p class="text-sm font-medium text-gray-800" id="detail-longitude">116.53°E</p>
+                            </div>
+                            <div class="p-2.5 bg-gray-50 rounded-lg">
+                                <p class="text-xs text-gray-500">纬度</p>
+                                <p class="text-sm font-medium text-gray-800" id="detail-latitude">27.22°N</p>
+                            </div>
+                            <div class="p-2.5 bg-gray-50 rounded-lg">
+                                <p class="text-xs text-gray-500">设备类型</p>
+                                <p class="text-sm font-medium text-gray-800" id="detail-device-type">自动气象站 DWS-200</p>
+                            </div>
+                            <div class="p-2.5 bg-gray-50 rounded-lg">
+                                <p class="text-xs text-gray-500">设备编号</p>
+                                <p class="text-sm font-medium text-gray-800" id="detail-device-id">WX-001</p>
+                            </div>
+                            <div class="p-2.5 bg-gray-50 rounded-lg">
+                                <p class="text-xs text-gray-500">安装时间</p>
+                                <p class="text-sm font-medium text-gray-800" id="detail-install-time">2025-03-15</p>
+                            </div>
+                            <div class="p-2.5 bg-gray-50 rounded-lg">
+                                <p class="text-xs text-gray-500">最后更新</p>
+                                <p class="text-sm font-medium text-gray-800" id="detail-update-time">2026-07-22 10:00</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-2">
+                        <h5 class="text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                            <iconify-icon icon="material-symbols:sensors" class="w-4 h-4 mr-2 text-green-500"></iconify-icon>
+                            当前监测数据
+                        </h5>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-5">
+                            <div class="p-3 bg-red-50 rounded-lg">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-xs text-red-500">温度</span>
+                                    <iconify-icon icon="material-symbols:thermostat" class="w-4 h-4 text-red-500"></iconify-icon>
+                                </div>
+                                <p class="text-2xl font-bold text-red-600" id="detail-temp">35.2°C</p>
+                            </div>
+                            <div class="p-4 bg-blue-50 rounded-lg">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-xs text-blue-500">空气湿度</span>
+                                    <iconify-icon icon="material-symbols:water" class="w-4 h-4 text-blue-500"></iconify-icon>
+                                </div>
+                                <p class="text-2xl font-bold text-blue-600" id="detail-humidity">55%</p>
+                            </div>
+                            <div class="p-4 bg-yellow-50 rounded-lg">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-xs text-yellow-500">光照强度</span>
+                                    <svg class="w-5 h-5 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                                </div>
+                                <p class="text-2xl font-bold text-yellow-600" id="detail-light">12500 lux</p>
+                            </div>
+                            <div class="p-4 bg-orange-50 rounded-lg">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-xs text-orange-500">土壤湿度</span>
+                                    <iconify-icon icon="material-symbols:leaf" class="w-4 h-4 text-orange-500"></iconify-icon>
+                                </div>
+                                <p class="text-2xl font-bold text-orange-600" id="detail-soil-moisture">32%</p>
+                            </div>
+                            <div class="p-4 bg-teal-50 rounded-lg">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-xs text-teal-500">风速</span>
+                                    <iconify-icon icon="material-symbols:air" class="w-4 h-4 text-teal-500"></iconify-icon>
+                                </div>
+                                <p class="text-2xl font-bold text-teal-600" id="detail-wind">2.8 m/s</p>
+                            </div>
+                            <div class="p-4 bg-indigo-50 rounded-lg">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-xs text-indigo-500">降雨量</span>
+                                    <iconify-icon icon="material-symbols:cloud-rain" class="w-4 h-4 text-indigo-500"></iconify-icon>
+                                </div>
+                                <p class="text-2xl font-bold text-indigo-600" id="detail-rain">0 mm</p>
+                            </div>
+                        </div>
+
+                        <h5 class="text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                            <iconify-icon icon="material-symbols:line-chart" class="w-4 h-4 mr-2 text-purple-500"></iconify-icon>
+                            站点状态
+                        </h5>
+                        <div class="grid grid-cols-3 gap-3 mb-5">
+                            <div class="p-3 bg-gray-50 rounded-lg text-center">
+                                <div class="flex items-center justify-center mb-2">
+                                    <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                                    <span class="text-sm text-gray-600">传感器</span>
+                                </div>
+                                <p class="text-sm font-medium text-green-600">正常</p>
+                            </div>
+                            <div class="p-3 bg-gray-50 rounded-lg">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-sm text-gray-600">信号强度</span>
+                                    <span class="text-sm font-medium text-gray-800" id="detail-signal">85%</span>
+                                </div>
+                                <div class="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                                    <div id="detail-signal-bar" class="w-[85%] h-full bg-green-500 rounded-full"></div>
+                                </div>
+                            </div>
+                            <div class="p-3 bg-gray-50 rounded-lg">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-sm text-gray-600">电池电量</span>
+                                    <span class="text-sm font-medium text-gray-800" id="detail-battery">92%</span>
+                                </div>
+                                <div class="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                                    <div id="detail-battery-bar" class="w-[92%] h-full bg-green-500 rounded-full"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h5 class="text-sm font-semibold text-gray-700 mb-3 flex items-center">
+                            <iconify-icon icon="material-symbols:history" class="w-4 h-4 mr-2 text-gray-500"></iconify-icon>
+                            历史数据趋势（近24小时）
+                        </h5>
+                        <div class="bg-gray-50 rounded-lg p-3">
+                            <div class="h-56">
+                                <canvas id="historyChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="p-4 border-t border-gray-200 flex justify-end space-x-3">
+                <button onclick="restartStation()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm">重启设备</button>
+                <button onclick="closeModal('detail-modal')" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="edit-modal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="bg-gradient-to-r from-blue-500 to-blue-600 p-4 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-white flex items-center">
+                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                    <span>编辑站点信息</span>
+                </h3>
+                <button onclick="closeModal('edit-modal')" class="p-1.5 hover:bg-white/20 rounded-lg transition-colors">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="p-6 bg-white">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <label class="block text-sm font-medium text-gray-600 mb-2 flex items-center">
+                            <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                            站点名称
+                        </label>
+                        <input type="text" id="edit-name" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" placeholder="请输入站点名称">
+                    </div>
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <label class="block text-sm font-medium text-gray-600 mb-2 flex items-center">
+                            <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+                            站点编号
+                        </label>
+                        <input type="text" id="edit-station-id" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" placeholder="请输入站点编号">
+                    </div>
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <label class="block text-sm font-medium text-gray-600 mb-2 flex items-center">
+                            <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                            站点位置
+                        </label>
+                        <input type="text" id="edit-location" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" placeholder="请输入站点位置">
+                    </div>
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <label class="block text-sm font-medium text-gray-600 mb-2 flex items-center">
+                            <svg class="w-4 h-4 mr-2 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            经度
+                        </label>
+                        <input type="text" id="edit-longitude" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" placeholder="请输入经度">
+                    </div>
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <label class="block text-sm font-medium text-gray-600 mb-2 flex items-center">
+                            <svg class="w-4 h-4 mr-2 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                            纬度
+                        </label>
+                        <input type="text" id="edit-latitude" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" placeholder="请输入纬度">
+                    </div>
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <label class="block text-sm font-medium text-gray-600 mb-2 flex items-center">
+                            <svg class="w-4 h-4 mr-2 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+                            设备类型
+                        </label>
+                        <input type="text" id="edit-device-type" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" placeholder="请输入设备类型">
+                    </div>
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <label class="block text-sm font-medium text-gray-600 mb-2 flex items-center">
+                            <svg class="w-4 h-4 mr-2 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                            设备编号
+                        </label>
+                        <input type="text" id="edit-device-id" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" placeholder="请输入设备编号">
+                    </div>
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <label class="block text-sm font-medium text-gray-600 mb-2 flex items-center">
+                            <svg class="w-4 h-4 mr-2 text-cyan-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                            安装时间
+                        </label>
+                        <input type="date" id="edit-install-time" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                    </div>
+                </div>
+            </div>
+            <div class="p-4 bg-gray-50 border-t border-gray-200 flex justify-end space-x-3">
+                <button onclick="closeModal('edit-modal')" class="px-5 py-2.5 bg-white text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-100 text-sm font-medium transition-colors">取消</button>
+                <button onclick="saveEditModal()" class="px-5 py-2.5 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-sm font-medium transition-colors shadow-md hover:shadow-lg">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let historyChartInstance = null;
+
+        function generateHistoryData(baseTemp, baseHumidity) {
+            const hours = [];
+            const temps = [];
+            const humids = [];
+            const now = new Date();
+            for (let i = 23; i >= 0; i--) {
+                const h = new Date(now.getTime() - i * 3600000);
+                hours.push(`${h.getHours().toString().padStart(2, '0')}:00`);
+                const timeOffset = (h.getHours() - 14) / 14;
+                const tempVariation = Math.sin(timeOffset * Math.PI) * 8 + (Math.random() - 0.5) * 3;
+                const humidVariation = -Math.sin(timeOffset * Math.PI) * 15 + (Math.random() - 0.5) * 5;
+                temps.push(Math.round((parseFloat(baseTemp.replace('°C', '')) + tempVariation) * 10) / 10);
+                humids.push(Math.round(parseFloat(baseHumidity.replace('%', '')) + humidVariation));
+            }
+            return { hours, temps, humids };
+        }
+
+        const stationDetails = {
+            '南丰镇气象站': { stationId: 'NF-001', deviceType: '自动气象站 DWS-200', wind: '2.8 m/s', rain: '0 mm', longitude: '116.532°E', latitude: '27.218°N', signal: '85%', battery: '92%' },
+            '市山镇气象站': { stationId: 'NF-002', deviceType: '自动气象站 DWS-200', wind: '3.1 m/s', rain: '0 mm', longitude: '116.485°E', latitude: '27.245°N', signal: '88%', battery: '87%' },
+            '太和镇气象站': { stationId: 'NF-003', deviceType: '自动气象站 DWS-100', wind: '-', rain: '-', longitude: '116.580°E', latitude: '27.262°N', signal: '-', battery: '-' },
+            '莱溪乡气象站': { stationId: 'NF-004', deviceType: '自动气象站 DWS-200', wind: '2.5 m/s', rain: '0.2 mm', longitude: '116.468°E', latitude: '27.185°N', signal: '79%', battery: '95%' },
+            '洽湾镇气象站': { stationId: 'NF-005', deviceType: '自动气象站 DWS-300', wind: '3.0 m/s', rain: '0 mm', longitude: '116.620°E', latitude: '27.230°N', signal: '91%', battery: '89%' },
+            '白舍镇气象站': { stationId: 'NF-006', deviceType: '自动气象站 DWS-200', wind: '3.5 m/s', rain: '0 mm', longitude: '116.380°E', latitude: '27.120°N', signal: '82%', battery: '76%' },
+            '紫霄镇气象站': { stationId: 'NF-007', deviceType: '自动气象站 DWS-100', wind: '2.2 m/s', rain: '0.5 mm', longitude: '116.510°E', latitude: '27.350°N', signal: '75%', battery: '90%' },
+            '东坪乡气象站': { stationId: 'NF-008', deviceType: '自动气象站 DWS-100', wind: '-', rain: '-', longitude: '116.650°E', latitude: '27.150°N', signal: '-', battery: '-' },
+            '三溪乡气象站': { stationId: 'NF-009', deviceType: '自动气象站 DWS-200', wind: '2.7 m/s', rain: '0 mm', longitude: '116.420°E', latitude: '27.280°N', signal: '86%', battery: '83%' },
+            '傅坊乡气象站': { stationId: 'NF-010', deviceType: '自动气象站 DWS-200', wind: '2.4 m/s', rain: '0.1 mm', longitude: '116.350°E', latitude: '27.080°N', signal: '81%', battery: '94%' },
+            '琴城镇气象站': { stationId: 'NF-011', deviceType: '自动气象站 DWS-300', wind: '3.8 m/s', rain: '0 mm', longitude: '116.550°E', latitude: '27.200°N', signal: '93%', battery: '85%' },
+            '桑田镇气象站': { stationId: 'NF-012', deviceType: '自动气象站 DWS-200', wind: '2.9 m/s', rain: '0 mm', longitude: '116.490°E', latitude: '27.165°N', signal: '84%', battery: '88%' },
+            '潭湖气象站': { stationId: 'NF-013', deviceType: '自动气象站 DWS-300', wind: '2.1 m/s', rain: '0.8 mm', longitude: '116.600°E', latitude: '27.190°N', signal: '78%', battery: '91%' },
+            '军峰山气象站': { stationId: 'NF-014', deviceType: '自动气象站 DWS-100', wind: '4.2 m/s', rain: '1.2 mm', longitude: '116.470°E', latitude: '27.420°N', signal: '72%', battery: '86%' },
+            '荷田气象站': { stationId: 'NF-015', deviceType: '自动气象站 DWS-200', wind: '3.3 m/s', rain: '0 mm', longitude: '116.520°E', latitude: '27.145°N', signal: '87%', battery: '81%' },
+            '双田气象站': { stationId: 'NF-016', deviceType: '自动气象站 DWS-200', wind: '2.6 m/s', rain: '0 mm', longitude: '116.570°E', latitude: '27.225°N', signal: '83%', battery: '93%' },
+            '古城气象站': { stationId: 'NF-017', deviceType: '自动气象站 DWS-300', wind: '3.4 m/s', rain: '0 mm', longitude: '116.390°E', latitude: '27.110°N', signal: '90%', battery: '78%' },
+            '石咀气象站': { stationId: 'NF-018', deviceType: '自动气象站 DWS-100', wind: '-', rain: '-', longitude: '116.440°E', latitude: '27.090°N', signal: '-', battery: '-' },
+            '河东气象站': { stationId: 'NF-019', deviceType: '自动气象站 DWS-200', wind: '2.8 m/s', rain: '0.3 mm', longitude: '116.560°E', latitude: '27.195°N', signal: '89%', battery: '84%' },
+            '里塔气象站': { stationId: 'NF-020', deviceType: '自动气象站 DWS-200', wind: '3.2 m/s', rain: '0 mm', longitude: '116.330°E', latitude: '27.050°N', signal: '76%', battery: '96%' },
+            '新丰气象站': { stationId: 'NF-021', deviceType: '自动气象站 DWS-100', wind: '2.3 m/s', rain: '0.4 mm', longitude: '116.540°E', latitude: '27.255°N', signal: '80%', battery: '82%' },
+            '万坊气象站': { stationId: 'NF-022', deviceType: '自动气象站 DWS-300', wind: '3.6 m/s', rain: '0 mm', longitude: '116.410°E', latitude: '27.270°N', signal: '92%', battery: '79%' },
+            '杨桥气象站': { stationId: 'NF-023', deviceType: '自动气象站 DWS-200', wind: '2.0 m/s', rain: '0.6 mm', longitude: '116.610°E', latitude: '27.320°N', signal: '77%', battery: '97%' },
+            '瑶浦气象站': { stationId: 'NF-024', deviceType: '自动气象站 DWS-200', wind: '3.1 m/s', rain: '0 mm', longitude: '116.500°E', latitude: '27.175°N', signal: '86%', battery: '80%' },
+            '竺由气象站': { stationId: 'NF-025', deviceType: '自动气象站 DWS-100', wind: '2.5 m/s', rain: '0.9 mm', longitude: '116.450°E', latitude: '27.380°N', signal: '74%', battery: '91%' },
+            '溪湖气象站': { stationId: 'NF-026', deviceType: '自动气象站 DWS-300', wind: '1.8 m/s', rain: '1.5 mm', longitude: '116.590°E', latitude: '27.135°N', signal: '73%', battery: '95%' },
+            '茅排气象站': { stationId: 'NF-027', deviceType: '自动气象站 DWS-200', wind: '3.7 m/s', rain: '0 mm', longitude: '116.360°E', latitude: '27.070°N', signal: '79%', battery: '75%' },
+            '甘泉气象站': { stationId: 'NF-028', deviceType: '自动气象站 DWS-100', wind: '-', rain: '-', longitude: '116.430°E', latitude: '27.295°N', signal: '-', battery: '-' },
+            '高坪气象站': { stationId: 'NF-029', deviceType: '自动气象站 DWS-200', wind: '2.7 m/s', rain: '0.1 mm', longitude: '116.585°E', latitude: '27.240°N', signal: '82%', battery: '89%' },
+            '下洋气象站': { stationId: 'NF-030', deviceType: '自动气象站 DWS-200', wind: '2.9 m/s', rain: '0 mm', longitude: '116.475°E', latitude: '27.155°N', signal: '85%', battery: '90%' },
+            '水南气象站': { stationId: 'NF-031', deviceType: '自动气象站 DWS-300', wind: '3.9 m/s', rain: '0 mm', longitude: '116.370°E', latitude: '27.060°N', signal: '91%', battery: '74%' },
+            '坪山气象站': { stationId: 'NF-032', deviceType: '自动气象站 DWS-100', wind: '2.1 m/s', rain: '0.7 mm', longitude: '116.630°E', latitude: '27.300°N', signal: '76%', battery: '92%' },
+            '大源气象站': { stationId: 'NF-033', deviceType: '自动气象站 DWS-200', wind: '2.8 m/s', rain: '0 mm', longitude: '116.495°E', latitude: '27.180°N', signal: '84%', battery: '86%' },
+            '石峡气象站': { stationId: 'NF-034', deviceType: '自动气象站 DWS-100', wind: '1.9 m/s', rain: '1.0 mm', longitude: '116.640°E', latitude: '27.360°N', signal: '71%', battery: '87%' },
+            '桃源气象站': { stationId: 'NF-035', deviceType: '自动气象站 DWS-200', wind: '2.2 m/s', rain: '0.5 mm', longitude: '116.525°E', latitude: '27.330°N', signal: '78%', battery: '93%' }
+        };
+
+        function openDetailModal(name) {
+            try {
+                document.getElementById('detail-name').textContent = name;
+                const row = document.querySelector(`tr[data-id="${name}"]`);
+                
+                if (row) {
+                    const location = row.querySelector('td:nth-child(2)')?.textContent || '';
+                    const temp = row.querySelector('td:nth-child(3)')?.textContent || '0°C';
+                    const humidity = row.querySelector('td:nth-child(4)')?.textContent || '0%';
+                    const light = row.querySelector('td:nth-child(5)')?.textContent || '-';
+                    const soilMoisture = row.querySelector('td:nth-child(6)')?.textContent || '-';
+                    const updateTime = row.querySelector('td:nth-child(7)')?.textContent || '';
+                    const status = row.getAttribute('data-status');
+
+                    document.getElementById('detail-location').textContent = location;
+                    document.getElementById('detail-temp').textContent = temp;
+                    document.getElementById('detail-humidity').textContent = humidity;
+                    document.getElementById('detail-light').textContent = light;
+                    document.getElementById('detail-soil-moisture').textContent = soilMoisture;
+                    document.getElementById('detail-update-time').textContent = updateTime;
+
+                    const badge = document.getElementById('detail-status-badge');
+                    if (status === '在线') {
+                        badge.textContent = '在线';
+                        badge.className = 'ml-3 px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full';
+                    } else {
+                        badge.textContent = '离线';
+                        badge.className = 'ml-3 px-2 py-1 bg-red-100 text-red-700 text-xs rounded-full';
+                    }
+
+                    const detail = stationDetails[name];
+                    if (detail) {
+                        document.getElementById('detail-station-id').textContent = detail.stationId;
+                        document.getElementById('detail-device-type').textContent = detail.deviceType;
+                        document.getElementById('detail-wind').textContent = detail.wind;
+                        document.getElementById('detail-rain').textContent = detail.rain;
+                        document.getElementById('detail-longitude').textContent = detail.longitude;
+                        document.getElementById('detail-latitude').textContent = detail.latitude;
+                        document.getElementById('detail-signal').textContent = detail.signal;
+                        document.getElementById('detail-battery').textContent = detail.battery;
+                        
+                        const signalBar = document.getElementById('detail-signal-bar');
+                        const batteryBar = document.getElementById('detail-battery-bar');
+                        if (detail.signal !== '-') {
+                            signalBar.style.width = detail.signal;
+                            signalBar.className = 'h-full rounded-full ' + (parseInt(detail.signal) >= 80 ? 'bg-green-500' : parseInt(detail.signal) >= 60 ? 'bg-yellow-500' : 'bg-red-500');
+                        } else {
+                            signalBar.style.width = '0%';
+                            signalBar.className = 'h-full rounded-full bg-gray-300';
+                        }
+                        if (detail.battery !== '-') {
+                            batteryBar.style.width = detail.battery;
+                            batteryBar.className = 'h-full rounded-full ' + (parseInt(detail.battery) >= 80 ? 'bg-green-500' : parseInt(detail.battery) >= 50 ? 'bg-yellow-500' : 'bg-red-500');
+                        } else {
+                            batteryBar.style.width = '0%';
+                            batteryBar.className = 'h-full rounded-full bg-gray-300';
+                        }
+                    }
+
+                    try {
+                        renderHistoryChart(temp, humidity);
+                    } catch (chartErr) {
+                        console.error('Chart render error:', chartErr);
+                    }
+                }
+            } catch (e) {
+                console.error('openDetailModal error:', e);
+            } finally {
+                document.getElementById('detail-modal').classList.add('active');
+            }
+        }
+
+        let currentEditStationName = '';
+
+        function openEditModal(name) {
+            try {
+                currentEditStationName = name;
+                const row = document.querySelector(`tr[data-id="${name}"]`);
+                
+                if (row) {
+                    const location = row.querySelector('td:nth-child(2)')?.textContent || '';
+                    const detail = stationDetails[name];
+                    
+                    document.getElementById('edit-name').value = name;
+                    document.getElementById('edit-location').value = location;
+                    
+                    if (detail) {
+                        document.getElementById('edit-station-id').value = detail.stationId || '';
+                        document.getElementById('edit-longitude').value = detail.longitude || '';
+                        document.getElementById('edit-latitude').value = detail.latitude || '';
+                        document.getElementById('edit-device-type').value = detail.deviceType || '';
+                        document.getElementById('edit-device-id').value = detail.deviceId || '';
+                    } else {
+                        document.getElementById('edit-station-id').value = '';
+                        document.getElementById('edit-longitude').value = '';
+                        document.getElementById('edit-latitude').value = '';
+                        document.getElementById('edit-device-type').value = '';
+                        document.getElementById('edit-device-id').value = '';
+                    }
+                }
+            } catch (e) {
+                console.error('openEditModal error:', e);
+            } finally {
+                document.getElementById('edit-modal').classList.add('active');
+            }
+        }
+
+        function saveEditModal() {
+            const newName = document.getElementById('edit-name').value.trim();
+            const stationId = document.getElementById('edit-station-id').value.trim();
+            const location = document.getElementById('edit-location').value.trim();
+            const longitude = document.getElementById('edit-longitude').value.trim();
+            const latitude = document.getElementById('edit-latitude').value.trim();
+            const deviceType = document.getElementById('edit-device-type').value.trim();
+            const deviceId = document.getElementById('edit-device-id').value.trim();
+            
+            if (!newName) {
+                alert('请输入站点名称');
+                return;
+            }
+            
+            if (currentEditStationName !== newName) {
+                const existingRow = document.querySelector(`tr[data-id="${newName}"]`);
+                if (existingRow) {
+                    alert('站点名称已存在');
+                    return;
+                }
+            }
+            
+            const row = document.querySelector(`tr[data-id="${currentEditStationName}"]`);
+            if (row) {
+                row.setAttribute('data-id', newName);
+                row.querySelector('td:nth-child(1)').textContent = newName;
+                row.querySelector('td:nth-child(2)').textContent = location;
+            }
+            
+            if (stationDetails[currentEditStationName]) {
+                stationDetails[newName] = {
+                    stationId: stationId,
+                    deviceType: deviceType,
+                    deviceId: deviceId,
+                    longitude: longitude,
+                    latitude: latitude,
+                    wind: stationDetails[currentEditStationName].wind,
+                    rain: stationDetails[currentEditStationName].rain,
+                    signal: stationDetails[currentEditStationName].signal,
+                    battery: stationDetails[currentEditStationName].battery
+                };
+                if (currentEditStationName !== newName) {
+                    delete stationDetails[currentEditStationName];
+                }
+            }
+            
+            closeModal('edit-modal');
+            alert('站点信息已保存');
+        }
+
+        function renderHistoryChart(temp, humidity) {
+            if (historyChartInstance) {
+                historyChartInstance.destroy();
+            }
+
+            const historyData = generateHistoryData(temp, humidity);
+            const ctx = document.getElementById('historyChart').getContext('2d');
+            
+            historyChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: historyData.hours,
+                    datasets: [{
+                        label: '温度(°C)',
+                        data: historyData.temps,
+                        borderColor: '#EF4444',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.3,
+                        pointBackgroundColor: '#EF4444',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 3,
+                        yAxisID: 'y'
+                    }, {
+                        label: '湿度(%)',
+                        data: historyData.humids,
+                        borderColor: '#3B82F6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.3,
+                        pointBackgroundColor: '#3B82F6',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 3,
+                        yAxisID: 'y1'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top', labels: { font: { size: 12 } } }
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            position: 'left',
+                            min: 15,
+                            max: 45,
+                            ticks: { callback: (value) => value + '°C' },
+                            grid: { color: '#f3f4f6' }
+                        },
+                        y1: {
+                            type: 'linear',
+                            position: 'right',
+                            min: 30,
+                            max: 100,
+                            ticks: { callback: (value) => value + '%' },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function refreshData() {
+            alert('正在刷新气象数据...\n数据已更新');
+        }
+
+        function restartStation() {
+            alert('正在重启设备...\n请等待设备重新连接');
+        }
+
+        function filterStations() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const statusFilter = document.getElementById('status-filter').value;
+            
+            const rows = document.querySelectorAll('#station-table-body tr');
+            let visibleCount = 0;
+            
+            rows.forEach(row => {
+                if (row.id === 'empty-row') return;
+                const name = row.getAttribute('data-id').toLowerCase();
+                const status = row.getAttribute('data-status');
+                const location = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+                
+                const matchesSearch = name.includes(searchTerm) || location.includes(searchTerm);
+                const matchesStatus = !statusFilter || status === statusFilter;
+                
+                if (matchesSearch && matchesStatus) {
+                    row.style.display = '';
+                    visibleCount++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+            
+            let emptyRow = document.getElementById('empty-row');
+            if (visibleCount === 0) {
+                if (!emptyRow) {
+                    emptyRow = document.createElement('tr');
+                    emptyRow.id = 'empty-row';
+                    emptyRow.innerHTML = '<td colspan="9" class="px-6 py-8 text-center text-gray-400">暂无匹配的气象站数据</td>';
+                    document.getElementById('station-table-body').appendChild(emptyRow);
+                }
+                emptyRow.style.display = '';
+            } else if (emptyRow) {
+                emptyRow.style.display = 'none';
+            }
+        }
+
+        document.addEventListener('click', (e) => {
+            const detailModal = document.getElementById('detail-modal');
+            const editModal = document.getElementById('edit-modal');
+            const detailBtn = e.target.closest('[onclick*="openDetailModal"]');
+            const editBtn = e.target.closest('[onclick*="openEditModal"]');
+            
+            if (!detailModal.contains(e.target) && !detailBtn) {
+                detailModal.classList.remove('active');
+            }
+            if (!editModal.contains(e.target) && !editBtn) {
+                editModal.classList.remove('active');
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const ctx = document.getElementById('weatherTrendChart').getContext('2d');
+            const hours = ['00:00', '02:00', '04:00', '06:00', '08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00', '22:00'];
+            
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: hours,
+                    datasets: [{
+                        label: '温度(°C)',
+                        data: [26, 24, 23, 24, 28, 33, 38, 39, 37, 34, 30, 27],
+                        borderColor: '#EF4444',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.3,
+                        pointBackgroundColor: '#EF4444',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        yAxisID: 'y'
+                    }, {
+                        label: '湿度(%)',
+                        data: [78, 82, 85, 83, 68, 55, 48, 45, 52, 62, 70, 75],
+                        borderColor: '#3B82F6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.3,
+                        pointBackgroundColor: '#3B82F6',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        yAxisID: 'y1'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top', labels: { font: { size: 12 } } }
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            position: 'left',
+                            min: 15,
+                            max: 45,
+                            ticks: { callback: (value) => value + '°C' },
+                            grid: { color: '#f3f4f6' }
+                        },
+                        y1: {
+                            type: 'linear',
+                            position: 'right',
+                            min: 30,
+                            max: 100,
+                            ticks: { callback: (value) => value + '%' },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+        });
+        // -- Weather station pagination --
+        let stationPage = 1;
+        const stationPageSize = 10;
+        let stationFilteredCount = 0;
+
+        function initStationPagination() {
+            renderStationTable();
+        }
+
+        function getFilteredStationRows() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const statusFilter = document.getElementById('status-filter').value;
+            const rows = Array.from(document.querySelectorAll('#station-table-body tr'));
+            return rows.filter(row => {
+                if (row.id === 'empty-row') return false;
+                const name = row.getAttribute('data-id').toLowerCase();
+                const status = row.getAttribute('data-status');
+                const location = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+                const matchesSearch = name.includes(searchTerm) || location.includes(searchTerm);
+                const matchesStatus = !statusFilter || status === statusFilter;
+                return matchesSearch && matchesStatus;
+            });
+        }
+
+        function renderStationTable() {
+            const filtered = getFilteredStationRows();
+            stationFilteredCount = filtered.length;
+            const totalPages = Math.max(1, Math.ceil(filtered.length / stationPageSize));
+            if (stationPage > totalPages) stationPage = totalPages;
+
+            const start = (stationPage - 1) * stationPageSize;
+            const pageRows = filtered.slice(start, start + stationPageSize);
+
+            const allRows = document.querySelectorAll('#station-table-body tr');
+            allRows.forEach(row => row.style.display = 'none');
+            pageRows.forEach(row => row.style.display = '');
+
+            document.getElementById('station-record-count').textContent = '共 ' + stationFilteredCount + ' 个站点';
+            renderStationPagination(totalPages);
+        }
+
+        function renderStationPagination(totalPages) {
+            const container = document.getElementById('station-pagination');
+            let html = '';
+            const prevDisabled = stationPage === 1;
+            html += '<button onclick="stationPrevPage()" ' + (prevDisabled ? 'disabled' : '') + ' class="px-3 py-1 border border-gray-300 rounded text-sm ' + (prevDisabled ? 'text-gray-300 cursor-not-allowed' : 'text-gray-600 hover:bg-gray-50') + '">上一页</button>';
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === stationPage) {
+                    html += '<button class="px-3 py-1 bg-green-600 text-white rounded text-sm">' + i + '</button>';
+                } else {
+                    html += '<button onclick="stationGoToPage(' + i + ')" class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50">' + i + '</button>';
+                }
+            }
+            const nextDisabled = stationPage === totalPages;
+            html += '<button onclick="stationNextPage()" ' + (nextDisabled ? 'disabled' : '') + ' class="px-3 py-1 border border-gray-300 rounded text-sm ' + (nextDisabled ? 'text-gray-300 cursor-not-allowed' : 'text-gray-600 hover:bg-gray-50') + '">下一页</button>';
+            container.innerHTML = html;
+        }
+
+        function stationPrevPage() {
+            if (stationPage > 1) { stationPage--; renderStationTable(); }
+        }
+
+        function stationNextPage() {
+            const totalPages = Math.max(1, Math.ceil(stationFilteredCount / stationPageSize));
+            if (stationPage < totalPages) { stationPage++; renderStationTable(); }
+        }
+
+        function stationGoToPage(page) {
+            stationPage = page;
+            renderStationTable();
+        }
+
+        // Override filterStations to use pagination
+        const _originalFilterStations = filterStations;
+        filterStations = function() {
+            stationPage = 1;
+            renderStationTable();
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(initStationPagination, 100);
+        });
+
+    </script>
+</body>
+</html>

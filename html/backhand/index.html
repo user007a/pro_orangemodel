@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>南丰蜜桔模型管理系统</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            sidebar: '#1b2a41',
+            'sidebar-hover': '#243552',
+            'sidebar-active': '#22a84a',
+            primary: '#22a84a',
+            'primary-hover': '#1e9441',
+            'primary-light': '#e6f7ee',
+            'header-bg': '#ffffff',
+            'header-border': '#e8ecf1',
+            'body-bg': '#f0f2f5',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .sidebar-scroll::-webkit-scrollbar { width: 5px; }
+    .sidebar-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
+    .sidebar-scroll::-webkit-scrollbar-track { background: transparent; }
+
+    .sub-menu-wrap {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+    .sub-menu-wrap.open {
+      max-height: 500px;
+    }
+
+    #sidebar {
+      transition: width 0.3s ease;
+    }
+    #sidebar.collapsed {
+      width: 64px;
+    }
+    #sidebar.collapsed .nav-text,
+    #sidebar.collapsed .brand-text,
+    #sidebar.collapsed .menu-arrow {
+      display: none;
+    }
+    #sidebar.collapsed .brand-logo {
+      margin: 0 auto;
+    }
+    #sidebar.collapsed .nav-title {
+      justify-content: center;
+      padding-left: 0;
+      padding-right: 0;
+    }
+    #sidebar.collapsed .nav-icon {
+      margin-right: 0;
+    }
+
+    #mainFrame {
+      border: none;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .toast-container {
+      position: fixed;
+      top: 60px;
+      right: 20px;
+      z-index: 10000;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .toast-item {
+      padding: 10px 20px;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 14px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+      animation: toastIn 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .toast-item.hiding { animation: toastOut 0.3s ease forwards; }
+    .toast-success { background: #22a84a; }
+    .toast-warning { background: #e6a23c; }
+    .toast-error { background: #f56c6c; }
+    .toast-info { background: #409eff; }
+    @keyframes toastIn { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+    @keyframes toastOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(40px); } }
+
+    .dropdown-enter { animation: dropIn 0.2s ease; }
+    @keyframes dropIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+
+    @keyframes modalSlideIn {
+      from { opacity: 0; transform: translateY(-20px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+  </style>
+</head>
+<body class="m-0 p-0 overflow-hidden bg-body-bg font-sans">
+
+  <div id="app" class="flex h-screen w-screen">
+
+    <aside id="sidebar" class="w-60 flex-shrink-0 bg-sidebar flex flex-col h-full z-30">
+      <div class="flex items-center h-16 px-5 border-b border-white/10 flex-shrink-0">
+        <div class="brand-logo flex items-center gap-2.5 overflow-hidden">
+          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.69 2 6 4.69 6 8c0 1.66.67 3.16 1.76 4.26L8.5 13.5l-.75 2.25H6v2h2l1.5-4.5L12 13l3.5 2.5-1.5 4.5h2v-2h-1.75l-.75-2.25 0.74-1.24C17.33 11.16 18 9.66 18 8c0-3.31-2.69-6-6-6zm0 10c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>
+          <span class="brand-text text-white text-base font-bold whitespace-nowrap tracking-wide">南丰蜜桔模型管理系统</span>
+        </div>
+      </div>
+
+      <nav class="flex-1 overflow-y-auto sidebar-scroll py-3">
+        <ul class="space-y-0.5 px-2.5">
+
+          <li>
+            <div class="nav-title flex items-center px-3 py-2.5 rounded-lg text-white/80 hover:bg-sidebar-hover hover:text-white cursor-pointer transition-all duration-200 group active-menu"
+                 onclick="openPage('home.html', '系统首页', this)" data-menu="系统首页">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+              <span class="nav-text text-sm whitespace-nowrap">系统首页</span>
+            </div>
+          </li>
+
+          <li>
+            <div class="nav-title flex items-center px-3 py-2.5 rounded-lg text-white/80 hover:bg-sidebar-hover hover:text-white cursor-pointer transition-all duration-200 group"
+                 onclick="toggleSubMenu(this)" data-menu="模型管理">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+              <span class="nav-text text-sm whitespace-nowrap flex-1">模型管理</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </div>
+            <div class="sub-menu-wrap">
+              <ul class="pl-7 py-1 space-y-0.5">
+                <li>
+                  <a href="javascript:void(0)" onclick="openPage('model/growth_model.html', '生长模型', this)"
+                     class="sub-link flex items-center px-3 py-2 rounded-md text-white/60 hover:text-white hover:bg-white/5 text-sm transition-all">
+                    <svg class="w-4 h-4 mr-2 flex-shrink-0 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>生长模型
+                  </a>
+                </li>
+                <li>
+                  <a href="javascript:void(0)" onclick="openPage('model/pest_model.html', '病虫害模型', this)"
+                     class="sub-link flex items-center px-3 py-2 rounded-md text-white/60 hover:text-white hover:bg-white/5 text-sm transition-all">
+                    <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/></svg>病虫害模型
+                  </a>
+                </li>
+                <li>
+                  <a href="javascript:void(0)" onclick="openPage('model/weather_disaster.html', '气象灾害模型', this)"
+                     class="sub-link flex items-center px-3 py-2 rounded-md text-white/60 hover:text-white hover:bg-white/5 text-sm transition-all">
+                    <svg class="w-4 h-4 mr-2 flex-shrink-0 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"/></svg>气象灾害模型
+                  </a>
+                </li>
+
+              </ul>
+            </div>
+          </li>
+
+          <li>
+            <div class="nav-title flex items-center px-3 py-2.5 rounded-lg text-white/80 hover:bg-sidebar-hover hover:text-white cursor-pointer transition-all duration-200 group"
+                 onclick="toggleSubMenu(this)" data-menu="数据管理">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg>
+              <span class="nav-text text-sm whitespace-nowrap flex-1">数据管理</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </div>
+            <div class="sub-menu-wrap">
+              <ul class="pl-7 py-1 space-y-0.5">
+                <li>
+                  <a href="javascript:void(0)" onclick="openPage('model/disease_db.html', '病害数据库', this)"
+                     class="sub-link flex items-center px-3 py-2 rounded-md text-white/60 hover:text-white hover:bg-white/5 text-sm transition-all">
+                    <svg class="w-4 h-4 mr-2 flex-shrink-0 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path></svg>病害数据库
+                  </a>
+                </li>
+                <li>
+                  <a href="javascript:void(0)" onclick="openPage('model/insect_db.html', '虫害数据库', this)"
+                     class="sub-link flex items-center px-3 py-2 rounded-md text-white/60 hover:text-white hover:bg-white/5 text-sm transition-all">
+                    <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>虫害数据库
+                  </a>
+                </li>
+                <li>
+                  <a href="javascript:void(0)" onclick="openPage('model/disaster_db.html', '灾害数据库', this)"
+                     class="sub-link flex items-center px-3 py-2 rounded-md text-white/60 hover:text-white hover:bg-white/5 text-sm transition-all">
+                    <svg class="w-4 h-4 mr-2 flex-shrink-0 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>灾害数据库
+                  </a>
+                </li>
+                <li>
+                  <a href="javascript:void(0)" onclick="openPage('data/variety_db.html', '品种数据库', this)"
+                     class="sub-link flex items-center px-3 py-2 rounded-md text-white/60 hover:text-white hover:bg-white/5 text-sm transition-all">
+                    <svg class="w-4 h-4 mr-2 flex-shrink-0 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>品种数据库
+                  </a>
+                </li>
+                <li>
+                  <a href="javascript:void(0)" onclick="openPage('monitor/weather_monitor.html', '气象数据库', this)"
+                     class="sub-link flex items-center px-3 py-2 rounded-md text-white/60 hover:text-white hover:bg-white/5 text-sm transition-all">
+                    <svg class="w-4 h-4 mr-2 flex-shrink-0 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"/></svg>气象数据库
+                  </a>
+                </li>
+                <li>
+                  <a href="javascript:void(0)" onclick="openPage('monitor/soil_moisture_db.html', '墒情数据库', this)"
+                     class="sub-link flex items-center px-3 py-2 rounded-md text-white/60 hover:text-white hover:bg-white/5 text-sm transition-all">
+                    <svg class="w-4 h-4 mr-2 flex-shrink-0 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>墒情数据库
+                  </a>
+                </li>
+                <li>
+                  <a href="javascript:void(0)" onclick="openPage('monitor/video_monitor_db.html', '视频监测库', this)"
+                     class="sub-link flex items-center px-3 py-2 rounded-md text-white/60 hover:text-white hover:bg-white/5 text-sm transition-all">
+                    <svg class="w-4 h-4 mr-2 flex-shrink-0 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>视频监测库
+                  </a>
+                </li>
+                <li>
+                  <a href="javascript:void(0)" onclick="openPage('wechat/price_index.html', '价格数据库', this)"
+                     class="sub-link flex items-center px-3 py-2 rounded-md text-white/60 hover:text-white hover:bg-white/5 text-sm transition-all">
+                    <svg class="w-4 h-4 mr-2 flex-shrink-0 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>价格数据库
+                  </a>
+                </li>
+                <li>
+                  <a href="javascript:void(0)" onclick="openPage('data/manual_collect.html', '人工上报', this)"
+                     class="sub-link flex items-center px-3 py-2 rounded-md text-white/60 hover:text-white hover:bg-white/5 text-sm transition-all">
+                    <svg class="w-4 h-4 mr-2 flex-shrink-0 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>人工上报
+                  </a>
+                </li>
+                <li>
+                  <a href="javascript:void(0)" onclick="openPage('data/data_connect.html', '数据对接', this)"
+                     class="sub-link flex items-center px-3 py-2 rounded-md text-white/60 hover:text-white hover:bg-white/5 text-sm transition-all">
+                    <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>数据对接
+                  </a>
+                </li>
+                <li>
+                  <a href="javascript:void(0)" onclick="openPage('data/external_fetch.html', '外部抓取', this)"
+                     class="sub-link flex items-center px-3 py-2 rounded-md text-white/60 hover:text-white hover:bg-white/5 text-sm transition-all">
+                    <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>外部抓取
+                  </a>
+                </li>
+                <li>
+                  <a href="javascript:void(0)" onclick="openPage('data/table_manage.html', '数据表管理', this)"
+                     class="sub-link flex items-center px-3 py-2 rounded-md text-white/60 hover:text-white hover:bg-white/5 text-sm transition-all">
+                    <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>数据表管理
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </li>
+
+          <li>
+            <div class="nav-title flex items-center px-3 py-2.5 rounded-lg text-white/80 hover:bg-sidebar-hover hover:text-white cursor-pointer transition-all duration-200 group"
+                 onclick="toggleSubMenu(this)" data-menu="预警管理">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+              <span class="nav-text text-sm whitespace-nowrap flex-1">预警管理</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </div>
+            <div class="sub-menu-wrap">
+              <ul class="pl-7 py-1 space-y-0.5">
+                <li>
+                  <a href="javascript:void(0)" onclick="openPage('alert/alert_manage.html', '预警管理', this)"
+                     class="sub-link flex items-center px-3 py-2 rounded-md text-white/60 hover:text-white hover:bg-white/5 text-sm transition-all">
+                    <svg class="w-4 h-4 mr-2 flex-shrink-0 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>预警管理
+                  </a>
+                </li>
+                <li>
+                  <a href="javascript:void(0)" onclick="openPage('alert/dispose_record.html', '处置记录', this)"
+                     class="sub-link flex items-center px-3 py-2 rounded-md text-white/60 hover:text-white hover:bg-white/5 text-sm transition-all">
+                    <svg class="w-4 h-4 mr-2 flex-shrink-0 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>处置记录
+                  </a>
+                </li>
+                <li>
+                  <a href="javascript:void(0)" onclick="openPage('rule/alert_rule.html', '预警规则', this)"
+                     class="sub-link flex items-center px-3 py-2 rounded-md text-white/60 hover:text-white hover:bg-white/5 text-sm transition-all">
+                    <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.66 1.732-3L13.732 4c-.77-1.34-2.694-1.34-3.464 0L3.34 16c-.77 1.34.192 3 1.732 3z"/></svg>预警规则
+                  </a>
+                </li>
+                <li>
+                  <a href="javascript:void(0)" onclick="openPage('rule/send_template.html', '发送模板', this)"
+                     class="sub-link flex items-center px-3 py-2 rounded-md text-white/60 hover:text-white hover:bg-white/5 text-sm transition-all">
+                    <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>发送模板
+                  </a>
+                </li>
+                <li>
+                  <a href="javascript:void(0)" onclick="openPage('alert/risk_hint.html', '风险提示', this)"
+                     class="sub-link flex items-center px-3 py-2 rounded-md text-white/60 hover:text-white hover:bg-white/5 text-sm transition-all">
+                    <svg class="w-4 h-4 mr-2 flex-shrink-0 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.66 1.732-3L13.732 4c-.77-1.34-2.694-1.34-3.464 0L3.34 16c-.77 1.34.192 3 1.732 3z"></path></svg>风险提示
+                  </a>
+                </li>
+                <li>
+                  <a href="javascript:void(0)" onclick="openPage('alert/predict_hint.html', '预测提示', this)"
+                     class="sub-link flex items-center px-3 py-2 rounded-md text-white/60 hover:text-white hover:bg-white/5 text-sm transition-all">
+                    <svg class="w-4 h-4 mr-2 flex-shrink-0 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>预测提示
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </li>
+
+          <li>
+            <div class="nav-title flex items-center px-3 py-2.5 rounded-lg text-white/80 hover:bg-sidebar-hover hover:text-white cursor-pointer transition-all duration-200 group"
+                 onclick="toggleSubMenu(this)" data-menu="运行监控">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+              <span class="nav-text text-sm whitespace-nowrap flex-1">运行监控</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </div>
+            <div class="sub-menu-wrap">
+              <ul class="pl-7 py-1 space-y-0.5">
+                <li>
+                  <a href="javascript:void(0)" onclick="openPage('monitor/growth_judge.html', '长势研判', this)"
+                     class="sub-link flex items-center px-3 py-2 rounded-md text-white/60 hover:text-white hover:bg-white/5 text-sm transition-all">
+                    <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>长势研判
+                  </a>
+                </li>
+                <li>
+                  <a href="javascript:void(0)" onclick="openPage('monitor/quality_predict.html', '品质预测', this)"
+                     class="sub-link flex items-center px-3 py-2 rounded-md text-white/60 hover:text-white hover:bg-white/5 text-sm transition-all">
+                    <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>品质预测
+                  </a>
+                </li>
+                <li>
+                  <a href="javascript:void(0)" onclick="openPage('monitor/yield_predict.html', '产量预测', this)"
+                     class="sub-link flex items-center px-3 py-2 rounded-md text-white/60 hover:text-white hover:bg-white/5 text-sm transition-all">
+                    <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>产量预测
+                  </a>
+                </li>
+
+              </ul>
+            </div>
+          </li>
+
+          <li>
+            <div class="nav-title flex items-center px-3 py-2.5 rounded-lg text-white/80 hover:bg-sidebar-hover hover:text-white cursor-pointer transition-all duration-200 group"
+                 onclick="toggleSubMenu(this)" data-menu="系统管理">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+              <span class="nav-text text-sm whitespace-nowrap flex-1">系统管理</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </div>
+            <div class="sub-menu-wrap">
+              <ul class="pl-7 py-1 space-y-0.5">
+                <li>
+                  <a href="javascript:void(0)" onclick="openPage('system/user_manage.html', '用户管理', this)"
+                     class="sub-link flex items-center px-3 py-2 rounded-md text-white/60 hover:text-white hover:bg-white/5 text-sm transition-all">
+                    <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>用户管理
+                  </a>
+                </li>
+                <li>
+                  <a href="javascript:void(0)" onclick="openPage('system/role_manage.html', '角色管理', this)"
+                     class="sub-link flex items-center px-3 py-2 rounded-md text-white/60 hover:text-white hover:bg-white/5 text-sm transition-all">
+                    <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>角色管理
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </li>
+
+          <li>
+            <div class="nav-title flex items-center px-3 py-2.5 rounded-lg text-white/80 hover:bg-sidebar-hover hover:text-white cursor-pointer transition-all duration-200 group"
+                 onclick="toggleSubMenu(this)" data-menu="微信后台">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+              <span class="nav-text text-sm whitespace-nowrap flex-1">微信后台</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </div>
+            <div class="sub-menu-wrap">
+              <ul class="pl-7 py-1 space-y-0.5">
+                <li>
+                  <a href="javascript:void(0)" onclick="openPage('wechat/user_manage.html', '微信用户', this)"
+                     class="sub-link flex items-center px-3 py-2 rounded-md text-white/60 hover:text-white hover:bg-white/5 text-sm transition-all">
+                    <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>微信用户
+                  </a>
+                </li>
+                <li>
+                  <a href="javascript:void(0)" onclick="openPage('wechat/orchard_manage.html', '果园管理', this)"
+                     class="sub-link flex items-center px-3 py-2 rounded-md text-white/60 hover:text-white hover:bg-white/5 text-sm transition-all">
+                    <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>果园管理
+                  </a>
+                </li>
+                <li>
+                  <a href="javascript:void(0)" onclick="openPage('wechat/news_manage.html', '资讯管理', this)"
+                     class="sub-link flex items-center px-3 py-2 rounded-md text-white/60 hover:text-white hover:bg-white/5 text-sm transition-all">
+                    <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>资讯管理
+                  </a>
+                </li>
+                <li>
+                  <a href="javascript:void(0)" onclick="openPage('wechat/question_manage.html', '用户提问', this)"
+                     class="sub-link flex items-center px-3 py-2 rounded-md text-white/60 hover:text-white hover:bg-white/5 text-sm transition-all">
+                    <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>用户提问
+                  </a>
+                </li>
+                <li>
+                  <a href="javascript:void(0)" onclick="openPage('alert/recognize_log.html', '识别日志', this)"
+                     class="sub-link flex items-center px-3 py-2 rounded-md text-white/60 hover:text-white hover:bg-white/5 text-sm transition-all">
+                    <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>识别日志
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </li>
+
+        </ul>
+      </nav>
+
+      <div class="flex-shrink-0 border-t border-white/10">
+        <button id="collapseBtn" aria-label="折叠侧边栏"
+                class="w-full flex items-center justify-center py-3 text-white/50 hover:text-white hover:bg-sidebar-hover transition-all duration-200"
+                onclick="var s=document.getElementById('sidebar');var p=this.querySelector('path');if(s&&p){s.classList.toggle('collapsed');p.setAttribute('d',s.classList.contains('collapsed')?'M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4':'M4 6h16M4 12h16M4 18h16');}">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+      </div>
+    </aside>
+
+    <div class="flex-1 flex flex-col h-full overflow-hidden">
+
+      <header class="h-12 bg-header-bg border-b border-header-border flex items-center justify-end px-4 flex-shrink-0 z-20">
+        <div class="flex items-center gap-2">
+          <button onclick="openNotificationModal()" aria-label="通知"
+                  class="relative p-2 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+            <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white"></span>
+          </button>
+
+          <button id="fullscreenBtn"
+                  class="p-2 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors"
+                  onclick="var p=this.querySelector('path');if(p){if(!document.fullscreenElement){document.documentElement.requestFullscreen();p.setAttribute('d','M5 15l7-7 7 7M5 15l7 7 7-7');}else{document.exitFullscreen();p.setAttribute('d','M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4');}}">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
+          </button>
+
+          <div class="w-px h-6 bg-gray-200 mx-1"></div>
+
+          <div class="relative" id="userDropdown">
+            <button onclick="toggleUserMenu()" aria-label="用户菜单" class="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-gray-100 transition-colors">
+              <div class="w-7 h-7 rounded-full bg-primary-light flex items-center justify-center">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+              </div>
+              <span class="text-sm text-gray-700 font-medium">管理员</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            <div id="userMenu" class="hidden absolute right-0 top-full mt-1 w-40 bg-white rounded-xl shadow-lg border border-gray-100 py-1 dropdown-enter z-50">
+              <a href="javascript:void(0)" onclick="openProfileModal(); closeUserMenu();"
+                 class="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-primary transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>个人设置
+              </a>
+              <a href="javascript:void(0)" onclick="openPasswordModal(); closeUserMenu();"
+                 class="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-primary transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>修改密码
+              </a>
+              <div class="my-1 border-t border-gray-100"></div>
+              <a href="javascript:void(0)" onclick="openLogoutModal(); closeUserMenu();"
+                 class="flex items-center gap-2 px-3 py-2 text-sm text-red-500 hover:bg-red-50 transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>退出登录
+              </a>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main class="flex-1 overflow-hidden bg-body-bg">
+        <iframe src="home.html" id="mainFrame"></iframe>
+      </main>
+
+    </div>
+  </div>
+
+  <div id="profileModal" class="hidden fixed inset-0 z-[9999] flex items-center justify-center">
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeProfileModal()"></div>
+    <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden" style="animation:modalSlideIn .25s cubic-bezier(.4,0,.2,1)">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+        <h3 class="text-lg font-semibold text-gray-800">个人设置</h3>
+        <button type="button" onclick="closeProfileModal()" aria-label="关闭" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors text-xl">&times;</button>
+      </div>
+      <div class="px-6 py-5">
+        <div class="flex items-center gap-4 mb-6 pb-5 border-b border-gray-100">
+          <div class="w-16 h-16 rounded-full bg-green-50 flex items-center justify-center border-2 border-green-200">
+            <span id="profileAvatarText" class="text-2xl font-bold text-green-600">管</span>
+          </div>
+          <div>
+            <div class="font-semibold text-gray-800">管理员</div>
+            <div class="text-sm text-gray-400">超级管理员 · 农业农村局</div>
+          </div>
+        </div>
+        <div class="space-y-4">
+          <div class="flex items-center gap-4">
+            <label class="w-20 text-sm font-medium text-gray-500 shrink-0">姓名</label>
+            <input type="text" id="profileName" class="flex-1 h-9 px-3 text-sm border border-gray-200 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-500/10 outline-none transition-all" value="管理员">
+          </div>
+          <div class="flex items-center gap-4">
+            <label class="w-20 text-sm font-medium text-gray-500 shrink-0">手机号</label>
+            <input type="tel" id="profilePhone" class="flex-1 h-9 px-3 text-sm border border-gray-200 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-500/10 outline-none transition-all" value="13800138000">
+          </div>
+          <div class="flex items-center gap-4">
+            <label class="w-20 text-sm font-medium text-gray-500 shrink-0">邮箱</label>
+            <input type="email" id="profileEmail" class="flex-1 h-9 px-3 text-sm border border-gray-200 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-500/10 outline-none transition-all" value="admin@nanfeng.gov.cn">
+          </div>
+          <div class="flex items-center gap-4">
+            <label class="w-20 text-sm font-medium text-gray-500 shrink-0">角色</label>
+            <input type="text" id="profileRole" class="flex-1 h-9 px-3 text-sm border border-gray-200 rounded-lg bg-gray-50 text-gray-400 cursor-not-allowed" readonly value="超级管理员">
+          </div>
+          <div class="flex items-center gap-4">
+            <label class="w-20 text-sm font-medium text-gray-500 shrink-0">所属部门</label>
+            <input type="text" id="profileDept" class="flex-1 h-9 px-3 text-sm border border-gray-200 rounded-lg bg-gray-50 text-gray-400 cursor-not-allowed" readonly value="农业农村局">
+          </div>
+        </div>
+      </div>
+      <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-100 bg-gray-50/50">
+        <button type="button" onclick="closeProfileModal()" class="h-9 px-5 text-sm rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-100 transition-colors">取 消</button>
+        <button type="button" onclick="saveProfile()" class="h-9 px-5 text-sm rounded-lg bg-green-600 text-white hover:bg-green-700 transition-colors font-medium">保 存</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="passwordModal" class="hidden fixed inset-0 z-[9999] flex items-center justify-center">
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closePasswordModal()"></div>
+    <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden" style="animation:modalSlideIn .25s cubic-bezier(.4,0,.2,1)">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+        <h3 class="text-lg font-semibold text-gray-800">修改密码</h3>
+        <button type="button" onclick="closePasswordModal()" aria-label="关闭" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors text-xl">&times;</button>
+      </div>
+      <div class="px-6 py-5">
+        <div class="space-y-5">
+          <div>
+            <label class="block text-sm font-medium text-gray-600 mb-1.5">当前密码</label>
+            <div class="relative">
+              <input type="password" id="pwdOld" placeholder="请输入当前密码" class="w-full h-10 pl-3 pr-10 text-sm border border-gray-200 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-500/10 outline-none transition-all">
+              <button type="button" onclick="togglePwdVisibility('pwdOld', this.querySelector('svg'))" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+              </button>
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-600 mb-1.5">新密码</label>
+            <div class="relative">
+              <input type="password" id="pwdNew" placeholder="请输入新密码（至少6位）" class="w-full h-10 pl-3 pr-10 text-sm border border-gray-200 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-500/10 outline-none transition-all">
+              <button type="button" onclick="togglePwdVisibility('pwdNew', this.querySelector('svg'))" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+              </button>
+            </div>
+            <div class="mt-2 flex gap-1">
+              <div id="pwdStrength1" class="h-1 flex-1 rounded-full bg-gray-200 transition-colors"></div>
+              <div id="pwdStrength2" class="h-1 flex-1 rounded-full bg-gray-200 transition-colors"></div>
+              <div id="pwdStrength3" class="h-1 flex-1 rounded-full bg-gray-200 transition-colors"></div>
+            </div>
+            <div id="pwdStrengthText" class="text-xs text-gray-400 mt-1"></div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-600 mb-1.5">确认密码</label>
+            <div class="relative">
+              <input type="password" id="pwdConfirm" placeholder="请再次输入新密码" class="w-full h-10 pl-3 pr-10 text-sm border border-gray-200 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-500/10 outline-none transition-all">
+              <button type="button" onclick="togglePwdVisibility('pwdConfirm', this.querySelector('svg'))" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-100 bg-gray-50/50">
+        <button type="button" onclick="closePasswordModal()" class="h-9 px-5 text-sm rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-100 transition-colors">取 消</button>
+        <button type="button" onclick="savePassword()" class="h-9 px-5 text-sm rounded-lg bg-green-600 text-white hover:bg-green-700 transition-colors font-medium">确认修改</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="logoutModal" class="hidden fixed inset-0 z-[9999] flex items-center justify-center">
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeLogoutModal()"></div>
+    <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden" style="animation:modalSlideIn .25s cubic-bezier(.4,0,.2,1)">
+      <div class="px-6 py-5">
+        <div class="text-center">
+          <div class="w-14 h-14 mx-auto mb-4 rounded-full bg-red-50 flex items-center justify-center">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+          </div>
+          <h3 class="text-lg font-semibold text-gray-800 mb-2">确认退出登录</h3>
+          <p class="text-sm text-gray-500">确定要退出当前账号吗？</p>
+        </div>
+      </div>
+      <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-100 bg-gray-50/50">
+        <button type="button" onclick="closeLogoutModal()" class="h-9 px-5 text-sm rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-100 transition-colors">取 消</button>
+        <button type="button" onclick="confirmLogout()" class="h-9 px-5 text-sm rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors font-medium">确认退出</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="notificationModal" class="hidden fixed inset-0 z-[9999] flex items-center justify-center">
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeNotificationModal()"></div>
+    <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden" style="animation:modalSlideIn .25s cubic-bezier(.4,0,.2,1)">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+        <h3 class="text-lg font-semibold text-gray-800">消息通知</h3>
+        <button type="button" onclick="closeNotificationModal()" aria-label="关闭" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors text-xl">&times;</button>
+      </div>
+      <div class="px-4 py-3 border-b border-gray-100 flex items-center gap-2">
+        <button onclick="filterNotifications('all')" id="notifFilterAll" class="px-3 py-1.5 text-sm rounded-full bg-green-600 text-white">全部</button>
+        <button onclick="filterNotifications('system')" id="notifFilterSystem" class="px-3 py-1.5 text-sm rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200">系统消息</button>
+        <button onclick="filterNotifications('alert')" id="notifFilterAlert" class="px-3 py-1.5 text-sm rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200">预警通知</button>
+      </div>
+      <div class="max-h-[400px] overflow-y-auto p-4 space-y-3" id="notificationList">
+        <div class="flex items-start gap-3 p-3 bg-orange-50 rounded-xl hover:bg-orange-100 transition-colors cursor-pointer notification-item" data-type="alert">
+          <div class="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0">
+            <svg class="w-4 h-4 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.66 1.732-3L13.732 4c-.77-1.34-2.694-1.34-3.464 0L3.34 16c-.77 1.34.192 3 1.732 3z"/></svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center justify-between">
+              <h4 class="text-sm font-medium text-gray-800">病虫害预警</h4>
+              <span class="text-xs text-gray-400">5分钟前</span>
+            </div>
+            <p class="text-xs text-gray-500 mt-1">检测到南丰蜜桔园区发生蚜虫虫害，建议及时采取防治措施。</p>
+          </div>
+        </div>
+        <div class="flex items-start gap-3 p-3 bg-blue-50 rounded-xl hover:bg-blue-100 transition-colors cursor-pointer notification-item" data-type="system">
+          <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+            <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center justify-between">
+              <h4 class="text-sm font-medium text-gray-800">系统更新通知</h4>
+              <span class="text-xs text-gray-400">1小时前</span>
+            </div>
+            <p class="text-xs text-gray-500 mt-1">系统已完成版本更新，新增病虫害识别功能。</p>
+          </div>
+        </div>
+        <div class="flex items-start gap-3 p-3 bg-yellow-50 rounded-xl hover:bg-yellow-100 transition-colors cursor-pointer notification-item" data-type="alert">
+          <div class="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center flex-shrink-0">
+            <svg class="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center justify-between">
+              <h4 class="text-sm font-medium text-gray-800">气象灾害预警</h4>
+              <span class="text-xs text-gray-400">2小时前</span>
+            </div>
+            <p class="text-xs text-gray-500 mt-1">预计未来48小时内将有强降雨，请做好排水防涝准备。</p>
+          </div>
+        </div>
+        <div class="flex items-start gap-3 p-3 bg-green-50 rounded-xl hover:bg-green-100 transition-colors cursor-pointer notification-item" data-type="system">
+          <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+            <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center justify-between">
+              <h4 class="text-sm font-medium text-gray-800">数据同步完成</h4>
+              <span class="text-xs text-gray-400">3小时前</span>
+            </div>
+            <p class="text-xs text-gray-500 mt-1">外部数据源同步完成，共更新1256条数据。</p>
+          </div>
+        </div>
+        <div class="flex items-start gap-3 p-3 bg-red-50 rounded-xl hover:bg-red-100 transition-colors cursor-pointer notification-item" data-type="alert">
+          <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+            <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center justify-between">
+              <h4 class="text-sm font-medium text-gray-800">模型训练失败</h4>
+              <span class="text-xs text-gray-400">4小时前</span>
+            </div>
+            <p class="text-xs text-gray-500 mt-1">生长模型训练任务失败，请检查数据连接状态。</p>
+          </div>
+        </div>
+      </div>
+      <div class="flex justify-end px-6 py-4 border-t border-gray-100 bg-gray-50/50">
+        <button type="button" onclick="clearAllNotifications()" class="h-9 px-5 text-sm rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-100 transition-colors">全部已读</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('fullscreenchange', function() {
+      var btn = document.getElementById('fullscreenBtn');
+      if (!btn) return;
+      var p = btn.querySelector('path');
+      if (!p) return;
+      if (document.fullscreenElement) {
+        p.setAttribute('d', 'M5 15l7-7 7 7M5 15l7 7 7-7');
+      } else {
+        p.setAttribute('d', 'M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4');
+      }
+    });
+
+    function toggleSubMenu(el) {
+      const li = el.closest('li');
+      const wrap = li.querySelector('.sub-menu-wrap');
+      const arrow = el.querySelector('.menu-arrow');
+
+      document.querySelectorAll('.sub-menu-wrap.open').forEach(function(w) {
+        if (w !== wrap) {
+          w.classList.remove('open');
+          const a = w.closest('li').querySelector('.menu-arrow');
+          if (a) a.style.transform = '';
+        }
+      });
+
+      wrap.classList.toggle('open');
+      if (wrap.classList.contains('open')) {
+        arrow.style.transform = 'rotate(90deg)';
+      } else {
+        arrow.style.transform = '';
+      }
+    }
+
+    function highlightMenu(name) {
+      document.querySelectorAll('.nav-title').forEach(function(el) {
+        el.classList.remove('bg-primary/20', 'text-white');
+        el.classList.add('text-white/80');
+        el.querySelector('.nav-icon')?.classList.remove('text-white');
+        el.querySelector('.nav-icon')?.classList.add('text-primary');
+      });
+      document.querySelectorAll('.sub-link').forEach(function(el) {
+        el.classList.remove('text-white', 'bg-white/10');
+        el.classList.add('text-white/60');
+      });
+
+      document.querySelectorAll('.nav-title').forEach(function(el) {
+        if (el.getAttribute('data-menu') === name) {
+          el.classList.add('bg-primary/20', 'text-white');
+          el.classList.remove('text-white/80');
+          el.querySelector('.nav-icon')?.classList.add('text-white');
+          el.querySelector('.nav-icon')?.classList.remove('text-primary');
+
+          const li = el.closest('li');
+          const wrap = li.querySelector('.sub-menu-wrap');
+          const arrow = el.querySelector('.menu-arrow');
+          if (wrap) {
+            wrap.classList.add('open');
+            if (arrow) arrow.style.transform = 'rotate(90deg)';
+          }
+        }
+      });
+    }
+
+    function openPage(url, name, triggerEl) {
+      const isAction = typeof triggerEl === 'string';
+      const action = isAction ? triggerEl : null;
+      const el = isAction ? null : triggerEl;
+
+      if (el) {
+        const navItem = el.closest('li');
+        const parentLi = navItem?.parentElement?.closest('li');
+        const menuName = el.closest('.nav-title')?.getAttribute('data-menu')
+                      || parentLi?.querySelector('.nav-title')?.getAttribute('data-menu')
+                      || name;
+        highlightMenu(menuName);
+
+        document.querySelectorAll('.sub-link').forEach(function(item) {
+          item.classList.remove('text-white', 'bg-white/10');
+          item.classList.add('text-white/60');
+        });
+        if (el.classList?.contains('sub-link')) {
+          el.classList.add('text-white', 'bg-white/10');
+          el.classList.remove('text-white/60');
+        }
+      } else if (name) {
+        highlightMenu(name);
+      }
+
+      const frame = document.getElementById('mainFrame');
+      frame.src = url;
+    }
+
+    function toggleUserMenu() {
+      const menu = document.getElementById('userMenu');
+      menu.classList.toggle('hidden');
+    }
+
+    function closeUserMenu() {
+      document.getElementById('userMenu').classList.add('hidden');
+    }
+
+    document.addEventListener('click', function(e) {
+      const dropdown = document.getElementById('userDropdown');
+      if (!dropdown.contains(e.target)) {
+        closeUserMenu();
+      }
+    });
+
+    function showToast(message, type, duration) {
+      type = type || 'success';
+      duration = duration || 3000;
+
+      let container = document.querySelector('.toast-container');
+      if (!container) {
+        container = document.createElement('div');
+        container.className = 'toast-container';
+        document.body.appendChild(container);
+      }
+
+      const icons = {
+        success: '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>',
+        error: '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>',
+        warning: '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.66 1.732-3L13.732 4c-.77-1.34-2.694-1.34-3.464 0L3.34 16c-.77 1.34.192 3 1.732 3z"/></svg>',
+        info: '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>'
+      };
+
+      const toast = document.createElement('div');
+      toast.className = 'toast-item toast-' + type;
+      toast.innerHTML = icons[type] || icons.info + '<span>' + message + '</span>';
+      container.appendChild(toast);
+
+      setTimeout(function() {
+        toast.classList.add('hiding');
+        setTimeout(function() {
+          if (toast.parentNode) toast.parentNode.removeChild(toast);
+        }, 300);
+      }, duration);
+    }
+
+    function openProfileModal() {
+      document.getElementById('profileAvatarText').textContent = '管';
+      document.getElementById('profileName').value = '管理员';
+      document.getElementById('profilePhone').value = '13800138000';
+      document.getElementById('profileEmail').value = 'admin@nanfeng.gov.cn';
+      document.getElementById('profileRole').value = '超级管理员';
+      document.getElementById('profileDept').value = '农业农村局';
+      document.getElementById('profileModal').classList.remove('hidden');
+    }
+
+    function closeProfileModal() {
+      document.getElementById('profileModal').classList.add('hidden');
+    }
+
+    function saveProfile() {
+      var name = document.getElementById('profileName').value.trim();
+      var phone = document.getElementById('profilePhone').value.trim();
+      if (!name) { showToast('姓名不能为空', 'warning'); return; }
+      if (phone && !/^1[3-9]\d{9}$/.test(phone)) { showToast('手机号格式不正确', 'warning'); return; }
+      showToast('个人信息保存成功', 'success');
+      closeProfileModal();
+    }
+
+    function openPasswordModal() {
+      document.getElementById('pwdOld').value = '';
+      document.getElementById('pwdNew').value = '';
+      document.getElementById('pwdConfirm').value = '';
+      document.getElementById('passwordModal').classList.remove('hidden');
+    }
+
+    function closePasswordModal() {
+      document.getElementById('passwordModal').classList.add('hidden');
+    }
+
+    function savePassword() {
+      var oldPwd = document.getElementById('pwdOld').value;
+      var newPwd = document.getElementById('pwdNew').value;
+      var confirmPwd = document.getElementById('pwdConfirm').value;
+      if (!oldPwd) { showToast('请输入当前密码', 'warning'); return; }
+      if (!newPwd) { showToast('请输入新密码', 'warning'); return; }
+      if (newPwd.length < 6) { showToast('新密码长度不能少于6位', 'warning'); return; }
+      if (newPwd !== confirmPwd) { showToast('两次输入的密码不一致', 'warning'); return; }
+      if (oldPwd === newPwd) { showToast('新密码不能与当前密码相同', 'warning'); return; }
+      showToast('密码修改成功', 'success');
+      closePasswordModal();
+    }
+
+    function togglePwdVisibility(inputId, iconEl) {
+      var input = document.getElementById(inputId);
+      if (input.type === 'password') {
+        input.type = 'text';
+        iconEl.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>';
+      } else {
+        input.type = 'password';
+        iconEl.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>';
+      }
+    }
+
+    function openLogoutModal() {
+      document.getElementById('logoutModal').classList.remove('hidden');
+    }
+
+    function closeLogoutModal() {
+      document.getElementById('logoutModal').classList.add('hidden');
+    }
+
+    function confirmLogout() {
+      showToast('已成功退出登录', 'success');
+      setTimeout(function() {
+        window.location.href = 'login.html';
+      }, 1500);
+    }
+
+    function openNotificationModal() {
+      document.getElementById('notificationModal').classList.remove('hidden');
+    }
+
+    function closeNotificationModal() {
+      document.getElementById('notificationModal').classList.add('hidden');
+    }
+
+    function filterNotifications(type) {
+      document.querySelectorAll('#notificationModal button').forEach(function(btn) {
+        btn.classList.remove('bg-green-600', 'text-white');
+        btn.classList.add('bg-gray-100', 'text-gray-600');
+      });
+      document.getElementById('notifFilter' + type.charAt(0).toUpperCase() + type.slice(1)).classList.remove('bg-gray-100', 'text-gray-600');
+      document.getElementById('notifFilter' + type.charAt(0).toUpperCase() + type.slice(1)).classList.add('bg-green-600', 'text-white');
+      
+      document.querySelectorAll('.notification-item').forEach(function(item) {
+        if (type === 'all' || item.getAttribute('data-type') === type) {
+          item.classList.remove('hidden');
+        } else {
+          item.classList.add('hidden');
+        }
+      });
+    }
+
+    function clearAllNotifications() {
+      showToast('全部已标记为已读', 'success');
+      closeNotificationModal();
+    }
+
+    highlightMenu('系统首页');
+  </script>
+
+</body>
+</html>

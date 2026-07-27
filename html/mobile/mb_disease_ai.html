@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>桔农通 - AI智能识别</title>
+  <link rel="stylesheet" href="css/mobile-design-system.css">
+  <style>
+    .skeleton-state { display: none; }
+    .mb-app.loading .real-content { display: none; }
+    .mb-app.loading .skeleton-state { display: block; }
+
+    .upload-area {
+      width: 100%;
+      height: 200px;
+      border: 2px dashed var(--border);
+      border-radius: var(--radius-lg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-3);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      background: var(--bg-white);
+    }
+    .upload-area:active { background: var(--gray-50); border-color: var(--primary-300); }
+    .upload-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: var(--radius-full);
+      background: var(--primary-50);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .upload-icon svg { width: 28px; height: 28px; color: var(--primary-700); }
+    .upload-text { font-size: var(--font-base); color: var(--text-secondary); }
+    .upload-hint { font-size: var(--font-xs); color: var(--text-tertiary); }
+
+    .result-header { display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-4); }
+    .result-icon {
+      width: 56px; height: 56px;
+      border-radius: var(--radius-lg);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .result-icon svg { width: 28px; height: 28px; }
+    .result-icon.danger { background: var(--error-light); color: var(--error-dark); }
+    .result-icon.warning { background: var(--warning-light); color: var(--warning-dark); }
+    .result-icon.success { background: var(--success-light); color: var(--success-dark); }
+    .result-info { flex: 1; }
+    .result-name { font-size: var(--font-lg); font-weight: var(--font-bold); color: var(--text); }
+    .result-confidence { font-size: var(--font-sm); color: var(--text-secondary); margin-top: var(--space-1); }
+
+    .tips-box {
+      padding: var(--space-4);
+      background: var(--info-light);
+      border-radius: var(--radius-md);
+      border-left: 3px solid var(--info-dark);
+      margin-top: var(--space-4);
+    }
+    .tips-title { font-size: var(--font-base); font-weight: var(--font-semibold); color: var(--info-dark); margin-bottom: var(--space-2); }
+    .tips-content { font-size: var(--font-sm); color: var(--text-secondary); line-height: 1.7; }
+
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5); z-index: 1000;
+      display: none; justify-content: center; align-items: center;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal-box {
+      background: var(--bg-white);
+      border-radius: var(--radius-xl);
+      padding: var(--space-8) var(--space-6);
+      width: 90%; max-width: 340px;
+      text-align: center;
+    }
+    .modal-text { font-size: var(--font-md); color: var(--text); margin-top: var(--space-4); }
+  </style>
+</head>
+<body>
+  <div class="mb-app loading">
+    <div class="skeleton-state">
+      <div class="mb-header-detail">
+        <div class="header-nav">
+          <div style="width:36px;height:36px;"></div>
+          <div class="header-title"></div>
+        </div>
+      </div>
+      <div class="mb-section">
+        <div class="mb-skeleton-card">
+          <div class="mb-skeleton" style="width:80px;height:16px;margin-bottom:16px;"></div>
+          <div class="mb-skeleton-card" style="height:160px;padding:0;margin:0;border:none;box-shadow:none;"></div>
+          <div style="height:16px;"></div>
+          <div class="mb-skeleton" style="width:100%;height:48px;border-radius:24px;"></div>
+        </div>
+        <div style="height:20px;"></div>
+        <div class="mb-skeleton-card">
+          <div class="mb-skeleton" style="width:80px;height:16px;margin-bottom:16px;"></div>
+          <div class="mb-skeleton-line long"></div>
+          <div class="mb-skeleton-line medium"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="real-content">
+      <div class="mb-header-detail">
+        <div class="header-nav">
+          <div class="header-back" onclick="goBack()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M15 18l-6-6 6-6"/>
+            </svg>
+          </div>
+          <div class="header-title">AI智能识别</div>
+          <div class="header-actions">
+            <div class="header-action-btn" onclick="navigateTo('mb_disease_knowledge.html')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+        <div class="header-content">
+          <div class="header-sub">拍照或上传图片，AI智能识别果树病虫害</div>
+        </div>
+      </div>
+
+      <div class="mb-section">
+        <div class="mb-card">
+          <div class="mb-section-title"><span class="mb-section-dot"></span>上传图片</div>
+          <div class="upload-area" onclick="triggerUpload()">
+            <div class="upload-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                <circle cx="12" cy="13" r="4"/>
+              </svg>
+            </div>
+            <div class="upload-text">点击拍照或上传图片</div>
+            <div class="upload-hint">支持 JPG、PNG 格式</div>
+          </div>
+          <input type="file" id="imageInput" accept="image/*" style="display:none;" onchange="handleUpload(event)">
+          <button class="mb-btn mb-btn-primary mb-btn-block" style="margin-top: var(--space-4);" onclick="startIdentify()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 1 1 7.072 0l-.548.547A3.374 3.374 0 0 0 14 18.469V19a2 2 0 1 1-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+            开始识别
+          </button>
+        </div>
+
+        <div id="resultArea" style="display:none;">
+          <div class="mb-card" style="margin-top: var(--space-4);">
+            <div class="mb-section-title"><span class="mb-section-dot"></span>识别结果</div>
+            <div class="result-header">
+              <div class="result-icon danger">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                  <line x1="12" y1="9" x2="12" y2="13"/>
+                  <line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+              </div>
+              <div class="result-info">
+                <div class="result-name">黄龙病</div>
+                <div class="result-confidence">置信度：95%</div>
+              </div>
+              <span class="mb-tag error mb-tag-lg">高风险</span>
+            </div>
+            <div class="tips-box">
+              <div class="tips-title">防治建议</div>
+              <div class="tips-content">1. 及时清除病株并烧毁<br>2. 加强木虱防治，使用噻虫嗪等药剂<br>3. 严格执行检疫措施，禁止从病区调苗<br>4. 加强肥水管理，增强树势</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mb-card" style="margin-top: var(--space-4);">
+          <div class="mb-section-title"><span class="mb-section-dot"></span>识别历史</div>
+          <div class="mb-list-item" style="padding: 12px 0; border-bottom: 1px solid var(--border-light);">
+            <img class="history-image" style="width:56px;height:56px;border-radius:var(--radius-md);object-fit:cover;flex-shrink:0;border:1px solid var(--border);" src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=黑点病危害蜜桔果实症状，果实表面黑色斑点&image_size=square_hd" alt="黑点病" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2256%22 height=%2256%22><rect fill=%22%23f5f7fa%22 width=%2256%22 height=%2256%22/><text x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%239ca3af%22 font-size=%2210%22>黑点病</text></svg>'">
+            <div class="mb-list-content">
+              <div class="mb-list-title">黑点病</div>
+              <div class="mb-list-desc">2026-07-22 14:30</div>
+            </div>
+            <span class="mb-tag warning">中风险</span>
+          </div>
+          <div class="mb-list-item" style="padding: 12px 0; border-bottom: none;">
+            <img class="history-image" style="width:56px;height:56px;border-radius:var(--radius-md);object-fit:cover;flex-shrink:0;border:1px solid var(--border);" src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=红蜘蛛危害蜜桔叶片症状，叶片发白失绿&image_size=square_hd" alt="红蜘蛛虫害" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2256%22 height=%2256%22><rect fill=%22%23f5f7fa%22 width=%2256%22 height=%2256%22/><text x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%239ca3af%22 font-size=%2210%22>红蜘蛛</text></svg>'">
+            <div class="mb-list-content">
+              <div class="mb-list-title">红蜘蛛虫害</div>
+              <div class="mb-list-desc">2026-07-20 09:15</div>
+            </div>
+            <span class="mb-tag error">高风险</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mb-tab-bar">
+      <div class="mb-tab-item" onclick="navigateTo('mb_home.html')">首页</div>
+      <div class="mb-tab-item" onclick="navigateTo('mb_data.html')">监测</div>
+      <div class="mb-tab-item" onclick="navigateTo('mb_ai.html')">AI助手</div>
+      <div class="mb-tab-item active" onclick="navigateTo('mb_disease.html')">病虫害</div>
+      <div class="mb-tab-item" onclick="navigateTo('mb_profile.html')">我的</div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="loadingModal">
+    <div class="modal-box">
+      <div class="mb-skeleton" style="width:48px;height:48px;border-radius:50%;margin:0 auto;"></div>
+      <div class="modal-text">AI正在识别中...</div>
+    </div>
+  </div>
+
+  <script>
+    function navigateTo(page) { window.location.href = page; }
+    function goBack() { window.history.back(); }
+
+    function triggerUpload() {
+      document.getElementById('imageInput').click();
+    }
+
+    function handleUpload(e) {
+      const file = e.target.files[0];
+      if (file) {
+        console.log('Uploaded:', file.name);
+      }
+    }
+
+    function startIdentify() {
+      document.getElementById('loadingModal').classList.add('show');
+      setTimeout(() => {
+        document.getElementById('loadingModal').classList.remove('show');
+        document.getElementById('resultArea').style.display = 'block';
+      }, 2000);
+    }
+
+    (function() {
+      var app = document.querySelector('.mb-app');
+      setTimeout(function() {
+        app.classList.remove('loading');
+      }, 600);
+    })();
+  </script>
+</body>
+</html>

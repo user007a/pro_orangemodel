@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>生长模型 - 南丰蜜桔模型管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body{margin:0;padding:0;background-color:#F0F2F5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,'Noto Sans SC',sans-serif}
+        .content-wrapper{padding:24px;height:100vh;overflow-y:auto}
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+<div class="content-wrapper">
+
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h1 class="text-xl font-bold text-gray-800">生长模型</h1>
+            <p class="text-gray-500 text-sm mt-1">管理南丰蜜桔生长模型的运行状态和参数配置</p>
+        </div>
+        <div class="flex items-center space-x-3">
+            <button onclick="refreshStatus()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm">刷新状态</button>
+            <button onclick="startModel()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">启动模型</button>
+            <button onclick="window.open('growth_model_memo.html', '_blank')" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm">模型说明</button>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+            <div class="flex items-center justify-between"><div><p class="text-gray-500 text-sm">运行状态</p><span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700 mt-2">运行中</span></div><div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center"><svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg></div></div>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+            <div class="flex items-center justify-between"><div><p class="text-gray-500 text-sm">训练数据总量</p><h3 class="text-2xl font-bold text-gray-800 mt-1">1,258,600</h3><p class="text-gray-400 text-xs mt-1">条记录</p></div><div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center"><svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/></svg></div></div>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+            <div class="flex items-center justify-between"><div><p class="text-gray-500 text-sm">模型准确率</p><h3 class="text-2xl font-bold text-gray-800 mt-1">94.7%</h3><p class="text-green-500 text-xs mt-1">较上次提升 1.2%</p></div><div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center"><svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4"/></svg></div></div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100"><h2 class="text-lg font-semibold text-gray-800 mb-4">训练数据占比</h2><div class="h-64"><canvas id="trainingDataChart"></canvas></div></div>
+        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100"><h2 class="text-lg font-semibold text-gray-800 mb-4">模型准确率趋势</h2><div class="h-64"><canvas id="accuracyTrendChart"></canvas></div></div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 mb-6">
+        <div class="flex items-center justify-between mb-4 p-6 pb-0">
+            <h2 class="text-lg font-semibold text-gray-800">模型算法管理</h2>
+            <div class="flex items-center space-x-3">
+                <input type="text" id="algorithm-search" placeholder="搜索算法名称..." class="pl-3 pr-4 py-2 border border-gray-300 rounded-lg text-sm w-56" oninput="filterAlgorithms()">
+                <select id="algorithm-status" class="px-3 py-2 border border-gray-300 rounded-lg text-sm" onchange="filterAlgorithms()">
+                    <option value="全部">全部状态</option>
+                    <option value="已启用">已启用</option>
+                    <option value="待优化">待优化</option>
+                </select>
+            </div>
+        </div>
+        <div class="p-6 pt-0">
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead><tr class="border-b border-gray-200"><th class="text-left py-3 px-4 font-semibold text-gray-600">算法名称</th><th class="text-left py-3 px-4 font-semibold text-gray-600">算法描述</th><th class="text-left py-3 px-4 font-semibold text-gray-600">状态</th><th class="text-left py-3 px-4 font-semibold text-gray-600">操作</th></tr></thead>
+                    <tbody id="algorithm-tbody"></tbody>
+                </table>
+            </div>
+            <div class="pt-4 border-t border-gray-100 flex items-center justify-between">
+                <p class="text-sm text-gray-500">共 <span id="algorithm-total-count">5</span> 条记录</p>
+                <div class="flex items-center space-x-2">
+                    <button onclick="algorithmPrevPage()" class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50">上一页</button>
+                    <span class="text-sm text-gray-600"><span id="algorithm-current-page">1</span> / <span id="algorithm-total-pages">1</span></span>
+                    <button onclick="algorithmNextPage()" class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50">下一页</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 mt-6">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-semibold text-gray-800">农事年历</h2>
+            <div class="flex items-center space-x-3">
+                <input type="text" id="calendar-search" placeholder="搜索物候期名称..." class="pl-3 pr-4 py-2 border border-gray-300 rounded-lg text-sm w-56" oninput="filterCalendar()">
+                <button onclick="openCalendarAddModal()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">+ 添加</button>
+            </div>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead><tr class="border-b border-gray-200"><th class="text-left py-3 px-4 font-semibold text-gray-600">物候期</th><th class="text-left py-3 px-4 font-semibold text-gray-600">时间范围</th><th class="text-left py-3 px-4 font-semibold text-gray-600">主要农事操作</th><th class="text-left py-3 px-4 font-semibold text-gray-600">模型关注点</th><th class="text-left py-3 px-4 font-semibold text-gray-600">当前状态</th><th class="text-left py-3 px-4 font-semibold text-gray-600">操作</th></tr></thead>
+                <tbody id="calendar-tbody"></tbody>
+            </table>
+        </div>
+        <div class="pt-4 border-t border-gray-100 flex items-center justify-between">
+            <p class="text-sm text-gray-500">共 <span id="calendar-total-count">6</span> 条记录</p>
+            <div class="flex items-center space-x-2">
+                <button onclick="calendarPrevPage()" class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50">上一页</button>
+                <span class="text-sm text-gray-600"><span id="calendar-current-page">1</span> / <span id="calendar-total-pages">2</span></span>
+                <button onclick="calendarNextPage()" class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50">下一页</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 算法查看弹窗 -->
+<div id="algorithm-view-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center">
+    <div style="background:#fff;border-radius:12px;width:90%;max-width:600px;max-height:85vh;overflow-y:auto">
+        <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+            <h3 style="font-size:18px;font-weight:600;color:#1f2937">算法详情</h3>
+            <button onclick="closeModal('algorithm-view-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
+        </div>
+        <div style="padding:24px">
+            <div style="margin-bottom:20px"><h2 id="view-algo-name" style="font-size:20px;font-weight:600;color:#1f2937;margin-bottom:4px"></h2><span id="view-algo-status" style="font-size:12px;padding:2px 8px;border-radius:4px"></span></div>
+            <div style="margin-bottom:20px"><h4 style="font-size:14px;font-weight:600;color:#374151;margin-bottom:8px">模型介绍</h4><p id="view-algo-desc" style="font-size:14px;color:#4b5563;line-height:1.7"></p></div>
+            <div style="margin-bottom:20px"><h4 style="font-size:14px;font-weight:600;color:#374151;margin-bottom:8px">模型公式</h4><div id="view-algo-formula" style="font-size:14px;color:#4b5563;background:#f3f4f6;padding:12px;border-radius:8px;font-family:'Courier New',monospace"></div></div>
+            <div style="margin-bottom:20px"><h4 style="font-size:14px;font-weight:600;color:#374151;margin-bottom:8px">参数解读</h4><ul id="view-algo-params" style="font-size:14px;color:#4b5563;line-height:1.8;padding-left:20px;margin:0"></ul></div>
+            <div style="margin-bottom:20px"><h4 style="font-size:14px;font-weight:600;color:#374151;margin-bottom:8px">揭示规律</h4><p id="view-algo-rules" style="font-size:14px;color:#4b5563;line-height:1.7"></p></div>
+            <div style="margin-bottom:8px"><h4 style="font-size:14px;font-weight:600;color:#374151;margin-bottom:8px">所需数据</h4><ul id="view-algo-data" style="font-size:14px;color:#4b5563;line-height:1.8;padding-left:20px;margin:0"></ul></div>
+        </div>
+        <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end">
+            <button onclick="closeModal('algorithm-view-modal')" style="padding:8px 16px;background:#f3f4f6;color:#374151;border:none;border-radius:8px;font-size:14px;cursor:pointer">关闭</button>
+        </div>
+    </div>
+</div>
+
+<!-- 算法编辑弹窗 -->
+<div id="algorithm-edit-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center">
+    <div style="background:#fff;border-radius:12px;width:90%;max-width:550px;max-height:85vh;overflow-y:auto">
+        <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+            <h3 style="font-size:18px;font-weight:600;color:#1f2937">编辑算法</h3>
+            <button onclick="closeModal('algorithm-edit-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
+        </div>
+        <div style="padding:24px;display:flex;flex-direction:column;gap:16px">
+            <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">算法名称 <span style="color:#ef4444">*</span></label><input type="text" id="edit-algo-name" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"></div>
+            <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">算法描述 <span style="color:#ef4444">*</span></label><textarea id="edit-algo-desc" rows="3" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"></textarea></div>
+            <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">模型公式</label><textarea id="edit-algo-formula" rows="2" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box;font-family:'Courier New',monospace"></textarea></div>
+            <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">参数解读</label><textarea id="edit-algo-params" rows="3" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"></textarea></div>
+            <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">揭示规律</label><textarea id="edit-algo-rules" rows="3" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"></textarea></div>
+            <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">所需数据</label><textarea id="edit-algo-data" rows="2" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"></textarea></div>
+            <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">状态</label><select id="edit-algo-status" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"><option value="已启用">已启用</option><option value="待优化">待优化</option></select></div>
+        </div>
+        <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:12px">
+            <button onclick="closeModal('algorithm-edit-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
+            <button onclick="submitAlgorithmEdit()" style="padding:8px 16px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">保存修改</button>
+        </div>
+    </div>
+</div>
+
+<!-- 算法参数配置弹窗 -->
+<div id="algorithm-config-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center">
+    <div style="background:#fff;border-radius:12px;width:90%;max-width:500px;max-height:85vh;overflow-y:auto">
+        <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+            <h3 style="font-size:18px;font-weight:600;color:#1f2937">参数配置 - <span id="config-algo-name"></span></h3>
+            <button onclick="closeModal('algorithm-config-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
+        </div>
+        <div style="padding:24px">
+            <div id="config-params-container" style="display:flex;flex-direction:column;gap:12px"></div>
+        </div>
+        <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:12px">
+            <button onclick="closeModal('algorithm-config-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
+            <button onclick="submitAlgorithmConfig()" style="padding:8px 16px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">保存配置</button>
+        </div>
+    </div>
+</div>
+
+<!-- 算法数据关联弹窗 -->
+<div id="algorithm-data-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center">
+    <div style="background:#fff;border-radius:12px;width:90%;max-width:600px;max-height:85vh;overflow-y:auto">
+        <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+            <h3 style="font-size:18px;font-weight:600;color:#1f2937">数据关联 - <span id="data-algo-name"></span></h3>
+            <button onclick="closeModal('algorithm-data-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
+        </div>
+        <div style="padding:24px">
+            <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px;margin-bottom:16px">
+                <p style="font-size:14px;font-weight:500;color:#1e40af">关联数据说明</p>
+                <p style="font-size:12px;color:#2563eb;margin-top:4px">以下是与该算法相关的数据表和数据源，数据将实时同步供算法计算使用。</p>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead><tr class="border-b border-gray-200"><th class="text-left py-3 px-4 font-semibold text-gray-600">数据名称</th><th class="text-left py-3 px-4 font-semibold text-gray-600">数据类型</th><th class="text-left py-3 px-4 font-semibold text-gray-600">更新频率</th><th class="text-left py-3 px-4 font-semibold text-gray-600">数据量</th><th class="text-left py-3 px-4 font-semibold text-gray-600">状态</th></tr></thead>
+                    <tbody id="data-association-tbody"></tbody>
+                </table>
+            </div>
+        </div>
+        <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end">
+            <button onclick="closeModal('algorithm-data-modal')" style="padding:8px 16px;background:#f3f4f6;color:#374151;border:none;border-radius:8px;font-size:14px;cursor:pointer">关闭</button>
+        </div>
+    </div>
+</div>
+
+<!-- 算法删除确认弹窗 -->
+<div id="algorithm-delete-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center">
+    <div style="background:#fff;border-radius:12px;width:90%;max-width:400px">
+        <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+            <h3 style="font-size:18px;font-weight:600;color:#1f2937">删除确认</h3>
+            <button onclick="closeModal('algorithm-delete-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
+        </div>
+        <div style="padding:24px;text-align:center">
+            <div style="width:60px;height:60px;background:#fee2e2;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px"><span style="font-size:28px;color:#dc2626">!</span></div>
+            <h3 style="font-size:18px;font-weight:600;color:#1f2937;margin-bottom:8px">确认删除</h3>
+            <p style="font-size:14px;color:#6b7280;margin-bottom:24px">确定要删除算法"<span id="delete-algo-name" style="font-weight:500;color:#1f2937"></span>"吗？此操作不可恢复。</p>
+            <div style="display:flex;justify-content:center;gap:12px">
+                <button onclick="closeModal('algorithm-delete-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
+                <button onclick="confirmAlgorithmDelete()" style="padding:8px 16px;background:#dc2626;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">确认删除</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- 保存参数弹窗 -->
+<div id="save-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center">
+    <div style="background:#fff;border-radius:12px;width:90%;max-width:500px;max-height:85vh;overflow-y:auto">
+        <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+            <h3 style="font-size:18px;font-weight:600;color:#1f2937">保存参数配置</h3>
+            <button onclick="closeModal('save-modal')" style="padding:4px;background:none;border:none;cursor:pointer;border-radius:4px">&times;</button>
+        </div>
+        <div style="padding:24px">
+            <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px;margin-bottom:16px">
+                <p style="font-size:14px;font-weight:500;color:#1e40af">参数修改确认</p>
+                <p style="font-size:12px;color:#2563eb;margin-top:4px">修改模型参数后需要重新训练模型才能生效，预计耗时约15分钟。</p>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:12px">
+                <div style="display:flex;justify-content:space-between;padding:12px;background:#f9fafb;border-radius:8px"><span style="font-size:14px;color:#4b5563">有效积温阈值</span><span style="font-size:14px;font-weight:500;color:#1f2937" id="preview-temp">1200 C·d</span></div>
+                <div style="display:flex;justify-content:space-between;padding:12px;background:#f9fafb;border-radius:8px"><span style="font-size:14px;color:#4b5563">土壤湿度适宜范围</span><span style="font-size:14px;font-weight:500;color:#1f2937" id="preview-moisture">60-80 %</span></div>
+                <div style="display:flex;justify-content:space-between;padding:12px;background:#f9fafb;border-radius:8px"><span style="font-size:14px;color:#4b5563">光照强度阈值</span><span style="font-size:14px;font-weight:500;color:#1f2937" id="preview-light">30 klx</span></div>
+                <div style="display:flex;justify-content:space-between;padding:12px;background:#f9fafb;border-radius:8px"><span style="font-size:14px;color:#4b5563">预测周期</span><span style="font-size:14px;font-weight:500;color:#1f2937" id="preview-period">7 天</span></div>
+            </div>
+            <div style="margin-top:16px"><label style="display:flex;align-items:center;cursor:pointer"><input type="checkbox" id="restart-model" style="width:16px;height:16px"><span style="margin-left:8px;font-size:14px;color:#4b5563">保存后自动重启模型</span></label></div>
+        </div>
+        <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:12px">
+            <button onclick="closeModal('save-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
+            <button onclick="submitSaveParams()" style="padding:8px 16px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">确认保存</button>
+        </div>
+    </div>
+</div>
+
+<!-- 查看物候期弹窗 -->
+<div id="calendar-view-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center">
+    <div style="background:#fff;border-radius:12px;width:90%;max-width:500px;max-height:85vh;overflow-y:auto">
+        <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+            <h3 style="font-size:18px;font-weight:600;color:#1f2937">查看物候期详情</h3>
+            <button onclick="closeModal('calendar-view-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
+        </div>
+        <div style="padding:24px">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+                <div><label style="font-size:14px;color:#6b7280;display:block;margin-bottom:4px">物候期</label><p style="font-size:14px;font-weight:500;color:#1f2937" id="view-cal-name">-</p></div>
+                <div><label style="font-size:14px;color:#6b7280;display:block;margin-bottom:4px">时间范围</label><p style="font-size:14px;font-weight:500;color:#1f2937" id="view-cal-time">-</p></div>
+                <div><label style="font-size:14px;color:#6b7280;display:block;margin-bottom:4px">当前状态</label><p style="font-size:14px;font-weight:500;color:#1f2937" id="view-cal-status">-</p></div>
+                <div style="grid-column:1/-1"><label style="font-size:14px;color:#6b7280;display:block;margin-bottom:4px">主要农事操作</label><p style="font-size:14px;color:#1f2937" id="view-cal-operation">-</p></div>
+                <div style="grid-column:1/-1"><label style="font-size:14px;color:#6b7280;display:block;margin-bottom:4px">模型关注点</label><p style="font-size:14px;color:#1f2937" id="view-cal-focus">-</p></div>
+            </div>
+        </div>
+        <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end">
+            <button onclick="closeModal('calendar-view-modal')" style="padding:8px 16px;background:#f3f4f6;color:#374151;border:none;border-radius:8px;font-size:14px;cursor:pointer">关闭</button>
+        </div>
+    </div>
+</div>
+
+<!-- 添加物候期弹窗 -->
+<div id="calendar-add-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center">
+    <div style="background:#fff;border-radius:12px;width:90%;max-width:500px;max-height:85vh;overflow-y:auto">
+        <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+            <h3 style="font-size:18px;font-weight:600;color:#1f2937">+ 添加物候期</h3>
+            <button onclick="closeModal('calendar-add-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
+        </div>
+        <div style="padding:24px;display:flex;flex-direction:column;gap:16px">
+            <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">物候期名称 <span style="color:#ef4444">*</span></label><input type="text" id="add-cal-name" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box" placeholder="请输入物候期名称"></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">开始时间</label><input type="text" id="add-cal-time-start" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box" placeholder="如：7月中旬"></div>
+                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">结束时间</label><input type="text" id="add-cal-time-end" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box" placeholder="如：10月上旬"></div>
+            </div>
+            <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">主要农事操作 <span style="color:#ef4444">*</span></label><input type="text" id="add-cal-operation" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box" placeholder="如：追肥、灌溉、病虫害防治"></div>
+            <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">模型关注点 <span style="color:#ef4444">*</span></label><input type="text" id="add-cal-focus" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box" placeholder="如：果径增长、糖分积累"></div>
+            <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">当前状态</label><select id="add-cal-status" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"><option value="未开始">未开始</option><option value="进行中">进行中</option><option value="已结束">已结束</option></select></div>
+        </div>
+        <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:12px">
+            <button onclick="closeModal('calendar-add-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
+            <button onclick="submitCalendarAdd()" style="padding:8px 16px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">确认添加</button>
+        </div>
+    </div>
+</div>
+
+<!-- 编辑物候期弹窗 -->
+<div id="calendar-edit-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center">
+    <div style="background:#fff;border-radius:12px;width:90%;max-width:500px;max-height:85vh;overflow-y:auto">
+        <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+            <h3 style="font-size:18px;font-weight:600;color:#1f2937">编辑物候期</h3>
+            <button onclick="closeModal('calendar-edit-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
+        </div>
+        <div style="padding:24px;display:flex;flex-direction:column;gap:16px">
+            <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">物候期名称 <span style="color:#ef4444">*</span></label><input type="text" id="edit-cal-name" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">开始时间</label><input type="text" id="edit-cal-time-start" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"></div>
+                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">结束时间</label><input type="text" id="edit-cal-time-end" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"></div>
+            </div>
+            <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">主要农事操作 <span style="color:#ef4444">*</span></label><input type="text" id="edit-cal-operation" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"></div>
+            <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">模型关注点 <span style="color:#ef4444">*</span></label><input type="text" id="edit-cal-focus" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"></div>
+            <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">当前状态</label><select id="edit-cal-status" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"><option value="未开始">未开始</option><option value="进行中">进行中</option><option value="已结束">已结束</option></select></div>
+        </div>
+        <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:12px">
+            <button onclick="closeModal('calendar-edit-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
+            <button onclick="submitCalendarEdit()" style="padding:8px 16px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">保存修改</button>
+        </div>
+    </div>
+</div>
+
+<!-- 删除确认弹窗 -->
+<div id="calendar-delete-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center">
+    <div style="background:#fff;border-radius:12px;width:90%;max-width:400px">
+        <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+            <h3 style="font-size:18px;font-weight:600;color:#1f2937">删除确认</h3>
+            <button onclick="closeModal('calendar-delete-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
+        </div>
+        <div style="padding:24px;text-align:center">
+            <div style="width:60px;height:60px;background:#fee2e2;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px"><span style="font-size:28px;color:#dc2626">!</span></div>
+            <h3 style="font-size:18px;font-weight:600;color:#1f2937;margin-bottom:8px">确认删除</h3>
+            <p style="font-size:14px;color:#6b7280;margin-bottom:24px">确定要删除物候期"<span id="delete-cal-name" style="font-weight:500;color:#1f2937"></span>"吗？</p>
+            <div style="display:flex;justify-content:center;gap:12px">
+                <button onclick="closeModal('calendar-delete-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
+                <button onclick="confirmCalendarDelete()" style="padding:8px 16px;background:#dc2626;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">确认删除</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 刷新状态弹窗 -->
+<div id="refresh-status-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center">
+    <div style="background:#fff;border-radius:12px;width:90%;max-width:420px">
+        <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+            <h3 style="font-size:18px;font-weight:600;color:#1f2937">模型状态刷新</h3>
+            <button onclick="closeModal('refresh-status-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
+        </div>
+        <div style="padding:24px;text-align:center">
+            <div id="refresh-spinner" style="width:60px;height:60px;background:#dbeafe;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
+                <svg width="28" height="28" fill="none" stroke="#2563eb" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            </div>
+            <h3 id="refresh-title" style="font-size:16px;font-weight:600;color:#1f2937;margin-bottom:12px">正在刷新模型状态...</h3>
+            <div id="refresh-content" style="background:#f9fafb;border-radius:8px;padding:16px;margin-bottom:16px;display:none">
+                <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #e5e7eb">
+                    <span style="font-size:14px;color:#6b7280">运行状态</span><span style="font-size:14px;font-weight:500;color:#059669">运行中</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #e5e7eb">
+                    <span style="font-size:14px;color:#6b7280">模型准确率</span><span style="font-size:14px;font-weight:500;color:#1f2937">94.7%</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #e5e7eb">
+                    <span style="font-size:14px;color:#6b7280">训练数据总量</span><span style="font-size:14px;font-weight:500;color:#1f2937">1,258,600 条</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;padding:8px 0">
+                    <span style="font-size:14px;color:#6b7280">最后更新时间</span><span id="refresh-time" style="font-size:14px;font-weight:500;color:#1f2937"></span>
+                </div>
+            </div>
+        </div>
+        <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end">
+            <button onclick="closeModal('refresh-status-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">关闭</button>
+        </div>
+    </div>
+</div>
+
+<!-- 启动模型弹窗 -->
+<div id="start-model-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center">
+    <div style="background:#fff;border-radius:12px;width:90%;max-width:480px">
+        <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+            <h3 style="font-size:18px;font-weight:600;color:#1f2937">启动生长模型</h3>
+            <button onclick="closeModal('start-model-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
+        </div>
+        <div style="padding:24px">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+                <div style="width:48px;height:48px;background:#dcfce7;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                    <svg width="24" height="24" fill="none" stroke="#16a34a" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+                <div>
+                    <h4 style="font-size:15px;font-weight:600;color:#1f2937">确认启动模型服务</h4>
+                    <p style="font-size:13px;color:#6b7280;margin-top:2px">模型启动后将开始数据处理和预测计算</p>
+                </div>
+            </div>
+            <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:12px;margin-bottom:16px">
+                <p style="font-size:13px;color:#c2410c;font-weight:500;margin-bottom:4px">启动须知</p>
+                <ul style="font-size:12px;color:#9a3412;list-style:disc;padding-left:16px;margin:0;line-height:1.8">
+                    <li>预计初始化耗时约30秒</li>
+                    <li>将加载最新气象与土壤数据</li>
+                    <li>启动期间部分功能可能暂时不可用</li>
+                    <li>建议在非高峰时段操作</li>
+                </ul>
+            </div>
+        </div>
+        <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:12px">
+            <button onclick="closeModal('start-model-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
+            <button id="confirm-start-btn" onclick="confirmStartModel()" style="padding:8px 16px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">确认启动</button>
+        </div>
+    </div>
+</div>
+
+</div>
+
+<script>
+var algorithmData = [
+    {
+        id: 'algo-1', name: '有效积温物候识别算法', desc: '依据各生育阶段有效积温阈值判定物候期，通过累计温度与生物学下限温度的差值来判断作物生长发育进程',
+        formula: 'Y = Σ(Ti - Tb)  (Ti ≥ Tb)',
+        params: ['Y: 有效积温 (°C·d)', 'Ti: 每日平均温度 (°C)', 'Tb: 生物学下限温度 (南丰蜜桔取12°C)', 'Σ: 温度累加求和'],
+        rules: '南丰蜜桔不同物候期需要不同的有效积温：萌芽期约300°C·d，开花期约600°C·d，果实成熟期约1200°C·d。有效积温达到阈值时，作物进入下一生长阶段。',
+        data: ['每日平均气温', '最高气温', '最低气温', '物候期观测记录', '历史积温数据'],
+        status: '已启用', statusClass: 'bg-green-100 text-green-700',
+        config: [
+            { name: '生物学下限温度', value: '12', unit: '°C', desc: '南丰蜜桔生长的最低温度阈值' },
+            { name: '有效积温阈值-萌芽期', value: '300', unit: '°C·d', desc: '萌芽期所需有效积温' },
+            { name: '有效积温阈值-开花期', value: '600', unit: '°C·d', desc: '开花期所需有效积温' },
+            { name: '有效积温阈值-成熟期', value: '1200', unit: '°C·d', desc: '果实成熟期所需有效积温' }
+        ],
+        association: [
+            { name: '气象站温度数据', type: '气象数据', freq: '每小时', count: '86,400条', status: '正常' },
+            { name: '物候期观测记录', type: '人工采集', freq: '每日', count: '1,200条', status: '正常' },
+            { name: '历史积温统计', type: '统计数据', freq: '每月', count: '120条', status: '正常' }
+        ]
+    },
+    {
+        id: 'algo-2', name: 'LightGBM梯度提升回归模型', desc: '基于LightGBM算法构建的梯度提升回归模型，用于拟合新梢生长、果径增长、糖分积累等连续值预测',
+        formula: 'ŷ = Σ(wi * hi(x)) + b',
+        params: ['ŷ: 预测值', 'wi: 第i棵树的权重', 'hi(x): 第i棵决策树的输出', 'b: 偏置项', 'Σ: 所有树输出的加权求和'],
+        rules: '通过多棵决策树的集成学习，捕捉南丰蜜桔生长因子间的非线性关系。新梢生长与温度、光照呈正相关；果径增长与水分、养分供应密切相关；糖分积累受成熟期温差影响显著。',
+        data: ['新梢长度测量', '果径测量数据', '糖分含量检测', '土壤养分数据', '气象要素数据'],
+        status: '已启用', statusClass: 'bg-green-100 text-green-700',
+        config: [
+            { name: '决策树数量', value: '500', unit: '棵', desc: '模型中决策树的总数' },
+            { name: '学习率', value: '0.05', unit: '', desc: '每棵树的学习速率' },
+            { name: '最大深度', value: '8', unit: '层', desc: '决策树的最大层数' },
+            { name: '最小叶子样本数', value: '20', unit: '个', desc: '叶子节点最小样本数' }
+        ],
+        association: [
+            { name: '果实生长监测', type: '传感器数据', freq: '每日', count: '25,000条', status: '正常' },
+            { name: '土壤养分检测', type: '实验室数据', freq: '每周', count: '500条', status: '正常' },
+            { name: '品质检测记录', type: '人工采集', freq: '每月', count: '360条', status: '正常' }
+        ]
+    },
+    {
+        id: 'algo-3', name: '时序异常检测算法', desc: '基于统计方法和机器学习构建正常生长区间基线，识别作物生长胁迫状态和异常波动',
+        formula: 'Anomaly = |x - μ| / σ > k',
+        params: ['x: 当前观测值', 'μ: 正常区间均值', 'σ: 正常区间标准差', 'k: 异常阈值系数(取3)', 'Anomaly: 是否异常标记'],
+        rules: '当观测值偏离正常区间超过3倍标准差时判定为异常。异常可能由病虫害、环境胁迫、农事操作不当等因素引起。系统会自动触发预警并分析异常原因。',
+        data: ['连续监测数据序列', '历史正常生长数据', '环境胁迫记录', '病虫害发生记录'],
+        status: '已启用', statusClass: 'bg-green-100 text-green-700',
+        config: [
+            { name: '异常阈值系数', value: '3', unit: '倍σ', desc: '判定异常的标准差倍数' },
+            { name: '滑动窗口大小', value: '7', unit: '天', desc: '计算基线的时间窗口' },
+            { name: '最小异常持续', value: '3', unit: '次', desc: '触发预警的连续异常次数' },
+            { name: '数据更新频率', value: '1', unit: '小时', desc: '检测频率' }
+        ],
+        association: [
+            { name: '实时监测数据流', type: '传感器数据', freq: '每小时', count: '150,000条', status: '正常' },
+            { name: '历史生长基线', type: '统计数据', freq: '每日', count: '3,650条', status: '正常' },
+            { name: '预警记录', type: '系统记录', freq: '实时', count: '890条', status: '正常' }
+        ]
+    },
+    {
+        id: 'algo-4', name: '多约束农事优化推荐算法', desc: '以品质目标为优化目标，综合考虑气候、土壤、病虫害等约束条件，搜索最优农事操作方案',
+        formula: 'Max(Q) s.t. C(x) ≤ B, G(x) ≥ T',
+        params: ['Q: 品质目标函数', 'C(x): 成本约束', 'B: 预算上限', 'G(x): 产量约束', 'T: 产量下限', 'x: 农事决策变量'],
+        rules: '在预算和产量约束下最大化果实品质。算法会根据当前生长状态和预测天气，推荐最优施肥量、灌溉时间、病虫害防治时机等农事操作方案。',
+        data: ['土壤养分状况', '气象预测数据', '病虫害风险评估', '品质目标参数', '农事成本数据'],
+        status: '已启用', statusClass: 'bg-green-100 text-green-700',
+        config: [
+            { name: '品质权重', value: '0.6', unit: '', desc: '品质在目标函数中的权重' },
+            { name: '成本权重', value: '0.2', unit: '', desc: '成本在目标函数中的权重' },
+            { name: '产量权重', value: '0.2', unit: '', desc: '产量在目标函数中的权重' },
+            { name: '搜索迭代次数', value: '1000', unit: '次', desc: '优化算法迭代次数' }
+        ],
+        association: [
+            { name: '农事操作记录', type: '人工采集', freq: '每日', count: '2,400条', status: '正常' },
+            { name: '土壤监测数据', type: '传感器数据', freq: '每3天', count: '8,000条', status: '正常' },
+            { name: '气象预测', type: '外部数据', freq: '每日', count: '365条', status: '正常' }
+        ]
+    },
+    {
+        id: 'algo-5', name: 'FAO彭曼-蒙特斯作物水分平衡算法', desc: '基于FAO推荐的彭曼-蒙特斯公式估算植株蒸腾量，结合土壤水分监测数据确定最佳灌溉时机',
+        formula: 'ETc = Kc × ET0',
+        params: ['ETc: 作物实际蒸腾量 (mm/d)', 'Kc: 作物系数', 'ET0: 参考作物蒸发蒸腾量'],
+        rules: '参考作物蒸发蒸腾量ET0由气象数据计算得出，乘以作物系数Kc得到实际蒸腾量。当土壤含水量低于适宜下限且预测无有效降雨时，触发灌溉建议。',
+        data: ['气温数据', '湿度数据', '风速数据', '日照时数', '土壤含水量'],
+        status: '待优化', statusClass: 'bg-yellow-100 text-yellow-700',
+        config: [
+            { name: '作物系数Kc(生长期)', value: '1.05', unit: '', desc: '生长阶段的作物系数' },
+            { name: '作物系数Kc(成熟期)', value: '0.75', unit: '', desc: '成熟阶段的作物系数' },
+            { name: '灌溉下限阈值', value: '60', unit: '%', desc: '土壤含水量灌溉下限' },
+            { name: '灌溉上限阈值', value: '85', unit: '%', desc: '土壤含水量灌溉上限' }
+        ],
+        association: [
+            { name: '气象站数据', type: '气象数据', freq: '每小时', count: '120,000条', status: '正常' },
+            { name: '土壤水分监测', type: '传感器数据', freq: '每3小时', count: '48,000条', status: '正常' },
+            { name: '灌溉记录', type: '人工采集', freq: '每日', count: '600条', status: '正常' }
+        ]
+    }
+];
+var calendarData = [
+    { id: 'cal-1', phenology: '萌芽期', timeRange: '2月上旬-3月中旬', operations: '修剪整枝、施肥、病虫害预防', focus: '有效积温累计、萌芽率预测', status: '已完成', statusClass: 'bg-gray-100 text-gray-600' },
+    { id: 'cal-2', phenology: '现蕾期', timeRange: '3月下旬-4月上旬', operations: '疏花、病虫害防治、叶面施肥', focus: '花芽分化、花蕾数量统计', status: '已完成', statusClass: 'bg-gray-100 text-gray-600' },
+    { id: 'cal-3', phenology: '开花期', timeRange: '4月中旬-5月上旬', operations: '授粉辅助、保花保果、病虫害防治', focus: '开花量、坐果率预测', status: '进行中', statusClass: 'bg-blue-100 text-blue-600' },
+    { id: 'cal-4', phenology: '幼果期', timeRange: '5月中旬-6月下旬', operations: '疏果、套袋、施肥、灌溉', focus: '果实膨大、落果率监测', status: '未开始', statusClass: 'bg-gray-200 text-gray-500' },
+    { id: 'cal-5', phenology: '膨大期', timeRange: '7月上旬-8月下旬', operations: '追肥、病虫害防治、水分管理', focus: '果径增长、糖分积累', status: '未开始', statusClass: 'bg-gray-200 text-gray-500' },
+    { id: 'cal-6', phenology: '成熟期', timeRange: '9月上旬-10月下旬', operations: '采收、分级、贮藏', focus: '成熟度判定、品质预测', status: '未开始', statusClass: 'bg-gray-200 text-gray-500' },
+    { id: 'cal-7', phenology: '花芽分化期', timeRange: '11月上旬-12月下旬', operations: '冬季修剪、清园、施肥', focus: '花芽分化、休眠管理', status: '未开始', statusClass: 'bg-gray-200 text-gray-500' },
+    { id: 'cal-8', phenology: '休眠期', timeRange: '1月上旬-1月下旬', operations: '冬季防寒、病虫害越冬防治', focus: '低温累积、休眠解除', status: '已完成', statusClass: 'bg-gray-100 text-gray-600' }
+];
+var calendarCurrentPage = 1;
+var calendarPageSize = 6;
+var filteredCalendarData = calendarData.slice();
+
+var algorithmCurrentPage = 1;
+var algorithmPageSize = 10;
+var filteredAlgorithmData = algorithmData.slice();
+var algorithmEditId = null;
+var algorithmDeleteId = null;
+
+function renderAlgorithmTable(){
+    var tbody = document.getElementById('algorithm-tbody');
+    var start = (algorithmCurrentPage - 1) * algorithmPageSize;
+    var end = start + algorithmPageSize;
+    var pageData = filteredAlgorithmData.slice(start, end);
+    var html = '';
+    for(var i=0; i<pageData.length; i++){
+        var item = pageData[i];
+        html += '<tr class="border-b border-gray-100 hover:bg-gray-50">';
+        html += '<td class="py-3 px-4 font-medium text-gray-800">'+item.name+'</td>';
+        html += '<td class="py-3 px-4 text-gray-600">'+item.desc+'</td>';
+        html += '<td class="py-3 px-4"><span class="px-2 py-1 '+item.statusClass+' text-xs rounded">'+item.status+'</span></td>';
+        html += '<td class="py-3 px-4"><div style="display:flex;gap:6px">';
+        html += '<button onclick="viewAlgorithm(\''+item.id+'\')" style="padding:4px 8px;font-size:12px;color:#3b82f6;border:none;background:none;cursor:pointer;border-radius:4px;hover:bg-blue-50">查看</button>';
+        html += '<button onclick="editAlgorithm(\''+item.id+'\')" style="padding:4px 8px;font-size:12px;color:#f59e0b;border:none;background:none;cursor:pointer;border-radius:4px;hover:bg-amber-50">编辑</button>';
+        html += '<button onclick="configAlgorithm(\''+item.id+'\')" style="padding:4px 8px;font-size:12px;color:#8b5cf6;border:none;background:none;cursor:pointer;border-radius:4px;hover:bg-violet-50">参数配置</button>';
+        html += '<button onclick="dataAlgorithm(\''+item.id+'\')" style="padding:4px 8px;font-size:12px;color:#10b981;border:none;background:none;cursor:pointer;border-radius:4px;hover:bg-emerald-50">关联数据</button>';
+        html += '<button onclick="deleteAlgorithm(\''+item.id+'\')" style="padding:4px 8px;font-size:12px;color:#ef4444;border:none;background:none;cursor:pointer;border-radius:4px;hover:bg-red-50">删除</button>';
+        html += '</div></td></tr>';
+    }
+    tbody.innerHTML = html;
+    document.getElementById('algorithm-total-count').textContent = filteredAlgorithmData.length;
+    document.getElementById('algorithm-current-page').textContent = algorithmCurrentPage;
+    document.getElementById('algorithm-total-pages').textContent = Math.ceil(filteredAlgorithmData.length/algorithmPageSize)||1;
+}
+
+function filterAlgorithms(){
+    var term = document.getElementById('algorithm-search').value.toLowerCase();
+    var status = document.getElementById('algorithm-status').value;
+    filteredAlgorithmData = algorithmData.filter(function(item){
+        var matchName = item.name.toLowerCase().indexOf(term)!==-1;
+        var matchStatus = status==='全部' || item.status===status;
+        return matchName && matchStatus;
+    });
+    algorithmCurrentPage = 1;
+    renderAlgorithmTable();
+}
+
+function algorithmPrevPage(){if(algorithmCurrentPage>1){algorithmCurrentPage--;renderAlgorithmTable();}}
+function algorithmNextPage(){var t=Math.ceil(filteredAlgorithmData.length/algorithmPageSize);if(algorithmCurrentPage<t){algorithmCurrentPage++;renderAlgorithmTable();}}
+
+function renderCalendarTable(){
+    var tbody = document.getElementById('calendar-tbody');
+    var start = (calendarCurrentPage - 1) * calendarPageSize;
+    var end = start + calendarPageSize;
+    var pageData = filteredCalendarData.slice(start, end);
+    var html = '';
+    for(var i=0; i<pageData.length; i++){
+        var item = pageData[i];
+        html += '<tr class="border-b border-gray-100 hover:bg-gray-50">';
+        html += '<td class="py-3 px-4 font-medium text-gray-800">'+item.phenology+'</td>';
+        html += '<td class="py-3 px-4 text-gray-600">'+item.timeRange+'</td>';
+        html += '<td class="py-3 px-4 text-gray-600">'+item.operations+'</td>';
+        html += '<td class="py-3 px-4 text-gray-600">'+item.focus+'</td>';
+        html += '<td class="py-3 px-4"><span class="px-2 py-1 '+item.statusClass+' text-xs rounded">'+item.status+'</span></td>';
+        html += '<td class="py-3 px-4"><div style="display:flex;gap:4px">';
+        html += '<button onclick="viewCalendar(\''+item.id+'\')" style="padding:4px 8px;font-size:12px;color:#3b82f6;border:none;background:none;cursor:pointer;border-radius:4px;hover:bg-blue-50">查看</button>';
+        html += '<button onclick="editCalendar(\''+item.id+'\')" style="padding:4px 8px;font-size:12px;color:#f59e0b;border:none;background:none;cursor:pointer;border-radius:4px;hover:bg-amber-50">编辑</button>';
+        html += '<button onclick="deleteCalendar(\''+item.id+'\')" style="padding:4px 8px;font-size:12px;color:#ef4444;border:none;background:none;cursor:pointer;border-radius:4px;hover:bg-red-50">删除</button>';
+        html += '</div></td></tr>';
+    }
+    tbody.innerHTML = html;
+    document.getElementById('calendar-total-count').textContent = filteredCalendarData.length;
+    document.getElementById('calendar-current-page').textContent = calendarCurrentPage;
+    document.getElementById('calendar-total-pages').textContent = Math.ceil(filteredCalendarData.length/calendarPageSize)||1;
+}
+
+function filterCalendar(){
+    var term = document.getElementById('calendar-search').value.toLowerCase();
+    filteredCalendarData = calendarData.filter(function(item){
+        return item.phenology.toLowerCase().indexOf(term)!==-1 || item.timeRange.indexOf(term)!==-1;
+    });
+    calendarCurrentPage = 1;
+    renderCalendarTable();
+}
+
+function calendarPrevPage(){if(calendarCurrentPage>1){calendarCurrentPage--;renderCalendarTable();}}
+function calendarNextPage(){var t=Math.ceil(filteredCalendarData.length/calendarPageSize);if(calendarCurrentPage<t){calendarCurrentPage++;renderCalendarTable();}}
+
+function viewAlgorithm(id){
+    for(var i=0;i<algorithmData.length;i++){
+        if(algorithmData[i].id===id){
+            var item=algorithmData[i];
+            document.getElementById('view-algo-name').textContent=item.name;
+            document.getElementById('view-algo-status').textContent=item.status;
+            document.getElementById('view-algo-status').className='font-medium text-xs px-2 py-1 rounded '+item.statusClass;
+            document.getElementById('view-algo-desc').textContent=item.desc;
+            document.getElementById('view-algo-formula').textContent=item.formula;
+            document.getElementById('view-algo-params').innerHTML=item.params.map(function(p){return '<li>'+p+'</li>';}).join('');
+            document.getElementById('view-algo-rules').textContent=item.rules;
+            document.getElementById('view-algo-data').innerHTML=item.data.map(function(d){return '<li>'+d+'</li>';}).join('');
+            showModal('algorithm-view-modal');
+            break;
+        }
+    }
+}
+
+function editAlgorithm(id){
+    for(var i=0;i<algorithmData.length;i++){
+        if(algorithmData[i].id===id){
+            var item=algorithmData[i];
+            algorithmEditId=id;
+            document.getElementById('edit-algo-name').value=item.name;
+            document.getElementById('edit-algo-desc').value=item.desc;
+            document.getElementById('edit-algo-formula').value=item.formula;
+            document.getElementById('edit-algo-params').value=item.params.join('\n');
+            document.getElementById('edit-algo-rules').value=item.rules;
+            document.getElementById('edit-algo-data').value=item.data.join('\n');
+            document.getElementById('edit-algo-status').value=item.status;
+            showModal('algorithm-edit-modal');
+            break;
+        }
+    }
+}
+
+function submitAlgorithmEdit(){
+    var name=document.getElementById('edit-algo-name').value.trim();
+    var desc=document.getElementById('edit-algo-desc').value.trim();
+    if(!name||!desc){alert('请填写算法名称和描述');return;}
+    for(var i=0;i<algorithmData.length;i++){
+        if(algorithmData[i].id===algorithmEditId){
+            algorithmData[i].name=name;
+            algorithmData[i].desc=desc;
+            algorithmData[i].formula=document.getElementById('edit-algo-formula').value;
+            algorithmData[i].params=document.getElementById('edit-algo-params').value.split('\n').filter(function(p){return p.trim();});
+            algorithmData[i].rules=document.getElementById('edit-algo-rules').value;
+            algorithmData[i].data=document.getElementById('edit-algo-data').value.split('\n').filter(function(d){return d.trim();});
+            algorithmData[i].status=document.getElementById('edit-algo-status').value;
+            algorithmData[i].statusClass=algorithmData[i].status==='已启用'?'bg-green-100 text-green-700':'bg-yellow-100 text-yellow-700';
+            break;
+        }
+    }
+    hideModal('algorithm-edit-modal');
+    algorithmEditId=null;
+    filteredAlgorithmData=algorithmData.slice();
+    renderAlgorithmTable();
+    alert('算法修改成功！');
+}
+
+function configAlgorithm(id){
+    for(var i=0;i<algorithmData.length;i++){
+        if(algorithmData[i].id===id){
+            var item=algorithmData[i];
+            document.getElementById('config-algo-name').textContent=item.name;
+            var container=document.getElementById('config-params-container');
+            container.innerHTML='';
+            for(var j=0;j<item.config.length;j++){
+                var p=item.config[j];
+                container.innerHTML+='<div style="background:#f9fafb;border-radius:8px;padding:12px"><label style="font-size:13px;color:#6b7280;display:block;margin-bottom:4px">'+p.name+' <span style="font-size:12px;color:#9ca3af">'+p.desc+'</span></label><div style="display:flex;gap:8px"><input type="text" id="config-val-'+j+'" value="'+p.value+'" style="flex:1;padding:6px 12px;border:1px solid #d1d5db;border-radius:6px;font-size:14px"/><span style="font-size:14px;color:#4b5563;font-weight:500">'+p.unit+'</span></div></div>';
+            }
+            showModal('algorithm-config-modal');
+            break;
+        }
+    }
+}
+
+function submitAlgorithmConfig(){
+    hideModal('algorithm-config-modal');
+    alert('参数配置保存成功！\n配置修改后需要重新训练模型才能生效。');
+}
+
+function dataAlgorithm(id){
+    for(var i=0;i<algorithmData.length;i++){
+        if(algorithmData[i].id===id){
+            var item=algorithmData[i];
+            document.getElementById('data-algo-name').textContent=item.name;
+            var tbody=document.getElementById('data-association-tbody');
+            tbody.innerHTML='';
+            for(var j=0;j<item.association.length;j++){
+                var a=item.association[j];
+                tbody.innerHTML+='<tr class="border-b border-gray-100"><td class="py-3 px-4 font-medium text-gray-800">'+a.name+'</td><td class="py-3 px-4">'+a.type+'</td><td class="py-3 px-4">'+a.freq+'</td><td class="py-3 px-4">'+a.count+'</td><td class="py-3 px-4"><span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded">'+a.status+'</span></td></tr>';
+            }
+            showModal('algorithm-data-modal');
+            break;
+        }
+    }
+}
+
+function deleteAlgorithm(id){
+    for(var i=0;i<algorithmData.length;i++){
+        if(algorithmData[i].id===id){
+            algorithmDeleteId=id;
+            document.getElementById('delete-algo-name').textContent=algorithmData[i].name;
+            showModal('algorithm-delete-modal');
+            break;
+        }
+    }
+}
+
+function confirmAlgorithmDelete(){
+    for(var i=0;i<algorithmData.length;i++){if(algorithmData[i].id===algorithmDeleteId){algorithmData.splice(i,1);break;}}
+    hideModal('algorithm-delete-modal');
+    algorithmDeleteId=null;
+    filteredAlgorithmData=algorithmData.slice();
+    if(algorithmCurrentPage>Math.ceil(filteredAlgorithmData.length/algorithmPageSize)){algorithmCurrentPage=Math.max(1,Math.ceil(filteredAlgorithmData.length/algorithmPageSize)||1);}
+    renderAlgorithmTable();
+    alert('算法删除成功！');
+}
+
+var calendarEditId = null;
+var calendarDeleteId = null;
+
+function openCalendarAddModal(){
+    document.getElementById('add-cal-name').value = '';
+    document.getElementById('add-cal-time-start').value = '';
+    document.getElementById('add-cal-time-end').value = '';
+    document.getElementById('add-cal-operation').value = '';
+    document.getElementById('add-cal-focus').value = '';
+    document.getElementById('add-cal-status').value = '未开始';
+    showModal('calendar-add-modal');
+}
+
+function submitCalendarAdd(){
+    var name = document.getElementById('add-cal-name').value.trim();
+    var timeStart = document.getElementById('add-cal-time-start').value.trim();
+    var timeEnd = document.getElementById('add-cal-time-end').value.trim();
+    var operation = document.getElementById('add-cal-operation').value.trim();
+    var focus = document.getElementById('add-cal-focus').value.trim();
+    var status = document.getElementById('add-cal-status').value;
+    
+    if(!name){
+        alert('请填写物候期名称');
+        return;
+    }
+    if(!operation){
+        alert('请填写主要农事操作');
+        return;
+    }
+    if(!focus){
+        alert('请填写模型关注点');
+        return;
+    }
+    
+    var timeRange = (timeStart || '') + (timeStart && timeEnd ? '-' : '') + (timeEnd || '');
+    
+    var statusClass = status === '已完成' ? 'bg-gray-100 text-gray-600' : (status === '进行中' ? 'bg-blue-100 text-blue-600' : 'bg-gray-200 text-gray-500');
+    
+    var newItem = {
+        id: 'cal-' + (calendarData.length + 1),
+        phenology: name,
+        timeRange: timeRange || '-',
+        operations: operation,
+        focus: focus,
+        status: status,
+        statusClass: statusClass
+    };
+    
+    calendarData.push(newItem);
+    filteredCalendarData = calendarData.slice();
+    calendarCurrentPage = Math.ceil(filteredCalendarData.length / calendarPageSize);
+    renderCalendarTable();
+    hideModal('calendar-add-modal');
+    alert('农事年历添加成功！');
+}
+
+function viewCalendar(id){
+    for(var i=0;i<calendarData.length;i++){
+        if(calendarData[i].id===id){
+            var item=calendarData[i];
+            document.getElementById('view-cal-name').textContent=item.phenology;
+            document.getElementById('view-cal-time').textContent=item.timeRange;
+            document.getElementById('view-cal-status').textContent=item.status;
+            document.getElementById('view-cal-status').className='font-medium text-xs px-2 py-1 rounded '+item.statusClass;
+            document.getElementById('view-cal-operation').textContent=item.operations;
+            document.getElementById('view-cal-focus').textContent=item.focus;
+            showModal('calendar-view-modal');
+            break;
+        }
+    }
+}
+
+function editCalendar(id){
+    for(var i=0;i<calendarData.length;i++){
+        if(calendarData[i].id===id){
+            var item=calendarData[i];
+            calendarEditId=id;
+            document.getElementById('edit-cal-name').value=item.phenology;
+            var timeParts = item.timeRange.split('-');
+            document.getElementById('edit-cal-time-start').value = timeParts[0] || '';
+            document.getElementById('edit-cal-time-end').value = timeParts[1] || '';
+            document.getElementById('edit-cal-operation').value=item.operations;
+            document.getElementById('edit-cal-focus').value=item.focus;
+            document.getElementById('edit-cal-status').value=item.status;
+            showModal('calendar-edit-modal');
+            break;
+        }
+    }
+}
+
+function submitCalendarEdit(){
+    var name=document.getElementById('edit-cal-name').value.trim();
+    var timeStart=document.getElementById('edit-cal-time-start').value.trim();
+    var timeEnd=document.getElementById('edit-cal-time-end').value.trim();
+    if(!name){alert('请填写物候期名称');return;}
+    var timeRange = (timeStart || '') + (timeStart && timeEnd ? '-' : '') + (timeEnd || '');
+    for(var i=0;i<calendarData.length;i++){
+        if(calendarData[i].id===calendarEditId){
+            calendarData[i].phenology=name;
+            calendarData[i].timeRange=timeRange || '-';
+            calendarData[i].operations=document.getElementById('edit-cal-operation').value;
+            calendarData[i].focus=document.getElementById('edit-cal-focus').value;
+            calendarData[i].status=document.getElementById('edit-cal-status').value;
+            calendarData[i].statusClass=calendarData[i].status==='已完成'?'bg-gray-100 text-gray-600':(calendarData[i].status==='进行中'?'bg-blue-100 text-blue-600':'bg-gray-200 text-gray-500');
+            break;
+        }
+    }
+    hideModal('calendar-edit-modal');
+    calendarEditId=null;
+    filteredCalendarData=calendarData.slice();
+    renderCalendarTable();
+    alert('农事年历修改成功！');
+}
+
+function deleteCalendar(id){
+    for(var i=0;i<calendarData.length;i++){
+        if(calendarData[i].id===id){
+            calendarDeleteId=id;
+            document.getElementById('delete-cal-name').textContent=calendarData[i].phenology;
+            showModal('calendar-delete-modal');
+            break;
+        }
+    }
+}
+
+function confirmCalendarDelete(){
+    for(var i=0;i<calendarData.length;i++){if(calendarData[i].id===calendarDeleteId){calendarData.splice(i,1);break;}}
+    hideModal('calendar-delete-modal');
+    calendarDeleteId=null;
+    filteredCalendarData=calendarData.slice();
+    if(calendarCurrentPage>Math.ceil(filteredCalendarData.length/calendarPageSize)){calendarCurrentPage=Math.max(1,Math.ceil(filteredCalendarData.length/calendarPageSize)||1);}
+    renderCalendarTable();
+    alert('农事年历删除成功！');
+}
+
+window.onload = function(){
+    renderAlgorithmTable();
+    renderCalendarTable();
+    initCharts();
+};
+
+function initCharts(){
+    var trainingCtx = document.getElementById('trainingDataChart').getContext('2d');
+    new Chart(trainingCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['气象数据', '土壤数据', '图像数据', '品质检测', '物候观测'],
+            datasets: [{
+                data: [35, 25, 20, 12, 8],
+                backgroundColor: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: {
+                        padding: 20,
+                        font: { size: 12 }
+                    }
+                }
+            },
+            cutout: '60%'
+        }
+    });
+
+    var accuracyCtx = document.getElementById('accuracyTrendChart').getContext('2d');
+    new Chart(accuracyCtx, {
+        type: 'line',
+        data: {
+            labels: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+            datasets: [{
+                label: '模型准确率',
+                data: [88.5, 89.2, 90.1, 91.3, 92.0, 92.8, 93.5, 94.1, 94.7, 95.2, 95.6, 96.0],
+                borderColor: '#3B82F6',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                fill: true,
+                tension: 0.4,
+                pointRadius: 4,
+                pointBackgroundColor: '#3B82F6'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    min: 85,
+                    max: 100,
+                    grid: {
+                        color: '#f3f4f6'
+                    },
+                    ticks: {
+                        callback: function(value) { return value + '%'; }
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
+            }
+        }
+    });
+}
+
+function showModal(id){
+    var modal = document.getElementById(id);
+    if(modal){
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function closeModal(id){
+    var modal = document.getElementById(id);
+    if(modal){
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+}
+
+function refreshStatus(){
+    showModal('refresh-status-modal');
+    document.getElementById('refresh-content').style.display = 'none';
+    document.getElementById('refresh-title').innerText = '正在刷新模型状态...';
+    document.getElementById('refresh-spinner').innerHTML = '<svg width="28" height="28" fill="none" stroke="#2563eb" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>';
+    document.getElementById('refresh-spinner').style.animation = 'spin 1s linear infinite';
+    setTimeout(function(){
+        var now = new Date();
+        var timeStr = now.getFullYear() + '-' + 
+            String(now.getMonth() + 1).padStart(2, '0') + '-' + 
+            String(now.getDate()).padStart(2, '0') + ' ' + 
+            String(now.getHours()).padStart(2, '0') + ':' + 
+            String(now.getMinutes()).padStart(2, '0') + ':' + 
+            String(now.getSeconds()).padStart(2, '0');
+        document.getElementById('refresh-time').innerText = timeStr;
+        document.getElementById('refresh-title').innerText = '模型状态刷新完成';
+        document.getElementById('refresh-content').style.display = 'block';
+        document.getElementById('refresh-spinner').style.animation = '';
+        document.getElementById('refresh-spinner').innerHTML = '<svg width="28" height="28" fill="none" stroke="#2563eb" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>';
+    }, 800);
+}
+
+function startModel(){
+    showModal('start-model-modal');
+}
+
+function confirmStartModel(){
+    var btn = document.getElementById('confirm-start-btn');
+    var originalText = btn.innerText;
+    btn.innerText = '启动中...';
+    btn.disabled = true;
+    setTimeout(function(){
+        btn.innerText = originalText;
+        btn.disabled = false;
+        closeModal('start-model-modal');
+        refreshStatus();
+    }, 1500);
+}
+</script>

@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>微信后台 - 果园管理</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { margin: 0; padding: 0; background: #f0f2f5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; }
+    .page-header { padding: 20px 24px; background: #fff; border-bottom: 1px solid #e8ecf1; display: flex; justify-content: space-between; align-items: center; }
+    .page-title { font-size: 18px; font-weight: 600; color: #1b2a41; }
+    .page-subtitle { font-size: 14px; color: #8898aa; margin-top: 4px; }
+    
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+    .modal-overlay.active { display: flex; }
+    .modal-content { background: #fff; border-radius: 8px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
+    .modal-header { padding: 16px 20px; border-bottom: 1px solid #e8ecf1; display: flex; justify-content: space-between; align-items: center; }
+    .modal-title { font-size: 16px; font-weight: 600; color: #1b2a41; }
+    .modal-body { padding: 20px; }
+    .modal-footer { padding: 16px 20px; border-top: 1px solid #e8ecf1; display: flex; justify-content: flex-end; gap: 12px; }
+    
+    .form-item { margin-bottom: 16px; }
+    .form-label { display: block; font-size: 14px; font-weight: 500; color: #525f7f; margin-bottom: 6px; }
+    .form-input { width: 100%; padding: 10px 12px; border: 1px solid #e6ebf1; border-radius: 6px; font-size: 14px; outline: none; }
+    .form-input:focus { border-color: #22a84a; }
+    .form-select { width: 100%; padding: 10px 12px; border: 1px solid #e6ebf1; border-radius: 6px; font-size: 14px; outline: none; }
+    .form-select:focus { border-color: #22a84a; }
+    
+    .btn { padding: 8px 16px; border-radius: 6px; font-size: 14px; cursor: pointer; border: none; transition: all 0.2s; }
+    .btn-primary { background: #22a84a; color: #fff; }
+    .btn-primary:hover { background: #1e9441; }
+    .btn-secondary { background: #fff; color: #525f7f; border: 1px solid #e6ebf1; }
+    .btn-secondary:hover { background: #f7f8fc; }
+    
+    .card { background: #fff; border-radius: 8px; margin: 24px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+    
+    .search-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .search-input { flex: 1; max-width: 300px; padding: 8px 12px; border: 1px solid #e6ebf1; border-radius: 6px; font-size: 14px; }
+    
+    .table-wrapper { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid #f0f2f5; }
+    th { background: #f7f8fc; font-weight: 600; color: #525f7f; font-size: 13px; }
+    td { font-size: 14px; color: #1b2a41; }
+    
+    .status-badge { padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 500; }
+    .status-normal { background: #e6f7ee; color: #10b981; }
+    .status-warning { background: #fff8e1; color: #f59e0b; }
+    
+    .pagination { display: flex; justify-content: flex-end; align-items: center; gap: 8px; margin-top: 20px; }
+    .page-btn { padding: 6px 12px; border: 1px solid #e6ebf1; border-radius: 4px; cursor: pointer; font-size: 13px; }
+    .page-btn.active { background: #22a84a; color: #fff; border-color: #22a84a; }
+    
+    .detail-info { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .detail-item { padding: 10px; background: #f7f8fc; border-radius: 6px; }
+    .detail-label { font-size: 12px; color: #8898aa; margin-bottom: 4px; }
+    .detail-value { font-size: 14px; color: #1b2a41; }
+    
+    .stats-card { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 24px; }
+    .stat-item { background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); display: flex; align-items: center; justify-content: space-between; }
+    .stat-info { text-align: left; }
+    .stat-number { font-size: 24px; font-weight: 700; color: #1b2a41; margin-bottom: 2px; }
+    .stat-label { font-size: 12px; color: #8898aa; }
+    .stat-icon { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .stat-icon svg { width: 20px; height: 20px; }
+    .stat-icon.total { background: #e6f7ee; color: #22a84a; }
+    .stat-icon.area { background: #dbeafe; color: #3b82f6; }
+    .stat-icon.young { background: #fef3c7; color: #f59e0b; }
+    .stat-icon.middle { background: #f3e8ff; color: #8b5cf6; }
+    .stat-icon.old { background: #fce7f3; color: #ec4899; }
+  </style>
+</head>
+<body>
+  <div class="page-header">
+    <div>
+      <div class="page-title">果园管理</div>
+      <div class="page-subtitle">管理微信端用户添加的果园和地块信息</div>
+    </div>
+    <button class="btn btn-primary" onclick="openAddModal()">+ 新增地块</button>
+  </div>
+
+  <div class="stats-card" id="statsCard">
+  </div>
+
+  <div class="card">
+    <div class="search-bar">
+      <input type="text" class="search-input" id="searchInput" placeholder="搜索地块名称、用户名..." oninput="searchOrchards()">
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>地块名称</th>
+            <th>所属用户</th>
+            <th>面积(亩)</th>
+            <th>品种</th>
+            <th>土壤类型</th>
+            <th>PH值</th>
+            <th>有机质含量</th>
+            <th>树龄(年)</th>
+            <th>状态</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="orchardTable">
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination" id="pagination">
+    </div>
+  </div>
+
+  <!-- 新增/编辑弹窗 -->
+  <div id="add-modal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title" id="add-modal-title">新增地块</div>
+        <button class="btn btn-secondary" onclick="closeModal('add-modal')">关闭</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="edit-id">
+        <div class="form-item">
+          <label class="form-label">地块名称 *</label>
+          <input type="text" class="form-input" id="add-name" placeholder="请输入地块名称">
+        </div>
+        <div class="form-item">
+          <label class="form-label">所属用户 *</label>
+          <select class="form-select" id="add-user">
+            <option value="张三">张三</option>
+            <option value="李四">李四</option>
+            <option value="王五">王五</option>
+            <option value="赵六">赵六</option>
+            <option value="孙七">孙七</option>
+          </select>
+        </div>
+        <div class="form-item">
+          <label class="form-label">面积(亩) *</label>
+          <input type="number" class="form-input" id="add-area" placeholder="请输入面积">
+        </div>
+        <div class="form-item">
+          <label class="form-label">品种 *</label>
+          <select class="form-select" id="add-variety">
+            <option value="南丰蜜桔早熟种">南丰蜜桔早熟种</option>
+            <option value="南丰蜜桔中熟种">南丰蜜桔中熟种</option>
+            <option value="南丰蜜桔晚熟种">南丰蜜桔晚熟种</option>
+            <option value="其他">其他</option>
+          </select>
+        </div>
+        <div class="form-item">
+          <label class="form-label">土壤类型</label>
+          <input type="text" class="form-input" id="add-soil" placeholder="请输入土壤类型">
+        </div>
+        <div class="form-item">
+          <label class="form-label">PH值</label>
+          <input type="text" class="form-input" id="add-ph" placeholder="请输入PH值">
+        </div>
+        <div class="form-item">
+          <label class="form-label">有机质含量(%)</label>
+          <input type="text" class="form-input" id="add-organic" placeholder="请输入有机质含量">
+        </div>
+        <div class="form-item">
+          <label class="form-label">树龄(年)</label>
+          <input type="number" class="form-input" id="add-age" placeholder="请输入树龄">
+        </div>
+        <div class="form-item">
+          <label class="form-label">状态</label>
+          <select class="form-select" id="add-status">
+            <option value="正常">正常</option>
+            <option value="预警">预警</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('add-modal')">取消</button>
+        <button class="btn btn-primary" onclick="submitAdd()">确认</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 查看弹窗 -->
+  <div id="detail-modal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title">地块详情</div>
+        <button class="btn btn-secondary" onclick="closeModal('detail-modal')">关闭</button>
+      </div>
+      <div class="modal-body" id="detail-content">
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('detail-modal')">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 删除弹窗 -->
+  <div id="delete-modal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title">确认删除</div>
+        <button class="btn btn-secondary" onclick="closeModal('delete-modal')">关闭</button>
+      </div>
+      <div class="modal-body">
+        <p>确定要删除地块 <span id="delete-name" style="font-weight:bold;"></span> 吗？</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('delete-modal')">取消</button>
+        <button class="btn btn-primary" onclick="submitDelete()">确认删除</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var orchards = [
+      { id: 'oc-001', name: '1号早熟蜜桔区', user: '张三', area: '15', variety: '南丰蜜桔早熟种', soil: '红壤', ph: '5.8', organic: '2.1%', age: '8', status: '正常' },
+      { id: 'oc-002', name: '2号中熟蜜桔区', user: '张三', area: '18', variety: '南丰蜜桔中熟种', soil: '红壤', ph: '6.0', organic: '1.8%', age: '10', status: '预警' },
+      { id: 'oc-003', name: '3号晚熟蜜桔区', user: '李四', area: '20', variety: '南丰蜜桔晚熟种', soil: '黄壤', ph: '5.5', organic: '2.3%', age: '6', status: '正常' },
+      { id: 'oc-004', name: '4号试验田', user: '李四', area: '15', variety: '新品种试验', soil: '红壤', ph: '5.9', organic: '2.0%', age: '3', status: '正常' },
+      { id: 'oc-005', name: '5号丰产园', user: '王五', area: '25', variety: '南丰蜜桔中熟种', soil: '红壤', ph: '5.7', organic: '2.2%', age: '12', status: '正常' },
+      { id: 'oc-006', name: '6号精品园', user: '王五', area: '12', variety: '南丰蜜桔早熟种', soil: '黄壤', ph: '6.2', organic: '2.5%', age: '8', status: '正常' },
+      { id: 'oc-007', name: '7号标准化基地', user: '赵六', area: '50', variety: '南丰蜜桔中熟种', soil: '红壤', ph: '5.8', organic: '2.1%', age: '10', status: '正常' },
+      { id: 'oc-008', name: '8号生态果园', user: '孙七', area: '30', variety: '南丰蜜桔晚熟种', soil: '红壤', ph: '5.6', organic: '2.4%', age: '7', status: '预警' },
+      { id: 'oc-009', name: '9号密植园', user: '周八', area: '18', variety: '南丰蜜桔早熟种', soil: '黄壤', ph: '6.1', organic: '1.9%', age: '9', status: '正常' },
+      { id: 'oc-010', name: '10号观光园', user: '吴九', area: '40', variety: '南丰蜜桔中熟种', soil: '红壤', ph: '5.8', organic: '2.2%', age: '15', status: '正常' },
+      { id: 'oc-011', name: '11号育苗基地', user: '郑十', area: '22', variety: '南丰蜜桔早熟种', soil: '红壤', ph: '6.0', organic: '2.6%', age: '2', status: '正常' },
+      { id: 'oc-012', name: '12号老树园', user: '陈十一', area: '35', variety: '南丰蜜桔晚熟种', soil: '红壤', ph: '5.5', organic: '1.7%', age: '20', status: '预警' },
+      { id: 'oc-013', name: '13号新开发', user: '林十二', area: '10', variety: '南丰蜜桔中熟种', soil: '红壤', ph: '5.9', organic: '2.0%', age: '4', status: '正常' },
+      { id: 'oc-014', name: '14号高产园', user: '黄十三', area: '28', variety: '南丰蜜桔早熟种', soil: '黄壤', ph: '6.3', organic: '2.3%', age: '8', status: '正常' },
+      { id: 'oc-015', name: '15号示范园', user: '周十四', area: '32', variety: '南丰蜜桔中熟种', soil: '红壤', ph: '5.7', organic: '2.1%', age: '11', status: '正常' }
+    ];
+
+    var originalOrchards = JSON.parse(JSON.stringify(orchards));
+
+    var currentPage = 1;
+    var pageSize = 10;
+    var deleteTargetId = null;
+
+    function renderStats() {
+      var total = originalOrchards.length;
+      var totalArea = originalOrchards.reduce(function(sum, o) { return sum + parseFloat(o.area); }, 0);
+      var youngTrees = originalOrchards.filter(function(o) { return parseInt(o.age) < 5; }).length;
+      var middleTrees = originalOrchards.filter(function(o) { return parseInt(o.age) >= 5 && parseInt(o.age) <= 15; }).length;
+      var oldTrees = originalOrchards.filter(function(o) { return parseInt(o.age) > 15; }).length;
+      
+      var statsCard = document.getElementById('statsCard');
+      statsCard.innerHTML = `
+        <div class="stat-item">
+          <div class="stat-info">
+            <div class="stat-number">${total}</div>
+            <div class="stat-label">地块总数</div>
+          </div>
+          <div class="stat-icon total">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          </div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-info">
+            <div class="stat-number">${totalArea}</div>
+            <div class="stat-label">总面积(亩)</div>
+          </div>
+          <div class="stat-icon area">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+          </div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-info">
+            <div class="stat-number">${youngTrees}</div>
+            <div class="stat-label">幼龄树(&lt;5年)</div>
+          </div>
+          <div class="stat-icon young">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 7c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 10c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+          </div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-info">
+            <div class="stat-number">${middleTrees}</div>
+            <div class="stat-label">盛产期(5-15年)</div>
+          </div>
+          <div class="stat-icon middle">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+          </div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-info">
+            <div class="stat-number">${oldTrees}</div>
+            <div class="stat-label">老龄树(&gt;15年)</div>
+          </div>
+          <div class="stat-icon old">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 10c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 10c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderTable() {
+      var tbody = document.getElementById('orchardTable');
+      tbody.innerHTML = '';
+      
+      var start = (currentPage - 1) * pageSize;
+      var end = start + pageSize;
+      var displayOrchards = orchards.slice(start, end);
+      
+      displayOrchards.forEach(function(o) {
+        var statusClass = o.status === '正常' ? 'status-normal' : 'status-warning';
+        tbody.innerHTML += `
+          <tr>
+            <td>${o.name}</td>
+            <td>${o.user}</td>
+            <td>${o.area}</td>
+            <td>${o.variety}</td>
+            <td>${o.soil}</td>
+            <td>${o.ph}</td>
+            <td>${o.organic}</td>
+            <td>${o.age}</td>
+            <td><span class="status-badge ${statusClass}">${o.status}</span></td>
+            <td>
+              <button class="btn btn-secondary" onclick="openDetailModal('${o.id}')">查看</button>
+              <button class="btn btn-secondary" onclick="openEditModal('${o.id}')">编辑</button>
+              <button class="btn btn-secondary" onclick="openDeleteModal('${o.id}', '${o.name}')">删除</button>
+            </td>
+          </tr>
+        `;
+      });
+      
+      renderPagination();
+    }
+
+    function renderPagination() {
+      var totalPages = Math.ceil(orchards.length / pageSize);
+      var pagination = document.getElementById('pagination');
+      pagination.innerHTML = '';
+      
+      if (currentPage > 1) {
+        pagination.innerHTML += `<button class="page-btn" onclick="goPage(${currentPage - 1})">上一页</button>`;
+      }
+      
+      for (var i = 1; i <= totalPages; i++) {
+        var active = i === currentPage ? 'active' : '';
+        pagination.innerHTML += `<button class="page-btn ${active}" onclick="goPage(${i})">${i}</button>`;
+      }
+      
+      if (currentPage < totalPages) {
+        pagination.innerHTML += `<button class="page-btn" onclick="goPage(${currentPage + 1})">下一页</button>`;
+      }
+    }
+
+    function goPage(page) {
+      currentPage = page;
+      renderTable();
+    }
+
+    function searchOrchards() {
+      var keyword = document.getElementById('searchInput').value.toLowerCase();
+      orchards = originalOrchards.filter(function(o) {
+        return o.name.toLowerCase().includes(keyword) || o.user.toLowerCase().includes(keyword);
+      });
+      currentPage = 1;
+      renderTable();
+    }
+
+    function openAddModal() {
+      document.getElementById('add-modal-title').textContent = '新增地块';
+      document.getElementById('edit-id').value = '';
+      document.getElementById('add-name').value = '';
+      document.getElementById('add-user').value = '张三';
+      document.getElementById('add-area').value = '';
+      document.getElementById('add-variety').value = '南丰蜜桔早熟种';
+      document.getElementById('add-soil').value = '';
+      document.getElementById('add-ph').value = '';
+      document.getElementById('add-organic').value = '';
+      document.getElementById('add-age').value = '';
+      document.getElementById('add-status').value = '正常';
+      document.getElementById('add-modal').classList.add('active');
+    }
+
+    function openEditModal(id) {
+      var o = orchards.find(function(item) { return item.id === id; });
+      if (!o) return;
+      document.getElementById('add-modal-title').textContent = '编辑地块';
+      document.getElementById('edit-id').value = o.id;
+      document.getElementById('add-name').value = o.name;
+      document.getElementById('add-user').value = o.user;
+      document.getElementById('add-area').value = o.area;
+      document.getElementById('add-variety').value = o.variety;
+      document.getElementById('add-soil').value = o.soil;
+      document.getElementById('add-ph').value = o.ph;
+      document.getElementById('add-organic').value = o.organic;
+      document.getElementById('add-age').value = o.age;
+      document.getElementById('add-status').value = o.status;
+      document.getElementById('add-modal').classList.add('active');
+    }
+
+    function submitAdd() {
+      var id = document.getElementById('edit-id').value;
+      var name = document.getElementById('add-name').value.trim();
+      var user = document.getElementById('add-user').value;
+      var area = document.getElementById('add-area').value.trim();
+      var variety = document.getElementById('add-variety').value;
+      var soil = document.getElementById('add-soil').value.trim();
+      var ph = document.getElementById('add-ph').value.trim();
+      var organic = document.getElementById('add-organic').value.trim();
+      var age = document.getElementById('add-age').value.trim();
+      var status = document.getElementById('add-status').value;
+      
+      if (!name || !area) {
+        alert('请填写必填项');
+        return;
+      }
+      
+      if (id) {
+        var index = originalOrchards.findIndex(function(item) { return item.id === id; });
+        if (index > -1) {
+          originalOrchards[index] = { ...originalOrchards[index], name, user, area, variety, soil, ph, organic, age, status };
+        }
+      } else {
+        var newId = 'oc-' + String(originalOrchards.length + 1).padStart(3, '0');
+        originalOrchards.unshift({ id: newId, name, user, area, variety, soil, ph, organic, age, status });
+      }
+      
+      closeModal('add-modal');
+      orchards = JSON.parse(JSON.stringify(originalOrchards));
+      renderStats();
+      renderTable();
+      alert(id ? '编辑成功' : '新增成功');
+    }
+
+    function openDetailModal(id) {
+      var o = orchards.find(function(item) { return item.id === id; });
+      if (!o) return;
+      document.getElementById('detail-content').innerHTML = `
+        <div class="detail-info">
+          <div class="detail-item"><div class="detail-label">地块ID</div><div class="detail-value">${o.id}</div></div>
+          <div class="detail-item"><div class="detail-label">地块名称</div><div class="detail-value">${o.name}</div></div>
+          <div class="detail-item"><div class="detail-label">所属用户</div><div class="detail-value">${o.user}</div></div>
+          <div class="detail-item"><div class="detail-label">面积</div><div class="detail-value">${o.area} 亩</div></div>
+          <div class="detail-item"><div class="detail-label">品种</div><div class="detail-value">${o.variety}</div></div>
+          <div class="detail-item"><div class="detail-label">土壤类型</div><div class="detail-value">${o.soil}</div></div>
+          <div class="detail-item"><div class="detail-label">PH值</div><div class="detail-value">${o.ph}</div></div>
+          <div class="detail-item"><div class="detail-label">有机质含量</div><div class="detail-value">${o.organic}</div></div>
+          <div class="detail-item"><div class="detail-label">树龄</div><div class="detail-value">${o.age} 年</div></div>
+          <div class="detail-item"><div class="detail-label">状态</div><div class="detail-value"><span class="status-badge ${o.status === '正常' ? 'status-normal' : 'status-warning'}">${o.status}</span></div></div>
+        </div>
+      `;
+      document.getElementById('detail-modal').classList.add('active');
+    }
+
+    function openDeleteModal(id, name) {
+      deleteTargetId = id;
+      document.getElementById('delete-name').textContent = name;
+      document.getElementById('delete-modal').classList.add('active');
+    }
+
+    function submitDelete() {
+      if (!deleteTargetId) return;
+      originalOrchards = originalOrchards.filter(function(item) { return item.id !== deleteTargetId; });
+      orchards = JSON.parse(JSON.stringify(originalOrchards));
+      closeModal('delete-modal');
+      renderStats();
+      renderTable();
+      alert('删除成功');
+      deleteTargetId = null;
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('active');
+    }
+
+    renderStats();
+    renderTable();
+  </script>
+</body>
+</html>

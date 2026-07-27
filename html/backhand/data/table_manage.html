@@ -1,0 +1,546 @@
+﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>南丰蜜桔数据表管理 - 数据管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        body { margin: 0; padding: 0; background-color: #F0F2F5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans SC', sans-serif; }
+        .content-wrapper { padding: 24px; height: 100vh; overflow-y: auto; }
+    </style>
+</head>
+<body>
+    <div class="content-wrapper">
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h1 class="text-xl font-bold text-gray-800">数据表管理</h1>
+                <p class="text-gray-500 text-sm mt-1">管理支撑模型训练的所有数据表</p>
+            </div>
+            <div class="flex items-center space-x-3">
+                <div class="relative">
+                    <iconify-icon icon="material-symbols:search" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2"></iconify-icon>
+                    <input type="text" id="search-input" placeholder="搜索数据表..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm w-64 focus:outline-none focus:ring-2 focus:ring-green-500" oninput="filterData()">
+                </div>
+                <button onclick="openImportModal()" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 flex items-center">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                    导入数据表
+                </button>
+                <button onclick="exportTables()" class="px-4 py-2 bg-gray-600 text-white rounded-lg text-sm hover:bg-gray-700 flex items-center">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                    导出数据表
+                </button>
+                <button onclick="openAddModal()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm flex items-center">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    新建数据表
+                </button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">数据表总数</p>
+                        <h3 class="text-2xl font-bold text-gray-800 mt-1" id="stat-total">37</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                        <iconify-icon icon="material-symbols:table" class="w-6 h-6 text-blue-600"></iconify-icon>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">生长模型数据表</p>
+                        <h3 class="text-2xl font-bold text-green-600 mt-1" id="stat-growth">19</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                        <iconify-icon icon="material-symbols:sprout" class="w-6 h-6 text-green-600"></iconify-icon>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">病虫害模型数据表</p>
+                        <h3 class="text-2xl font-bold text-red-600 mt-1" id="stat-pest">18</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7h-9m0 0V5a3 3 0 016 0v2m-6 0a3 3 0 00-6 0v10a3 3 0 006 0m10-3a2 2 0 11-4 0 2 2 0 014 0zM17 10H7m0 0l3-3m-3 3l3 3"/></svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 mb-6">
+            <div class="p-4 border-b border-gray-200">
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2">
+                        <span class="text-sm text-gray-600">所属模型:</span>
+                        <select id="model-filter" class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm" onchange="filterData()">
+                            <option value="">全部模型</option>
+                            <option value="生长模型">生长模型</option>
+                            <option value="病虫害模型">病虫害防控模型</option>
+                        </select>
+                    </div>
+                    <button onclick="filterData()" class="px-4 py-1.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm">
+                        查询
+                    </button>
+                    <button onclick="resetFilter()" class="px-4 py-1.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm">
+                        重置
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="bg-gray-50 border-b border-gray-200">
+                            <th class="text-left py-3 px-4 font-semibold text-gray-600">数据表名称</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-600">所属模型</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-600">核心字段</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-600">数据量</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-600">数据来源</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-600">更新频率</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-600">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="data-table-body">
+                        <tr class="border-b border-gray-100 hover:bg-gray-50" data-name="果园基础信息表" data-model="生长模型">
+                            <td class="py-3 px-4 font-medium text-gray-800">果园基础信息表</td>
+                            <td class="py-3 px-4"><span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded">生长模型</span></td>
+                            <td class="py-3 px-4 text-gray-600">地块ID、名称、坐标、面积...</td>
+                            <td class="py-3 px-4">2,456</td>
+                            <td class="py-3 px-4">产业大数据平台</td>
+                            <td class="py-3 px-4">每天</td>
+                            <td class="py-3 px-4">
+                                <button onclick="openDetailModal('果园基础信息表')" class="text-blue-600 hover:text-blue-700 mr-3">详情</button>
+                                <button onclick="syncTable('果园基础信息表')" class="text-green-600 hover:text-green-700 mr-3">同步</button>
+                                <button onclick="openDeleteModal('果园基础信息表')" class="text-red-600 hover:text-red-700">删除</button>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-100 hover:bg-gray-50" data-name="土壤基线普查数据表" data-model="生长模型">
+                            <td class="py-3 px-4 font-medium text-gray-800">土壤基线普查数据表</td>
+                            <td class="py-3 px-4"><span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded">生长模型</span></td>
+                            <td class="py-3 px-4 text-gray-600">样本编号、pH值、有机质...</td>
+                            <td class="py-3 px-4">15,800</td>
+                            <td class="py-3 px-4">农技服务中心</td>
+                            <td class="py-3 px-4">每月</td>
+                            <td class="py-3 px-4">
+                                <button onclick="openDetailModal('土壤基线普查数据表')" class="text-blue-600 hover:text-blue-700 mr-3">详情</button>
+                                <button onclick="syncTable('土壤基线普查数据表')" class="text-green-600 hover:text-green-700 mr-3">同步</button>
+                                <button onclick="openDeleteModal('土壤基线普查数据表')" class="text-red-600 hover:text-red-700">删除</button>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-100 hover:bg-gray-50" data-name="环境气象实时监测表" data-model="生长模型">
+                            <td class="py-3 px-4 font-medium text-gray-800">环境气象实时监测表</td>
+                            <td class="py-3 px-4"><span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded">生长模型</span></td>
+                            <td class="py-3 px-4 text-gray-600">站点ID、气温、湿度、光照...</td>
+                            <td class="py-3 px-4">1,258,600</td>
+                            <td class="py-3 px-4">气象站</td>
+                            <td class="py-3 px-4">每5分钟</td>
+                            <td class="py-3 px-4">
+                                <button onclick="openDetailModal('环境气象实时监测表')" class="text-blue-600 hover:text-blue-700 mr-3">详情</button>
+                                <button onclick="syncTable('环境气象实时监测表')" class="text-green-600 hover:text-green-700 mr-3">同步</button>
+                                <button onclick="openDeleteModal('环境气象实时监测表')" class="text-red-600 hover:text-red-700">删除</button>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-100 hover:bg-gray-50" data-name="蜜桔病虫害基础知识库" data-model="病虫害模型">
+                            <td class="py-3 px-4 font-medium text-gray-800">蜜桔病虫害基础知识库</td>
+                            <td class="py-3 px-4"><span class="px-2 py-1 bg-red-100 text-red-700 text-xs rounded">病虫害模型</span></td>
+                            <td class="py-3 px-4 text-gray-600">病虫害ID、名称、症状...</td>
+                            <td class="py-3 px-4">17</td>
+                            <td class="py-3 px-4">标准化整理</td>
+                            <td class="py-3 px-4">按需</td>
+                            <td class="py-3 px-4">
+                                <button onclick="openDetailModal('蜜桔病虫害基础知识库')" class="text-blue-600 hover:text-blue-700 mr-3">详情</button>
+                                <button onclick="syncTable('蜜桔病虫害基础知识库')" class="text-green-600 hover:text-green-700 mr-3">同步</button>
+                                <button onclick="openDeleteModal('蜜桔病虫害基础知识库')" class="text-red-600 hover:text-red-700">删除</button>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-100 hover:bg-gray-50" data-name="病虫害AI识别任务表" data-model="病虫害模型">
+                            <td class="py-3 px-4 font-medium text-gray-800">病虫害AI识别任务表</td>
+                            <td class="py-3 px-4"><span class="px-2 py-1 bg-red-100 text-red-700 text-xs rounded">病虫害模型</span></td>
+                            <td class="py-3 px-4 text-gray-600">任务ID、图片地址、识别类别...</td>
+                            <td class="py-3 px-4">892,400</td>
+                            <td class="py-3 px-4">小程序上传</td>
+                            <td class="py-3 px-4">实时</td>
+                            <td class="py-3 px-4">
+                                <button onclick="openDetailModal('病虫害AI识别任务表')" class="text-blue-600 hover:text-blue-700 mr-3">详情</button>
+                                <button onclick="syncTable('病虫害AI识别任务表')" class="text-green-600 hover:text-green-700 mr-3">同步</button>
+                                <button onclick="openDeleteModal('病虫害AI识别任务表')" class="text-red-600 hover:text-red-700">删除</button>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-100 hover:bg-gray-50" data-name="气象灾害风险参数配置表" data-model="病虫害模型">
+                            <td class="py-3 px-4 font-medium text-gray-800">气象灾害风险参数配置表</td>
+                            <td class="py-3 px-4"><span class="px-2 py-1 bg-red-100 text-red-700 text-xs rounded">病虫害模型</span></td>
+                            <td class="py-3 px-4 text-gray-600">灾害类型、触发阈值、防护措施...</td>
+                            <td class="py-3 px-4">5</td>
+                            <td class="py-3 px-4">农技专家制定</td>
+                            <td class="py-3 px-4">按需</td>
+                            <td class="py-3 px-4">
+                                <button onclick="openDetailModal('气象灾害风险参数配置表')" class="text-blue-600 hover:text-blue-700 mr-3">详情</button>
+                                <button onclick="syncTable('气象灾害风险参数配置表')" class="text-green-600 hover:text-green-700 mr-3">同步</button>
+                                <button onclick="openDeleteModal('气象灾害风险参数配置表')" class="text-red-600 hover:text-red-700">删除</button>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-100 hover:bg-gray-50" data-name="物候期记录表" data-model="生长模型">
+                            <td class="py-3 px-4 font-medium text-gray-800">物候期记录表</td>
+                            <td class="py-3 px-4"><span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded">生长模型</span></td>
+                            <td class="py-3 px-4 text-gray-600">地块ID、物候期、日期、观察人...</td>
+                            <td class="py-3 px-4">4,567</td>
+                            <td class="py-3 px-4">人工采集</td>
+                            <td class="py-3 px-4">每天</td>
+                            <td class="py-3 px-4">
+                                <button onclick="openDetailModal('物候期记录表')" class="text-blue-600 hover:text-blue-700 mr-3">详情</button>
+                                <button onclick="syncTable('物候期记录表')" class="text-green-600 hover:text-green-700 mr-3">同步</button>
+                                <button onclick="openDeleteModal('物候期记录表')" class="text-red-600 hover:text-red-700">删除</button>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-100 hover:bg-gray-50" data-name="施肥记录数据表" data-model="生长模型">
+                            <td class="py-3 px-4 font-medium text-gray-800">施肥记录数据表</td>
+                            <td class="py-3 px-4"><span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded">生长模型</span></td>
+                            <td class="py-3 px-4 text-gray-600">地块ID、肥料名称、用量、日期...</td>
+                            <td class="py-3 px-4">8,901</td>
+                            <td class="py-3 px-4">人工采集</td>
+                            <td class="py-3 px-4">每天</td>
+                            <td class="py-3 px-4">
+                                <button onclick="openDetailModal('施肥记录数据表')" class="text-blue-600 hover:text-blue-700 mr-3">详情</button>
+                                <button onclick="syncTable('施肥记录数据表')" class="text-green-600 hover:text-green-700 mr-3">同步</button>
+                                <button onclick="openDeleteModal('施肥记录数据表')" class="text-red-600 hover:text-red-700">删除</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="px-4 py-3 bg-gray-50 border-t border-gray-200 flex items-center justify-between">
+                <p class="text-sm text-gray-500">共 <span id="total-count">8</span> 条记录</p>
+                <div class="flex items-center space-x-2" id="pagination-controls"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新建数据表弹窗 -->
+    <div id="add-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center">
+        <div style="background:#fff;border-radius:12px;width:90%;max-width:500px;max-height:85vh;overflow-y:auto">
+            <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+                <h3 style="font-size:18px;font-weight:600;color:#1f2937">新建数据表</h3>
+                <button onclick="closeModal('add-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
+            </div>
+            <div style="padding:24px;display:flex;flex-direction:column;gap:16px">
+                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">表名 <span style="color:#ef4444">*</span></label><input type="text" id="add-name" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box" placeholder="请输入数据表名称"></div>
+                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">所属模型 <span style="color:#ef4444">*</span></label><select id="add-model" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"><option value="生长模型">生长模型</option><option value="品质模型">品质模型</option><option value="预警模型">预警模型</option><option value="气象模型">气象模型</option></select></div>
+                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">字段定义</label><textarea id="add-fields" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box" rows="4" placeholder="请输入字段名和类型，每行一个字段&#10;例如：&#10;地块ID VARCHAR(50)&#10;温度 DECIMAL(10,2)&#10;湿度 DECIMAL(10,2)"></textarea></div>
+                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">数据源</label><select id="add-source" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"><option value="产业大数据平台">产业大数据平台</option><option value="农业气象平台">农业气象平台</option><option value="土壤监测系统">土壤监测系统</option><option value="人工录入">人工录入</option></select></div>
+            </div>
+            <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:12px">
+                <button onclick="closeModal('add-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
+                <button onclick="saveTable()" style="padding:8px 16px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">确认创建</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 导入数据表弹窗 -->
+    <div id="import-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center">
+        <div style="background:#fff;border-radius:12px;width:90%;max-width:500px;max-height:85vh;overflow-y:auto">
+            <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+                <h3 style="font-size:18px;font-weight:600;color:#1f2937">导入数据表</h3>
+                <button onclick="closeModal('import-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
+            </div>
+            <div style="padding:24px">
+                <div style="border:2px dashed #d1d5db;border-radius:8px;padding:32px;text-align:center;cursor:pointer" onclick="document.getElementById('import-file').click()">
+                    <svg style="width:48px;height:48px;margin:0 auto 8px;color:#9ca3af" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                    <p style="color:#4b5563;margin-bottom:4px">点击或拖拽文件到此处上传</p>
+                    <p style="font-size:12px;color:#9ca3af">支持 Excel (.xlsx)、CSV 文件</p>
+                    <input type="file" id="import-file" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleImportFile(this)">
+                </div>
+                <div style="margin-top:16px;padding:12px;background:#eff6ff;border-radius:8px">
+                    <p style="font-size:13px;color:#1d4ed8;display:flex;align-items:center">
+                        <svg style="width:16px;height:16px;flex-shrink:0;margin-right:6px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        导入模板说明：表名、所属模型为必填字段
+                    </p>
+                </div>
+                <div style="margin-top:16px;display:flex;justify-content:space-between;align-items:center">
+                    <button onclick="downloadTemplate()" style="background:none;border:none;color:#2563eb;font-size:13px;cursor:pointer;display:flex;align-items:center">
+                        <svg style="width:16px;height:16px;margin-right:4px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                        下载导入模板
+                    </button>
+                </div>
+            </div>
+            <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:12px">
+                <button onclick="closeModal('import-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
+                <button onclick="submitImport()" style="padding:8px 16px;background:#2563eb;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">确认导入</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 详情弹窗 -->
+    <div id="detail-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center">
+        <div style="background:#fff;border-radius:12px;width:90%;max-width:500px;max-height:85vh;overflow-y:auto">
+            <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+                <h3 style="font-size:18px;font-weight:600;color:#1f2937">数据表详情</h3>
+                <button onclick="closeModal('detail-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
+            </div>
+            <div style="padding:24px">
+                <div style="display:flex;flex-direction:column;gap:12px">
+                    <div style="display:flex;justify-content:space-between;padding:12px;background:#f9fafb;border-radius:8px"><span style="font-size:14px;color:#6b7280">表名</span><span style="font-size:14px;font-weight:500;color:#1f2937" id="detail-name">-</span></div>
+                    <div style="display:flex;justify-content:space-between;padding:12px;background:#f9fafb;border-radius:8px"><span style="font-size:14px;color:#6b7280">所属模型</span><span style="font-size:14px;font-weight:500;color:#1f2937" id="detail-model">-</span></div>
+                    <div style="padding:12px;background:#f9fafb;border-radius:8px"><span style="font-size:14px;color:#6b7280;display:block;margin-bottom:4px">字段列表</span><span style="font-size:14px;color:#1f2937" id="detail-fields">-</span></div>
+                    <div style="display:flex;justify-content:space-between;padding:12px;background:#f9fafb;border-radius:8px"><span style="font-size:14px;color:#6b7280">记录数</span><span style="font-size:14px;font-weight:500;color:#1f2937" id="detail-count">-</span></div>
+                    <div style="display:flex;justify-content:space-between;padding:12px;background:#f9fafb;border-radius:8px"><span style="font-size:14px;color:#6b7280">数据来源</span><span style="font-size:14px;font-weight:500;color:#1f2937" id="detail-source">-</span></div>
+                    <div style="display:flex;justify-content:space-between;padding:12px;background:#f9fafb;border-radius:8px"><span style="font-size:14px;color:#6b7280">同步频率</span><span style="font-size:14px;font-weight:500;color:#1f2937" id="detail-frequency">-</span></div>
+                </div>
+            </div>
+            <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end">
+                <button onclick="closeModal('detail-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 同步确认弹窗 -->
+    <div id="sync-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center">
+        <div style="background:#fff;border-radius:12px;width:90%;max-width:400px">
+            <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+                <h3 style="font-size:18px;font-weight:600;color:#1f2937">确认同步</h3>
+                <button onclick="closeModal('sync-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
+            </div>
+            <div style="padding:24px">
+                <div style="display:flex;flex-direction:column;gap:16px">
+                    <div style="display:flex;justify-content:space-between;padding:12px;background:#f9fafb;border-radius:8px"><span style="font-size:14px;color:#6b7280">数据表名称</span><span style="font-size:14px;font-weight:500;color:#1f2937" id="sync-name">-</span></div>
+                    <div style="padding:12px;background:#eff6ff;border-radius:8px">
+                        <p style="font-size:13px;color:#1d4ed8;display:flex;align-items:center;margin:0">
+                            <svg style="width:16px;height:16px;flex-shrink:0;margin-right:6px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            确认同步该数据表？同步将拉取最新数据。
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:12px">
+                <button onclick="closeModal('sync-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
+                <button onclick="confirmSync()" style="padding:8px 16px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">确认同步</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 删除确认弹窗 -->
+    <div id="delete-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center">
+        <div style="background:#fff;border-radius:12px;width:90%;max-width:400px">
+            <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+                <h3 style="font-size:18px;font-weight:600;color:#1f2937">删除确认</h3>
+                <button onclick="closeModal('delete-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
+            </div>
+            <div style="padding:24px;text-align:center">
+                <div style="width:60px;height:60px;background:#fee2e2;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px"><span style="font-size:28px;color:#dc2626">!</span></div>
+                <h3 style="font-size:18px;font-weight:600;color:#1f2937;margin-bottom:8px">确认删除</h3>
+                <p style="font-size:14px;color:#6b7280;margin-bottom:24px">确定要删除数据表「<span id="delete-name" style="font-weight:500;color:#1f2937"></span>」吗？删除后将影响关联模型训练，此操作不可撤销。</p>
+                <div style="display:flex;justify-content:center;gap:12px">
+                    <button onclick="closeModal('delete-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
+                    <button onclick="confirmDelete()" style="padding:8px 16px;background:#dc2626;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">确认删除</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var currentPage = 1;
+        var pageSize = 10;
+        var deleteName = null;
+
+        function showModal(id) { var m = document.getElementById(id); if (m) m.style.display = 'flex'; }
+        function hideModal(id) { var m = document.getElementById(id); if (m) m.style.display = 'none'; }
+        function closeModal(id) { hideModal(id); }
+
+        function initPagination() {
+            showPage(1);
+        }
+
+        function showPage(page) {
+            currentPage = page;
+            var allRows = document.querySelectorAll('#data-table-body tr');
+            var filteredRows = Array.from(allRows).filter(function(r) { return r.dataset.filtered !== 'false'; });
+            var totalPages = Math.max(1, Math.ceil(filteredRows.length / pageSize));
+
+            allRows.forEach(function(row) { row.style.display = 'none'; });
+
+            var start = (page - 1) * pageSize;
+            var end = start + pageSize;
+            filteredRows.slice(start, end).forEach(function(row) { row.style.display = ''; });
+
+            document.getElementById('total-count').textContent = filteredRows.length;
+
+            var paginationDiv = document.getElementById('pagination-controls');
+            paginationDiv.innerHTML = '';
+
+            var prevBtn = document.createElement('button');
+            prevBtn.className = 'px-3 py-1 bg-white border border-gray-300 rounded text-sm ' + (currentPage <= 1 ? 'text-gray-300 cursor-not-allowed' : 'text-gray-600 hover:bg-gray-50');
+            prevBtn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>';
+            prevBtn.onclick = function() { if (currentPage > 1) showPage(currentPage - 1); };
+            paginationDiv.appendChild(prevBtn);
+
+            for (var i = 1; i <= totalPages; i++) {
+                var pageBtn = document.createElement('button');
+                pageBtn.className = 'px-3 py-1 rounded text-sm ' + (i === currentPage ? 'bg-green-600 text-white' : 'bg-white border border-gray-300 text-gray-600 hover:bg-gray-50');
+                pageBtn.textContent = i;
+                (function(p) { pageBtn.onclick = function() { showPage(p); }; })(i);
+                paginationDiv.appendChild(pageBtn);
+            }
+
+            var nextBtn = document.createElement('button');
+            nextBtn.className = 'px-3 py-1 bg-white border border-gray-300 rounded text-sm ' + (currentPage >= totalPages ? 'text-gray-300 cursor-not-allowed' : 'text-gray-600 hover:bg-gray-50');
+            nextBtn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>';
+            nextBtn.onclick = function() { if (currentPage < totalPages) showPage(currentPage + 1); };
+            paginationDiv.appendChild(nextBtn);
+
+            var pageSizeSelect = document.createElement('select');
+            pageSizeSelect.className = 'px-3 py-1 border border-gray-300 rounded text-sm ml-2';
+            pageSizeSelect.innerHTML = '<option value="10">10条/页</option><option value="20">20条/页</option><option value="35">35条/页</option>';
+            pageSizeSelect.value = pageSize;
+            pageSizeSelect.onchange = function() { pageSize = parseInt(pageSizeSelect.value); currentPage = 1; showPage(1); };
+            paginationDiv.appendChild(pageSizeSelect);
+        }
+
+        function openAddModal() {
+            document.getElementById('add-name').value = '';
+            document.getElementById('add-model').value = '生长模型';
+            document.getElementById('add-fields').value = '';
+            document.getElementById('add-source').value = '产业大数据平台';
+            showModal('add-modal');
+        }
+
+        function openImportModal() {
+            document.getElementById('import-file').value = '';
+            showModal('import-modal');
+        }
+
+        function handleImportFile(input) {
+            var file = input.files[0];
+            if (file) { alert('已选择文件: ' + file.name); }
+        }
+
+        function downloadTemplate() {
+            var content = '数据表名称,所属模型,核心字段,数据量,数据来源,更新频率,表说明\n果园基础信息表,生长模型,地块ID、名称、坐标,2456,产业大数据平台,每天,记录果园地块基础信息';
+            var blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+            var link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = '数据表导入模板.csv';
+            link.click();
+        }
+
+        function submitImport() {
+            var file = document.getElementById('import-file').files[0];
+            if (!file) { alert('请先选择要导入的文件'); return; }
+            alert('数据表导入成功！\n文件: ' + file.name + '\n导入数量: 3 条');
+            closeModal('import-modal');
+        }
+
+        function exportTables() {
+            var content = '数据表名称,所属模型,核心字段,数据量,数据来源,更新频率\n果园基础信息表,生长模型,地块ID、名称、坐标、面积,2,456,产业大数据平台,每天\n气象监测数据表,生长模型,温度、湿度、光照、降雨量,156,234,IoT传感器,实时';
+            var blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+            var link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = '数据表列表_' + new Date().toISOString().split('T')[0] + '.csv';
+            link.click();
+        }
+
+        function openDetailModal(name) {
+            var row = document.querySelector('tr[data-name="' + name + '"]');
+            if (row) {
+                document.getElementById('detail-name').textContent = name;
+                var model = row.getAttribute('data-model');
+                document.getElementById('detail-model').textContent = model;
+                document.getElementById('detail-fields').textContent = row.querySelector('td:nth-child(3)').textContent;
+                document.getElementById('detail-count').textContent = row.querySelector('td:nth-child(4)').textContent;
+                document.getElementById('detail-source').textContent = row.querySelector('td:nth-child(5)').textContent;
+                document.getElementById('detail-frequency').textContent = row.querySelector('td:nth-child(6)').textContent;
+            }
+            showModal('detail-modal');
+        }
+
+        function openDeleteModal(name) {
+            deleteName = name;
+            document.getElementById('delete-name').textContent = name;
+            showModal('delete-modal');
+        }
+
+        function saveTable() {
+            var name = document.getElementById('add-name').value;
+            var model = document.getElementById('add-model').value;
+            var fields = document.getElementById('add-fields').value;
+
+            if (!name || !model) {
+                alert('请填写表名和所属模型');
+                return;
+            }
+
+            alert('数据表创建成功！\n数据表名称: ' + name + '\n所属模型: ' + model + '\n字段数量: ' + (fields ? fields.split('\n').filter(function(l) { return l.trim(); }).length : 0));
+            closeModal('add-modal');
+        }
+
+        function syncTable(name) {
+            document.getElementById('sync-name').textContent = name;
+            showModal('sync-modal');
+        }
+
+        function confirmSync() {
+            var name = document.getElementById('sync-name').textContent;
+            alert('数据表 "' + name + '" 同步成功！');
+            closeModal('sync-modal');
+        }
+
+        function confirmDelete() {
+            alert('数据表删除成功！\n删除数据表: ' + deleteName);
+            closeModal('delete-modal');
+        }
+
+        function filterData() {
+            var searchTerm = document.getElementById('search-input').value.toLowerCase();
+            var modelFilter = document.getElementById('model-filter').value;
+
+            var rows = document.querySelectorAll('#data-table-body tr');
+
+            rows.forEach(function(row) {
+                var name = row.getAttribute('data-name').toLowerCase();
+                var model = row.getAttribute('data-model');
+                var fields = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
+                var source = row.querySelector('td:nth-child(5)').textContent.toLowerCase();
+
+                var matchesSearch = name.includes(searchTerm) || fields.includes(searchTerm) || source.includes(searchTerm);
+                var matchesModel = !modelFilter || model === modelFilter;
+
+                row.dataset.filtered = (matchesSearch && matchesModel) ? 'true' : 'false';
+            });
+
+            currentPage = 1;
+            showPage(1);
+        }
+
+        function resetFilter() {
+            document.getElementById('search-input').value = '';
+            document.getElementById('model-filter').value = '';
+            filterData();
+        }
+
+        // 点击遮罩关闭弹窗
+        document.addEventListener('click', function(e) {
+            var ids = ['add-modal', 'import-modal', 'detail-modal', 'sync-modal', 'delete-modal'];
+            for (var i = 0; i < ids.length; i++) {
+                var m = document.getElementById(ids[i]);
+                if (m && m.style.display === 'flex') {
+                    var inner = m.children[0];
+                    if (inner && !inner.contains(e.target) && e.target === m) {
+                        m.style.display = 'none';
+                    }
+                }
+            }
+        });
+
+        window.onload = function() {
+            initPagination();
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>系统首页 - 南丰蜜桔模型管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #F0F2F5;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans SC', sans-serif;
+        }
+        .content-wrapper {
+            padding: 24px;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        .stat-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        @keyframes modalSlideIn {
+            from { opacity: 0; transform: translateY(-20px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="content-wrapper">
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800">系统首页</h1>
+                <p class="text-gray-500 mt-1">欢迎回来，管理员 · 蜜桔产业发展中心</p>
+            </div>
+            <div class="flex items-center space-x-2 text-sm text-gray-500">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                <span>2026年07月22日 星期二</span>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="stat-card bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">模型数量</p>
+                        <h3 class="text-3xl font-bold text-gray-800 mt-1">15</h3>
+                        <p class="text-green-500 text-xs mt-2 flex items-center">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                            本月新增 3个
+                        </p>
+                    </div>
+                    <div class="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">监测地块</p>
+                        <h3 class="text-3xl font-bold text-gray-800 mt-1">1,236</h3>
+                        <p class="text-green-500 text-xs mt-2 flex items-center">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                            较上月增长 12%
+                        </p>
+                    </div>
+                    <div class="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">预警数量</p>
+                        <h3 class="text-3xl font-bold text-gray-800 mt-1">12</h3>
+                        <p class="text-orange-500 text-xs mt-2 flex items-center">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.66 1.732-3L13.732 4c-.77-1.34-2.694-1.34-3.464 0L3.34 16c-.77 1.34.192 3 1.732 3z"/></svg>
+                            待处理 3条
+                        </p>
+                    </div>
+                    <div class="w-14 h-14 bg-orange-100 rounded-full flex items-center justify-center">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">健康地块</p>
+                        <h3 class="text-3xl font-bold text-gray-800 mt-1">1,086</h3>
+                        <p class="text-green-500 text-xs mt-2 flex items-center">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                            健康率 87.9%
+                        </p>
+                    </div>
+                    <div class="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-5">
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <h2 class="text-lg font-semibold text-gray-800 flex items-center mb-4">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"/></svg>
+                    监测地块健康分布
+                </h2>
+                <div class="h-64">
+                    <canvas id="healthPieChart"></canvas>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <h2 class="text-lg font-semibold text-gray-800 flex items-center mb-4">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                    预警趋势
+                </h2>
+                <div class="h-64">
+                    <canvas id="alertTrendChart"></canvas>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-semibold text-gray-800 flex items-center">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        南丰蜜桔农事历
+                    </h2>
+                    <button onclick="openFarmingCalendar()" class="text-sm text-green-600 hover:text-green-700 flex items-center">
+                        查看全年
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                    </button>
+                </div>
+                <div class="space-y-3">
+                    <div class="flex items-start p-3 bg-green-50 rounded-lg">
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex flex-col items-center justify-center flex-shrink-0 mr-3">
+                            <span class="text-green-600 font-bold text-sm">07月</span>
+                            <span class="text-green-500 text-xs">膨大期</span>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h4 class="font-medium text-gray-800 text-sm">果实膨大期管理</h4>
+                            <p class="text-xs text-gray-500 mt-1">做好水肥管理，加强夏季修剪</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start p-3 bg-blue-50 rounded-lg">
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex flex-col items-center justify-center flex-shrink-0 mr-3">
+                            <span class="text-blue-600 font-bold text-sm">08月</span>
+                            <span class="text-blue-500 text-xs">秋梢期</span>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h4 class="font-medium text-gray-800 text-sm">秋梢萌发管理</h4>
+                            <p class="text-xs text-gray-500 mt-1">促进秋梢健壮生长</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start p-3 bg-yellow-50 rounded-lg">
+                        <div class="w-12 h-12 bg-yellow-100 rounded-lg flex flex-col items-center justify-center flex-shrink-0 mr-3">
+                            <span class="text-yellow-600 font-bold text-sm">09月</span>
+                            <span class="text-yellow-500 text-xs">着色期</span>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h4 class="font-medium text-gray-800 text-sm">果实着色期管理</h4>
+                            <p class="text-xs text-gray-500 mt-1">促进果实着色成熟</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <h2 class="text-lg font-semibold text-gray-800 flex items-center mb-4">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"/></svg>
+                    气象与灾害提醒
+                </h2>
+                <div class="space-y-4">
+                    <div class="p-4 bg-gradient-to-r from-orange-400 to-orange-500 rounded-lg text-white">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-orange-100 text-sm">今日天气</p>
+                                <div class="flex items-center mt-1">
+                                    <span class="text-3xl font-bold">32°C</span>
+                                    <span class="ml-2 text-orange-100">晴转多云</span>
+                                </div>
+                                <p class="text-orange-100 text-xs mt-1">南丰县</p>
+                            </div>
+                            <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                        </div>
+                    </div>
+                    <div class="p-3 border-l-4 border-red-500 bg-red-50 rounded-r-lg">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="font-medium text-gray-800 text-sm">高温预警</p>
+                                <p class="text-xs text-gray-500 mt-1">未来3天最高气温将达35°C以上</p>
+                            </div>
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                        </div>
+                    </div>
+                    <div class="p-3 border-l-4 border-yellow-500 bg-yellow-50 rounded-r-lg">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="font-medium text-gray-800 text-sm">干旱提示</p>
+                                <p class="text-xs text-gray-500 mt-1">连续8天无有效降雨</p>
+                            </div>
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <h2 class="text-lg font-semibold text-gray-800 flex items-center mb-4">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                    快捷入口
+                </h2>
+                <div class="grid grid-cols-2 gap-4">
+                    <button class="flex flex-col items-center p-4 bg-gray-50 rounded-lg hover:bg-green-50 hover:border-green-200 border border-transparent transition-colors">
+                        <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mb-2">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+                        </div>
+                        <span class="text-xs font-medium text-gray-700">模型管理</span>
+                    </button>
+                    <button class="flex flex-col items-center p-4 bg-gray-50 rounded-lg hover:bg-blue-50 hover:border-blue-200 border border-transparent transition-colors">
+                        <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mb-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg>
+                        </div>
+                        <span class="text-xs font-medium text-gray-700">数据管理</span>
+                    </button>
+                    <button class="flex flex-col items-center p-4 bg-gray-50 rounded-lg hover:bg-orange-50 hover:border-orange-200 border border-transparent transition-colors">
+                        <div class="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center mb-2">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                        </div>
+                        <span class="text-xs font-medium text-gray-700">预警管理</span>
+                    </button>
+                    <button class="flex flex-col items-center p-4 bg-gray-50 rounded-lg hover:bg-purple-50 hover:border-purple-200 border border-transparent transition-colors">
+                        <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center mb-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                        </div>
+                        <span class="text-xs font-medium text-gray-700">运行监控</span>
+                    </button>
+                    <button class="flex flex-col items-center p-4 bg-gray-50 rounded-lg hover:bg-red-50 hover:border-red-200 border border-transparent transition-colors">
+                        <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center mb-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21V3m10 18V5m-9 16l4-4m4 4l4-4"/></svg>
+                        </div>
+                        <span class="text-xs font-medium text-gray-700">规则管理</span>
+                    </button>
+                    <button class="flex flex-col items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 hover:border-gray-200 border border-transparent transition-colors">
+                        <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center mb-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                        </div>
+                        <span class="text-xs font-medium text-gray-700">系统管理</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <h2 class="text-lg font-semibold text-gray-800 flex items-center mb-4">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    近期操作提醒
+                </h2>
+                <div class="space-y-3">
+                    <div class="flex items-start p-3 bg-gray-50 rounded-lg">
+                        <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mr-3">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-sm text-gray-800">膨大期生长模型参数已更新</p>
+                            <p class="text-xs text-gray-500 mt-1">2小时前</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start p-3 bg-gray-50 rounded-lg">
+                        <div class="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0 mr-3">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.66 1.732-3L13.732 4c-.77-1.34-2.694-1.34-3.464 0L3.34 16c-.77 1.34.192 3 1.732 3z"/></svg>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-sm text-gray-800">3条预警待审核处理</p>
+                            <p class="text-xs text-gray-500 mt-1">4小时前</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start p-3 bg-gray-50 rounded-lg">
+                        <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mr-3">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-sm text-gray-800">气象数据同步任务已完成</p>
+                            <p class="text-xs text-gray-500 mt-1">昨天</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start p-3 bg-gray-50 rounded-lg">
+                        <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0 mr-3">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-sm text-gray-800">长势研判报告已生成</p>
+                            <p class="text-xs text-gray-500 mt-1">昨天</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="farmingCalendarModal" class="hidden fixed inset-0 z-[9999] flex items-center justify-center">
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeFarmingCalendar()"></div>
+        <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-4xl mx-4 max-h-[80vh] overflow-hidden" style="animation:modalSlideIn .25s cubic-bezier(.4,0,.2,1)">
+            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+                <h3 class="text-lg font-semibold text-gray-800">南丰蜜桔全年农事历</h3>
+                <button type="button" onclick="closeFarmingCalendar()" aria-label="关闭" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors text-xl">&times;</button>
+            </div>
+            <div class="overflow-y-auto p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div class="p-4 bg-blue-50 rounded-xl border border-blue-100">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="w-10 h-10 bg-blue-100 rounded-lg flex flex-col items-center justify-center">
+                                <span class="text-blue-600 font-bold">01月</span>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-800">休眠期</h4>
+                                <p class="text-xs text-blue-600">小寒-大寒</p>
+                            </div>
+                        </div>
+                        <ul class="text-sm text-gray-600 space-y-2">
+                            <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 bg-blue-400 rounded-full mt-1.5"></span>做好冬季清园工作</li>
+                            <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 bg-blue-400 rounded-full mt-1.5"></span>修剪病虫枝、枯枝</li>
+                            <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 bg-blue-400 rounded-full mt-1.5"></span>树干涂白防病虫</li>
+                        </ul>
+                    </div>
+                    <div class="p-4 bg-blue-50 rounded-xl border border-blue-100">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="w-10 h-10 bg-blue-100 rounded-lg flex flex-col items-center justify-center">
+                                <span class="text-blue-600 font-bold">02月</span>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-800">休眠期</h4>
+                                <p class="text-xs text-blue-600">立春-雨水</p>
+                            </div>
+                        </div>
+                        <ul class="text-sm text-gray-600 space-y-2">
+                            <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 bg-blue-400 rounded-full mt-1.5"></span>继续冬季修剪</li>
+                            <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 bg-blue-400 rounded-full mt-1.5"></span>施春肥促萌芽</li>
+                            <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 bg-blue-400 rounded-full mt-1.5"></span>防治越冬病虫</li>
+                        </ul>
+                    </div>
+                    <div class="p-4 bg-green-50 rounded-xl border border-green-100">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="w-10 h-10 bg-green-100 rounded-lg flex flex-col items-center justify-center">
+                                <span class="text-green-600 font-bold">03月</span>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-800">萌芽期</h4>
+                                <p class="text-xs text-green-600">惊蛰-春分</p>
+                            </div>
+                        </div>
+                        <ul class="text-sm text-gray-600 space-y-2">
+                            <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 bg-green-400 rounded-full mt-1.5"></span>春梢萌发管理</li>
+                            <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 bg-green-400 rounded-full mt-1.5"></span>防治红蜘蛛、蚜虫</li>
+                            <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 bg-green-400 rounded-full mt-1.5"></span>排水防涝</li>
+                        </ul>
+                    </div>
+                    <div class="p-4 bg-green-50 rounded-xl border border-green-100">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="w-10 h-10 bg-green-100 rounded-lg flex flex-col items-center justify-center">
+                                <span class="text-green-600 font-bold">04月</span>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-800">开花期</h4>
+                                <p class="text-xs text-green-600">清明-谷雨</p>
+                            </div>
+                        </div>
+                        <ul class="text-sm text-gray-600 space-y-2">
+                            <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 bg-green-400 rounded-full mt-1.5"></span>花期管理</li>
+                            <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 bg-green-400 rounded-full mt-1.5"></span>病虫害综合防治</li>
+                            <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 bg-green-400 rounded-full mt-1.5"></span>保花保果</li>
+                        </ul>
+                    </div>
+                    <div class="p-4 bg-yellow-50 rounded-xl border border-yellow-100">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="w-10 h-10 bg-yellow-100 rounded-lg flex flex-col items-center justify-center">
+                                <span class="text-yellow-600 font-bold">05月</span>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-800">幼果期</h4>
+                                <p class="text-xs text-yellow-600">立夏-小满</p>
+                            </div>
+                        </div>
+                        <ul class="text-sm text-gray-600 space-y-2">
+                            <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 bg-yellow-400 rounded-full mt-1.5"></span>幼果生长管理</li>
+                            <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 bg-yellow-400 rounded-full mt-1.5"></span>抹芽控梢</li>
+                            <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 bg-yellow-400 rounded-full mt-1.5"></span>防治溃疡病</li>
+                        </ul>
+                    </div>
+                    <div class="p-4 bg-yellow-50 rounded-xl border border-yellow-100">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="w-10 h-10 bg-yellow-100 rounded-lg flex flex-col items-center justify-center">
+                                <span class="text-yellow-600 font-bold">06月</span>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-800">生理落果期</h4>
+                                <p class="text-xs text-yellow-600">芒种-夏至</p>
+                            </div>
+                        </div>
+                        <ul class="text-sm text-gray-600 space-y-2">
+                            <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 bg-yellow-400 rounded-full mt-1.5"></span>稳果期管理</li>
+                            <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 bg-yellow-400 rounded-full mt-1.5"></span>夏季修剪</li>
+                            <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 bg-yellow-400 rounded-full mt-1.5"></span>病虫害防治</li>
+                        </ul>
+                    </div>
+                    <div class="p-4 bg-green-50 rounded-xl border border-green-100">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="w-10 h-10 bg-green-100 rounded-lg flex flex-col items-center justify-center">
+                                <span class="text-green-600 font-bold">07月</span>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-800">果实膨大期</h4>
+                                <p class="text-xs text-green-600">小暑-大暑</p>
+                            </div>
+                        </div>
+                        <ul class="text-sm text-gray-600 space-y-2">
+                            <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 bg-green-400 rounded-full mt-1.5"></span>果实膨大期水肥管理</li>
+                            <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 bg-green-400 rounded-full mt-1.5"></span>加强夏季修剪</li>
+                            <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 bg-green-400 rounded-full mt-1.5"></span>病虫害综合防治</li>
+                        </ul>
+                    </div>
+                    <div class="p-4 bg-blue-50 rounded-xl border border-blue-100">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="w-10 h-10 bg-blue-100 rounded-lg flex flex-col items-center justify-center">
+                                <span class="text-blue-600 font-bold">08月</span>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-800">秋梢期</h4>
+                                <p class="text-xs text-blue-600">立秋-处暑</p>
+                            </div>
+                        </div>
+                        <ul class="text-sm text-gray-600 space-y-2">
+                            <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 bg-blue-400 rounded-full mt-1.5"></span>促进秋梢健壮生长</li>
+                            <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 bg-blue-400 rounded-full mt-1.5"></span>控制夏梢</li>
+                            <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 bg-blue-400 rounded-full mt-1.5"></span>防治潜叶蛾、红蜘蛛</li>
+                        </ul>
+                    </div>
+                    <div class="p-4 bg-yellow-50 rounded-xl border border-yellow-100">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="w-10 h-10 bg-yellow-100 rounded-lg flex flex-col items-center justify-center">
+                                <span class="text-yellow-600 font-bold">09月</span>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-800">着色期</h4>
+                                <p class="text-xs text-yellow-600">白露-秋分</p>
+                            </div>
+                        </div>
+                        <ul class="text-sm text-gray-600 space-y-2">
+                            <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 bg-yellow-400 rounded-full mt-1.5"></span>促进果实着色</li>
+                            <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 bg-yellow-400 rounded-full mt-1.5"></span>保持水分供应</li>
+                            <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 bg-yellow-400 rounded-full mt-1.5"></span>病虫害综合防治</li>
+                        </ul>
+                    </div>
+                    <div class="p-4 bg-orange-50 rounded-xl border border-orange-100">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="w-10 h-10 bg-orange-100 rounded-lg flex flex-col items-center justify-center">
+                                <span class="text-orange-600 font-bold">10月</span>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-800">成熟期</h4>
+                                <p class="text-xs text-orange-600">寒露-霜降</p>
+                            </div>
+                        </div>
+                        <ul class="text-sm text-gray-600 space-y-2">
+                            <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 bg-orange-400 rounded-full mt-1.5"></span>果实成熟采收</li>
+                            <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 bg-orange-400 rounded-full mt-1.5"></span>采后施肥</li>
+                            <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 bg-orange-400 rounded-full mt-1.5"></span>果园清洁</li>
+                        </ul>
+                    </div>
+                    <div class="p-4 bg-blue-50 rounded-xl border border-blue-100">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="w-10 h-10 bg-blue-100 rounded-lg flex flex-col items-center justify-center">
+                                <span class="text-blue-600 font-bold">11月</span>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-800">采后期</h4>
+                                <p class="text-xs text-blue-600">立冬-小雪</p>
+                            </div>
+                        </div>
+                        <ul class="text-sm text-gray-600 space-y-2">
+                            <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 bg-blue-400 rounded-full mt-1.5"></span>采后恢复管理</li>
+                            <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 bg-blue-400 rounded-full mt-1.5"></span>施冬肥</li>
+                            <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 bg-blue-400 rounded-full mt-1.5"></span>冬季修剪准备</li>
+                        </ul>
+                    </div>
+                    <div class="p-4 bg-blue-50 rounded-xl border border-blue-100">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="w-10 h-10 bg-blue-100 rounded-lg flex flex-col items-center justify-center">
+                                <span class="text-blue-600 font-bold">12月</span>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-800">休眠期</h4>
+                                <p class="text-xs text-blue-600">大雪-冬至</p>
+                            </div>
+                        </div>
+                        <ul class="text-sm text-gray-600 space-y-2">
+                            <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 bg-blue-400 rounded-full mt-1.5"></span>冬季清园</li>
+                            <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 bg-blue-400 rounded-full mt-1.5"></span>整形修剪</li>
+                            <li class="flex items-start gap-2"><span class="w-1.5 h-1.5 bg-blue-400 rounded-full mt-1.5"></span>病虫害越冬防治</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-end px-6 py-4 border-t border-gray-100 bg-gray-50/50">
+                <button type="button" onclick="closeFarmingCalendar()" class="h-9 px-5 text-sm rounded-lg bg-green-600 text-white hover:bg-green-700 transition-colors">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const ctx1 = document.getElementById('healthPieChart').getContext('2d');
+            new Chart(ctx1, {
+                type: 'doughnut',
+                data: {
+                    labels: ['优质', '良好', '一般', '异常'],
+                    datasets: [{
+                        data: [686, 400, 100, 50],
+                        backgroundColor: ['#16A34A', '#84CC16', '#EAB308', '#F97316'],
+                        borderColor: '#ffffff',
+                        borderWidth: 3,
+                        hoverOffset: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '60%',
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                padding: 15,
+                                usePointStyle: true,
+                                font: { size: 13 }
+                            }
+                        }
+                    }
+                }
+            });
+
+            const ctx2 = document.getElementById('alertTrendChart').getContext('2d');
+            new Chart(ctx2, {
+                type: 'line',
+                data: {
+                    labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+                    datasets: [{
+                        label: '预警数',
+                        data: [5, 8, 12, 6, 4, 9, 12],
+                        borderColor: '#EF4444',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.3,
+                        pointBackgroundColor: '#EF4444',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { stepSize: 2 }
+                        }
+                    }
+                }
+            });
+        });
+
+        function openFarmingCalendar() {
+            document.getElementById('farmingCalendarModal').classList.remove('hidden');
+        }
+
+        function closeFarmingCalendar() {
+            document.getElementById('farmingCalendarModal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>

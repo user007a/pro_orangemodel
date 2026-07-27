@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>预警管理 - 南丰蜜桔模型管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        body { margin: 0; padding: 0; background-color: #F0F2F5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans SC', sans-serif; }
+        .content-wrapper { padding: 24px; height: 100vh; overflow-y: auto; }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.5); z-index: 1000; align-items: center; justify-content: center; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background-color: white; border-radius: 12px; width: 90%; max-width: 700px; max-height: 85vh; overflow-y: auto; }
+        .pagination-btn.active { background-color: #16A34A; color: white; border-color: #16A34A; }
+    </style>
+</head>
+<body>
+    <div class="content-wrapper">
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800">预警管理</h1>
+                <p class="text-gray-500 mt-1">管理预警产生、审核、发布及用户阅读状态</p>
+            </div>
+            <div class="flex items-center space-x-3">
+                <button onclick="openAddAlertModal()" class="px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50 flex items-center transition">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    新增人工预警
+                </button>
+                <button onclick="openExportModal()" class="px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50 flex items-center transition">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                    批量导出
+                </button>
+            </div>
+        </div>
+
+        <!-- 统计数据 -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">总预警数</p>
+                        <h3 class="text-2xl font-bold text-gray-800 mt-1" id="stat-total">35</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                        <svg class="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">待审核</p>
+                        <h3 class="text-2xl font-bold text-orange-600 mt-1" id="stat-pending">8</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
+                        <svg class="w-7 h-7 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">已发布</p>
+                        <h3 class="text-2xl font-bold text-green-600 mt-1" id="stat-published">22</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                        <svg class="w-7 h-7 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">已处置</p>
+                        <h3 class="text-2xl font-bold text-gray-800 mt-1" id="stat-disposed">18</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
+                        <svg class="w-7 h-7 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 搜索栏 -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="p-4 border-b border-gray-100">
+                <div class="flex items-center space-x-4 flex-wrap">
+                    <div class="flex-1 max-w-md">
+                        <div class="relative">
+                            <svg class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                            <input type="text" id="search-input" placeholder="搜索预警标题、编号..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500" oninput="filterAlerts()">
+                        </div>
+                    </div>
+                    <select id="level-filter" class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500" onchange="filterAlerts()">
+                        <option value="">全部级别</option>
+                        <option value="红色预警">红色预警</option>
+                        <option value="橙色预警">橙色预警</option>
+                        <option value="黄色预警">黄色预警</option>
+                        <option value="蓝色预警">蓝色预警</option>
+                    </select>
+                    <select id="source-filter" class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500" onchange="filterAlerts()">
+                        <option value="">全部来源</option>
+                        <option value="模型自动生成">模型自动生成</option>
+                        <option value="人工上报">人工上报</option>
+                        <option value="气象系统">气象系统</option>
+                    </select>
+                    <select id="status-filter" class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500" onchange="filterAlerts()">
+                        <option value="">全部状态</option>
+                        <option value="待审核">待审核</option>
+                        <option value="已发布">已发布</option>
+                        <option value="已处置">已处置</option>
+                        <option value="已驳回">已驳回</option>
+                    </select>
+                    <button onclick="resetFilters()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200">重置</button>
+                </div>
+            </div>
+
+            <!-- 数据列表 -->
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="bg-gray-50">
+                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">预警编号</th>
+                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">预警标题</th>
+                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">预警级别</th>
+                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">预警来源</th>
+                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">影响区域</th>
+                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">状态</th>
+                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">创建时间</th>
+                            <th class="text-center px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100" id="alert-table-body"></tbody>
+                </table>
+                <div id="empty-tip" class="hidden py-12 text-center text-gray-400 text-sm">
+                    <p>暂无匹配的预警记录</p>
+                </div>
+            </div>
+
+            <!-- 分页 -->
+            <div class="px-6 py-4 border-t border-gray-100 flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <p class="text-sm text-gray-500" id="page-info">共 0 条记录</p>
+                    <select id="page-size" onchange="changePageSize()" class="px-2 py-1 border border-gray-300 rounded text-sm text-gray-600">
+                        <option value="5">5条/页</option>
+                        <option value="10">10条/页</option>
+                        <option value="20">20条/页</option>
+                    </select>
+                </div>
+                <div class="flex items-center space-x-2" id="pagination"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 查看详情弹窗 -->
+    <div id="detail-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                    预警详情
+                </h3>
+                <button onclick="closeModal('detail-modal')" class="p-1 hover:bg-gray-100 rounded">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div><p class="text-sm text-gray-500 mb-1">预警编号</p><p id="detail-id" class="text-sm text-gray-800 bg-gray-50 px-3 py-2 rounded"></p></div>
+                    <div><p class="text-sm text-gray-500 mb-1">预警标题</p><p id="detail-title" class="text-sm text-gray-800 bg-gray-50 px-3 py-2 rounded"></p></div>
+                    <div><p class="text-sm text-gray-500 mb-1">预警级别</p><p id="detail-level" class="text-sm text-gray-800 bg-gray-50 px-3 py-2 rounded"></p></div>
+                    <div><p class="text-sm text-gray-500 mb-1">预警来源</p><p id="detail-source" class="text-sm text-gray-800 bg-gray-50 px-3 py-2 rounded"></p></div>
+                    <div><p class="text-sm text-gray-500 mb-1">影响区域</p><p id="detail-area" class="text-sm text-gray-800 bg-gray-50 px-3 py-2 rounded"></p></div>
+                    <div><p class="text-sm text-gray-500 mb-1">状态</p><p id="detail-status" class="text-sm text-gray-800 bg-gray-50 px-3 py-2 rounded"></p></div>
+                    <div><p class="text-sm text-gray-500 mb-1">创建时间</p><p id="detail-created" class="text-sm text-gray-800 bg-gray-50 px-3 py-2 rounded"></p></div>
+                    <div><p class="text-sm text-gray-500 mb-1">发布时间</p><p id="detail-published" class="text-sm text-gray-800 bg-gray-50 px-3 py-2 rounded"></p></div>
+                </div>
+                <div class="mb-4">
+                    <p class="text-sm text-gray-500 mb-1">预警内容</p>
+                    <p id="detail-content" class="text-sm text-gray-800 bg-gray-50 px-3 py-3 rounded leading-relaxed"></p>
+                </div>
+            </div>
+            <div class="p-4 border-t border-gray-200 flex justify-end">
+                <button onclick="closeModal('detail-modal')" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑弹窗 -->
+    <div id="edit-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                    编辑预警
+                </h3>
+                <button onclick="closeModal('edit-modal')" class="p-1 hover:bg-gray-100 rounded">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">预警标题 <span class="text-red-500">*</span></label>
+                        <input type="text" id="edit-title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">预警级别</label>
+                            <select id="edit-level" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                                <option value="红色预警">红色预警</option>
+                                <option value="橙色预警">橙色预警</option>
+                                <option value="黄色预警">黄色预警</option>
+                                <option value="蓝色预警">蓝色预警</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">预警来源</label>
+                            <select id="edit-source" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                                <option value="模型自动生成">模型自动生成</option>
+                                <option value="人工上报">人工上报</option>
+                                <option value="气象系统">气象系统</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">影响区域</label>
+                        <input type="text" id="edit-area" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">预警内容</label>
+                        <textarea id="edit-content" rows="4" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">状态</label>
+                        <select id="edit-status" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                            <option value="待审核">待审核</option>
+                            <option value="已发布">已发布</option>
+                            <option value="已处置">已处置</option>
+                            <option value="已驳回">已驳回</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="p-4 border-t border-gray-200 flex justify-end space-x-3">
+                <button onclick="closeModal('edit-modal')" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm">取消</button>
+                <button onclick="submitEdit()" class="px-4 py-2 text-white rounded-lg hover:bg-green-700 text-sm" style="background-color: #16A34A;">保存修改</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 删除确认弹窗 -->
+    <div id="delete-modal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    删除确认
+                </h3>
+                <button onclick="closeModal('delete-modal')" class="p-1 hover:bg-gray-100 rounded">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
+                        <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.66 1.732-3L13.732 4c-.77-1.34-2.694-1.34-3.464 0L3.34 16c-.77 1.34.192 3 1.732 3z"/></svg>
+                    </div>
+                    <div>
+                        <p class="font-medium text-gray-800">确认删除该预警？</p>
+                        <p class="text-sm text-gray-500 mt-1">删除后将无法恢复，请谨慎操作。</p>
+                    </div>
+                </div>
+                <p class="text-sm text-gray-600">要删除的预警：<span id="delete-name" class="font-medium text-gray-800"></span></p>
+            </div>
+            <div class="p-4 border-t border-gray-200 flex justify-end space-x-3">
+                <button onclick="closeModal('delete-modal')" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm">取消</button>
+                <button onclick="submitDelete()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm">确认删除</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新增人工预警弹窗 -->
+    <div id="add-alert-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    新增人工预警
+                </h3>
+                <button onclick="closeModal('add-alert-modal')" class="p-1 hover:bg-gray-100 rounded">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">预警标题 <span class="text-red-500">*</span></label>
+                        <input type="text" id="add-title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">预警级别</label>
+                            <select id="add-level" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                                <option value="红色预警">红色预警</option>
+                                <option value="橙色预警">橙色预警</option>
+                                <option value="黄色预警">黄色预警</option>
+                                <option value="蓝色预警">蓝色预警</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">预警来源</label>
+                            <select id="add-source" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                                <option value="人工上报" selected>人工上报</option>
+                                <option value="模型自动生成">模型自动生成</option>
+                                <option value="气象系统">气象系统</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">影响区域</label>
+                        <input type="text" id="add-area" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">预警内容</label>
+                        <textarea id="add-content" rows="4" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">状态</label>
+                        <select id="add-status" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                            <option value="待审核" selected>待审核</option>
+                            <option value="已发布">已发布</option>
+                            <option value="已处置">已处置</option>
+                            <option value="已驳回">已驳回</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="p-4 border-t border-gray-200 flex justify-end space-x-3">
+                <button onclick="closeModal('add-alert-modal')" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm">取消</button>
+                <button onclick="submitAddAlert()" class="px-4 py-2 text-white rounded-lg hover:bg-green-700 text-sm" style="background-color: #16A34A;">确认添加</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 审核预警弹窗 -->
+    <div id="audit-modal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                    审核预警
+                </h3>
+                <button onclick="closeModal('audit-modal')" class="p-1 hover:bg-gray-100 rounded">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="mb-4">
+                    <p class="text-sm text-gray-500 mb-2">待审核预警信息</p>
+                    <div class="bg-gray-50 rounded-lg p-3">
+                        <p class="text-sm font-medium text-gray-800" id="audit-alert-title"></p>
+                        <p class="text-sm text-gray-500" id="audit-alert-id"></p>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">审核结果</label>
+                    <div class="grid grid-cols-2 gap-4">
+                        <label class="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:border-green-500 hover:bg-green-50">
+                            <input type="radio" name="audit-result" value="approve" checked class="mr-2">
+                            <span class="text-sm text-green-600 font-medium">通过</span>
+                        </label>
+                        <label class="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:border-red-500 hover:bg-red-50">
+                            <input type="radio" name="audit-result" value="reject" class="mr-2">
+                            <span class="text-sm text-red-600 font-medium">驳回</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">审核意见</label>
+                    <textarea id="audit-comment" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="请输入审核意见（选填）"></textarea>
+                </div>
+                
+                <div class="p-3 bg-blue-50 rounded-lg">
+                    <p class="text-sm text-blue-700 flex items-center">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        审核通过后预警状态将变为"待发布"，驳回后状态将变为"已驳回"
+                    </p>
+                </div>
+            </div>
+            <div class="p-4 border-t border-gray-200 flex justify-end space-x-3">
+                <button onclick="closeModal('audit-modal')" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm">取消</button>
+                <button onclick="submitAudit()" class="px-4 py-2 text-white rounded-lg hover:bg-green-700 text-sm" style="background-color: #16A34A;">确认审核</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 发布预警弹窗 -->
+    <div id="publish-modal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                    发布预警
+                </h3>
+                <button onclick="closeModal('publish-modal')" class="p-1 hover:bg-gray-100 rounded">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="mb-4">
+                    <p class="text-sm text-gray-500 mb-2">发布预警信息</p>
+                    <div class="bg-gray-50 rounded-lg p-3">
+                        <p class="text-sm font-medium text-gray-800" id="publish-alert-title"></p>
+                        <p class="text-sm text-gray-500" id="publish-alert-id"></p>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">发送区域</label>
+                    <div class="space-y-2">
+                        <label class="flex items-center"><input type="radio" name="publish-area" value="all" checked class="mr-2"> 全县范围</label>
+                        <label class="flex items-center"><input type="radio" name="publish-area" value="custom" class="mr-2"> 指定区域</label>
+                    </div>
+                    <input type="text" id="publish-custom-area" class="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="请输入发送区域，如：太和镇、桑田镇" disabled>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">发送范围</label>
+                    <select id="publish-scope" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <option value="all-users">全部用户</option>
+                        <option value="role-admin">管理员</option>
+                        <option value="role-operator">操作员</option>
+                        <option value="role-viewer">查看员</option>
+                    </select>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">指定发送用户</label>
+                    <input type="text" id="publish-users" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="请输入用户名，多个用户用逗号分隔（选填）">
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">发送方式</label>
+                    <div class="grid grid-cols-3 gap-3">
+                        <label class="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:border-green-500 hover:bg-green-50">
+                            <input type="checkbox" name="publish-method" value="system" checked class="mr-2">
+                            <span class="text-sm">系统消息</span>
+                        </label>
+                        <label class="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:border-green-500 hover:bg-green-50">
+                            <input type="checkbox" name="publish-method" value="sms" class="mr-2">
+                            <span class="text-sm">短信通知</span>
+                        </label>
+                        <label class="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:border-green-500 hover:bg-green-50">
+                            <input type="checkbox" name="publish-method" value="email" class="mr-2">
+                            <span class="text-sm">邮件通知</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="p-3 bg-blue-50 rounded-lg">
+                    <p class="text-sm text-blue-700 flex items-center">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        发布后预警状态将变为"已发布"，用户将收到通知
+                    </p>
+                </div>
+            </div>
+            <div class="p-4 border-t border-gray-200 flex justify-end space-x-3">
+                <button onclick="closeModal('publish-modal')" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm">取消</button>
+                <button onclick="submitPublish()" class="px-4 py-2 text-white rounded-lg hover:bg-green-700 text-sm" style="background-color: #16A34A;">确认发布</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 批量导出弹窗 -->
+    <div id="export-modal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                    批量导出预警
+                </h3>
+                <button onclick="closeModal('export-modal')" class="p-1 hover:bg-gray-100 rounded">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="mb-4">
+                    <p class="text-sm text-gray-500 mb-2">导出范围</p>
+                    <div class="space-y-2">
+                        <label class="flex items-center"><input type="radio" name="export-range" value="all" checked class="mr-2"> 全部预警数据（<span id="export-total-count">35</span> 条）</label>
+                        <label class="flex items-center"><input type="radio" name="export-range" value="filtered" class="mr-2"> 当前筛选结果（<span id="export-filtered-count">35</span> 条）</label>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <p class="text-sm text-gray-500 mb-2">导出格式</p>
+                    <div class="space-y-2">
+                        <label class="flex items-center"><input type="radio" name="export-format" value="csv" checked class="mr-2"> CSV 格式</label>
+                        <label class="flex items-center"><input type="radio" name="export-format" value="xlsx" class="mr-2"> Excel 格式 (.xlsx)</label>
+                    </div>
+                </div>
+                <div class="p-3 bg-green-50 rounded-lg">
+                    <p class="text-sm text-green-700">点击确认后将开始下载导出文件</p>
+                </div>
+            </div>
+            <div class="p-4 border-t border-gray-200 flex justify-end space-x-3">
+                <button onclick="closeModal('export-modal')" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm">取消</button>
+                <button onclick="submitExport()" class="px-4 py-2 text-white rounded-lg hover:bg-green-700 text-sm" style="background-color: #16A34A;">确认导出</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const LEVEL_STYLES = {
+            '红色预警': 'bg-red-100 text-red-700',
+            '橙色预警': 'bg-orange-100 text-orange-700',
+            '黄色预警': 'bg-yellow-100 text-yellow-700',
+            '蓝色预警': 'bg-blue-100 text-blue-700'
+        };
+        const STATUS_STYLES = {
+            '待审核': 'bg-orange-100 text-orange-700',
+            '已发布': 'bg-green-100 text-green-700',
+            '已处置': 'bg-gray-100 text-gray-700',
+            '已驳回': 'bg-red-100 text-red-700'
+        };
+
+        let alerts = [
+            { id: 'YJ-20260722-001', title: '高温热害预警', level: '红色预警', source: '气象系统', area: '全县范围', status: '已发布', created: '2026-07-22 10:30', published: '2026-07-22 11:00', content: '预计未来3天我县最高气温将持续超过38°C，对蜜桔果实膨大期造成严重影响，请注意防范高温热害。' },
+            { id: 'YJ-20260722-002', title: '潜叶蛾高发预警', level: '橙色预警', source: '模型自动生成', area: '太和镇、桑田镇', status: '待审核', created: '2026-07-22 09:15', published: '-', content: '夏梢萌发期潜叶蛾虫口密度监测值偏高，新梢受害率超过15%，存在高发风险。' },
+            { id: 'YJ-20260721-015', title: '炭疽病发生预警', level: '黄色预警', source: '模型自动生成', area: '白舍镇', status: '已发布', created: '2026-07-21 14:20', published: '2026-07-21 15:00', content: '近期高温高湿天气，白舍镇部分果园炭疽病病叶率超过5%，需及时防治。' },
+            { id: 'YJ-20260721-016', title: '蚜虫虫害预警', level: '蓝色预警', source: '人工上报', area: '琴城镇', status: '已发布', created: '2026-07-21 11:45', published: '2026-07-21 12:30', content: '琴城镇果园新梢蚜虫受害率超过20%，建议及时用药防治。' },
+            { id: 'YJ-20260720-023', title: '红蜘蛛爆发预警', level: '红色预警', source: '模型自动生成', area: '市山镇、洽湾镇', status: '已发布', created: '2026-07-20 16:00', published: '2026-07-20 16:30', content: '市山镇、洽湾镇果园红蜘蛛虫口密度超过30头/叶，已达到爆发阈值，需紧急防治。' },
+            { id: 'YJ-20260720-024', title: '暴雨洪涝预警', level: '橙色预警', source: '气象系统', area: '太和镇、东坪乡', status: '已发布', created: '2026-07-20 09:30', published: '2026-07-20 10:00', content: '预计太和镇、东坪乡24小时降雨量将超过50mm，可能造成果园积水。' },
+            { id: 'YJ-20260719-031', title: '疮痂病发生预警', level: '黄色预警', source: '模型自动生成', area: '紫霄镇', status: '待审核', created: '2026-07-19 15:20', published: '-', content: '紫霄镇果园疮痂病病叶率监测超标，需关注病害发展趋势。' },
+            { id: 'YJ-20260719-032', title: '白粉虱发生预警', level: '蓝色预警', source: '人工上报', area: '桑田镇', status: '已发布', created: '2026-07-19 10:15', published: '2026-07-19 11:00', content: '桑田镇果园白粉虱虫口密度偏高，建议采用黄板诱杀防治。' },
+            { id: 'YJ-20260718-045', title: '锈壁虱发生预警', level: '橙色预警', source: '模型自动生成', area: '三溪乡、傅坊乡', status: '已发布', created: '2026-07-18 14:00', published: '2026-07-18 14:30', content: '三溪乡、傅坊乡果园锈壁虱虫口密度超过10头/视野，需及时防治。' },
+            { id: 'YJ-20260718-046', title: '高温热浪预警', level: '黄色预警', source: '气象系统', area: '全县范围', status: '待审核', created: '2026-07-18 09:00', published: '-', content: '预计未来一周我县将持续高温天气，最高气温35°C以上。' },
+            { id: 'YJ-20260717-051', title: '异常落果预警', level: '红色预警', source: '模型自动生成', area: '市山镇', status: '已发布', created: '2026-07-17 10:30', published: '2026-07-17 11:00', content: '市山镇部分果园单株落果率超过10%，存在异常落果风险。' },
+            { id: 'YJ-20260717-052', title: '日灼果预警', level: '黄色预警', source: '模型自动生成', area: '洽湾镇', status: '已发布', created: '2026-07-17 09:00', published: '2026-07-17 09:30', content: '洽湾镇果园果面温度超过45°C，日灼果风险较高。' },
+            { id: 'YJ-20260716-058', title: '裂果预警', level: '橙色预警', source: '模型自动生成', area: '白舍镇', status: '已发布', created: '2026-07-16 15:10', published: '2026-07-16 15:30', content: '白舍镇前期干旱后预计降雨，裂果风险增大，请保持水分均衡供应。' },
+            { id: 'YJ-20260716-059', title: '土壤干旱预警', level: '黄色预警', source: '气象系统', area: '全县范围', status: '已发布', created: '2026-07-16 14:20', published: '2026-07-16 14:45', content: '连续5天土壤湿度低于25%，干旱风险增加。' },
+            { id: 'YJ-20260715-067', title: '台风预警', level: '红色预警', source: '气象系统', area: '全县范围', status: '已发布', created: '2026-07-15 16:00', published: '2026-07-15 16:15', content: '台风路径预测可能进入我县影响范围，风力预计超过8级。' },
+            { id: 'YJ-20260715-068', title: '溃疡病预警', level: '红色预警', source: '模型自动生成', area: '太和镇', status: '待审核', created: '2026-07-15 13:40', published: '-', content: '台风暴雨后太和镇果园溃疡病病叶率超过3%，需紧急防治。' },
+            { id: 'YJ-20260714-075', title: '暴雨预警', level: '橙色预警', source: '气象系统', area: '桑田镇、紫霄镇', status: '已发布', created: '2026-07-14 14:30', published: '2026-07-14 15:00', content: '24小时降雨量预计超过100mm，请做好排水防涝准备。' },
+            { id: 'YJ-20260714-076', title: '粉虱预警', level: '黄色预警', source: '模型自动生成', area: '琴城镇', status: '已发布', created: '2026-07-14 09:00', published: '2026-07-14 09:30', content: '琴城镇果园粉虱虫口密度超过50头/叶，建议连续2天监测防治。' },
+            { id: 'YJ-20260713-082', title: '蚜虫预警', level: '黄色预警', source: '模型自动生成', area: '三溪乡', status: '已发布', created: '2026-07-13 13:30', published: '2026-07-13 14:00', content: '三溪乡果园新梢蚜虫受害率超过20%，夏梢生长期需重点监测。' },
+            { id: 'YJ-20260713-083', title: '缺钾预警', level: '蓝色预警', source: '模型自动生成', area: '傅坊乡', status: '已发布', created: '2026-07-13 09:45', published: '2026-07-13 10:15', content: '傅坊乡果园叶片含钾量低于1.2%，膨大期需补充钾肥。' },
+            { id: 'YJ-20260712-091', title: '冰雹预警', level: '红色预警', source: '气象系统', area: '东坪乡', status: '已发布', created: '2026-07-12 11:15', published: '2026-07-12 11:30', content: '强对流天气，雷达回波强度超过55dBZ，可能出现冰雹。' },
+            { id: 'YJ-20260712-092', title: '缺钙预警', level: '蓝色预警', source: '模型自动生成', area: '市山镇', status: '已发布', created: '2026-07-12 11:20', published: '2026-07-12 11:45', content: '市山镇果园叶片含钙量低于1.0%，膨大期需补充钙肥。' },
+            { id: 'YJ-20260711-098', title: '连阴雨预警', level: '黄色预警', source: '气象系统', area: '全县范围', status: '已发布', created: '2026-07-11 10:45', published: '2026-07-11 11:00', content: '连续阴雨超过7天，日照时数不足，注意病害防治。' },
+            { id: 'YJ-20260711-099', title: '黑星病预警', level: '蓝色预警', source: '模型自动生成', area: '白舍镇', status: '已发布', created: '2026-07-11 10:00', published: '2026-07-11 10:30', content: '白舍镇果园黑星病病果率超过2%，膨大期需常规监测。' },
+            { id: 'YJ-20260710-105', title: '树脂病预警', level: '橙色预警', source: '模型自动生成', area: '琴城镇、桑田镇', status: '已发布', created: '2026-07-10 09:20', published: '2026-07-10 09:45', content: '高温多雨季节，琴城镇、桑田镇果园树脂病病枝率超过3%。' },
+            { id: 'YJ-20260710-106', title: '树势衰弱预警', level: '橙色预警', source: '模型自动生成', area: '太和镇', status: '待审核', created: '2026-07-10 14:00', published: '-', content: '太和镇部分果园叶色黄化率超过20%，树势连续3次监测下降。' },
+            { id: 'YJ-20260709-112', title: '糖度偏低预警', level: '蓝色预警', source: '模型自动生成', area: '洽湾镇', status: '待审核', created: '2026-07-09 09:30', published: '-', content: '洽湾镇果园预测糖度低于11°Bx，采前60天品质预警。' },
+            { id: 'YJ-20260709-113', title: '果径偏小预警', level: '黄色预警', source: '模型自动生成', area: '紫霄镇', status: '已发布', created: '2026-07-09 16:00', published: '2026-07-09 16:30', content: '紫霄镇果园平均果径低于35mm，膨大期连续2周监测偏小。' },
+            { id: 'YJ-20260708-120', title: '果皮粗皮预警', level: '蓝色预警', source: '模型自动生成', area: '三溪乡', status: '已驳回', created: '2026-07-08 10:20', published: '-', content: '三溪乡果园果皮粗糙度评分超过3，膨大期中后期评估。' },
+            { id: 'YJ-20260708-121', title: '根系缺氧预警', level: '黄色预警', source: '模型自动生成', area: '傅坊乡', status: '已发布', created: '2026-07-08 11:30', published: '2026-07-08 12:00', content: '傅坊乡雨后积水，土壤氧含量低于5%，根系缺氧风险。' },
+            { id: 'YJ-20260707-128', title: '营养失衡预警', level: '蓝色预警', source: '模型自动生成', area: '市山镇', status: '已发布', created: '2026-07-07 15:20', published: '2026-07-07 15:45', content: '市山镇果园NPK比例失衡超过15%，叶片营养检测异常。' },
+            { id: 'YJ-20260707-129', title: '叶片早衰预警', level: '黄色预警', source: '模型自动生成', area: '琴城镇', status: '已发布', created: '2026-07-07 09:30', published: '2026-07-07 10:00', content: '琴城镇果园叶片脱落率超过10%，膨大期监测异常。' },
+            { id: 'YJ-20260706-135', title: '果实畸形预警', level: '蓝色预警', source: '模型自动生成', area: '白舍镇', status: '已发布', created: '2026-07-06 11:00', published: '2026-07-06 11:30', content: '白舍镇果园畸形果率超过5%，膨大期调查异常。' },
+            { id: 'YJ-20260706-136', title: '脚腐病预警', level: '黄色预警', source: '模型自动生成', area: '桑田镇', status: '已处置', created: '2026-07-06 09:45', published: '2026-07-06 10:15', content: '桑田镇低洼地块脚腐病病株率超过1%，已处置完成。' },
+            { id: 'YJ-20260705-142', title: '缺镁预警', level: '蓝色预警', source: '模型自动生成', area: '东坪乡', status: '已处置', created: '2026-07-05 10:30', published: '2026-07-05 11:00', content: '东坪乡果园叶片含镁量低于0.3%，已补充镁肥处置。' }
+        ];
+
+        let currentPage = 1;
+        let pageSize = 5;
+        let filteredAlerts = alerts.slice();
+        let editTargetId = null;
+        let deleteTargetId = null;
+        let detailTargetId = null;
+
+        function escapeHtml(str) {
+            if (str === null || str === undefined) return '';
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+
+        function updateStats() {
+            document.getElementById('stat-total').textContent = alerts.length;
+            document.getElementById('stat-pending').textContent = alerts.filter(a => a.status === '待审核').length;
+            document.getElementById('stat-published').textContent = alerts.filter(a => a.status === '已发布').length;
+            document.getElementById('stat-disposed').textContent = alerts.filter(a => a.status === '已处置').length;
+            document.getElementById('export-total-count').textContent = alerts.length;
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('alert-table-body');
+            const emptyTip = document.getElementById('empty-tip');
+            const total = filteredAlerts.length;
+            const totalPages = Math.max(1, Math.ceil(total / pageSize));
+            if (currentPage > totalPages) currentPage = totalPages;
+
+            const start = (currentPage - 1) * pageSize;
+            const end = Math.min(start + pageSize, total);
+            const pageData = filteredAlerts.slice(start, end);
+
+            if (pageData.length === 0) {
+                tbody.innerHTML = '';
+                emptyTip.classList.remove('hidden');
+            } else {
+                emptyTip.classList.add('hidden');
+                tbody.innerHTML = pageData.map(a => {
+                    const levelStyle = LEVEL_STYLES[a.level] || 'bg-gray-100 text-gray-700';
+                    const statusStyle = STATUS_STYLES[a.status] || 'bg-gray-100 text-gray-700';
+                    return `
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 text-sm text-gray-500">${escapeHtml(a.id)}</td>
+                            <td class="px-6 py-4"><span class="font-medium text-gray-900">${escapeHtml(a.title)}</span></td>
+                            <td class="px-6 py-4"><span class="px-2 py-1 ${levelStyle} text-xs rounded-full">${escapeHtml(a.level)}</span></td>
+                            <td class="px-6 py-4 text-sm text-gray-600">${escapeHtml(a.source)}</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">${escapeHtml(a.area)}</td>
+                            <td class="px-6 py-4"><span class="px-2 py-1 ${statusStyle} text-xs rounded-full">${escapeHtml(a.status)}</span></td>
+                            <td class="px-6 py-4 text-sm text-gray-500">${escapeHtml(a.created)}</td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center justify-center space-x-1">
+                                    <button onclick="openDetailModal('${a.id}')" class="px-2 py-1 text-xs text-green-600 hover:bg-green-50 rounded transition">详情</button>
+                                    <button onclick="openEditModal('${a.id}')" class="px-2 py-1 text-xs text-blue-600 hover:bg-blue-50 rounded transition">编辑</button>
+                                    <button onclick="openAuditModal('${a.id}')" class="px-2 py-1 text-xs text-purple-600 hover:bg-purple-50 rounded transition">审核</button>
+                                    <button onclick="openPublishModal('${a.id}')" class="px-2 py-1 text-xs text-orange-600 hover:bg-orange-50 rounded transition">发布</button>
+                                    <button onclick="openDeleteModal('${a.id}')" class="px-2 py-1 text-xs text-red-600 hover:bg-red-50 rounded transition">删除</button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+
+            document.getElementById('page-info').textContent = total === 0 ? '共 0 条记录' : `第 ${start + 1}-${end} 条，共 ${total} 条记录`;
+            document.getElementById('export-filtered-count').textContent = filteredAlerts.length;
+            renderPagination(totalPages);
+        }
+
+        function renderPagination(totalPages) {
+            const pagination = document.getElementById('pagination');
+            let html = '';
+            html += `<button onclick="prevPage()" class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50 ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''}">上一页</button>`;
+            let start = Math.max(1, currentPage - 2);
+            let end = Math.min(totalPages, start + 4);
+            if (end - start < 4) start = Math.max(1, end - 4);
+            if (start > 1) {
+                html += `<button onclick="changePage(1)" class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50">1</button>`;
+                if (start > 2) html += `<span class="px-2 text-gray-400">...</span>`;
+            }
+            for (let i = start; i <= end; i++) {
+                html += `<button onclick="changePage(${i})" class="pagination-btn px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50 ${i === currentPage ? 'active' : ''}">${i}</button>`;
+            }
+            if (end < totalPages) {
+                if (end < totalPages - 1) html += `<span class="px-2 text-gray-400">...</span>`;
+                html += `<button onclick="changePage(${totalPages})" class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50">${totalPages}</button>`;
+            }
+            html += `<button onclick="nextPage()" class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50 ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''}">下一页</button>`;
+            pagination.innerHTML = html;
+        }
+
+        function changePage(page) {
+            const totalPages = Math.max(1, Math.ceil(filteredAlerts.length / pageSize));
+            if (page < 1 || page > totalPages) return;
+            currentPage = page;
+            renderTable();
+        }
+
+        function prevPage() { if (currentPage > 1) { currentPage--; renderTable(); } }
+        function nextPage() {
+            const totalPages = Math.max(1, Math.ceil(filteredAlerts.length / pageSize));
+            if (currentPage < totalPages) { currentPage++; renderTable(); }
+        }
+
+        function changePageSize() {
+            pageSize = parseInt(document.getElementById('page-size').value);
+            currentPage = 1;
+            renderTable();
+        }
+
+        function filterAlerts() {
+            const keyword = document.getElementById('search-input').value.trim().toLowerCase();
+            const level = document.getElementById('level-filter').value;
+            const source = document.getElementById('source-filter').value;
+            const status = document.getElementById('status-filter').value;
+            filteredAlerts = alerts.filter(a => {
+                const matchKeyword = !keyword || a.title.toLowerCase().includes(keyword) || a.id.toLowerCase().includes(keyword);
+                const matchLevel = !level || a.level === level;
+                const matchSource = !source || a.source === source;
+                const matchStatus = !status || a.status === status;
+                return matchKeyword && matchLevel && matchSource && matchStatus;
+            });
+            currentPage = 1;
+            renderTable();
+        }
+
+        function resetFilters() {
+            document.getElementById('search-input').value = '';
+            document.getElementById('level-filter').value = '';
+            document.getElementById('source-filter').value = '';
+            document.getElementById('status-filter').value = '';
+            filteredAlerts = alerts.slice();
+            currentPage = 1;
+            renderTable();
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function openDetailModal(id) {
+            const a = alerts.find(x => x.id === id);
+            if (!a) return;
+            detailTargetId = id;
+            document.getElementById('detail-id').textContent = a.id;
+            document.getElementById('detail-title').textContent = a.title;
+            document.getElementById('detail-level').textContent = a.level;
+            document.getElementById('detail-source').textContent = a.source;
+            document.getElementById('detail-area').textContent = a.area;
+            document.getElementById('detail-status').textContent = a.status;
+            document.getElementById('detail-created').textContent = a.created;
+            document.getElementById('detail-published').textContent = a.published;
+            document.getElementById('detail-content').textContent = a.content;
+            document.getElementById('detail-modal').classList.add('active');
+        }
+
+        function openEditModal(id) {
+            const a = alerts.find(x => x.id === id);
+            if (!a) return;
+            editTargetId = id;
+            document.getElementById('edit-title').value = a.title;
+            document.getElementById('edit-level').value = a.level;
+            document.getElementById('edit-source').value = a.source;
+            document.getElementById('edit-area').value = a.area;
+            document.getElementById('edit-content').value = a.content;
+            document.getElementById('edit-status').value = a.status;
+            document.getElementById('edit-modal').classList.add('active');
+        }
+
+        function submitEdit() {
+            if (editTargetId === null) return;
+            const title = document.getElementById('edit-title').value.trim();
+            const level = document.getElementById('edit-level').value;
+            const source = document.getElementById('edit-source').value;
+            const area = document.getElementById('edit-area').value.trim();
+            const content = document.getElementById('edit-content').value.trim();
+            const status = document.getElementById('edit-status').value;
+            if (!title) { alert('请输入预警标题'); return; }
+            const a = alerts.find(x => x.id === editTargetId);
+            if (a) { a.title = title; a.level = level; a.source = source; a.area = area; a.content = content; a.status = status; }
+            closeModal('edit-modal');
+            editTargetId = null;
+            filteredAlerts = applyCurrentFilter();
+            updateStats();
+            renderTable();
+            alert('预警修改成功！');
+        }
+
+        function openDeleteModal(id) {
+            const a = alerts.find(x => x.id === id);
+            if (!a) return;
+            deleteTargetId = id;
+            document.getElementById('delete-name').textContent = a.title + '（' + a.id + '）';
+            document.getElementById('delete-modal').classList.add('active');
+        }
+
+        function submitDelete() {
+            if (deleteTargetId === null) return;
+            alerts = alerts.filter(x => x.id !== deleteTargetId);
+            closeModal('delete-modal');
+            deleteTargetId = null;
+            filteredAlerts = applyCurrentFilter();
+            const totalPages = Math.max(1, Math.ceil(filteredAlerts.length / pageSize));
+            if (currentPage > totalPages) currentPage = totalPages;
+            updateStats();
+            renderTable();
+            alert('预警删除成功！');
+        }
+
+        function applyCurrentFilter() {
+            const keyword = document.getElementById('search-input').value.trim().toLowerCase();
+            const level = document.getElementById('level-filter').value;
+            const source = document.getElementById('source-filter').value;
+            const status = document.getElementById('status-filter').value;
+            return alerts.filter(a => {
+                const matchKeyword = !keyword || a.title.toLowerCase().includes(keyword) || a.id.toLowerCase().includes(keyword);
+                const matchLevel = !level || a.level === level;
+                const matchSource = !source || a.source === source;
+                const matchStatus = !status || a.status === status;
+                return matchKeyword && matchLevel && matchSource && matchStatus;
+            });
+        }
+
+        let publishTargetId = null;
+        let auditTargetId = null;
+
+        function openAuditModal(id) {
+            const a = alerts.find(x => x.id === id);
+            if (!a) return;
+            auditTargetId = id;
+            document.getElementById('audit-alert-title').textContent = a.title;
+            document.getElementById('audit-alert-id').textContent = a.id;
+            document.querySelector('input[name="audit-result"][value="approve"]').checked = true;
+            document.getElementById('audit-comment').value = '';
+            document.getElementById('audit-modal').classList.add('active');
+        }
+
+        function submitAudit() {
+            if (auditTargetId === null) return;
+            
+            const result = document.querySelector('input[name="audit-result"]:checked').value;
+            const comment = document.getElementById('audit-comment').value.trim();
+            
+            const a = alerts.find(x => x.id === auditTargetId);
+            if (a) {
+                a.status = result === 'approve' ? '待发布' : '已驳回';
+            }
+            
+            closeModal('audit-modal');
+            auditTargetId = null;
+            filteredAlerts = applyCurrentFilter();
+            updateStats();
+            renderTable();
+            alert(result === 'approve' ? '审核通过！预警状态已更新为"待发布"' : '审核驳回！预警状态已更新为"已驳回"');
+        }
+
+        function openAddAlertModal() {
+            document.getElementById('add-title').value = '';
+            document.getElementById('add-level').value = '黄色预警';
+            document.getElementById('add-source').value = '人工上报';
+            document.getElementById('add-area').value = '';
+            document.getElementById('add-content').value = '';
+            document.getElementById('add-status').value = '待审核';
+            document.getElementById('add-alert-modal').classList.add('active');
+        }
+
+        function submitAddAlert() {
+            const title = document.getElementById('add-title').value.trim();
+            const level = document.getElementById('add-level').value;
+            const source = document.getElementById('add-source').value;
+            const area = document.getElementById('add-area').value.trim();
+            const content = document.getElementById('add-content').value.trim();
+            const status = document.getElementById('add-status').value;
+            
+            if (!title) { alert('请输入预警标题'); return; }
+            
+            const now = new Date();
+            const dateStr = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+            const timeStr = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+            
+            const newId = 'YJ-' + dateStr.replace(/-/g, '') + '-' + String(alerts.length + 1).padStart(3, '0');
+            
+            alerts.unshift({
+                id: newId,
+                title: title,
+                level: level,
+                source: source,
+                area: area,
+                status: status,
+                created: dateStr + ' ' + timeStr,
+                published: status === '已发布' ? dateStr + ' ' + timeStr : '-',
+                content: content
+            });
+            
+            closeModal('add-alert-modal');
+            filteredAlerts = applyCurrentFilter();
+            updateStats();
+            renderTable();
+            alert('预警添加成功！');
+        }
+
+        function openPublishModal(id) {
+            const a = alerts.find(x => x.id === id);
+            if (!a) return;
+            publishTargetId = id;
+            document.getElementById('publish-alert-title').textContent = a.title;
+            document.getElementById('publish-alert-id').textContent = a.id;
+            
+            document.querySelector('input[name="publish-area"][value="all"]').checked = true;
+            document.getElementById('publish-custom-area').value = '';
+            document.getElementById('publish-custom-area').disabled = true;
+            document.getElementById('publish-scope').value = 'all-users';
+            document.getElementById('publish-users').value = '';
+            document.querySelectorAll('input[name="publish-method"]').forEach(cb => cb.checked = false);
+            document.querySelector('input[name="publish-method"][value="system"]').checked = true;
+            
+            document.getElementById('publish-modal').classList.add('active');
+        }
+
+        function submitPublish() {
+            if (publishTargetId === null) return;
+            
+            const area = document.querySelector('input[name="publish-area"]:checked').value;
+            const customArea = area === 'custom' ? document.getElementById('publish-custom-area').value.trim() : '';
+            const scope = document.getElementById('publish-scope').value;
+            const users = document.getElementById('publish-users').value.trim();
+            const methods = Array.from(document.querySelectorAll('input[name="publish-method"]:checked')).map(cb => cb.value);
+            
+            if (area === 'custom' && !customArea) {
+                alert('请输入指定发送区域');
+                return;
+            }
+            if (methods.length === 0) {
+                alert('请至少选择一种发送方式');
+                return;
+            }
+            
+            const a = alerts.find(x => x.id === publishTargetId);
+            if (a) {
+                a.status = '已发布';
+                const now = new Date();
+                a.published = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0') + ' ' + String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+            }
+            
+            closeModal('publish-modal');
+            publishTargetId = null;
+            filteredAlerts = applyCurrentFilter();
+            updateStats();
+            renderTable();
+            alert('预警发布成功！');
+        }
+
+        function openExportModal() {
+            document.getElementById('export-modal').classList.add('active');
+        }
+
+        function submitExport() {
+            const range = document.querySelector('input[name="export-range"]:checked').value;
+            const format = document.querySelector('input[name="export-format"]:checked').value;
+            const data = range === 'all' ? alerts : filteredAlerts;
+            const content = '预警编号,预警标题,预警级别,预警来源,影响区域,状态,创建时间\n' +
+                data.map(a => `${a.id},${a.title},${a.level},${a.source},${a.area},${a.status},${a.created}`).join('\n');
+            const blob = new Blob(['\ufeff' + content], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = '预警数据_' + new Date().toISOString().split('T')[0] + '.csv';
+            link.click();
+            closeModal('export-modal');
+            alert('导出成功！共导出 ' + data.length + ' 条预警数据。');
+        }
+
+        document.querySelectorAll('input[name="publish-area"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                document.getElementById('publish-custom-area').disabled = this.value !== 'custom';
+            });
+        });
+
+        document.addEventListener('click', (e) => {
+            ['detail-modal', 'edit-modal', 'delete-modal', 'add-alert-modal', 'audit-modal', 'publish-modal', 'export-modal'].forEach(id => {
+                const modal = document.getElementById(id);
+                if (!modal) return;
+                if (e.target === modal) modal.classList.remove('active');
+            });
+        });
+
+        updateStats();
+        renderTable();
+    </script>
+</body>
+</html>

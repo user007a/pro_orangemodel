@@ -1,0 +1,632 @@
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户管理 - 南丰蜜桔模型管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        body { margin: 0; padding: 0; background-color: #F0F2F5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans SC', sans-serif; }
+        .content-wrapper { padding: 24px; height: 100vh; overflow-y: auto; }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.5); z-index: 1000; align-items: center; justify-content: center; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background-color: white; border-radius: 12px; width: 90%; max-width: 600px; max-height: 80vh; overflow-y: auto; }
+        .pagination-btn.active { background-color: #16A34A; color: white; }
+    </style>
+</head>
+<body>
+    <div class="content-wrapper">
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800">用户管理</h1>
+                <p class="text-gray-500 mt-1">管理系统用户账号和权限</p>
+            </div>
+            <div class="flex items-center space-x-3">
+                <input type="text" id="search-input" placeholder="搜索用户名/姓名/手机号..." class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 w-64">
+                <select id="role-filter" class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+                    <option value="">全部角色</option>
+                    <option value="管理员">管理员</option>
+                    <option value="操作员">操作员</option>
+                    <option value="查看员">查看员</option>
+                </select>
+                <button onclick="searchUsers()" class="px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition flex items-center">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                    查询
+                </button>
+                <button onclick="resetSearch()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm hover:bg-gray-50 transition flex items-center">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                    重置
+                </button>
+
+                <button onclick="openAddModal()" class="px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition flex items-center">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+                    新增用户
+                </button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">总用户数</p>
+                        <h3 class="text-2xl font-bold text-gray-800 mt-1" id="stat-total">35</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">管理员</p>
+                        <h3 class="text-2xl font-bold text-green-600 mt-1" id="stat-admin">5</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">操作员</p>
+                        <h3 class="text-2xl font-bold text-blue-600 mt-1" id="stat-operator">15</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">查看员</p>
+                        <h3 class="text-2xl font-bold text-gray-600 mt-1" id="stat-viewer">15</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="p-4 border-b border-gray-100">
+                <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    用户列表
+                </h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full" id="user-table">
+                    <thead>
+                        <tr class="bg-gray-50">
+                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">用户名</th>
+                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">姓名</th>
+                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">手机号</th>
+                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">所属部门</th>
+                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">角色</th>
+                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">创建时间</th>
+                            <th class="text-center px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">状态</th>
+                            <th class="text-center px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100" id="user-table-body">
+                    </tbody>
+                </table>
+            </div>
+            <div class="p-4 border-t border-gray-100 flex items-center justify-between flex-wrap gap-3">
+                <div class="flex items-center space-x-2">
+                    <p class="text-sm text-gray-500">显示 <span id="page-info">1-10</span> 条，共 <span id="total-count">35</span> 条</p>
+                    <select id="page-size-select" class="px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500" onchange="changePageSize()">
+                        <option value="5">5条/页</option>
+                        <option value="10" selected>10条/页</option>
+                        <option value="15">15条/页</option>
+                        <option value="20">20条/页</option>
+                    </select>
+                </div>
+                <div class="flex items-center space-x-1" id="pagination">
+                    <button onclick="prevPage()" class="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded hover:bg-gray-200" id="prev-btn">&laquo; 上一页</button>
+                    <span id="page-btns"></span>
+                    <button onclick="nextPage()" class="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded hover:bg-gray-200" id="next-btn">下一页 &raquo;</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="add-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+                    新增用户
+                </h3>
+                <button onclick="closeModal('add-modal')" class="p-1 hover:bg-gray-100 rounded">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">用户名</label>
+                    <input type="text" id="add-username" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="请输入用户名">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">姓名</label>
+                    <input type="text" id="add-name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="请输入姓名">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">手机号</label>
+                    <input type="text" id="add-phone" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="请输入手机号">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">所属部门</label>
+                    <select id="add-department" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <option>技术服务部</option>
+                        <option>生产指导部</option>
+                        <option>质量监测部</option>
+                        <option>市场销售部</option>
+                        <option>系统运维部</option>
+                        <option>种植管理部</option>
+                        <option>品控部</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">角色</label>
+                    <select id="add-role" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <option>管理员</option>
+                        <option>操作员</option>
+                        <option>查看员</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">密码</label>
+                    <input type="password" id="add-password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="请输入密码">
+                </div>
+            </div>
+            <div class="p-4 border-t border-gray-200 flex justify-end space-x-3">
+                <button onclick="closeModal('add-modal')" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm">取消</button>
+                <button onclick="submitAddUser()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">确认添加</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="edit-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                    编辑用户
+                </h3>
+                <button onclick="closeModal('edit-modal')" class="p-1 hover:bg-gray-100 rounded">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">用户名</label>
+                    <input type="text" id="edit-username" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" readonly>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">姓名</label>
+                    <input type="text" id="edit-name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">手机号</label>
+                    <input type="text" id="edit-phone" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">所属部门</label>
+                    <select id="edit-department" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <option>技术服务部</option>
+                        <option>生产指导部</option>
+                        <option>质量监测部</option>
+                        <option>市场销售部</option>
+                        <option>系统运维部</option>
+                        <option>种植管理部</option>
+                        <option>品控部</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">角色</label>
+                    <select id="edit-role" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <option>管理员</option>
+                        <option>操作员</option>
+                        <option>查看员</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">状态</label>
+                    <select id="edit-status" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <option>启用</option>
+                        <option>禁用</option>
+                    </select>
+                </div>
+            </div>
+            <div class="p-4 border-t border-gray-200 flex justify-end space-x-3">
+                <button onclick="closeModal('edit-modal')" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm">取消</button>
+                <button onclick="submitEditUser()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">保存修改</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="delete-modal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    删除确认
+                </h3>
+                <button onclick="closeModal('delete-modal')" class="p-1 hover:bg-gray-100 rounded">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.66 1.732-3L13.732 4c-.77-1.34-2.694-1.34-3.464 0L3.34 16c-.77 1.34.192 3 1.732 3z"/></svg>
+                    </div>
+                    <div>
+                        <p class="font-medium text-gray-800">确认删除用户？</p>
+                        <p class="text-sm text-gray-500 mt-1">删除后无法恢复，请谨慎操作。</p>
+                    </div>
+                </div>
+                <p class="text-sm text-gray-600">要删除的用户：<span id="delete-username" class="font-medium text-gray-800"></span></p>
+            </div>
+            <div class="p-4 border-t border-gray-200 flex justify-end space-x-3">
+                <button onclick="closeModal('delete-modal')" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm">取消</button>
+                <button onclick="submitDeleteUser()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm">确认删除</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="reset-password-modal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 450px;">
+            <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                    重置密码
+                </h3>
+                <button onclick="closeModal('reset-password-modal')" class="p-1 hover:bg-gray-100 rounded">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mr-4">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                    </div>
+                    <div>
+                        <p class="font-medium text-gray-800">确认重置密码？</p>
+                        <p class="text-sm text-gray-500 mt-1">重置后用户将使用新密码登录</p>
+                    </div>
+                </div>
+                <p class="text-sm text-gray-600 mb-4">要重置密码的用户：<span id="reset-username" class="font-medium text-gray-800"></span></p>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">新密码</label>
+                        <input type="password" id="reset-new-password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="请输入新密码">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">确认密码</label>
+                        <input type="password" id="reset-confirm-password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="请再次输入新密码">
+                    </div>
+                </div>
+                <div class="mt-4 p-3 bg-blue-50 rounded-lg">
+                    <p class="text-sm text-blue-700 flex items-center">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        密码要求：至少6位字符，包含字母和数字
+                    </p>
+                </div>
+            </div>
+            <div class="p-4 border-t border-gray-200 flex justify-end space-x-3">
+                <button onclick="closeModal('reset-password-modal')" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm">取消</button>
+                <button onclick="submitResetPassword()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">确认重置</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== 35条Mock数据 =====
+        const usersData = [
+            { username: 'admin',    name: '管理员',   phone: '138****0001', department: '技术服务部', role: '管理员', time: '2026-01-01 10:00', status: '启用' },
+            { username: 'admin02',  name: '刘天明',   phone: '138****0002', department: '系统运维部', role: '管理员', time: '2026-01-15 09:30', status: '启用' },
+            { username: 'admin03',  name: '张华',     phone: '138****0003', department: '技术服务部', role: '管理员', time: '2026-02-10 14:00', status: '启用' },
+            { username: 'admin04',  name: '陈志远',   phone: '138****0004', department: '品控部',     role: '管理员', time: '2026-03-05 11:20', status: '启用' },
+            { username: 'admin05',  name: '王丽',     phone: '138****0005', department: '系统运维部', role: '管理员', time: '2026-04-20 08:00', status: '启用' },
+            { username: 'user001',  name: '张三',     phone: '139****0006', department: '生产指导部', role: '操作员', time: '2026-06-15 09:30', status: '启用' },
+            { username: 'user003',  name: '王五',     phone: '136****0007', department: '市场销售部', role: '操作员', time: '2026-07-05 11:20', status: '启用' },
+            { username: 'nf001',    name: '陈建国',   phone: '135****0008', department: '种植管理部', role: '操作员', time: '2026-05-10 08:30', status: '启用' },
+            { username: 'nf002',    name: '刘桂芳',   phone: '135****0009', department: '种植管理部', role: '操作员', time: '2026-05-12 10:00', status: '启用' },
+            { username: 'nf003',    name: '吴志强',   phone: '135****0010', department: '品控部',     role: '操作员', time: '2026-05-20 14:20', status: '启用' },
+            { username: 'nf004',    name: '孙明辉',   phone: '135****0011', department: '生产指导部', role: '操作员', time: '2026-05-25 09:00', status: '启用' },
+            { username: 'nf005',    name: '郑海龙',   phone: '135****0012', department: '市场销售部', role: '操作员', time: '2026-06-01 16:00', status: '启用' },
+            { username: 'nf006',    name: '林小红',   phone: '135****0013', department: '品控部',     role: '操作员', time: '2026-06-05 10:30', status: '禁用' },
+            { username: 'nf007',    name: '杨建军',   phone: '135****0014', department: '种植管理部', role: '操作员', time: '2026-06-10 08:00', status: '启用' },
+            { username: 'nf008',    name: '马丽娟',   phone: '135****0015', department: '生产指导部', role: '操作员', time: '2026-06-12 14:10', status: '启用' },
+            { username: 'nf009',    name: '胡伟',     phone: '135****0016', department: '市场销售部', role: '操作员', time: '2026-06-18 11:30', status: '禁用' },
+            { username: 'nf010',    name: '何秀英',   phone: '135****0017', department: '品控部',     role: '操作员', time: '2026-06-22 09:50', status: '启用' },
+            { username: 'nf011',    name: '罗志明',   phone: '135****0018', department: '种植管理部', role: '操作员', time: '2026-07-01 08:20', status: '启用' },
+            { username: 'nf012',    name: '高玉兰',   phone: '135****0019', department: '生产指导部', role: '操作员', time: '2026-07-05 15:00', status: '启用' },
+            { username: 'nf013',    name: '梁永强',   phone: '135****0020', department: '市场销售部', role: '操作员', time: '2026-07-10 10:10', status: '启用' },
+            { username: 'user002',  name: '李四',     phone: '137****0021', department: '质量监测部', role: '查看员', time: '2026-07-10 14:00', status: '禁用' },
+            { username: 'user004',  name: '赵六',     phone: '135****0022', department: '系统运维部', role: '查看员', time: '2026-07-18 09:00', status: '启用' },
+            { username: 'nf014',    name: '黄大明',   phone: '134****0023', department: '种植管理部', role: '查看员', time: '2026-04-05 08:00', status: '启用' },
+            { username: 'nf015',    name: '周美华',   phone: '134****0024', department: '种植管理部', role: '查看员', time: '2026-04-10 09:30', status: '启用' },
+            { username: 'nf016',    name: '谢文斌',   phone: '134****0025', department: '质量监测部', role: '查看员', time: '2026-04-18 10:45', status: '启用' },
+            { username: 'nf017',    name: '唐桂花',   phone: '134****0026', department: '种植管理部', role: '查看员', time: '2026-04-22 14:00', status: '启用' },
+            { username: 'nf018',    name: '韩磊',     phone: '134****0027', department: '质量监测部', role: '查看员', time: '2026-05-08 11:20', status: '禁用' },
+            { username: 'nf019',    name: '冯秀珍',   phone: '134****0028', department: '种植管理部', role: '查看员', time: '2026-05-15 09:00', status: '启用' },
+            { username: 'nf020',    name: '曹建国',   phone: '134****0029', department: '质量监测部', role: '查看员', time: '2026-05-20 16:30', status: '启用' },
+            { username: 'nf021',    name: '许丽华',   phone: '134****0030', department: '种植管理部', role: '查看员', time: '2026-06-02 10:00', status: '启用' },
+            { username: 'nf022',    name: '邓伟',     phone: '134****0031', department: '质量监测部', role: '查看员', time: '2026-06-08 13:40', status: '启用' },
+            { username: 'nf023',    name: '彭玉英',   phone: '134****0032', department: '种植管理部', role: '查看员', time: '2026-06-15 08:50', status: '启用' },
+            { username: 'nf024',    name: '沈志强',   phone: '134****0033', department: '质量监测部', role: '查看员', time: '2026-06-22 09:10', status: '启用' },
+            { username: 'nf025',    name: '蒋明芳',   phone: '134****0034', department: '种植管理部', role: '查看员', time: '2026-07-02 15:30', status: '禁用' },
+            { username: 'nf026',    name: '范学军',   phone: '134****0035', department: '质量监测部', role: '查看员', time: '2026-07-12 10:00', status: '启用' }
+        ];
+
+        let currentPage = 1;
+        let pageSize = 10;
+        let filteredData = [...usersData];
+        let deleteTarget = '';
+
+        // 角色徽章样式
+        function getRoleBadge(role) {
+            if (role === '管理员') return '<span class="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">管理员</span>';
+            if (role === '操作员') return '<span class="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full">操作员</span>';
+            return '<span class="px-2 py-0.5 bg-gray-100 text-gray-700 text-xs rounded-full">查看员</span>';
+        }
+
+        // 状态样式
+        function getStatusHtml(status) {
+            if (status === '启用') {
+                return '<span class="flex items-center justify-center"><span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span><span class="text-xs text-green-600">启用</span></span>';
+            }
+            return '<span class="flex items-center justify-center"><span class="w-2 h-2 bg-red-500 rounded-full mr-2"></span><span class="text-xs text-red-600">禁用</span></span>';
+        }
+
+        // 渲染表格
+        function renderTable() {
+            const tbody = document.getElementById('user-table-body');
+            const totalPages = Math.ceil(filteredData.length / pageSize) || 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+
+            const start = (currentPage - 1) * pageSize;
+            const pageData = filteredData.slice(start, start + pageSize);
+
+            tbody.innerHTML = pageData.map(u => `
+                <tr class="hover:bg-gray-50" data-username="${u.username}" data-role="${u.role}">
+                    <td class="px-6 py-4 text-sm text-gray-800">${u.username}</td>
+                    <td class="px-6 py-4 text-sm text-gray-600">${u.name}</td>
+                    <td class="px-6 py-4 text-sm text-gray-600">${u.phone}</td>
+                    <td class="px-6 py-4 text-sm text-gray-600">${u.department}</td>
+                    <td class="px-6 py-4">${getRoleBadge(u.role)}</td>
+                    <td class="px-6 py-4 text-sm text-gray-500">${u.time}</td>
+                    <td class="px-6 py-4">${getStatusHtml(u.status)}</td>
+                    <td class="px-6 py-4">
+                        <div class="flex items-center justify-center space-x-1">
+                            <button onclick="openEditModal('${u.username}')" class="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded" title="编辑">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                            </button>
+                            <button onclick="openResetPasswordModal('${u.username}', '${u.name}')" class="p-1.5 text-gray-500 hover:text-yellow-600 hover:bg-yellow-50 rounded" title="重置密码">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                            </button>
+                            <button onclick="openDeleteModal('${u.username}', '${u.name}')" class="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded" title="删除">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+
+            // 更新分页信息
+            const end = Math.min(start + pageSize, filteredData.length);
+            document.getElementById('page-info').textContent = filteredData.length > 0 ? `${start + 1}-${end}` : '0-0';
+            document.getElementById('total-count').textContent = filteredData.length;
+
+            // 更新统计
+            document.getElementById('stat-total').textContent = filteredData.length;
+            document.getElementById('stat-admin').textContent = filteredData.filter(u => u.role === '管理员').length;
+            document.getElementById('stat-operator').textContent = filteredData.filter(u => u.role === '操作员').length;
+            document.getElementById('stat-viewer').textContent = filteredData.filter(u => u.role === '查看员').length;
+
+            // 渲染页码按钮
+            renderPageButtons(totalPages);
+        }
+
+        // 渲染页码按钮
+        function renderPageButtons(totalPages) {
+            const container = document.getElementById('page-btns');
+            let html = '';
+            const maxVisible = 5;
+            let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+            let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+            if (endPage - startPage < maxVisible - 1) {
+                startPage = Math.max(1, endPage - maxVisible + 1);
+            }
+
+            if (startPage > 1) {
+                html += `<button onclick="goToPage(1)" class="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded hover:bg-gray-200">1</button>`;
+                if (startPage > 2) html += '<span class="px-1 text-gray-400">...</span>';
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                html += `<button onclick="goToPage(${i})" class="px-3 py-1 text-sm rounded hover:bg-gray-200 ${i === currentPage ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700'}">${i}</button>`;
+            }
+
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) html += '<span class="px-1 text-gray-400">...</span>';
+                html += `<button onclick="goToPage(${totalPages})" class="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded hover:bg-gray-200">${totalPages}</button>`;
+            }
+
+            container.innerHTML = html;
+
+            // 更新上一页/下一页状态
+            document.getElementById('prev-btn').style.opacity = currentPage <= 1 ? '0.4' : '1';
+            document.getElementById('next-btn').style.opacity = currentPage >= totalPages ? '0.4' : '1';
+        }
+
+        function goToPage(page) {
+            const totalPages = Math.ceil(filteredData.length / pageSize) || 1;
+            if (page < 1 || page > totalPages) return;
+            currentPage = page;
+            renderTable();
+        }
+
+        function prevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                renderTable();
+            }
+        }
+
+        function nextPage() {
+            const totalPages = Math.ceil(filteredData.length / pageSize) || 1;
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderTable();
+            }
+        }
+
+        function changePageSize() {
+            pageSize = parseInt(document.getElementById('page-size-select').value);
+            currentPage = 1;
+            renderTable();
+        }
+
+        // 查询
+        function searchUsers() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase().trim();
+            const roleFilter = document.getElementById('role-filter').value;
+
+            filteredData = usersData.filter(u => {
+                const matchSearch = !searchTerm || u.username.toLowerCase().includes(searchTerm) || u.name.toLowerCase().includes(searchTerm) || u.phone.toLowerCase().includes(searchTerm);
+                const matchRole = !roleFilter || u.role === roleFilter;
+                return matchSearch && matchRole;
+            });
+
+            currentPage = 1;
+            renderTable();
+        }
+
+        // 重置
+        function resetSearch() {
+            document.getElementById('search-input').value = '';
+            document.getElementById('role-filter').value = '';
+            filteredData = [...usersData];
+            currentPage = 1;
+            renderTable();
+        }
+
+        // ===== Modal操作 =====
+        function openAddModal() {
+            document.getElementById('add-username').value = '';
+            document.getElementById('add-name').value = '';
+            document.getElementById('add-phone').value = '';
+            document.getElementById('add-department').value = '技术服务部';
+            document.getElementById('add-role').value = '操作员';
+            document.getElementById('add-password').value = '';
+            document.getElementById('add-modal').classList.add('active');
+        }
+
+        function openResetPasswordModal(username, name) {
+            document.getElementById('reset-username').textContent = name + ' (' + username + ')';
+            document.getElementById('reset-new-password').value = '';
+            document.getElementById('reset-confirm-password').value = '';
+            document.getElementById('reset-password-modal').classList.add('active');
+        }
+
+        function submitResetPassword() {
+            const newPassword = document.getElementById('reset-new-password').value.trim();
+            const confirmPassword = document.getElementById('reset-confirm-password').value.trim();
+
+            if (!newPassword) {
+                alert('请输入新密码');
+                return;
+            }
+            if (newPassword.length < 6) {
+                alert('密码长度至少为6位');
+                return;
+            }
+            if (!/[a-zA-Z]/.test(newPassword) || !/[0-9]/.test(newPassword)) {
+                alert('密码必须包含字母和数字');
+                return;
+            }
+            if (newPassword !== confirmPassword) {
+                alert('两次输入的密码不一致');
+                return;
+            }
+
+            closeModal('reset-password-modal');
+            alert('密码重置成功！');
+        }
+
+        function openEditModal(username) {
+            const user = usersData.find(u => u.username === username);
+            if (!user) return;
+            document.getElementById('edit-username').value = user.username;
+            document.getElementById('edit-name').value = user.name;
+            document.getElementById('edit-phone').value = user.phone;
+            document.getElementById('edit-department').value = user.department;
+            document.getElementById('edit-role').value = user.role;
+            document.getElementById('edit-status').value = user.status;
+            document.getElementById('edit-modal').classList.add('active');
+        }
+
+        function openDeleteModal(username, name) {
+            deleteTarget = username;
+            document.getElementById('delete-username').textContent = name + ' (' + username + ')';
+            document.getElementById('delete-modal').classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function submitAddUser() {
+            const username = document.getElementById('add-username').value.trim();
+            const name = document.getElementById('add-name').value.trim();
+            if (!username || !name) {
+                alert('请填写用户名和姓名');
+                return;
+            }
+            closeModal('add-modal');
+            alert('用户添加成功！');
+        }
+
+        function submitEditUser() {
+            closeModal('edit-modal');
+            alert('用户信息修改成功！');
+        }
+
+        function submitDeleteUser() {
+            closeModal('delete-modal');
+            alert('用户删除成功！');
+        }
+
+        // 初始渲染
+        renderTable();
+
+        // 点击空白关闭弹窗
+        document.addEventListener('click', (e) => {
+            ['add-modal', 'edit-modal', 'delete-modal', 'reset-password-modal'].forEach(id => {
+                const modal = document.getElementById(id);
+                if (modal && modal.classList.contains('active') && !modal.contains(e.target) && !e.target.closest('[onclick*="open"]')) {
+                    modal.classList.remove('active');
+                }
+            });
+        });
+
+        // 回车键触发查询
+        document.getElementById('search-input').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') searchUsers();
+        });
+        document.getElementById('role-filter').addEventListener('change', function() {
+            searchUsers();
+        });
+    </script>
+</body>
+</html>

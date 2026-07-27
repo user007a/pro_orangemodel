@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>微信后台 - 用户管理</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { margin: 0; padding: 0; background: #f0f2f5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; }
+    .page-header { padding: 20px 24px; background: #fff; border-bottom: 1px solid #e8ecf1; display: flex; justify-content: space-between; align-items: center; }
+    .page-title { font-size: 18px; font-weight: 600; color: #1b2a41; }
+    .page-subtitle { font-size: 14px; color: #8898aa; margin-top: 4px; }
+    
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+    .modal-overlay.active { display: flex; }
+    .modal-content { background: #fff; border-radius: 8px; width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
+    .modal-header { padding: 16px 20px; border-bottom: 1px solid #e8ecf1; display: flex; justify-content: space-between; align-items: center; }
+    .modal-title { font-size: 16px; font-weight: 600; color: #1b2a41; }
+    .modal-body { padding: 20px; }
+    .modal-footer { padding: 16px 20px; border-top: 1px solid #e8ecf1; display: flex; justify-content: flex-end; gap: 12px; }
+    
+    .form-item { margin-bottom: 16px; }
+    .form-label { display: block; font-size: 14px; font-weight: 500; color: #525f7f; margin-bottom: 6px; }
+    .form-input { width: 100%; padding: 10px 12px; border: 1px solid #e6ebf1; border-radius: 6px; font-size: 14px; outline: none; }
+    .form-input:focus { border-color: #22a84a; }
+    .form-select { width: 100%; padding: 10px 12px; border: 1px solid #e6ebf1; border-radius: 6px; font-size: 14px; outline: none; }
+    .form-select:focus { border-color: #22a84a; }
+    .form-textarea { width: 100%; padding: 10px 12px; border: 1px solid #e6ebf1; border-radius: 6px; font-size: 14px; outline: none; min-height: 100px; resize: vertical; }
+    
+    .btn { padding: 8px 16px; border-radius: 6px; font-size: 14px; cursor: pointer; border: none; transition: all 0.2s; }
+    .btn-primary { background: #22a84a; color: #fff; }
+    .btn-primary:hover { background: #1e9441; }
+    .btn-secondary { background: #fff; color: #525f7f; border: 1px solid #e6ebf1; }
+    .btn-secondary:hover { background: #f7f8fc; }
+    
+    .card { background: #fff; border-radius: 8px; margin: 24px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+    
+    .search-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .search-input { flex: 1; max-width: 300px; padding: 8px 12px; border: 1px solid #e6ebf1; border-radius: 6px; font-size: 14px; }
+    
+    .table-wrapper { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid #f0f2f5; }
+    th { background: #f7f8fc; font-weight: 600; color: #525f7f; font-size: 13px; }
+    td { font-size: 14px; color: #1b2a41; }
+    
+    .status-badge { padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 500; }
+    .status-active { background: #e6f7ee; color: #10b981; }
+    .status-inactive { background: #fef2f2; color: #ef4444; }
+    
+    .pagination { display: flex; justify-content: flex-end; align-items: center; gap: 8px; margin-top: 20px; }
+    .page-btn { padding: 6px 12px; border: 1px solid #e6ebf1; border-radius: 4px; cursor: pointer; font-size: 13px; }
+    .page-btn.active { background: #22a84a; color: #fff; border-color: #22a84a; }
+    
+    .detail-info { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .detail-item { padding: 10px; background: #f7f8fc; border-radius: 6px; }
+    .detail-label { font-size: 12px; color: #8898aa; margin-bottom: 4px; }
+    .detail-value { font-size: 14px; color: #1b2a41; }
+    
+    .stats-card { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 24px; }
+    .stat-item { background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); display: flex; align-items: center; justify-content: space-between; }
+    .stat-info { text-align: left; }
+    .stat-number { font-size: 24px; font-weight: 700; color: #1b2a41; margin-bottom: 2px; }
+    .stat-label { font-size: 12px; color: #8898aa; }
+    .stat-icon { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .stat-icon svg { width: 20px; height: 20px; }
+    .stat-icon.total { background: #e6f7ee; color: #22a84a; }
+    .stat-icon.bigfarmer { background: #dbeafe; color: #3b82f6; }
+    .stat-icon.family { background: #fef3c7; color: #f59e0b; }
+    .stat-icon.coop { background: #f3e8ff; color: #8b5cf6; }
+    .stat-icon.enterprise { background: #fce7f3; color: #ec4899; }
+  </style>
+</head>
+<body>
+  <div class="page-header">
+    <div>
+      <div class="page-title">注册用户</div>
+      <div class="page-subtitle">管理微信端注册的农户和各种主体</div>
+    </div>
+    <button class="btn btn-primary" onclick="openAddModal()">+ 新增用户</button>
+  </div>
+
+  <div class="stats-card" id="statsCard">
+  </div>
+
+  <div class="card">
+    <div class="search-bar">
+      <input type="text" class="search-input" id="searchInput" placeholder="搜索姓名、手机号..." oninput="searchUsers()">
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>姓名</th>
+            <th>地区</th>
+            <th>种植主体类型</th>
+            <th>手机号</th>
+            <th>注册时间</th>
+            <th>状态</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="userTable">
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination" id="pagination">
+    </div>
+  </div>
+
+  <!-- 新增/编辑弹窗 -->
+  <div id="add-modal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title" id="add-modal-title">新增用户</div>
+        <button class="btn btn-secondary" onclick="closeModal('add-modal')">关闭</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="edit-id">
+        <div class="form-item">
+          <label class="form-label">姓名 *</label>
+          <input type="text" class="form-input" id="add-name" placeholder="请输入姓名">
+        </div>
+        <div class="form-item">
+          <label class="form-label">地区 *</label>
+          <input type="text" class="form-input" id="add-region" placeholder="请输入地区">
+        </div>
+        <div class="form-item">
+          <label class="form-label">种植主体类型 *</label>
+          <select class="form-select" id="add-type">
+            <option value="种植大户">种植大户</option>
+            <option value="家庭农场">家庭农场</option>
+            <option value="专业合作社">专业合作社</option>
+            <option value="企业">企业</option>
+          </select>
+        </div>
+        <div class="form-item">
+          <label class="form-label">手机号</label>
+          <input type="text" class="form-input" id="add-phone" placeholder="请输入手机号">
+        </div>
+        <div class="form-item">
+          <label class="form-label">微信号</label>
+          <input type="text" class="form-input" id="add-wechat" placeholder="请输入微信号">
+        </div>
+        <div class="form-item">
+          <label class="form-label">状态</label>
+          <select class="form-select" id="add-status">
+            <option value="正常">正常</option>
+            <option value="禁用">禁用</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('add-modal')">取消</button>
+        <button class="btn btn-primary" onclick="submitAdd()">确认</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 查看弹窗 -->
+  <div id="detail-modal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title">用户详情</div>
+        <button class="btn btn-secondary" onclick="closeModal('detail-modal')">关闭</button>
+      </div>
+      <div class="modal-body" id="detail-content">
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('detail-modal')">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 删除弹窗 -->
+  <div id="delete-modal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title">确认删除</div>
+        <button class="btn btn-secondary" onclick="closeModal('delete-modal')">关闭</button>
+      </div>
+      <div class="modal-body">
+        <p>确定要删除用户 <span id="delete-name" style="font-weight:bold;"></span> 吗？</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('delete-modal')">取消</button>
+        <button class="btn btn-primary" onclick="submitDelete()">确认删除</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 密码重置弹窗 -->
+  <div id="reset-modal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title">重置密码</div>
+        <button class="btn btn-secondary" onclick="closeModal('reset-modal')">关闭</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="reset-id">
+        <p style="font-size:14px;color:#525f7f;margin-bottom:16px;">确定要重置用户 <span id="reset-name" style="font-weight:bold;color:#1b2a41;"></span> 的密码吗？</p>
+        <p style="font-size:13px;color:#8898aa;margin-bottom:16px;">重置后，用户密码将恢复为默认密码，用户需要重新设置密码。</p>
+        <div class="form-item">
+          <label class="form-label">新密码</label>
+          <input type="password" class="form-input" id="reset-password" placeholder="请输入新密码（默认为手机号后6位）">
+        </div>
+        <div class="form-item">
+          <label class="form-label">确认密码</label>
+          <input type="password" class="form-input" id="reset-password-confirm" placeholder="请再次输入新密码">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('reset-modal')">取消</button>
+        <button class="btn btn-primary" onclick="submitReset()">确认重置</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var users = [
+      { id: 'wx-001', name: '张三', region: '江西省抚州市南丰县白舍镇', type: '种植大户', phone: '13800138001', wechatId: 'zhangsan_wx', registerTime: '2026-01-15 09:30', status: '正常' },
+      { id: 'wx-002', name: '李四', region: '江西省抚州市南丰县太和镇', type: '家庭农场', phone: '13800138002', wechatId: 'lisi_wx', registerTime: '2026-02-20 14:15', status: '正常' },
+      { id: 'wx-003', name: '王五', region: '江西省抚州市南丰县桑田镇', type: '专业合作社', phone: '13800138003', wechatId: 'wangwu_wx', registerTime: '2026-03-10 10:00', status: '正常' },
+      { id: 'wx-004', name: '赵六', region: '江西省抚州市南丰县琴城镇', type: '企业', phone: '13800138004', wechatId: 'zhaoliu_wx', registerTime: '2026-03-25 16:45', status: '正常' },
+      { id: 'wx-005', name: '孙七', region: '江西省抚州市南丰县市山镇', type: '种植大户', phone: '13800138005', wechatId: 'sunqi_wx', registerTime: '2026-04-08 09:20', status: '禁用' },
+      { id: 'wx-006', name: '周八', region: '江西省抚州市南丰县洽湾镇', type: '家庭农场', phone: '13800138006', wechatId: 'zhouba_wx', registerTime: '2026-04-15 11:30', status: '正常' },
+      { id: 'wx-007', name: '吴九', region: '江西省抚州市南丰县莱溪乡', type: '种植大户', phone: '13800138007', wechatId: 'wujiu_wx', registerTime: '2026-05-02 14:00', status: '正常' },
+      { id: 'wx-008', name: '郑十', region: '江西省抚州市南丰县太源乡', type: '专业合作社', phone: '13800138008', wechatId: 'zhengshi_wx', registerTime: '2026-05-18 10:45', status: '正常' },
+      { id: 'wx-009', name: '陈十一', region: '江西省抚州市南丰县东坪乡', type: '企业', phone: '13800138009', wechatId: 'chenshiyi_wx', registerTime: '2026-06-05 15:20', status: '正常' },
+      { id: 'wx-010', name: '林十二', region: '江西省抚州市南丰县三溪乡', type: '种植大户', phone: '13800138010', wechatId: 'linshiwx', registerTime: '2026-06-20 09:00', status: '禁用' },
+      { id: 'wx-011', name: '黄十三', region: '江西省抚州市南丰县付坊乡', type: '家庭农场', phone: '13800138011', wechatId: 'huangshisan_wx', registerTime: '2026-07-03 11:15', status: '正常' },
+      { id: 'wx-012', name: '周十四', region: '江西省抚州市南丰县白舍镇', type: '种植大户', phone: '13800138012', wechatId: 'zhoushisi_wx', registerTime: '2026-07-10 14:30', status: '正常' },
+      { id: 'wx-013', name: '徐十五', region: '江西省抚州市南丰县太和镇', type: '专业合作社', phone: '13800138013', wechatId: 'xushishi_wx', registerTime: '2026-07-15 16:00', status: '正常' },
+      { id: 'wx-014', name: '马十六', region: '江西省抚州市南丰县桑田镇', type: '企业', phone: '13800138014', wechatId: 'mashiliu_wx', registerTime: '2026-07-18 09:45', status: '正常' },
+      { id: 'wx-015', name: '高十七', region: '江西省抚州市南丰县琴城镇', type: '种植大户', phone: '13800138015', wechatId: 'gaoshiqi_wx', registerTime: '2026-07-20 10:30', status: '正常' },
+      { id: 'wx-016', name: '郭十八', region: '江西省抚州市南丰县市山镇', type: '家庭农场', phone: '13800138016', wechatId: 'guoshiba_wx', registerTime: '2026-07-22 13:20', status: '正常' },
+      { id: 'wx-017', name: '何十九', region: '江西省抚州市南丰县洽湾镇', type: '种植大户', phone: '13800138017', wechatId: 'heshijiu_wx', registerTime: '2026-07-23 15:45', status: '正常' },
+      { id: 'wx-018', name: '罗二十', region: '江西省抚州市南丰县莱溪乡', type: '专业合作社', phone: '13800138018', wechatId: 'luoershi_wx', registerTime: '2026-07-24 09:00', status: '正常' }
+    ];
+
+    var originalUsers = JSON.parse(JSON.stringify(users));
+
+    var currentPage = 1;
+    var pageSize = 10;
+    var deleteTargetId = null;
+
+    function renderStats() {
+      var total = originalUsers.length;
+      var bigFarmers = originalUsers.filter(function(u) { return u.type === '种植大户'; }).length;
+      var familyFarms = originalUsers.filter(function(u) { return u.type === '家庭农场'; }).length;
+      var cooperatives = originalUsers.filter(function(u) { return u.type === '专业合作社'; }).length;
+      var enterprises = originalUsers.filter(function(u) { return u.type === '企业'; }).length;
+      
+      var statsCard = document.getElementById('statsCard');
+      statsCard.innerHTML = `
+        <div class="stat-item">
+          <div class="stat-info">
+            <div class="stat-number">${total}</div>
+            <div class="stat-label">用户总数</div>
+          </div>
+          <div class="stat-icon total">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+          </div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-info">
+            <div class="stat-number">${bigFarmers}</div>
+            <div class="stat-label">种植大户</div>
+          </div>
+          <div class="stat-icon bigfarmer">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6"/></svg>
+          </div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-info">
+            <div class="stat-number">${familyFarms}</div>
+            <div class="stat-label">家庭农场</div>
+          </div>
+          <div class="stat-icon family">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/><path d="M15 5a4 4 0 010 7.9"/></svg>
+          </div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-info">
+            <div class="stat-number">${cooperatives}</div>
+            <div class="stat-label">专业合作社</div>
+          </div>
+          <div class="stat-icon coop">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          </div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-info">
+            <div class="stat-number">${enterprises}</div>
+            <div class="stat-label">企业</div>
+          </div>
+          <div class="stat-icon enterprise">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7v6h6"/><path d="M21 17a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderTable() {
+      var tbody = document.getElementById('userTable');
+      tbody.innerHTML = '';
+      
+      var start = (currentPage - 1) * pageSize;
+      var end = start + pageSize;
+      var displayUsers = users.slice(start, end);
+      
+      displayUsers.forEach(function(u) {
+        var statusClass = u.status === '正常' ? 'status-active' : 'status-inactive';
+        tbody.innerHTML += `
+          <tr>
+            <td>${u.name}</td>
+            <td>${u.region}</td>
+            <td>${u.type}</td>
+            <td>${u.phone}</td>
+            <td>${u.registerTime}</td>
+            <td><span class="status-badge ${statusClass}">${u.status}</span></td>
+            <td>
+              <button class="btn btn-secondary" onclick="openDetailModal('${u.id}')">查看</button>
+              <button class="btn btn-secondary" onclick="openEditModal('${u.id}')">编辑</button>
+              <button class="btn btn-secondary" onclick="openResetModal('${u.id}', '${u.name}')">重置密码</button>
+              <button class="btn btn-secondary" onclick="openDeleteModal('${u.id}', '${u.name}')">删除</button>
+            </td>
+          </tr>
+        `;
+      });
+      
+      renderPagination();
+    }
+
+    function renderPagination() {
+      var totalPages = Math.ceil(users.length / pageSize);
+      var pagination = document.getElementById('pagination');
+      pagination.innerHTML = '';
+      
+      if (currentPage > 1) {
+        pagination.innerHTML += `<button class="page-btn" onclick="goPage(${currentPage - 1})">上一页</button>`;
+      }
+      
+      for (var i = 1; i <= totalPages; i++) {
+        var active = i === currentPage ? 'active' : '';
+        pagination.innerHTML += `<button class="page-btn ${active}" onclick="goPage(${i})">${i}</button>`;
+      }
+      
+      if (currentPage < totalPages) {
+        pagination.innerHTML += `<button class="page-btn" onclick="goPage(${currentPage + 1})">下一页</button>`;
+      }
+    }
+
+    function goPage(page) {
+      currentPage = page;
+      renderTable();
+    }
+
+    function searchUsers() {
+      var keyword = document.getElementById('searchInput').value.toLowerCase();
+      users = originalUsers.filter(function(u) {
+        return u.name.toLowerCase().includes(keyword) || u.phone.includes(keyword);
+      });
+      currentPage = 1;
+      renderTable();
+    }
+
+    function openAddModal() {
+      document.getElementById('add-modal-title').textContent = '新增用户';
+      document.getElementById('edit-id').value = '';
+      document.getElementById('add-name').value = '';
+      document.getElementById('add-region').value = '';
+      document.getElementById('add-type').value = '种植大户';
+      document.getElementById('add-phone').value = '';
+      document.getElementById('add-wechat').value = '';
+      document.getElementById('add-status').value = '正常';
+      document.getElementById('add-modal').classList.add('active');
+    }
+
+    function openEditModal(id) {
+      var u = users.find(function(item) { return item.id === id; });
+      if (!u) return;
+      document.getElementById('add-modal-title').textContent = '编辑用户';
+      document.getElementById('edit-id').value = u.id;
+      document.getElementById('add-name').value = u.name;
+      document.getElementById('add-region').value = u.region;
+      document.getElementById('add-type').value = u.type;
+      document.getElementById('add-phone').value = u.phone;
+      document.getElementById('add-wechat').value = u.wechatId || '';
+      document.getElementById('add-status').value = u.status;
+      document.getElementById('add-modal').classList.add('active');
+    }
+
+    function submitAdd() {
+      var id = document.getElementById('edit-id').value;
+      var name = document.getElementById('add-name').value.trim();
+      var region = document.getElementById('add-region').value.trim();
+      var type = document.getElementById('add-type').value;
+      var phone = document.getElementById('add-phone').value.trim();
+      var wechatId = document.getElementById('add-wechat').value.trim();
+      var status = document.getElementById('add-status').value;
+      
+      if (!name || !region) {
+        alert('请填写必填项');
+        return;
+      }
+      
+      if (id) {
+        var index = originalUsers.findIndex(function(item) { return item.id === id; });
+        if (index > -1) {
+          originalUsers[index] = { ...originalUsers[index], name, region, type, phone, wechatId, status };
+        }
+      } else {
+        var newId = 'wx-' + String(originalUsers.length + 1).padStart(3, '0');
+        var now = new Date();
+        var timeStr = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0') + ' ' + String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+        originalUsers.unshift({ id: newId, name, region, type, phone, wechatId, registerTime: timeStr, status });
+      }
+      
+      closeModal('add-modal');
+      users = JSON.parse(JSON.stringify(originalUsers));
+      renderStats();
+      renderTable();
+      alert(id ? '编辑成功' : '新增成功');
+    }
+
+    function openDetailModal(id) {
+      var u = users.find(function(item) { return item.id === id; });
+      if (!u) return;
+      document.getElementById('detail-content').innerHTML = `
+        <div class="detail-info">
+          <div class="detail-item"><div class="detail-label">用户ID</div><div class="detail-value">${u.id}</div></div>
+          <div class="detail-item"><div class="detail-label">姓名</div><div class="detail-value">${u.name}</div></div>
+          <div class="detail-item"><div class="detail-label">微信号</div><div class="detail-value">${u.wechatId || '-'}</div></div>
+          <div class="detail-item"><div class="detail-label">地区</div><div class="detail-value">${u.region}</div></div>
+          <div class="detail-item"><div class="detail-label">种植主体类型</div><div class="detail-value">${u.type}</div></div>
+          <div class="detail-item"><div class="detail-label">手机号</div><div class="detail-value">${u.phone}</div></div>
+          <div class="detail-item"><div class="detail-label">注册时间</div><div class="detail-value">${u.registerTime}</div></div>
+          <div class="detail-item"><div class="detail-label">状态</div><div class="detail-value"><span class="status-badge ${u.status === '正常' ? 'status-active' : 'status-inactive'}">${u.status}</span></div></div>
+        </div>
+      `;
+      document.getElementById('detail-modal').classList.add('active');
+    }
+
+    function openDeleteModal(id, name) {
+      deleteTargetId = id;
+      document.getElementById('delete-name').textContent = name;
+      document.getElementById('delete-modal').classList.add('active');
+    }
+
+    function openResetModal(id, name) {
+      document.getElementById('reset-id').value = id;
+      document.getElementById('reset-name').textContent = name;
+      document.getElementById('reset-password').value = '';
+      document.getElementById('reset-password-confirm').value = '';
+      document.getElementById('reset-modal').classList.add('active');
+    }
+
+    function submitReset() {
+      var id = document.getElementById('reset-id').value;
+      var password = document.getElementById('reset-password').value.trim();
+      var confirmPassword = document.getElementById('reset-password-confirm').value.trim();
+      
+      if (password && password !== confirmPassword) {
+        alert('两次输入的密码不一致');
+        return;
+      }
+      
+      closeModal('reset-modal');
+      alert('密码重置成功');
+    }
+
+    function submitDelete() {
+      if (!deleteTargetId) return;
+      originalUsers = originalUsers.filter(function(item) { return item.id !== deleteTargetId; });
+      users = JSON.parse(JSON.stringify(originalUsers));
+      closeModal('delete-modal');
+      renderStats();
+      renderTable();
+      alert('删除成功');
+      deleteTargetId = null;
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('active');
+    }
+
+    renderStats();
+    renderTable();
+  </script>
+</body>
+</html>

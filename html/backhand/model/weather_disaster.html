@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>气象灾害模型 - 南丰蜜桔模型管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/iconify-icon@2.1.0/dist/iconify-icon.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { margin: 0; padding: 0; background-color: #F0F2F5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans SC', sans-serif; }
+        .content-wrapper { padding: 24px; height: 100vh; overflow-y: auto; }
+        .status-running { background-color: #D1FAE5; color: #065F46; }
+        .status-stopped { background-color: #FEF2F2; color: #991B1B; }
+        .status-training { background-color: #FEF3C7; color: #92400E; }
+        .risk-high { background-color: #FEF2F2; color: #991B1B; }
+        .risk-medium { background-color: #FEF3C7; color: #92400E; }
+        .risk-low { background-color: #D1FAE5; color: #065F46; }
+    </style>
+</head>
+<body>
+    <div class="content-wrapper">
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h1 class="text-xl font-bold text-gray-800">气象灾害模型</h1>
+                <p class="text-gray-500 text-sm mt-1">管理南丰蜜桔气象灾害预测模型</p>
+            </div>
+            <div class="flex items-center space-x-3">
+                <button onclick="refreshStatus()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm flex items-center">
+                    <iconify-icon icon="material-symbols:refresh" class="w-4 h-4 mr-2"></iconify-icon>
+                    刷新状态
+                </button>
+                <button onclick="startModel()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm flex items-center">
+                    <iconify-icon icon="material-symbols:play_arrow" class="w-4 h-4 mr-2"></iconify-icon>
+                    启动模型
+                </button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">运行状态</p>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium status-running mt-2">
+                            <iconify-icon icon="material-symbols:circle" class="w-3 h-3 mr-1"></iconify-icon>
+                            运行中
+                        </span>
+                    </div>
+                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                        <iconify-icon icon="material-symbols:thunderstorm" class="w-6 h-6 text-green-600"></iconify-icon>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">训练数据总量</p>
+                        <h3 class="text-2xl font-bold text-gray-800 mt-1">856,400</h3>
+                        <p class="text-gray-400 text-xs mt-1">条记录</p>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">模型准确率</p>
+                        <h3 class="text-2xl font-bold text-gray-800 mt-1">92.3%</h3>
+                        <p class="text-green-500 text-xs mt-1 flex items-center">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                            较上次提升 0.8%
+                        </p>
+                    </div>
+                    <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                        <iconify-icon icon="material-symbols:accuracy" class="w-6 h-6 text-purple-600"></iconify-icon>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"/></svg>
+                    气象灾害分类统计
+                </h2>
+                <div class="h-64">
+                    <canvas id="disasterCategoryChart"></canvas>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                    模型准确率趋势
+                </h2>
+                <div class="h-64">
+                    <canvas id="accuracyTrendChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 mb-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-semibold text-gray-800 flex items-center">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    模型算法列表
+                </h2>
+                <div class="flex items-center space-x-3">
+                    <div class="relative">
+                        <svg class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                        <input type="text" id="algorithm-search" placeholder="搜索算法..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 w-56" oninput="filterAlgorithm()">
+                    </div>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="border-b border-gray-200">
+                            <th class="text-left py-3 px-4 font-semibold text-gray-600" style="width:18%">算法名称</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-600" style="width:25%">算法介绍</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-600" style="width:18%">灾害类型</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-600" style="width:13%;white-space:nowrap">状态</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-600" style="width:29%">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="algorithm-tbody"></tbody>
+                </table>
+            </div>
+            <div class="pt-4 border-t border-gray-100 flex items-center justify-between">
+                <p class="text-sm text-gray-500">共 <span id="algorithm-total-count">5</span> 条记录</p>
+                <div class="flex items-center space-x-2">
+                    <button onclick="algorithmPrevPage()" class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50">上一页</button>
+                    <span class="text-sm text-gray-600"><span id="algorithm-current-page">1</span> / <span id="algorithm-total-pages">1</span></span>
+                    <button onclick="algorithmNextPage()" class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50">下一页</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-semibold text-gray-800 flex items-center">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    气象灾害类型列表
+                </h2>
+                <div class="flex items-center space-x-3">
+                    <div class="relative">
+                        <svg class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                        <input type="text" id="disaster-search" placeholder="搜索灾害类型..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 w-56" oninput="filterDisaster()">
+                    </div>
+                    <button onclick="openDisasterAddModal()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">+ 添加</button>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="border-b border-gray-200">
+                            <th class="text-left py-3 px-4 font-semibold text-gray-600">灾害类型</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-600">高发季节</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-600">温度条件</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-600">影响范围</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-600">风险等级</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-600">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="disaster-tbody"></tbody>
+                </table>
+            </div>
+            <div class="pt-4 border-t border-gray-100 flex items-center justify-between">
+                <p class="text-sm text-gray-500">共 <span id="disaster-total-count">7</span> 条记录</p>
+                <div class="flex items-center space-x-2">
+                    <button onclick="disasterPrevPage()" class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50">上一页</button>
+                    <span class="text-sm text-gray-600"><span id="disaster-current-page">1</span> / <span id="disaster-total-pages">2</span></span>
+                    <button onclick="disasterNextPage()" class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50">下一页</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 查看弹窗 -->
+    <div id="disaster-view-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center">
+        <div style="background:#fff;border-radius:12px;width:90%;max-width:500px;max-height:85vh;overflow-y:auto">
+            <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+                <h3 style="font-size:18px;font-weight:600;color:#1f2937">查看灾害类型详情</h3>
+                <button onclick="closeModal('disaster-view-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
+            </div>
+            <div style="padding:24px">
+                <div style="display:flex;flex-direction:column;gap:16px">
+                    <div style="display:flex;justify-content:space-between;padding:12px;background:#f9fafb;border-radius:8px"><span style="font-size:14px;color:#6b7280">灾害类型</span><span style="font-size:14px;font-weight:500;color:#1f2937" id="view-disaster-type">-</span></div>
+                    <div style="display:flex;justify-content:space-between;padding:12px;background:#f9fafb;border-radius:8px"><span style="font-size:14px;color:#6b7280">高发季节</span><span style="font-size:14px;font-weight:500;color:#1f2937" id="view-disaster-season">-</span></div>
+                    <div style="display:flex;justify-content:space-between;padding:12px;background:#f9fafb;border-radius:8px"><span style="font-size:14px;color:#6b7280">温度条件</span><span style="font-size:14px;font-weight:500;color:#1f2937" id="view-disaster-temperature">-</span></div>
+                    <div style="display:flex;justify-content:space-between;padding:12px;background:#f9fafb;border-radius:8px"><span style="font-size:14px;color:#6b7280">影响范围</span><span style="font-size:14px;font-weight:500;color:#1f2937" id="view-disaster-range">-</span></div>
+                    <div style="display:flex;justify-content:space-between;padding:12px;background:#f9fafb;border-radius:8px"><span style="font-size:14px;color:#6b7280">风险等级</span><span style="font-size:14px;font-weight:500;color:#1f2937" id="view-disaster-risk">-</span></div>
+                </div>
+            </div>
+            <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end">
+                <button onclick="closeModal('disaster-view-modal')" style="padding:8px 16px;background:#f3f4f6;color:#374151;border:none;border-radius:8px;font-size:14px;cursor:pointer">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑弹窗 -->
+    <div id="disaster-edit-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center">
+        <div style="background:#fff;border-radius:12px;width:90%;max-width:500px;max-height:85vh;overflow-y:auto">
+            <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+                <h3 style="font-size:18px;font-weight:600;color:#1f2937">编辑灾害类型</h3>
+                <button onclick="closeModal('disaster-edit-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
+            </div>
+            <div style="padding:24px;display:flex;flex-direction:column;gap:16px">
+                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">灾害类型 <span style="color:#ef4444">*</span></label><input type="text" id="edit-disaster-type" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"></div>
+                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">高发季节</label><input type="text" id="edit-disaster-season" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"></div>
+                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">温度条件</label><input type="text" id="edit-disaster-temperature" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"></div>
+                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">影响范围</label><input type="text" id="edit-disaster-range" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"></div>
+                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">风险等级</label><select id="edit-disaster-risk" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"><option value="高风险">高风险</option><option value="中风险">中风险</option><option value="低风险">低风险</option></select></div>
+            </div>
+            <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:12px">
+                <button onclick="closeModal('disaster-edit-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
+                <button onclick="submitDisasterEdit()" style="padding:8px 16px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">保存修改</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 删除确认弹窗 -->
+    <div id="disaster-delete-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center">
+        <div style="background:#fff;border-radius:12px;width:90%;max-width:400px">
+            <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+                <h3 style="font-size:18px;font-weight:600;color:#1f2937">删除确认</h3>
+                <button onclick="closeModal('disaster-delete-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
+            </div>
+            <div style="padding:24px;text-align:center">
+                <div style="width:60px;height:60px;background:#fee2e2;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px"><span style="font-size:28px;color:#dc2626">!</span></div>
+                <h3 style="font-size:18px;font-weight:600;color:#1f2937;margin-bottom:8px">确认删除</h3>
+                <p style="font-size:14px;color:#6b7280;margin-bottom:24px">确定要删除灾害类型"<span id="delete-disaster-type" style="font-weight:500;color:#1f2937"></span>"吗？</p>
+                <div style="display:flex;justify-content:center;gap:12px">
+                    <button onclick="closeModal('disaster-delete-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
+                    <button onclick="confirmDisasterDelete()" style="padding:8px 16px;background:#dc2626;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">确认删除</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 算法查看弹窗 -->
+    <div id="algorithm-view-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center">
+        <div style="background:#fff;border-radius:12px;width:90%;max-width:600px;max-height:85vh;overflow-y:auto">
+            <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+                <h3 style="font-size:18px;font-weight:600;color:#1f2937">查看算法详情</h3>
+                <button onclick="closeModal('algorithm-view-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
+            </div>
+            <div style="padding:24px">
+                <div style="display:flex;flex-direction:column;gap:20px">
+                    <div>
+                        <h4 style="font-size:14px;font-weight:600;color:#374151;margin-bottom:8px">模型名称</h4>
+                        <div style="padding:12px;background:#f9fafb;border-radius:8px;font-size:14px;color:#1f2937" id="view-algorithm-name">-</div>
+                    </div>
+                    <div>
+                        <h4 style="font-size:14px;font-weight:600;color:#374151;margin-bottom:8px">模型介绍</h4>
+                        <div style="padding:12px;background:#f9fafb;border-radius:8px;font-size:14px;color:#1f2937;line-height:1.6" id="view-algorithm-intro">-</div>
+                    </div>
+                    <div>
+                        <h4 style="font-size:14px;font-weight:600;color:#374151;margin-bottom:8px">模型公式</h4>
+                        <div style="padding:12px;background:#f9fafb;border-radius:8px;font-size:14px;color:#1f2937;font-family:monospace" id="view-algorithm-formula">-</div>
+                    </div>
+                    <div>
+                        <h4 style="font-size:14px;font-weight:600;color:#374151;margin-bottom:8px">公式参数解读</h4>
+                        <div style="padding:12px;background:#f9fafb;border-radius:8px;font-size:14px;color:#1f2937;line-height:1.8;white-space:pre-line" id="view-algorithm-params">-</div>
+                    </div>
+                    <div>
+                        <h4 style="font-size:14px;font-weight:600;color:#374151;margin-bottom:8px">模型揭示的规律</h4>
+                        <div style="padding:12px;background:#f9fafb;border-radius:8px;font-size:14px;color:#1f2937;line-height:1.8;white-space:pre-line" id="view-algorithm-patterns">-</div>
+                    </div>
+                    <div>
+                        <h4 style="font-size:14px;font-weight:600;color:#374151;margin-bottom:8px">灾害类型</h4>
+                        <div style="padding:12px;background:#f9fafb;border-radius:8px;font-size:14px;color:#1f2937" id="view-algorithm-disaster-type">-</div>
+                    </div>
+                    <div>
+                        <h4 style="font-size:14px;font-weight:600;color:#374151;margin-bottom:8px">模型所需数据</h4>
+                        <div style="padding:12px;background:#f9fafb;border-radius:8px" id="view-algorithm-data"></div>
+                    </div>
+                </div>
+            </div>
+            <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end">
+                <button onclick="closeModal('algorithm-view-modal')" style="padding:8px 16px;background:#f3f4f6;color:#374151;border:none;border-radius:8px;font-size:14px;cursor:pointer">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 算法编辑弹窗 -->
+    <div id="algorithm-edit-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center">
+        <div style="background:#fff;border-radius:12px;width:90%;max-width:600px;max-height:85vh;overflow-y:auto">
+            <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+                <h3 style="font-size:18px;font-weight:600;color:#1f2937">编辑算法</h3>
+                <button onclick="closeModal('algorithm-edit-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
+            </div>
+            <div style="padding:24px;display:flex;flex-direction:column;gap:16px">
+                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">模型名称 <span style="color:#ef4444">*</span></label><input type="text" id="edit-algorithm-name" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"></div>
+                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">模型介绍</label><textarea id="edit-algorithm-intro" rows="4" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"></textarea></div>
+                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">模型公式</label><input type="text" id="edit-algorithm-formula" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box;font-family:monospace"></div>
+                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">公式参数解读</label><textarea id="edit-algorithm-params" rows="4" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"></textarea></div>
+                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">模型揭示的规律</label><textarea id="edit-algorithm-patterns" rows="4" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"></textarea></div>
+                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">灾害类型</label><input type="text" id="edit-algorithm-disaster-type" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box" placeholder="请输入灾害类型，用顿号分隔"></div>
+                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">模型所需数据</label><textarea id="edit-algorithm-data" rows="3" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box" placeholder="请输入所需数据，用逗号分隔"></textarea></div>
+                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">状态</label><select id="edit-algorithm-status" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"><option value="已启用">已启用</option><option value="待优化">待优化</option><option value="已停用">已停用</option></select></div>
+            </div>
+            <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:12px">
+                <button onclick="closeModal('algorithm-edit-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
+                <button onclick="submitAlgorithmEdit()" style="padding:8px 16px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">保存修改</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 算法参数配置弹窗 -->
+    <div id="algorithm-param-config-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center">
+        <div style="background:#fff;border-radius:12px;width:90%;max-width:500px;max-height:85vh;overflow-y:auto">
+            <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+                <h3 style="font-size:18px;font-weight:600;color:#1f2937">参数配置</h3>
+                <button onclick="closeModal('algorithm-param-config-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
+            </div>
+            <div style="padding:24px">
+                <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px;margin-bottom:16px">
+                    <p style="font-size:14px;font-weight:500;color:#1e40af" id="config-algorithm-name">-</p>
+                    <p style="font-size:12px;color:#2563eb;margin-top:4px">修改模型参数后需要重新训练模型才能生效</p>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:12px" id="param-config-list"></div>
+            </div>
+            <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:12px">
+                <button onclick="closeModal('algorithm-param-config-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
+                <button onclick="submitParamConfig()" style="padding:8px 16px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">保存配置</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 算法数据关联弹窗 -->
+    <div id="algorithm-data-association-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center">
+        <div style="background:#fff;border-radius:12px;width:90%;max-width:500px;max-height:85vh;overflow-y:auto">
+            <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+                <h3 style="font-size:18px;font-weight:600;color:#1f2937">数据关联</h3>
+                <button onclick="closeModal('algorithm-data-association-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
+            </div>
+            <div style="padding:24px">
+                <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px;margin-bottom:16px">
+                    <p style="font-size:14px;font-weight:500;color:#1e40af" id="association-algorithm-name">-</p>
+                    <p style="font-size:12px;color:#2563eb;margin-top:4px">以下是与该算法相关的数据列表</p>
+                </div>
+                <div style="overflow-x-auto">
+                    <table style="width:100%;font-size:13px">
+                        <thead>
+                            <tr style="border-bottom:1px solid #e5e7eb">
+                                <th style="text-align:left;padding:8px;font-weight:600;color:#6b7280">数据名称</th>
+                                <th style="text-align:left;padding:8px;font-weight:600;color:#6b7280">数据类型</th>
+                                <th style="text-align:left;padding:8px;font-weight:600;color:#6b7280">更新频率</th>
+                            </tr>
+                        </thead>
+                        <tbody id="data-association-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end">
+                <button onclick="closeModal('algorithm-data-association-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 算法删除确认弹窗 -->
+    <div id="algorithm-delete-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center">
+        <div style="background:#fff;border-radius:12px;width:90%;max-width:400px">
+            <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+                <h3 style="font-size:18px;font-weight:600;color:#1f2937">删除确认</h3>
+                <button onclick="closeModal('algorithm-delete-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
+            </div>
+            <div style="padding:24px;text-align:center">
+                <div style="width:60px;height:60px;background:#fee2e2;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px"><span style="font-size:28px;color:#dc2626">!</span></div>
+                <h3 style="font-size:18px;font-weight:600;color:#1f2937;margin-bottom:8px">确认删除</h3>
+                <p style="font-size:14px;color:#6b7280;margin-bottom:24px">确定要删除算法"<span id="delete-algorithm-name" style="font-weight:500;color:#1f2937"></span>"吗？</p>
+                <div style="display:flex;justify-content:center;gap:12px">
+                    <button onclick="closeModal('algorithm-delete-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
+                    <button onclick="confirmAlgorithmDelete()" style="padding:8px 16px;background:#dc2626;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">确认删除</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加弹窗 -->
+    <div id="disaster-add-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center">
+        <div style="background:#fff;border-radius:12px;width:90%;max-width:500px;max-height:85vh;overflow-y:auto">
+            <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+                <h3 style="font-size:18px;font-weight:600;color:#1f2937">+ 添加灾害类型</h3>
+                <button onclick="closeModal('disaster-add-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
+            </div>
+            <div style="padding:24px;display:flex;flex-direction:column;gap:16px">
+                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">灾害类型 <span style="color:#ef4444">*</span></label><input type="text" id="add-disaster-type" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box" placeholder="如：高温热害"></div>
+                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">高发季节</label><input type="text" id="add-disaster-season" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box" placeholder="如：夏季（6-8月）"></div>
+                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">温度条件</label><input type="text" id="add-disaster-temperature" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box" placeholder="如：日最高气温 >35°C"></div>
+                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">影响范围</label><input type="text" id="add-disaster-range" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box" placeholder="如：全产区"></div>
+                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">风险等级</label><select id="add-disaster-risk" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"><option value="高风险">高风险</option><option value="中风险">中风险</option><option value="低风险">低风险</option></select></div>
+            </div>
+            <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:12px">
+                <button onclick="closeModal('disaster-add-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
+                <button onclick="submitDisasterAdd()" style="padding:8px 16px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">确认添加</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 刷新状态弹窗 -->
+    <div id="refresh-status-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center">
+        <div style="background:#fff;border-radius:12px;width:90%;max-width:420px">
+            <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+                <h3 style="font-size:18px;font-weight:600;color:#1f2937">模型状态刷新</h3>
+                <button onclick="closeModal('refresh-status-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
+            </div>
+            <div style="padding:24px;text-align:center">
+                <div style="width:60px;height:60px;background:#dbeafe;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
+                    <svg width="28" height="28" fill="none" stroke="#2563eb" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                </div>
+                <h3 style="font-size:16px;font-weight:600;color:#1f2937;margin-bottom:12px">模型状态刷新</h3>
+                <div style="background:#f9fafb;border-radius:8px;padding:16px;margin-bottom:16px">
+                    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #e5e7eb">
+                        <span style="font-size:14px;color:#6b7280">运行状态</span><span style="font-size:14px;font-weight:500;color:#059669">运行中</span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #e5e7eb">
+                        <span style="font-size:14px;color:#6b7280">模型准确率</span><span style="font-size:14px;font-weight:500;color:#1f2937">92.3%</span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #e5e7eb">
+                        <span style="font-size:14px;color:#6b7280">训练数据总量</span><span style="font-size:14px;font-weight:500;color:#1f2937">856,400 条</span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;padding:8px 0">
+                        <span style="font-size:14px;color:#6b7280">最后更新时间</span><span style="font-size:14px;font-weight:500;color:#1f2937">2026-07-23 14:30:00</span>
+                    </div>
+                </div>
+            </div>
+            <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end">
+                <button onclick="closeModal('refresh-status-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 启动模型弹窗 -->
+    <div id="start-model-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center">
+        <div style="background:#fff;border-radius:12px;width:90%;max-width:480px">
+            <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+                <h3 style="font-size:18px;font-weight:600;color:#1f2937">启动气象灾害模型</h3>
+                <button onclick="closeModal('start-model-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
+            </div>
+            <div style="padding:24px">
+                <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+                    <div style="width:48px;height:48px;background:#dcfce7;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                        <svg width="24" height="24" fill="none" stroke="#16a34a" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </div>
+                    <div>
+                        <h4 style="font-size:15px;font-weight:600;color:#1f2937">确认启动模型服务</h4>
+                        <p style="font-size:13px;color:#6b7280;margin-top:2px">模型启动后将加载最新气象数据并开始预测计算</p>
+                    </div>
+                </div>
+                <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:12px;margin-bottom:16px">
+                    <p style="font-size:13px;color:#c2410c;font-weight:500;margin-bottom:4px">启动须知</p>
+                    <ul style="font-size:12px;color:#9a3412;list-style:disc;padding-left:16px;margin:0;line-height:1.8">
+                        <li>预计初始化耗时约30秒</li>
+                        <li>将加载最新气象预报数据</li>
+                        <li>启动期间预测功能可能暂时不可用</li>
+                        <li>建议在非高峰时段操作</li>
+                    </ul>
+                </div>
+            </div>
+            <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:12px">
+                <button onclick="closeModal('start-model-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
+                <button onclick="confirmStartModel()" style="padding:8px 16px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">确认启动</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var modelAlgorithms = [
+            { id: 'a-1', name: '极端温度识别算法', intro: '基于历史温度数据识别异常高温/低温事件，通过统计分析和阈值判断方法，实时监测南丰蜜桔产区的温度异常情况。', disasterType: '高温热害、低温冻害', formula: 'T异常 = |T实际 - T历史均值| / T历史标准差', paramInterpretation: 'T实际：当前监测温度值\nT历史均值：同期历史平均温度\nT历史标准差：同期历史温度标准差\n当T异常 > 阈值时判定为温度异常事件', patterns: '1. 高温热害：持续3天以上日最高气温>35°C\n2. 低温冻害：最低气温<0°C且持续时间>4小时\n3. 温度骤变：24小时内温差>10°C', requiredData: ['日最高气温', '日最低气温', '小时气温数据', '历史温度记录', '海拔高度'], status: '已启用', statusClass: 'bg-green-100 text-green-700', params: [{name: '高温阈值', value: 35, unit: '°C', desc: '触发高温热害预警的温度阈值'}, {name: '低温阈值', value: 0, unit: '°C', desc: '触发低温冻害预警的温度阈值'}, {name: '温差阈值', value: 10, unit: '°C', desc: '触发温度骤变预警的温差阈值'}, {name: '持续天数', value: 3, unit: '天', desc: '持续高温判定天数'}], relatedData: [{name: '气象站温度数据', type: '实时监测', update: '每小时'}, {name: '历史温度记录', type: '历史数据', update: '每日'}, {name: '海拔高度数据', type: '静态数据', update: '一次性'}]},
+            { id: 'a-2', name: 'XGBoost灾害分类模型', intro: '多分类模型预测七类气象灾害发生概率，基于XGBoost集成学习算法，融合多种气象因子进行灾害类型识别和概率预测。', disasterType: '高温热害、暴雨洪涝、干旱、冻害、冰雹、台风、连阴雨', formula: 'P(灾害类型) = sigmoid(Σ(wi * fi) + b)', paramInterpretation: 'wi：第i个特征的权重\nfi：第i个气象特征值\nb：偏置项\n通过多轮迭代优化权重参数，输出各类灾害的发生概率', patterns: '1. 高温热害：湿度低、风速小、日照强\n2. 暴雨洪涝：连续降雨、土壤含水量高\n3. 干旱：长期无雨、土壤墒情低\n4. 冻害：低温持续、辐射冷却', requiredData: ['气温', '降雨量', '湿度', '风速', '日照时长', '土壤含水量'], status: '已启用', statusClass: 'bg-green-100 text-green-700', params: [{name: '学习率', value: 0.1, unit: '', desc: '模型学习速率'}, {name: '树深度', value: 6, unit: '层', desc: '决策树最大深度'}, {name: '迭代次数', value: 100, unit: '次', desc: '模型训练迭代轮数'}, {name: '最小样本数', value: 10, unit: '个', desc: '叶子节点最小样本数'}], relatedData: [{name: '多源气象数据', type: '实时监测', update: '每小时'}, {name: '灾害历史记录', type: '历史数据', update: '每日'}, {name: '土壤墒情数据', type: '实时监测', update: '每4小时'}]},
+            { id: 'a-3', name: '降雨量异常检测算法', intro: '时序异常检测识别暴雨和干旱事件，采用滑动窗口和统计方法，实时监测降雨量的异常变化。', disasterType: '暴雨洪涝、干旱、连阴雨', formula: 'R异常 = |R当前窗口均值 - R历史均值| / R历史标准差', paramInterpretation: 'R当前窗口均值：滑动窗口内平均降雨量\nR历史均值：同期历史平均降雨量\nR历史标准差：同期历史降雨量标准差\n当R异常 > 阈值时判定为降雨异常', patterns: '1. 暴雨：1小时降雨量>50mm或24小时>100mm\n2. 干旱：连续30天无有效降雨\n3. 连阴雨：连续7天以上降雨', requiredData: ['小时降雨量', '日降雨量', '土壤含水量', '蒸发量'], status: '已启用', statusClass: 'bg-green-100 text-green-700', params: [{name: '暴雨阈值', value: 50, unit: 'mm/h', desc: '触发暴雨预警的降雨强度'}, {name: '干旱天数', value: 30, unit: '天', desc: '连续无雨判定天数'}, {name: '连阴雨天数', value: 7, unit: '天', desc: '连续降雨判定天数'}, {name: '滑动窗口', value: 24, unit: '小时', desc: '统计窗口大小'}], relatedData: [{name: '雨量站数据', type: '实时监测', update: '每10分钟'}, {name: '气象雷达数据', type: '实时监测', update: '每6分钟'}, {name: '土壤墒情数据', type: '实时监测', update: '每4小时'}]},
+            { id: 'a-4', name: '灾害风险评估模型', intro: '综合气象因子评估各产区灾害风险等级，基于层次分析法和模糊综合评价，对南丰蜜桔各产区进行多维度风险评估。', disasterType: '所有气象灾害', formula: '风险等级 = Σ(权重i × 因子i评分)', paramInterpretation: '权重i：第i个评估因子的权重系数\n因子i评分：第i个评估因子的归一化评分\n通过专家打分和层次分析法确定权重，输出综合风险等级', patterns: '1. 高风险区：综合评分>80分，需立即采取防范措施\n2. 中风险区：综合评分60-80分，需密切关注\n3. 低风险区：综合评分<60分，常规监测即可', requiredData: ['气象因子', '地形地貌', '土壤条件', '果园管理水平', '品种特性'], status: '待优化', statusClass: 'bg-yellow-100 text-yellow-700', params: [{name: '气象因子权重', value: 0.4, unit: '', desc: '气象因子在评估中的权重占比'}, {name: '地形权重', value: 0.2, unit: '', desc: '地形因子在评估中的权重占比'}, {name: '土壤权重', value: 0.2, unit: '', desc: '土壤因子在评估中的权重占比'}, {name: '管理权重', value: 0.2, unit: '', desc: '管理水平因子在评估中的权重占比'}], relatedData: [{name: '产区基础数据', type: '静态数据', update: '年度更新'}, {name: '气象监测数据', type: '实时监测', update: '每小时'}, {name: '果园管理档案', type: '业务数据', update: '不定期'}]},
+            { id: 'a-5', name: 'LSTM时序预测模型', intro: '基于气象序列数据预测未来灾害趋势，采用长短期记忆网络，学习气象数据的时间序列特征，预测未来一段时间内的灾害发生趋势。', disasterType: '高温热害、暴雨洪涝、干旱、冻害', formula: 'h_t = tanh(W_hh · h_{t-1} + W_xh · x_t + b_h)', paramInterpretation: 'h_t：当前时刻隐藏状态\nh_{t-1}：上一时刻隐藏状态\nx_t：当前时刻输入特征\nW_hh, W_xh：权重矩阵\nb_h：偏置项\n通过门控机制控制信息的遗忘和更新', patterns: '1. 短期预测：未来3-7天灾害概率\n2. 中期预测：未来15-30天灾害趋势\n3. 长期预测：未来90天气候趋势', requiredData: ['历史气象序列', '灾害发生记录', '季节性特征', '大气环流指数'], status: '已启用', statusClass: 'bg-green-100 text-green-700', params: [{name: '隐藏层节点数', value: 128, unit: '个', desc: 'LSTM隐藏层神经元数量'}, {name: '时间步长', value: 30, unit: '天', desc: '输入序列长度'}, {name: '预测步长', value: 7, unit: '天', desc: '预测时间窗口'}, {name: '学习率', value: 0.001, unit: '', desc: '模型训练学习率'}], relatedData: [{name: '历史气象序列', type: '历史数据', update: '每日'}, {name: '灾害事件记录', type: '历史数据', update: '事件触发'}, {name: '大气环流数据', type: '外部数据', update: '每日'}]}
+        ];
+
+        var algorithmCurrentPage = 1;
+        var algorithmPageSize = 5;
+        var filteredAlgorithmData = modelAlgorithms.slice();
+        var algorithmEditId = null;
+        var algorithmDeleteId = null;
+        var algorithmConfigId = null;
+
+        var disasterData = [
+            { id: 'd-1', type: '高温热害', season: '夏季（6-8月）', temperature: '日最高气温 >35°C', range: '全产区', risk: '高风险', riskClass: 'risk-high' },
+            { id: 'd-2', type: '暴雨洪涝', season: '春夏（4-7月）', temperature: '持续降雨 >50mm/h', range: '低洼果园', risk: '高风险', riskClass: 'risk-high' },
+            { id: 'd-3', type: '干旱', season: '秋冬（9-12月）', temperature: '持续无雨 >30天', range: '山地果园', risk: '中风险', riskClass: 'risk-medium' },
+            { id: 'd-4', type: '冻害', season: '冬季（12-2月）', temperature: '最低气温 <0°C', range: '北部产区', risk: '高风险', riskClass: 'risk-high' },
+            { id: 'd-5', type: '冰雹', season: '春夏（3-6月）', temperature: '强对流天气', range: '局部区域', risk: '中风险', riskClass: 'risk-medium' },
+            { id: 'd-6', type: '台风', season: '夏秋（7-10月）', temperature: '风力 >8级', range: '沿海产区', risk: '高风险', riskClass: 'risk-high' },
+            { id: 'd-7', type: '连阴雨', season: '春季（3-5月）', temperature: '连续阴雨 >7天', range: '全产区', risk: '中风险', riskClass: 'risk-medium' }
+        ];
+
+        var disasterCurrentPage = 1;
+        var disasterPageSize = 5;
+        var filteredDisasterData = disasterData.slice();
+        var disasterEditId = null;
+        var disasterDeleteId = null;
+
+        function showModal(id) { var m = document.getElementById(id); if(m) m.style.display = 'flex'; }
+        function hideModal(id) { var m = document.getElementById(id); if(m) m.style.display = 'none'; }
+        function closeModal(id) { hideModal(id); }
+
+        function renderDisasterTable() {
+            var tbody = document.getElementById('disaster-tbody');
+            var start = (disasterCurrentPage - 1) * disasterPageSize;
+            var end = start + disasterPageSize;
+            var pageData = filteredDisasterData.slice(start, end);
+            var html = '';
+            for (var i = 0; i < pageData.length; i++) {
+                var item = pageData[i];
+                html += '<tr class="border-b border-gray-100 hover:bg-gray-50">';
+                html += '<td class="py-3 px-4 font-medium text-gray-800">' + item.type + '</td>';
+                html += '<td class="py-3 px-4">' + item.season + '</td>';
+                html += '<td class="py-3 px-4">' + item.temperature + '</td>';
+                html += '<td class="py-3 px-4">' + item.range + '</td>';
+                html += '<td class="py-3 px-4"><span class="px-2 py-1 ' + item.riskClass + ' text-xs rounded font-medium">' + item.risk + '</span></td>';
+                html += '<td class="py-3 px-4"><div style="display:flex;gap:4px">';
+                html += '<button onclick="viewDisasterItem(\'' + item.id + '\')" style="background:none;border:none;cursor:pointer;color:#9ca3af;padding:4px" title="查看"><svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button>';
+                html += '<button onclick="editDisasterItem(\'' + item.id + '\')" style="background:none;border:none;cursor:pointer;color:#9ca3af;padding:4px" title="编辑"><svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>';
+                html += '<button onclick="deleteDisasterItem(\'' + item.id + '\')" style="background:none;border:none;cursor:pointer;color:#9ca3af;padding:4px" title="删除"><svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>';
+                html += '</div></td></tr>';
+            }
+            tbody.innerHTML = html;
+            document.getElementById('disaster-total-count').textContent = filteredDisasterData.length;
+            document.getElementById('disaster-current-page').textContent = disasterCurrentPage;
+            document.getElementById('disaster-total-pages').textContent = Math.ceil(filteredDisasterData.length / disasterPageSize) || 1;
+        }
+
+        function filterDisaster() {
+            var term = document.getElementById('disaster-search').value.toLowerCase();
+            filteredDisasterData = disasterData.filter(function(item) { return item.type.toLowerCase().indexOf(term) !== -1; });
+            disasterCurrentPage = 1;
+            renderDisasterTable();
+        }
+
+        function disasterPrevPage() {
+            var totalPages = Math.ceil(filteredDisasterData.length / disasterPageSize);
+            if (disasterCurrentPage > 1) { disasterCurrentPage--; renderDisasterTable(); }
+        }
+
+        function disasterNextPage() {
+            var totalPages = Math.ceil(filteredDisasterData.length / disasterPageSize);
+            if (disasterCurrentPage < totalPages) { disasterCurrentPage++; renderDisasterTable(); }
+        }
+
+        function viewDisasterItem(id) {
+            for (var i = 0; i < disasterData.length; i++) {
+                if (disasterData[i].id === id) {
+                    var item = disasterData[i];
+                    document.getElementById('view-disaster-type').textContent = item.type;
+                    document.getElementById('view-disaster-season').textContent = item.season;
+                    document.getElementById('view-disaster-temperature').textContent = item.temperature;
+                    document.getElementById('view-disaster-range').textContent = item.range;
+                    document.getElementById('view-disaster-risk').textContent = item.risk;
+                    showModal('disaster-view-modal');
+                    break;
+                }
+            }
+        }
+
+        function editDisasterItem(id) {
+            for (var i = 0; i < disasterData.length; i++) {
+                if (disasterData[i].id === id) {
+                    var item = disasterData[i];
+                    disasterEditId = id;
+                    document.getElementById('edit-disaster-type').value = item.type;
+                    document.getElementById('edit-disaster-season').value = item.season;
+                    document.getElementById('edit-disaster-temperature').value = item.temperature;
+                    document.getElementById('edit-disaster-range').value = item.range;
+                    document.getElementById('edit-disaster-risk').value = item.risk;
+                    showModal('disaster-edit-modal');
+                    break;
+                }
+            }
+        }
+
+        function submitDisasterEdit() {
+            var type = document.getElementById('edit-disaster-type').value.trim();
+            var season = document.getElementById('edit-disaster-season').value.trim();
+            var temperature = document.getElementById('edit-disaster-temperature').value.trim();
+            var range = document.getElementById('edit-disaster-range').value.trim();
+            var risk = document.getElementById('edit-disaster-risk').value;
+            if (!type) { alert('请填写灾害类型'); return; }
+            var riskClassMap = {'高风险': 'risk-high', '中风险': 'risk-medium', '低风险': 'risk-low'};
+            for (var i = 0; i < disasterData.length; i++) {
+                if (disasterData[i].id === disasterEditId) {
+                    disasterData[i].type = type;
+                    disasterData[i].season = season;
+                    disasterData[i].temperature = temperature;
+                    disasterData[i].range = range;
+                    disasterData[i].risk = risk;
+                    disasterData[i].riskClass = riskClassMap[risk] || 'risk-medium';
+                    break;
+                }
+            }
+            hideModal('disaster-edit-modal');
+            disasterEditId = null;
+            filteredDisasterData = disasterData.slice();
+            renderDisasterTable();
+            alert('灾害类型修改成功！');
+        }
+
+        function deleteDisasterItem(id) {
+            for (var i = 0; i < disasterData.length; i++) {
+                if (disasterData[i].id === id) {
+                    disasterDeleteId = id;
+                    document.getElementById('delete-disaster-type').textContent = disasterData[i].type;
+                    showModal('disaster-delete-modal');
+                    break;
+                }
+            }
+        }
+
+        function confirmDisasterDelete() {
+            for (var i = 0; i < disasterData.length; i++) {
+                if (disasterData[i].id === disasterDeleteId) { disasterData.splice(i, 1); break; }
+            }
+            hideModal('disaster-delete-modal');
+            disasterDeleteId = null;
+            filteredDisasterData = disasterData.slice();
+            if (disasterCurrentPage > Math.ceil(filteredDisasterData.length / disasterPageSize)) { disasterCurrentPage = Math.max(1, Math.ceil(filteredDisasterData.length / disasterPageSize) || 1); }
+            renderDisasterTable();
+            alert('灾害类型删除成功！');
+        }
+
+        function openDisasterAddModal() {
+            document.getElementById('add-disaster-type').value = '';
+            document.getElementById('add-disaster-season').value = '';
+            document.getElementById('add-disaster-temperature').value = '';
+            document.getElementById('add-disaster-range').value = '';
+            document.getElementById('add-disaster-risk').value = '高风险';
+            showModal('disaster-add-modal');
+        }
+
+        function submitDisasterAdd() {
+            var type = document.getElementById('add-disaster-type').value.trim();
+            var season = document.getElementById('add-disaster-season').value.trim();
+            var temperature = document.getElementById('add-disaster-temperature').value.trim();
+            var range = document.getElementById('add-disaster-range').value.trim();
+            var risk = document.getElementById('add-disaster-risk').value;
+            if (!type) { alert('请填写灾害类型'); return; }
+            var riskClassMap = {'高风险': 'risk-high', '中风险': 'risk-medium', '低风险': 'risk-low'};
+            var newId = 'd-' + (disasterData.length + 1);
+            disasterData.push({ id: newId, type: type, season: season, temperature: temperature, range: range, risk: risk, riskClass: riskClassMap[risk] || 'risk-medium' });
+            hideModal('disaster-add-modal');
+            filteredDisasterData = disasterData.slice();
+            disasterCurrentPage = Math.ceil(filteredDisasterData.length / disasterPageSize);
+            renderDisasterTable();
+            alert('灾害类型添加成功！');
+        }
+
+        function renderAlgorithmTable() {
+            var tbody = document.getElementById('algorithm-tbody');
+            var start = (algorithmCurrentPage - 1) * algorithmPageSize;
+            var end = start + algorithmPageSize;
+            var pageData = filteredAlgorithmData.slice(start, end);
+            var html = '';
+            for (var i = 0; i < pageData.length; i++) {
+                var item = pageData[i];
+                html += '<tr class="border-b border-gray-100 hover:bg-gray-50">';
+                html += '<td class="py-3 px-4 font-medium text-gray-800" style="width:18%">' + item.name + '</td>';
+                html += '<td class="py-3 px-4 text-gray-600 truncate" style="width:25%">' + item.intro + '</td>';
+                html += '<td class="py-3 px-4 text-gray-600" style="width:18%">' + item.disasterType + '</td>';
+                html += '<td class="py-3 px-4" style="width:13%;white-space:nowrap"><span class="px-2 py-1 ' + item.statusClass + ' text-xs rounded font-medium">' + item.status + '</span></td>';
+                html += '<td class="py-3 px-4" style="width:29%"><div style="display:flex;flex-wrap:nowrap;gap:6px">';
+                html += '<button onclick="viewAlgorithm(\'' + item.id + '\')" style="padding:4px 10px;background:#e5e7eb;color:#4b5563;border:none;border-radius:4px;font-size:12px;cursor:pointer;white-space:nowrap">查看</button>';
+                html += '<button onclick="editAlgorithm(\'' + item.id + '\')" style="padding:4px 10px;background:#3b82f6;color:#ffffff;border:none;border-radius:4px;font-size:12px;cursor:pointer;white-space:nowrap">编辑</button>';
+                html += '<button onclick="configAlgorithmParams(\'' + item.id + '\')" style="padding:4px 10px;background:#22c55e;color:#ffffff;border:none;border-radius:4px;font-size:12px;cursor:pointer;white-space:nowrap">参数配置</button>';
+                html += '<button onclick="showDataAssociation(\'' + item.id + '\')" style="padding:4px 10px;background:#f97316;color:#ffffff;border:none;border-radius:4px;font-size:12px;cursor:pointer;white-space:nowrap">关联数据</button>';
+                html += '<button onclick="deleteAlgorithm(\'' + item.id + '\')" style="padding:4px 10px;background:#ffffff;color:#dc2626;border:1px solid #dc2626;border-radius:4px;font-size:12px;cursor:pointer;white-space:nowrap">删除</button>';
+                html += '</div></td></tr>';
+            }
+            tbody.innerHTML = html;
+            document.getElementById('algorithm-total-count').textContent = filteredAlgorithmData.length;
+            document.getElementById('algorithm-current-page').textContent = algorithmCurrentPage;
+            document.getElementById('algorithm-total-pages').textContent = Math.ceil(filteredAlgorithmData.length / algorithmPageSize) || 1;
+        }
+
+        function filterAlgorithm() {
+            var term = document.getElementById('algorithm-search').value.toLowerCase();
+            filteredAlgorithmData = modelAlgorithms.filter(function(item) { return item.name.toLowerCase().indexOf(term) !== -1; });
+            algorithmCurrentPage = 1;
+            renderAlgorithmTable();
+        }
+
+        function algorithmPrevPage() {
+            var totalPages = Math.ceil(filteredAlgorithmData.length / algorithmPageSize);
+            if (algorithmCurrentPage > 1) { algorithmCurrentPage--; renderAlgorithmTable(); }
+        }
+
+        function algorithmNextPage() {
+            var totalPages = Math.ceil(filteredAlgorithmData.length / algorithmPageSize);
+            if (algorithmCurrentPage < totalPages) { algorithmCurrentPage++; renderAlgorithmTable(); }
+        }
+
+        function viewAlgorithm(id) {
+            for (var i = 0; i < modelAlgorithms.length; i++) {
+                if (modelAlgorithms[i].id === id) {
+                    var item = modelAlgorithms[i];
+                    document.getElementById('view-algorithm-name').textContent = item.name;
+                    document.getElementById('view-algorithm-intro').textContent = item.intro;
+                    document.getElementById('view-algorithm-formula').textContent = item.formula;
+                    document.getElementById('view-algorithm-params').textContent = item.paramInterpretation;
+                    document.getElementById('view-algorithm-patterns').textContent = item.patterns;
+                    document.getElementById('view-algorithm-disaster-type').textContent = item.disasterType;
+                    var dataHtml = '';
+                    for (var j = 0; j < item.requiredData.length; j++) {
+                        dataHtml += '<span style="display:inline-block;padding:4px 8px;background:#fff;border:1px solid #e5e7eb;border-radius:4px;font-size:13px;color:#6b7280;margin-right:6px;margin-bottom:4px">' + item.requiredData[j] + '</span>';
+                    }
+                    document.getElementById('view-algorithm-data').innerHTML = dataHtml;
+                    showModal('algorithm-view-modal');
+                    break;
+                }
+            }
+        }
+
+        function editAlgorithm(id) {
+            for (var i = 0; i < modelAlgorithms.length; i++) {
+                if (modelAlgorithms[i].id === id) {
+                    var item = modelAlgorithms[i];
+                    algorithmEditId = id;
+                    document.getElementById('edit-algorithm-name').value = item.name;
+                    document.getElementById('edit-algorithm-intro').value = item.intro;
+                    document.getElementById('edit-algorithm-formula').value = item.formula;
+                    document.getElementById('edit-algorithm-params').value = item.paramInterpretation;
+                    document.getElementById('edit-algorithm-patterns').value = item.patterns;
+                    document.getElementById('edit-algorithm-disaster-type').value = item.disasterType;
+                    document.getElementById('edit-algorithm-data').value = item.requiredData.join(', ');
+                    document.getElementById('edit-algorithm-status').value = item.status;
+                    showModal('algorithm-edit-modal');
+                    break;
+                }
+            }
+        }
+
+        function submitAlgorithmEdit() {
+            var name = document.getElementById('edit-algorithm-name').value.trim();
+            var intro = document.getElementById('edit-algorithm-intro').value.trim();
+            var formula = document.getElementById('edit-algorithm-formula').value.trim();
+            var params = document.getElementById('edit-algorithm-params').value.trim();
+            var patterns = document.getElementById('edit-algorithm-patterns').value.trim();
+            var disasterType = document.getElementById('edit-algorithm-disaster-type').value.trim();
+            var dataStr = document.getElementById('edit-algorithm-data').value.trim();
+            var requiredData = dataStr ? dataStr.split(/[,，]/).map(function(s) { return s.trim(); }).filter(function(s) { return s; }) : [];
+            var status = document.getElementById('edit-algorithm-status').value;
+            if (!name) { alert('请填写模型名称'); return; }
+            var statusClassMap = {'已启用': 'bg-green-100 text-green-700', '待优化': 'bg-yellow-100 text-yellow-700', '已停用': 'bg-red-100 text-red-700'};
+            for (var i = 0; i < modelAlgorithms.length; i++) {
+                if (modelAlgorithms[i].id === algorithmEditId) {
+                    modelAlgorithms[i].name = name;
+                    modelAlgorithms[i].intro = intro;
+                    modelAlgorithms[i].formula = formula;
+                    modelAlgorithms[i].paramInterpretation = params;
+                    modelAlgorithms[i].patterns = patterns;
+                    modelAlgorithms[i].disasterType = disasterType;
+                    modelAlgorithms[i].requiredData = requiredData;
+                    modelAlgorithms[i].status = status;
+                    modelAlgorithms[i].statusClass = statusClassMap[status] || 'bg-gray-100 text-gray-700';
+                    break;
+                }
+            }
+            hideModal('algorithm-edit-modal');
+            algorithmEditId = null;
+            filteredAlgorithmData = modelAlgorithms.slice();
+            renderAlgorithmTable();
+            alert('算法修改成功！');
+        }
+
+        function configAlgorithmParams(id) {
+            for (var i = 0; i < modelAlgorithms.length; i++) {
+                if (modelAlgorithms[i].id === id) {
+                    var item = modelAlgorithms[i];
+                    algorithmConfigId = id;
+                    document.getElementById('config-algorithm-name').textContent = item.name;
+                    var html = '';
+                    for (var j = 0; j < item.params.length; j++) {
+                        var param = item.params[j];
+                        html += '<div style="padding:12px;background:#f9fafb;border-radius:8px">';
+                        html += '<label style="font-size:13px;color:#6b7280;display:block;margin-bottom:4px">' + param.name + ' (' + param.unit + ')</label>';
+                        html += '<input type="number" id="param-val-' + j + '" value="' + param.value + '" step="any" style="width:100%;padding:6px 12px;border:1px solid #d1d5db;border-radius:6px;font-size:13px;box-sizing:border-box">';
+                        html += '<p style="font-size:11px;color:#9ca3af;margin-top:4px">' + param.desc + '</p>';
+                        html += '</div>';
+                    }
+                    document.getElementById('param-config-list').innerHTML = html;
+                    showModal('algorithm-param-config-modal');
+                    break;
+                }
+            }
+        }
+
+        function submitParamConfig() {
+            for (var i = 0; i < modelAlgorithms.length; i++) {
+                if (modelAlgorithms[i].id === algorithmConfigId) {
+                    var item = modelAlgorithms[i];
+                    for (var j = 0; j < item.params.length; j++) {
+                        var input = document.getElementById('param-val-' + j);
+                        if (input) {
+                            item.params[j].value = parseFloat(input.value);
+                        }
+                    }
+                    break;
+                }
+            }
+            hideModal('algorithm-param-config-modal');
+            algorithmConfigId = null;
+            alert('参数配置保存成功！\n模型将自动重新训练以应用新参数。');
+        }
+
+        function showDataAssociation(id) {
+            for (var i = 0; i < modelAlgorithms.length; i++) {
+                if (modelAlgorithms[i].id === id) {
+                    var item = modelAlgorithms[i];
+                    document.getElementById('association-algorithm-name').textContent = item.name;
+                    var html = '';
+                    for (var j = 0; j < item.relatedData.length; j++) {
+                        var data = item.relatedData[j];
+                        html += '<tr style="border-bottom:1px solid #f3f4f6">';
+                        html += '<td style="padding:8px;color:#1f2937">' + data.name + '</td>';
+                        html += '<td style="padding:8px;color:#6b7280">' + data.type + '</td>';
+                        html += '<td style="padding:8px;color:#6b7280">' + data.update + '</td>';
+                        html += '</tr>';
+                    }
+                    document.getElementById('data-association-tbody').innerHTML = html;
+                    showModal('algorithm-data-association-modal');
+                    break;
+                }
+            }
+        }
+
+        function deleteAlgorithm(id) {
+            for (var i = 0; i < modelAlgorithms.length; i++) {
+                if (modelAlgorithms[i].id === id) {
+                    algorithmDeleteId = id;
+                    document.getElementById('delete-algorithm-name').textContent = modelAlgorithms[i].name;
+                    showModal('algorithm-delete-modal');
+                    break;
+                }
+            }
+        }
+
+        function confirmAlgorithmDelete() {
+            for (var i = 0; i < modelAlgorithms.length; i++) {
+                if (modelAlgorithms[i].id === algorithmDeleteId) { modelAlgorithms.splice(i, 1); break; }
+            }
+            hideModal('algorithm-delete-modal');
+            algorithmDeleteId = null;
+            filteredAlgorithmData = modelAlgorithms.slice();
+            if (algorithmCurrentPage > Math.ceil(filteredAlgorithmData.length / algorithmPageSize)) { algorithmCurrentPage = Math.max(1, Math.ceil(filteredAlgorithmData.length / algorithmPageSize) || 1); }
+            renderAlgorithmTable();
+            alert('算法删除成功！');
+        }
+
+        function refreshStatus() { showModal('refresh-status-modal'); }
+
+        function startModel() { showModal('start-model-modal'); }
+
+        function confirmStartModel() { hideModal('start-model-modal'); alert('模型启动成功！\n预计30秒后完成初始化，预测功能将逐步恢复。'); }
+
+        // 点击遮罩关闭弹窗
+        document.addEventListener('click', function(e) {
+            var ids = ['disaster-view-modal', 'disaster-edit-modal', 'disaster-delete-modal', 'disaster-add-modal', 'refresh-status-modal', 'start-model-modal', 'algorithm-view-modal', 'algorithm-edit-modal', 'algorithm-param-config-modal', 'algorithm-data-association-modal', 'algorithm-delete-modal'];
+            for (var i = 0; i < ids.length; i++) {
+                var m = document.getElementById(ids[i]);
+                if (m && m.style.display === 'flex') {
+                    var inner = m.children[0];
+                    if (inner && !inner.contains(e.target) && e.target === m) {
+                        m.style.display = 'none';
+                    }
+                }
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            renderDisasterTable();
+            renderAlgorithmTable();
+
+            var ctx1 = document.getElementById('disasterCategoryChart').getContext('2d');
+            new Chart(ctx1, {
+                type: 'pie',
+                data: {
+                    labels: ['高温热害', '暴雨洪涝', '干旱', '冻害', '冰雹', '台风', '连阴雨'],
+                    datasets: [{
+                        data: [22, 20, 15, 18, 8, 10, 7],
+                        backgroundColor: ['#EF4444', '#3B82F6', '#F97316', '#8B5CF6', '#EAB308', '#06B6D4', '#84CC16'],
+                        borderColor: '#ffffff',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true,
+                                font: { size: 12 }
+                            }
+                        }
+                    }
+                }
+            });
+
+            var ctx2 = document.getElementById('accuracyTrendChart').getContext('2d');
+            new Chart(ctx2, {
+                type: 'line',
+                data: {
+                    labels: ['1月', '2月', '3月', '4月', '5月', '6月', '7月'],
+                    datasets: [{
+                        label: '模型准确率',
+                        data: [83.5, 85.2, 87.1, 88.6, 90.4, 91.5, 92.3],
+                        borderColor: '#3B82F6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.3,
+                        pointBackgroundColor: '#3B82F6',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: { font: { size: 12 } }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: 80,
+                            max: 100,
+                            ticks: { callback: function(value) { return value + '%'; } }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

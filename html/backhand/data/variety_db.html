@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>品种数据库 - 南丰蜜桔模型管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { margin: 0; padding: 0; background-color: #F0F2F5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans SC', sans-serif; }
+        .content-wrapper { padding: 24px; height: 100vh; overflow-y: auto; }
+        .region-checkbox { display: inline-flex; align-items: center; margin-right: 12px; margin-bottom: 8px; cursor: pointer; }
+        .region-checkbox input { margin-right: 4px; }
+        .region-checkbox span { font-size: 13px; color: #374151; }
+        .selected-regions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+        .selected-region-tag { background: #16a34a; color: #fff; padding: 2px 8px; border-radius: 4px; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="content-wrapper">
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800">品种数据库</h1>
+                <p class="text-gray-500 mt-1">管理南丰蜜桔品种信息数据</p>
+            </div>
+            <div class="flex items-center space-x-3">
+                <button onclick="openAddModal()" class="px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 flex items-center">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    添加品种
+                </button>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="p-4 border-b border-gray-100">
+                <div class="flex items-center space-x-4 flex-wrap">
+                    <div class="flex-1 max-w-md">
+                        <div class="relative">
+                            <svg class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                            <input type="text" id="search-input" placeholder="搜索品种名称..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500" oninput="filterVarieties()">
+                        </div>
+                    </div>
+                    <select id="region-filter" class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500" onchange="filterVarieties()">
+                        <option value="">全部区域</option>
+                        <option value="市山镇">市山镇</option>
+                        <option value="琴城镇">琴城镇</option>
+                        <option value="桑田镇">桑田镇</option>
+                        <option value="白舍镇">白舍镇</option>
+                        <option value="太和镇">太和镇</option>
+                        <option value="东坪乡">东坪乡</option>
+                    </select>
+                    <button onclick="resetFilter()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200">重置</button>
+                </div>
+            </div>
+
+            <div id="variety-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+            </div>
+
+            <div class="px-6 py-4 border-t border-gray-100 flex items-center justify-between">
+                <p class="text-sm text-gray-500">共 <span id="total-count">7</span> 条记录</p>
+                <div class="flex items-center space-x-2">
+                    <button onclick="prevPage()" class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50">上一页</button>
+                    <span class="text-sm text-gray-600"><span id="current-page">1</span> / <span id="total-pages">1</span></span>
+                    <button onclick="nextPage()" class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50">下一页</button>
+                    <select id="page-size" class="px-3 py-1 border border-gray-300 rounded text-sm" onchange="changePageSize()">
+                        <option value="6">6条/页</option>
+                        <option value="10">10条/页</option>
+                        <option value="20">20条/页</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加品种弹窗 -->
+    <div id="add-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center">
+        <div style="background:#fff;border-radius:12px;width:90%;max-width:500px;max-height:85vh;overflow-y:auto">
+            <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+                <h3 style="font-size:18px;font-weight:600;color:#1f2937">添加品种</h3>
+                <button onclick="closeModal('add-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
+            </div>
+            <div style="padding:24px">
+                <div style="margin-bottom:16px">
+                    <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">品种名称 <span style="color:#ef4444">*</span></label>
+                    <input type="text" id="add-name" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box" placeholder="请输入品种名称">
+                </div>
+                <div style="margin-bottom:16px">
+                    <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">种植区域</label>
+                    <div id="add-region-checkboxes">
+                        <div class="region-checkbox"><input type="checkbox" value="市山镇"><span>市山镇</span></div>
+                        <div class="region-checkbox"><input type="checkbox" value="琴城镇"><span>琴城镇</span></div>
+                        <div class="region-checkbox"><input type="checkbox" value="桑田镇"><span>桑田镇</span></div>
+                        <div class="region-checkbox"><input type="checkbox" value="白舍镇"><span>白舍镇</span></div>
+                        <div class="region-checkbox"><input type="checkbox" value="太和镇"><span>太和镇</span></div>
+                        <div class="region-checkbox"><input type="checkbox" value="洽湾镇"><span>洽湾镇</span></div>
+                        <div class="region-checkbox"><input type="checkbox" value="东坪乡"><span>东坪乡</span></div>
+                        <div class="region-checkbox"><input type="checkbox" value="紫霄镇"><span>紫霄镇</span></div>
+                        <div class="region-checkbox"><input type="checkbox" value="莱溪乡"><span>莱溪乡</span></div>
+                        <div class="region-checkbox"><input type="checkbox" value="三溪乡"><span>三溪乡</span></div>
+                        <div class="region-checkbox"><input type="checkbox" value="太源乡"><span>太源乡</span></div>
+                    </div>
+                    <div id="add-selected-regions" class="selected-regions"></div>
+                </div>
+                <div style="margin-bottom:16px">
+                    <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">种植面积（万亩）</label>
+                    <input type="number" id="add-area" step="0.1" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box" placeholder="请输入种植面积">
+                </div>
+                <div style="margin-bottom:16px">
+                    <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">占比（%）</label>
+                    <input type="number" id="add-proportion" step="0.1" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box" placeholder="请输入占比">
+                </div>
+                <div style="margin-bottom:16px">
+                    <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">种植主体数量（家）</label>
+                    <input type="number" id="add-subjects" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box" placeholder="请输入种植主体数量">
+                    <input type="text" id="add-subjects-desc" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box;margin-top:8px" placeholder="例如：分散散户为主，规模合作社160余家">
+                </div>
+                <div style="margin-bottom:16px">
+                    <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">品种介绍</label>
+                    <textarea id="add-intro" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box;resize:vertical" rows="3" placeholder="请输入品种介绍"></textarea>
+                </div>
+                <div style="margin-bottom:16px">
+                    <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">品种优势</label>
+                    <textarea id="add-advantage" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box;resize:vertical" rows="3" placeholder="请输入品种优势"></textarea>
+                </div>
+                <div style="margin-bottom:16px">
+                    <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">备注</label>
+                    <textarea id="add-remark" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box;resize:vertical" rows="2" placeholder="请输入备注"></textarea>
+                </div>
+                <div style="margin-bottom:16px">
+                    <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">品种图片上传</label>
+                    <input type="file" id="add-images" accept="image/*" multiple style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box" onchange="previewAddImages(this)">
+                    <div id="add-image-preview" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:8px"></div>
+                </div>
+            </div>
+            <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:12px">
+                <button onclick="closeModal('add-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
+                <button onclick="saveVariety()" style="padding:8px 16px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 查看详情弹窗 -->
+    <div id="detail-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center">
+        <div style="background:#fff;border-radius:12px;width:90%;max-width:550px;max-height:85vh;overflow-y:auto">
+            <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+                <h3 style="font-size:18px;font-weight:600;color:#1f2937">品种详情</h3>
+                <button onclick="closeModal('detail-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
+            </div>
+            <div style="padding:24px">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+                    <div>
+                        <span style="font-size:13px;color:#6b7280">品种名称</span>
+                        <p style="font-size:14px;font-weight:500;color:#1f2937;margin-top:2px" id="detail-name"></p>
+                    </div>
+                    <div>
+                        <span style="font-size:13px;color:#6b7280">种植区域</span>
+                        <p style="font-size:14px;font-weight:500;color:#1f2937;margin-top:2px" id="detail-region"></p>
+                    </div>
+                    <div>
+                        <span style="font-size:13px;color:#6b7280">种植面积</span>
+                        <p style="font-size:14px;font-weight:500;color:#1f2937;margin-top:2px" id="detail-area"></p>
+                    </div>
+                    <div>
+                        <span style="font-size:13px;color:#6b7280">占比</span>
+                        <p style="font-size:14px;font-weight:500;color:#1f2937;margin-top:2px" id="detail-proportion"></p>
+                    </div>
+                    <div>
+                        <span style="font-size:13px;color:#6b7280">种植主体数量</span>
+                        <p style="font-size:14px;font-weight:500;color:#1f2937;margin-top:2px" id="detail-subjects"></p>
+                    </div>
+                </div>
+                <div style="margin-bottom:16px">
+                    <span style="font-size:13px;color:#6b7280">主体描述</span>
+                    <p style="font-size:14px;color:#1f2937;margin-top:2px;white-space:pre-wrap" id="detail-subjects-desc"></p>
+                </div>
+                <div style="margin-bottom:16px">
+                    <span style="font-size:13px;color:#6b7280">品种介绍</span>
+                    <p style="font-size:14px;color:#1f2937;margin-top:2px;white-space:pre-wrap" id="detail-intro"></p>
+                </div>
+                <div style="margin-bottom:16px">
+                    <span style="font-size:13px;color:#6b7280">品种优势</span>
+                    <p style="font-size:14px;color:#1f2937;margin-top:2px;white-space:pre-wrap" id="detail-advantage"></p>
+                </div>
+                <div style="margin-bottom:16px">
+                    <span style="font-size:13px;color:#6b7280">备注</span>
+                    <p style="font-size:14px;color:#1f2937;margin-top:2px;white-space:pre-wrap" id="detail-remark"></p>
+                </div>
+                <div>
+                    <span style="font-size:13px;color:#6b7280;display:block;margin-bottom:8px">品种图片</span>
+                    <div id="detail-images" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px"></div>
+                </div>
+            </div>
+            <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:12px">
+                <button onclick="closeModal('detail-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑品种弹窗 -->
+    <div id="edit-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center">
+        <div style="background:#fff;border-radius:12px;width:90%;max-width:500px;max-height:85vh;overflow-y:auto">
+            <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+                <h3 style="font-size:18px;font-weight:600;color:#1f2937">编辑品种</h3>
+                <button onclick="closeModal('edit-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
+            </div>
+            <div style="padding:24px">
+                <div style="margin-bottom:16px">
+                    <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">品种名称 <span style="color:#ef4444">*</span></label>
+                    <input type="text" id="edit-name" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box">
+                </div>
+                <div style="margin-bottom:16px">
+                    <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">种植区域</label>
+                    <div id="edit-region-checkboxes">
+                        <div class="region-checkbox"><input type="checkbox" value="市山镇"><span>市山镇</span></div>
+                        <div class="region-checkbox"><input type="checkbox" value="琴城镇"><span>琴城镇</span></div>
+                        <div class="region-checkbox"><input type="checkbox" value="桑田镇"><span>桑田镇</span></div>
+                        <div class="region-checkbox"><input type="checkbox" value="白舍镇"><span>白舍镇</span></div>
+                        <div class="region-checkbox"><input type="checkbox" value="太和镇"><span>太和镇</span></div>
+                        <div class="region-checkbox"><input type="checkbox" value="洽湾镇"><span>洽湾镇</span></div>
+                        <div class="region-checkbox"><input type="checkbox" value="东坪乡"><span>东坪乡</span></div>
+                        <div class="region-checkbox"><input type="checkbox" value="紫霄镇"><span>紫霄镇</span></div>
+                        <div class="region-checkbox"><input type="checkbox" value="莱溪乡"><span>莱溪乡</span></div>
+                        <div class="region-checkbox"><input type="checkbox" value="三溪乡"><span>三溪乡</span></div>
+                        <div class="region-checkbox"><input type="checkbox" value="太源乡"><span>太源乡</span></div>
+                    </div>
+                    <div id="edit-selected-regions" class="selected-regions"></div>
+                </div>
+                <div style="margin-bottom:16px">
+                    <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">种植面积（万亩）</label>
+                    <input type="number" id="edit-area" step="0.1" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box">
+                </div>
+                <div style="margin-bottom:16px">
+                    <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">占比（%）</label>
+                    <input type="number" id="edit-proportion" step="0.1" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box">
+                </div>
+                <div style="margin-bottom:16px">
+                    <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">种植主体数量（家）</label>
+                    <input type="number" id="edit-subjects" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box">
+                    <input type="text" id="edit-subjects-desc" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box;margin-top:8px" placeholder="例如：分散散户为主，规模合作社160余家">
+                </div>
+                <div style="margin-bottom:16px">
+                    <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">品种介绍</label>
+                    <textarea id="edit-intro" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box;resize:vertical" rows="3"></textarea>
+                </div>
+                <div style="margin-bottom:16px">
+                    <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">品种优势</label>
+                    <textarea id="edit-advantage" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box;resize:vertical" rows="3"></textarea>
+                </div>
+                <div style="margin-bottom:16px">
+                    <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">备注</label>
+                    <textarea id="edit-remark" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box;resize:vertical" rows="2"></textarea>
+                </div>
+                <div style="margin-bottom:16px">
+                    <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">当前图片</label>
+                    <div id="edit-existing-images" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px"></div>
+                </div>
+                <div style="margin-bottom:16px">
+                    <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">替换图片（最多4张）</label>
+                    <input type="file" id="edit-images" accept="image/*" multiple style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box" onchange="previewEditImages(this)">
+                    <div id="edit-image-preview" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:8px"></div>
+                </div>
+            </div>
+            <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:12px">
+                <button onclick="closeModal('edit-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
+                <button onclick="updateVariety()" style="padding:8px 16px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 删除确认弹窗 -->
+    <div id="delete-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center">
+        <div style="background:#fff;border-radius:12px;width:90%;max-width:400px;max-height:85vh;overflow-y:auto">
+            <div style="padding:24px;text-align:center">
+                <div style="width:64px;height:64px;background:#fee2e2;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
+                    <svg style="width:32px;height:32px;color:#ef4444" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.66 1.732-3L13.732 4c-.77-1.34-2.694-1.34-3.464 0L3.34 16c-.77 1.34.192 3 1.732 3z"/></svg>
+                </div>
+                <h3 style="font-size:18px;font-weight:600;color:#1f2937;margin-bottom:8px">确认删除</h3>
+                <p style="font-size:14px;color:#6b7280;margin-bottom:4px">确定要删除品种 "<span id="delete-name" style="color:#1f2937;font-weight:500"></span>" 吗？</p>
+                <p style="font-size:13px;color:#9ca3af;margin-bottom:24px">此操作不可撤销</p>
+            </div>
+            <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:12px">
+                <button onclick="closeModal('delete-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
+                <button onclick="confirmDelete()" style="padding:8px 16px;background:#ef4444;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">确认删除</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 图片预览弹窗 -->
+    <div id="image-preview-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:99999;align-items:center;justify-content:center">
+        <div style="position:relative;max-width:90vw;max-height:90vh">
+            <button onclick="closeModal('image-preview-modal')" style="position:absolute;top:-40px;right:0;padding:4px 8px;background:none;border:none;cursor:pointer;font-size:28px;color:#fff">&times;</button>
+            <img id="preview-image" src="" alt="预览图片" style="max-width:90vw;max-height:85vh;object-fit:contain;border-radius:8px" />
+        </div>
+    </div>
+
+    <script>
+        function showModal(id) { var m = document.getElementById(id); if (m) m.style.display = 'flex'; }
+        function hideModal(id) { var m = document.getElementById(id); if (m) m.style.display = 'none'; }
+        function closeModal(id) { hideModal(id); }
+
+        const varieties = [
+            {
+                id: 'variety-1',
+                name: '小果系（杨小2-6，金钱蜜桔）',
+                regions: ['市山镇', '琴城镇', '桑田镇'],
+                area: 12.5,
+                proportion: 56,
+                subjects: 160,
+                subjectsDesc: '分散散户为主，规模合作社160余家',
+                intro: '传统正宗南丰蜜桔代表品系；单果重约30g，果皮薄、橙黄色，果肉柔嫩、少核或无核，成熟期11月上中旬；是地理标志核心代表品系。',
+                advantage: '香气浓郁、浓甜化渣；市场认可度最高，出口主力品种；精品果溢价能力强。',
+                remark: '大小年现象较明显；高品质果园需要精细化管理；全县主推优质品系。',
+                images: [
+                    'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=' + encodeURIComponent('南丰蜜桔小果系果实特写') + '&image_size=square_hd',
+                    'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=' + encodeURIComponent('南丰蜜桔小果系果肉切面') + '&image_size=square_hd',
+                    'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=' + encodeURIComponent('南丰蜜桔果园丰收') + '&image_size=square_hd',
+                    'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=' + encodeURIComponent('南丰蜜桔精品礼盒包装') + '&image_size=square_hd'
+                ]
+            },
+            {
+                id: 'variety-2',
+                name: '大果系',
+                regions: ['白舍镇', '紫霄镇', '东坪乡', '莱溪乡'],
+                area: 5.2,
+                proportion: 24,
+                subjects: 70,
+                subjectsDesc: '分散散户为主，规模合作社70余家',
+                intro: '树势强健，单果重50g左右，果形端正个头大；成熟期11月中旬，甜酸适口，汁水充足，种子数量多于小果系。',
+                advantage: '丰产稳产、采摘效率高；大众鲜果市场走量优势明显，抗逆性较强。',
+                remark: '风味甜度弱于小果系，化渣一般；适合商超大宗流通，精品化价值偏低。',
+                images: [
+                    'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=' + encodeURIComponent('南丰蜜桔大果系果实特写') + '&image_size=square_hd',
+                    'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=' + encodeURIComponent('南丰蜜桔大果系果肉切面') + '&image_size=square_hd',
+                    'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=' + encodeURIComponent('南丰蜜桔山地果园') + '&image_size=square_hd',
+                    'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=' + encodeURIComponent('南丰蜜桔商超货架陈列') + '&image_size=square_hd'
+                ]
+            },
+            {
+                id: 'variety-3',
+                name: '桂花蒂系（柿蒂蜜桔）',
+                regions: ['市山镇', '琴城镇'],
+                area: 1.8,
+                proportion: 8,
+                subjects: 20,
+                subjectsDesc: '散户零星种植，精品果园20余家',
+                intro: '果蒂萼片隆起呈五星桂花状，辨识度高；果实性状接近小果系，成熟期11月中旬，风味香浓。',
+                advantage: '耐储藏性能突出；外观独特适合礼品市场，传统老品种辨识度高。',
+                remark: '繁育苗木较少，规模化扩张缓慢；多保留在百年传统桔园。',
+                images: [
+                    'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=' + encodeURIComponent('南丰桂花蒂系蜜桔果实') + '&image_size=square_hd',
+                    'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=' + encodeURIComponent('南丰桂花蒂系蜜桔果肉') + '&image_size=square_hd',
+                    'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=' + encodeURIComponent('南丰百年传统桔园') + '&image_size=square_hd',
+                    'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=' + encodeURIComponent('南丰蜜桔传统礼品包装') + '&image_size=square_hd'
+                ]
+            },
+            {
+                id: 'variety-4',
+                name: '早熟系（普通早熟蜜桔）',
+                regions: ['桑田镇', '太和镇', '洽湾镇'],
+                area: 1.2,
+                proportion: 5.5,
+                subjects: 45,
+                subjectsDesc: '散户+小型家庭农场45家',
+                intro: '芽变选育品系，成熟期比常规蜜桔提早15～20天，10月下旬成熟；果型接近小果系。',
+                advantage: '抢先上市，填补前期市场空档，早市售价较高。',
+                remark: '风味偏淡，甜度不足；大小年明显，不宜大面积单一发展。',
+                images: [
+                    'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=' + encodeURIComponent('南丰蜜桔早熟系果实') + '&image_size=square_hd',
+                    'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=' + encodeURIComponent('南丰蜜桔早熟系果肉') + '&image_size=square_hd',
+                    'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=' + encodeURIComponent('南丰蜜桔秋季采摘') + '&image_size=square_hd',
+                    'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=' + encodeURIComponent('南丰蜜桔批发市场') + '&image_size=square_hd'
+                ]
+            },
+            {
+                id: 'variety-5',
+                name: '桂月红（特早熟芽变）',
+                regions: ['白舍镇', '莱溪乡'],
+                area: 0.4,
+                proportion: 1.8,
+                subjects: 12,
+                subjectsDesc: '示范合作社、龙头企业12家',
+                intro: '南丰本土芽变新品种，9月中下旬成熟，国庆前上市；极早熟类型，保持蜜桔风味特征。',
+                advantage: '上市时间极早，竞争压力小；配套标准化栽培可实现增产。',
+                remark: '尚处于示范推广阶段，苗木供应量有限，持续区域试验观察。',
+                images: [
+                    'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=' + encodeURIComponent('南丰桂月红蜜桔果实') + '&image_size=square_hd',
+                    'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=' + encodeURIComponent('南丰桂月红蜜桔果肉') + '&image_size=square_hd',
+                    'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=' + encodeURIComponent('南丰现代农业产业园') + '&image_size=square_hd',
+                    'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=' + encodeURIComponent('南丰蜜桔国庆礼盒') + '&image_size=square_hd'
+                ]
+            },
+            {
+                id: 'variety-6',
+                name: '蜜广1号（晚熟蜜广）',
+                regions: ['东坪乡', '紫霄镇'],
+                area: 0.9,
+                proportion: 4.1,
+                subjects: 30,
+                subjectsDesc: '龙头企业、联合种植社30余家',
+                intro: '晚熟改良品种，11月下旬成熟；易剥皮、果肉细嫩化渣、糖度高，拉长采收销售周期。',
+                advantage: '错峰销售，规避集中上市价格战；储运表现优良。',
+                remark: '外来改良品系，不属于传统原生南丰蜜桔；部分渠道不认定为正宗地理标志蜜桔。',
+                images: [
+                    'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=' + encodeURIComponent('南丰蜜广1号蜜桔果实') + '&image_size=square_hd',
+                    'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=' + encodeURIComponent('南丰蜜广1号蜜桔果肉') + '&image_size=square_hd',
+                    'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=' + encodeURIComponent('南丰蜜桔冬季果园') + '&image_size=square_hd',
+                    'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=' + encodeURIComponent('南丰蜜桔冷链包装') + '&image_size=square_hd'
+                ]
+            },
+            {
+                id: 'variety-7',
+                name: '其他引进柑橘（金秋砂糖桔等）',
+                regions: ['琴城镇', '莱溪乡'],
+                area: 0.08,
+                proportion: 0.4,
+                subjects: 18,
+                subjectsDesc: '采摘园、休闲农场18家',
+                intro: '外来柑橘品种，不作为南丰蜜桔主体，仅用于采摘观光、丰富园区品种结构。',
+                advantage: '丰富采摘园品类，延长园区观光周期。',
+                remark: '不属于南丰蜜桔品系，不能使用"南丰蜜桔"地理标志；以休闲业态为主。',
+                images: [
+                    'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=' + encodeURIComponent('金秋砂糖桔果实特写') + '&image_size=square_hd',
+                    'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=' + encodeURIComponent('金秋砂糖桔果肉切面') + '&image_size=square_hd',
+                    'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=' + encodeURIComponent('南丰休闲农业采摘园') + '&image_size=square_hd',
+                    'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=' + encodeURIComponent('游客采摘蜜桔场景') + '&image_size=square_hd'
+                ]
+            }
+        ];
+
+        let currentPage = 1;
+        let pageSize = 6;
+        let currentId = null;
+        let filteredVarieties = [...varieties];
+
+        function getVarietyById(id) {
+            return varieties.find(function(v) { return v.id === id; });
+        }
+
+        function getRegionColor(region) {
+            if (region.includes('市山镇') || region.includes('琴城镇')) return 'bg-blue-100 text-blue-700';
+            if (region.includes('白舍镇') || region.includes('桑田镇')) return 'bg-green-100 text-green-700';
+            if (region.includes('东坪乡') || region.includes('太和镇')) return 'bg-orange-100 text-orange-700';
+            return 'bg-purple-100 text-purple-700';
+        }
+
+        function updateSelectedRegions(modalId) {
+            var checkboxes = document.querySelectorAll('#' + modalId + '-region-checkboxes input');
+            var container = document.getElementById(modalId + '-selected-regions');
+            var selected = [];
+            checkboxes.forEach(function(cb) {
+                if (cb.checked) selected.push(cb.value);
+            });
+            container.innerHTML = selected.map(function(r) {
+                return '<span class="selected-region-tag">' + r + '</span>';
+            }).join('');
+        }
+
+        ['add', 'edit'].forEach(function(modalId) {
+            document.querySelectorAll('#' + modalId + '-region-checkboxes input').forEach(function(cb) {
+                cb.addEventListener('change', function() {
+                    updateSelectedRegions(modalId);
+                });
+            });
+        });
+
+        function renderVarieties() {
+            var container = document.getElementById('variety-list');
+            var start = (currentPage - 1) * pageSize;
+            var end = start + pageSize;
+            var pageData = filteredVarieties.slice(start, end);
+
+            container.innerHTML = pageData.map(function(variety) {
+                var regionText = variety.regions.join('、');
+                return '<div class="border border-gray-200 rounded-xl p-4 hover:border-green-300 hover:shadow-md transition">' +
+                    '<div class="flex items-start justify-between mb-3">' +
+                        '<div class="flex items-center space-x-3 flex-1 min-w-0">' +
+                            '<div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">' +
+                                '<svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>' +
+                            '</div>' +
+                            '<div class="min-w-0">' +
+                                '<h3 class="font-semibold text-gray-800 truncate">' + variety.name + '</h3>' +
+                                '<span class="px-2 py-0.5 ' + getRegionColor(regionText) + ' text-xs rounded">' + regionText.split('、')[0] + '</span>' +
+                            '</div>' +
+                        '</div>' +
+                        '<div class="flex items-center space-x-2 flex-shrink-0">' +
+                            '<button onclick="openDetailModal(\'' + variety.id + '\')" class="p-1 text-gray-400 hover:text-blue-600" title="查看详情">' +
+                                '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>' +
+                            '</button>' +
+                            '<button onclick="openEditModal(\'' + variety.id + '\')" class="p-1 text-gray-400 hover:text-blue-600" title="编辑">' +
+                                '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>' +
+                            '</button>' +
+                            '<button onclick="openDeleteModal(\'' + variety.id + '\')" class="p-1 text-gray-400 hover:text-red-600" title="删除">' +
+                                '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>' +
+                            '</button>' +
+                        '</div>' +
+                    '</div>' +
+                    '<p class="text-sm text-gray-600 mb-3 line-clamp-2">' + variety.intro + '</p>' +
+                    '<div class="flex items-center space-x-4 text-xs text-gray-500 mb-3 flex-wrap">' +
+                        '<span class="flex items-center"><svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>' + variety.area + '万亩（占比' + variety.proportion + '%）</span>' +
+                        '<span class="flex items-center"><svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>' + variety.subjects + '家</span>' +
+                    '</div>' +
+                    '<div class="grid grid-cols-4 gap-2">' +
+                        variety.images.map(function(img, idx) {
+                            return '<img src="' + img + '" alt="品种图片' + (idx + 1) + '" class="w-full h-20 object-cover rounded cursor-pointer" onclick="openImagePreview(\'' + img + '\')" onerror="this.style.display=\'none\'" />';
+                        }).join('') +
+                    '</div>' +
+                '</div>';
+            }).join('');
+
+            updatePagination();
+        }
+
+        function updatePagination() {
+            var totalPages = Math.ceil(filteredVarieties.length / pageSize);
+            document.getElementById('total-count').textContent = filteredVarieties.length;
+            document.getElementById('current-page').textContent = currentPage;
+            document.getElementById('total-pages').textContent = totalPages || 1;
+        }
+
+        function openImagePreview(url) {
+            document.getElementById('preview-image').src = url;
+            showModal('image-preview-modal');
+        }
+
+        function previewAddImages(input) {
+            var container = document.getElementById('add-image-preview');
+            container.innerHTML = '';
+            if (input.files && input.files.length > 0) {
+                var maxFiles = Math.min(input.files.length, 4);
+                for (var i = 0; i < maxFiles; i++) {
+                    var reader = new FileReader();
+                    reader.onload = function(e) {
+                        var img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.style.cssText = 'width:100%;height:64px;object-fit:cover;border-radius:6px';
+                        container.appendChild(img);
+                    };
+                    reader.readAsDataURL(input.files[i]);
+                }
+            }
+        }
+
+        function previewEditImages(input) {
+            var container = document.getElementById('edit-image-preview');
+            container.innerHTML = '';
+            if (input.files && input.files.length > 0) {
+                var maxFiles = Math.min(input.files.length, 4);
+                for (var i = 0; i < maxFiles; i++) {
+                    var reader = new FileReader();
+                    reader.onload = function(e) {
+                        var img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.style.cssText = 'width:100%;height:64px;object-fit:cover;border-radius:6px';
+                        container.appendChild(img);
+                    };
+                    reader.readAsDataURL(input.files[i]);
+                }
+            }
+        }
+
+        function openAddModal() {
+            document.getElementById('add-name').value = '';
+            document.getElementById('add-area').value = '';
+            document.getElementById('add-proportion').value = '';
+            document.getElementById('add-subjects').value = '';
+            document.getElementById('add-subjects-desc').value = '';
+            document.getElementById('add-intro').value = '';
+            document.getElementById('add-advantage').value = '';
+            document.getElementById('add-remark').value = '';
+            document.getElementById('add-images').value = '';
+            document.getElementById('add-image-preview').innerHTML = '';
+            document.querySelectorAll('#add-region-checkboxes input').forEach(function(cb) { cb.checked = false; });
+            updateSelectedRegions('add');
+            showModal('add-modal');
+        }
+
+        function openEditModal(id) {
+            currentId = id;
+            var variety = getVarietyById(id);
+            if (variety) {
+                document.getElementById('edit-name').value = variety.name;
+                document.getElementById('edit-area').value = variety.area;
+                document.getElementById('edit-proportion').value = variety.proportion;
+                document.getElementById('edit-subjects').value = variety.subjects;
+                document.getElementById('edit-subjects-desc').value = variety.subjectsDesc;
+                document.getElementById('edit-intro').value = variety.intro;
+                document.getElementById('edit-advantage').value = variety.advantage;
+                document.getElementById('edit-remark').value = variety.remark;
+                document.querySelectorAll('#edit-region-checkboxes input').forEach(function(cb) {
+                    cb.checked = variety.regions.includes(cb.value);
+                });
+                updateSelectedRegions('edit');
+                var existingContainer = document.getElementById('edit-existing-images');
+                existingContainer.innerHTML = variety.images.map(function(img, idx) {
+                    return '<img src="' + img + '" alt="品种图片' + (idx + 1) + '" style="width:100%;height:64px;object-fit:cover;border-radius:8px;cursor:pointer" onclick="openImagePreview(\'' + img + '\')" onerror="this.style.display=\'none\'" />';
+                }).join('');
+            }
+            document.getElementById('edit-images').value = '';
+            document.getElementById('edit-image-preview').innerHTML = '';
+            showModal('edit-modal');
+        }
+
+        function openDetailModal(id) {
+            var variety = getVarietyById(id);
+            if (variety) {
+                document.getElementById('detail-name').textContent = variety.name;
+                document.getElementById('detail-region').textContent = variety.regions.join('、');
+                document.getElementById('detail-area').textContent = variety.area + '万亩';
+                document.getElementById('detail-proportion').textContent = variety.proportion + '%';
+                document.getElementById('detail-subjects').textContent = variety.subjects + '家';
+                document.getElementById('detail-subjects-desc').textContent = variety.subjectsDesc || '-';
+                document.getElementById('detail-intro').textContent = variety.intro;
+                document.getElementById('detail-advantage').textContent = variety.advantage;
+                document.getElementById('detail-remark').textContent = variety.remark;
+                document.getElementById('detail-images').innerHTML = variety.images.map(function(img, idx) {
+                    return '<img src="' + img + '" alt="品种图片' + (idx + 1) + '" style="width:100%;height:80px;object-fit:cover;border-radius:6px;cursor:pointer" onclick="openImagePreview(\'' + img + '\')" onerror="this.style.display=\'none\'" />';
+                }).join('');
+            }
+            showModal('detail-modal');
+        }
+
+        function openDeleteModal(id) {
+            currentId = id;
+            var variety = getVarietyById(id);
+            document.getElementById('delete-name').textContent = variety ? variety.name : '';
+            showModal('delete-modal');
+        }
+
+        function saveVariety() {
+            var name = document.getElementById('add-name').value;
+            if (!name) {
+                alert('请填写品种名称');
+                return;
+            }
+            alert('品种数据添加成功！\n名称: ' + name);
+            closeModal('add-modal');
+        }
+
+        function updateVariety() {
+            alert('品种数据更新成功！');
+            closeModal('edit-modal');
+        }
+
+        function confirmDelete() {
+            alert('品种数据删除成功！');
+            closeModal('delete-modal');
+        }
+
+        function filterVarieties() {
+            var searchTerm = document.getElementById('search-input').value.toLowerCase();
+            var regionFilter = document.getElementById('region-filter').value;
+
+            filteredVarieties = varieties.filter(function(v) {
+                var matchesSearch = v.name.toLowerCase().includes(searchTerm) || v.intro.toLowerCase().includes(searchTerm);
+                var matchesRegion = !regionFilter || v.regions.includes(regionFilter);
+                return matchesSearch && matchesRegion;
+            });
+
+            currentPage = 1;
+            renderVarieties();
+        }
+
+        function resetFilter() {
+            document.getElementById('search-input').value = '';
+            document.getElementById('region-filter').value = '';
+            filteredVarieties = [...varieties];
+            currentPage = 1;
+            renderVarieties();
+        }
+
+        function prevPage() {
+            var totalPages = Math.ceil(filteredVarieties.length / pageSize);
+            if (currentPage > 1) {
+                currentPage--;
+                renderVarieties();
+            }
+        }
+
+        function nextPage() {
+            var totalPages = Math.ceil(filteredVarieties.length / pageSize);
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderVarieties();
+            }
+        }
+
+        function changePageSize() {
+            pageSize = parseInt(document.getElementById('page-size').value);
+            currentPage = 1;
+            renderVarieties();
+        }
+
+        document.addEventListener('click', function(e) {
+            ['add-modal', 'detail-modal', 'edit-modal', 'delete-modal', 'image-preview-modal'].forEach(function(modalId) {
+                var m = document.getElementById(modalId);
+                if (m && e.target === m) {
+                    hideModal(modalId);
+                }
+            });
+        });
+
+        renderVarieties();
+    </script>
+</body>
+</html>

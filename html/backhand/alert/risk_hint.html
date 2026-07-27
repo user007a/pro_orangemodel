@@ -1,0 +1,637 @@
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>风险提示 - 南丰蜜桔模型管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { margin: 0; padding: 0; background-color: #F0F2F5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans SC', sans-serif; }
+        .content-wrapper { padding: 24px; }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.5); z-index: 1000; align-items: center; justify-content: center; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background-color: white; border-radius: 12px; width: 90%; max-width: 700px; max-height: 85vh; overflow-y: auto; }
+    </style>
+</head>
+<body>
+    <div class="content-wrapper">
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800">风险提示</h1>
+                <p class="text-gray-500 mt-1">管理南丰蜜桔种植风险提示信息</p>
+            </div>
+        </div>
+
+        <!-- 统计卡片 -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-500">风险总数</p>
+                        <p class="text-2xl font-bold text-gray-800 mt-1" id="stat-total">0</p>
+                    </div>
+                    <div class="w-12 h-12 bg-green-50 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-500">待审核</p>
+                        <p class="text-2xl font-bold text-orange-600 mt-1" id="stat-pending">0</p>
+                    </div>
+                    <div class="w-12 h-12 bg-orange-50 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-500">已审核</p>
+                        <p class="text-2xl font-bold text-green-600 mt-1" id="stat-approved">0</p>
+                    </div>
+                    <div class="w-12 h-12 bg-green-50 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-500">已驳回</p>
+                        <p class="text-2xl font-bold text-red-600 mt-1" id="stat-rejected">0</p>
+                    </div>
+                    <div class="w-12 h-12 bg-red-50 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 搜索栏 -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6">
+            <div class="flex items-center space-x-4 flex-wrap gap-y-3">
+                <div class="flex-1 min-w-[200px]">
+                    <input type="text" id="search-input" placeholder="搜索风险标题、描述..." class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500" oninput="filterRisks()">
+                </div>
+                <select id="level-filter" class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500" onchange="filterRisks()">
+                    <option value="">全部级别</option>
+                    <option value="红色">红色风险</option>
+                    <option value="橙色">橙色风险</option>
+                    <option value="黄色">黄色风险</option>
+                    <option value="蓝色">蓝色风险</option>
+                </select>
+                <select id="status-filter" class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500" onchange="filterRisks()">
+                    <option value="">全部状态</option>
+                    <option value="待审核">待审核</option>
+                    <option value="已审核">已审核</option>
+                    <option value="已驳回">已驳回</option>
+                </select>
+                <button onclick="resetFilter()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200">重置</button>
+                <button onclick="exportRisks()" class="px-4 py-2 bg-gray-600 text-white rounded-lg text-sm hover:bg-gray-700 flex items-center">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                    导出
+                </button>
+                <button onclick="openAddModal()" class="px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 flex items-center">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    新增风险提示
+                </button>
+            </div>
+        </div>
+
+        <!-- 风险数据列表 -->
+        <div id="risk-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+
+        <!-- 分页 -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 px-6 py-4 mt-4 flex items-center justify-between flex-wrap gap-y-2">
+            <p class="text-sm text-gray-500" id="record-count">共 0 条记录</p>
+            <div class="flex items-center space-x-2" id="pagination"></div>
+            <div class="flex items-center space-x-2">
+                <span class="text-sm text-gray-500">每页</span>
+                <select id="page-size" class="px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500" onchange="changePageSize()">
+                    <option value="5">5</option>
+                    <option value="10" selected>10</option>
+                    <option value="20">20</option>
+                </select>
+                <span class="text-sm text-gray-500">条</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新增弹窗 -->
+    <div id="add-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-800">新增风险提示</h3>
+                <button onclick="closeModal('add-modal')" class="p-1 hover:bg-gray-100 rounded">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">风险标题</label>
+                        <input type="text" id="add-title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="请输入风险标题">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">风险级别</label>
+                            <select id="add-level" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                                <option value="红色">红色风险</option>
+                                <option value="橙色">橙色风险</option>
+                                <option value="黄色">黄色风险</option>
+                                <option value="蓝色">蓝色风险</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">影响范围</label>
+                            <input type="text" id="add-area" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="请输入影响范围">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">风险描述</label>
+                        <textarea id="add-desc" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" rows="4" placeholder="请输入风险描述"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">防护建议</label>
+                        <textarea id="add-suggestion" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" rows="4" placeholder="请输入防护建议（每行一条）"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="p-4 border-t border-gray-200 flex justify-end space-x-3">
+                <button onclick="closeModal('add-modal')" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm">取消</button>
+                <button onclick="saveRisk()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑弹窗 -->
+    <div id="edit-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-800">编辑风险提示</h3>
+                <button onclick="closeModal('edit-modal')" class="p-1 hover:bg-gray-100 rounded">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">风险标题</label>
+                        <input type="text" id="edit-title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">风险级别</label>
+                            <select id="edit-level" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                                <option value="红色">红色风险</option>
+                                <option value="橙色">橙色风险</option>
+                                <option value="黄色">黄色风险</option>
+                                <option value="蓝色">蓝色风险</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">影响范围</label>
+                            <input type="text" id="edit-area" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">风险描述</label>
+                        <textarea id="edit-desc" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" rows="4"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">防护建议</label>
+                        <textarea id="edit-suggestion" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" rows="4"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="p-4 border-t border-gray-200 flex justify-end space-x-3">
+                <button onclick="closeModal('edit-modal')" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm">取消</button>
+                <button onclick="updateRisk()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 审核弹窗 -->
+    <div id="audit-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-800">审核风险提示</h3>
+                <button onclick="closeModal('audit-modal')" class="p-1 hover:bg-gray-100 rounded">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="mb-4">
+                    <p class="text-sm text-gray-500 mb-1">风险标题</p>
+                    <p id="audit-title" class="text-base font-medium text-gray-800 bg-gray-50 px-3 py-2 rounded"></p>
+                </div>
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <p class="text-sm text-gray-500 mb-1">风险级别</p>
+                        <p id="audit-level" class="text-sm text-gray-800 bg-gray-50 px-3 py-2 rounded"></p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500 mb-1">影响范围</p>
+                        <p id="audit-area" class="text-sm text-gray-800 bg-gray-50 px-3 py-2 rounded"></p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500 mb-1">发布时间</p>
+                        <p id="audit-time" class="text-sm text-gray-800 bg-gray-50 px-3 py-2 rounded"></p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500 mb-1">当前状态</p>
+                        <p id="audit-status" class="text-sm text-gray-800 bg-gray-50 px-3 py-2 rounded"></p>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <p class="text-sm text-gray-500 mb-1">风险描述</p>
+                    <p id="audit-desc" class="text-sm text-gray-800 bg-gray-50 px-3 py-3 rounded leading-relaxed"></p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500 mb-1">审核意见</p>
+                    <textarea id="audit-comment" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="请输入审核意见（可选）"></textarea>
+                </div>
+            </div>
+            <div class="p-4 border-t border-gray-200 flex justify-end space-x-3">
+                <button onclick="closeModal('audit-modal')" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm">取消</button>
+                <button onclick="rejectAudit()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm">驳回</button>
+                <button onclick="approveAudit()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">通过审核</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 删除弹窗 -->
+    <div id="delete-modal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 420px;">
+            <div class="p-6 text-center">
+                <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">确认删除</h3>
+                <p class="text-sm text-gray-500 mb-6">确定要删除这条风险提示吗？此操作不可撤销。</p>
+                <div class="flex justify-center space-x-3">
+                    <button onclick="closeModal('delete-modal')" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm">取消</button>
+                    <button onclick="confirmDelete()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm">确认删除</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentRiskId = null;
+        let currentPage = 1;
+        let pageSize = 10;
+
+        const levelMap = {
+            '红色': 'bg-red-100 text-red-700',
+            '橙色': 'bg-orange-100 text-orange-700',
+            '黄色': 'bg-yellow-100 text-yellow-700',
+            '蓝色': 'bg-blue-100 text-blue-700'
+        };
+        const levelTextMap = { '红色': 'text-red-600', '橙色': 'text-orange-600', '黄色': 'text-yellow-600', '蓝色': 'text-blue-600' };
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
+        let risks = [
+            { id: 'risk-1', title: '高温热害风险提示', time: '2026-07-22 09:00', level: '红色', area: '全县范围', status: '已审核', desc: '根据气象部门预报，未来5天我县将出现持续高温天气，最高气温将升至38°C以上，对蜜桔果实膨大期生长存在较大风险。', suggestions: ['及时进行灌溉降温，保持土壤湿润', '树冠覆盖遮阳网，减少直射光照', '喷施叶面肥和抗高温剂，增强树体抗逆性', '加强果园通风，降低环境温度'] },
+            { id: 'risk-2', title: '持续干旱风险提示', time: '2026-07-20 14:30', level: '橙色', area: '全县范围', status: '已审核', desc: '我县已连续22天无有效降雨，土壤墒情严重不足，部分果园出现叶片卷曲、果实发育迟缓等干旱症状，需紧急采取灌溉措施。', suggestions: ['紧急进行灌溉补水，优先保障结果树和幼树', '覆盖地膜或秸秆，减少土壤水分蒸发', '喷施抗蒸腾剂，降低叶片水分消耗', '疏除部分果实，减轻树体负担'] },
+            { id: 'risk-3', title: '暴雨洪涝风险提示', time: '2026-07-19 08:00', level: '黄色', area: '太和镇、桑田镇', status: '已审核', desc: '根据气象预报，未来2天太和镇、桑田镇将出现大到暴雨，可能造成果园积水，影响蜜桔根系生长，需提前做好排水准备。', suggestions: ['清理果园排水沟渠，确保排水畅通', '低洼地块提前准备抽水设备', '加固树体支撑，防止倒伏', '雨后及时中耕松土，改善土壤透气性'] },
+            { id: 'risk-4', title: '锈壁虱高发风险提示', time: '2026-07-18 10:30', level: '蓝色', area: '白舍镇', status: '待审核', desc: '近期监测显示白舍镇部分果园锈壁虱虫口密度上升，7月正值果实膨大期，锈壁虱危害易造成果皮黑褐色，影响果实品质，建议及时防治。', suggestions: ['使用阿维菌素或螺螨酯进行喷雾防治', '重点喷施果实和叶背', '间隔7-10天连续防治2次', '加强虫情监测，及时调整防治方案'] },
+            { id: 'risk-5', title: '红蜘蛛爆发风险提示', time: '2026-07-17 15:00', level: '红色', area: '南丰镇', status: '已审核', desc: '南丰镇多个果园红蜘蛛虫口密度大幅超标，达到防治指标的3倍以上，7月高温干燥天气加速其繁殖，需紧急开展防治。', suggestions: ['使用哒螨灵或联苯肼酯进行紧急防治', '间隔5-7天连续喷药2-3次', '增加果园湿度，抑制红蜘蛛繁殖', '注意轮换用药，防止产生抗药性'] },
+            { id: 'risk-6', title: '潜叶蛾危害风险提示', time: '2026-07-16 11:00', level: '橙色', area: '市山镇', status: '已审核', desc: '市山镇7月夏梢抽发期潜叶蛾危害严重，新梢受害率达35%，严重影响叶片光合作用和树势，需及时防治。', suggestions: ['使用阿维菌素或高效氯氟氰菊酯防治', '统一放梢，便于集中防治', '抹除过早或过晚抽发的嫩梢', '保护潜叶蛾天敌，开展生物防治'] },
+            { id: 'risk-7', title: '炭疽病预警提示', time: '2026-07-15 09:30', level: '黄色', area: '太和镇', status: '待审核', desc: '太和镇部分果园出现炭疽病初期症状，7月高温高湿交替天气利于病害蔓延，需提前做好预防措施。', suggestions: ['喷施甲基硫菌灵或代森锰锌进行预防', '及时清除病枝病叶并集中处理', '加强果园通风透光，降低湿度', '增施有机肥，提高树体抗病能力'] },
+            { id: 'risk-8', title: '大风灾害风险提示', time: '2026-07-14 16:00', level: '蓝色', area: '琴城镇', status: '已审核', desc: '气象预报明日琴城镇将出现6-7级大风，正值果实膨大期，大风可能导致落果和枝条折断，需做好防范措施。', suggestions: ['加固树体支撑，防止倒伏', '检查并加固防鸟网和遮阳网', '大风过后及时巡查果园', '清理折断枝条，减少伤口感染'] },
+            { id: 'risk-9', title: '日灼病风险提示', time: '2026-07-13 14:00', level: '橙色', area: '南丰镇', status: '已审核', desc: '7月持续高温烈日导致部分果园日灼病加重，果实向阳面出现黄褐色斑块，严重影响果实商品价值。', suggestions: ['果实套袋或喷涂保护剂', '树冠覆盖遮阳网遮光降温', '树干涂白反射阳光', '保持土壤湿润降低环境温度'] },
+            { id: 'risk-10', title: '蚜虫爆发风险提示', time: '2026-07-12 10:00', level: '黄色', area: '桑田镇', status: '待审核', desc: '桑田镇夏梢蚜虫密度上升明显，蚜虫危害新梢嫩叶并传播病毒病，影响树势和果实发育。', suggestions: ['使用吡虫啉或啶虫脒进行喷雾防治', '保护和利用瓢虫等天敌', '及时抹除过于密集的夏梢', '悬挂黄色粘虫板进行诱杀'] },
+            { id: 'risk-11', title: '冰雹灾害预警', time: '2026-07-11 08:00', level: '红色', area: '白舍镇、太和镇', status: '已审核', desc: '气象雷达监测显示强对流云团正在形成，预计7月12日下午白舍镇、太和镇可能出现冰雹天气，对蜜桔果实造成严重机械损伤。', suggestions: ['紧急通知种植户做好防雹准备', '有条件的果园启动防雹网', '冰雹过后及时清理受伤果实', '喷施杀菌剂预防伤口感染'] },
+            { id: 'risk-12', title: '土壤酸化风险提示', time: '2026-07-10 15:30', level: '蓝色', area: '洽湾镇', status: '已审核', desc: '洽湾镇部分果园土壤pH值降至4.8，酸化趋势明显，影响根系对钙镁等元素的吸收，需及时采取改良措施。', suggestions: ['施用生石灰或白云石粉改良土壤', '增施有机肥和生物菌肥', '减少酸性化肥施用量', '定期监测土壤pH变化'] },
+            { id: 'risk-13', title: '低温冷害风险提示', time: '2026-07-09 11:00', level: '蓝色', area: '市山镇', status: '待审核', desc: '受冷空气影响，未来3天夜间最低气温将降至16°C以下，虽然7月低温不常见，但对正在膨大的果实可能造成生长抑制。', suggestions: ['低洼果园注意防霜', '适量灌溉提高地温', '喷施磷酸二氢钾增强抗寒性', '关注天气预报及时调整管理'] },
+            { id: 'risk-14', title: '溃疡病风险提示', time: '2026-07-08 09:00', level: '橙色', area: '白舍镇', status: '已审核', desc: '白舍镇部分果园出现溃疡病症状，7月风雨天气易造成病菌传播，需及时防控防止扩散。', suggestions: ['及时剪除病枝病叶并烧毁', '喷施铜制剂进行预防', '严格控制果园人员进出', '加强果园排水降低湿度'] },
+            { id: 'risk-15', title: '缺镁黄化风险提示', time: '2026-07-07 14:00', level: '黄色', area: '南丰镇', status: '已审核', desc: '南丰镇多个果园出现叶片缺镁黄化症状，7月果实膨大期对镁元素需求增加，缺镁影响光合作用和果实品质。', suggestions: ['叶面喷施硫酸镁溶液', '土壤施用钙镁磷肥', '增施腐熟有机肥改善土壤', '注意氮钾肥用量，避免拮抗'] },
+            { id: 'risk-16', title: '连续阴雨风险提示', time: '2026-07-06 16:30', level: '黄色', area: '太和镇', status: '待审核', desc: '太和镇已连续5天阴雨天气，日照严重不足，影响光合作用和果实糖分积累，且高湿度增加病害风险。', suggestions: ['及时排水防涝', '天晴后及时喷施叶面肥', '加强病害监测和预防', '适时中耕松土改善透气'] },
+            { id: 'risk-17', title: '霜冻预警提示', time: '2026-07-05 08:30', level: '蓝色', area: '琴城镇', status: '已审核', desc: '异常气温导致琴城镇山区果园出现轻霜，对夏梢嫩叶有一定伤害，需注意防寒措施。', suggestions: ['覆盖地膜提高地温', '果园熏烟防霜', '喷施防冻剂', '加强树体营养提高抗性'] },
+            { id: 'risk-18', title: '介壳虫危害风险', time: '2026-07-04 10:00', level: '橙色', area: '桑田镇', status: '已审核', desc: '桑田镇部分果园介壳虫危害严重，7月是介壳虫繁殖高峰期，虫体附着在枝干和果实上吸食汁液，影响树势和果实品质。', suggestions: ['使用螺虫乙酯或噻嗪酮防治', '抓住若虫孵化盛期喷药', '修剪过密枝条改善通风', '冬季清园减少越冬虫源'] },
+            { id: 'risk-19', title: '水质污染风险提示', time: '2026-07-03 14:30', level: '蓝色', area: '洽湾镇', status: '待审核', desc: '洽湾镇灌溉水源水质下降至III类，含有过量氮磷等物质，长期使用可能影响蜜桔品质和土壤健康。', suggestions: ['建议改用井水或水库水灌溉', '对水源进行沉淀和净化处理', '减少化肥施用量平衡养分', '定期检测灌溉水质'] },
+            { id: 'risk-20', title: '高温干旱双重风险', time: '2026-07-02 09:00', level: '红色', area: '全县范围', status: '已审核', desc: '我县遭遇近10年最严重的高温干旱叠加天气，气温持续38°C以上且无有效降雨超过25天，对蜜桔产业构成严重威胁。', suggestions: ['启动全县应急灌溉预案', '组织技术专家下乡指导', '协调水库开闸放水保灌溉', '对绝收果园启动保险理赔程序'] },
+            { id: 'risk-21', title: '果实裂果风险提示', time: '2026-07-01 16:00', level: '黄色', area: '白舍镇', status: '待审核', desc: '白舍镇部分果园出现果实裂果现象，7月果实快速膨大期水分供应不均是主要原因，需加强水分管理。', suggestions: ['保持土壤水分均衡供应', '增施钙肥增强果皮韧性', '避免干旱后突然大量灌水', '及时摘除裂果减少病害'] },
+            { id: 'risk-22', title: '根腐病风险提示', time: '2026-06-30 11:30', level: '橙色', area: '市山镇', status: '已审核', desc: '市山镇低洼果园出现根腐病症状，7月高温多雨交替导致病菌繁殖加快，部分果树叶片黄化脱落。', suggestions: ['开沟排水降低地下水位', '使用恶霉灵或多菌灵灌根', '增施生物菌肥改善根际环境', '严重病株及时挖除消毒土壤'] },
+            { id: 'risk-23', title: '雷电灾害预警', time: '2026-06-29 15:00', level: '黄色', area: '南丰镇、琴城镇', status: '待审核', desc: '气象台发布雷电黄色预警，南丰镇、琴城镇将出现强雷电和短时强降水天气，雷击可能对果园设施造成破坏。', suggestions: ['暂停户外农事作业', '检查防雷设施', '雷电过后巡查果园受损情况', '注意防范山洪和地质灾害'] },
+            { id: 'risk-24', title: '农药残留风险提示', time: '2026-06-28 10:00', level: '蓝色', area: '太和镇', status: '已审核', desc: '太和镇3%抽检样品毒死蜱残留接近限量标准，7月是病虫害防治用药高峰期，需加强用药安全指导。', suggestions: ['严格执行农药安全间隔期', '推广使用生物农药替代', '加强农药使用培训和监管', '建立用药记录追溯制度'] },
+            { id: 'risk-25', title: '土壤盐渍化风险', time: '2026-06-27 14:00', level: '蓝色', area: '洽湾镇', status: '待审核', desc: '洽湾镇部分大棚果园土壤EC值偏高，盐渍化趋势明显，过量施肥和不合理灌溉是主要原因。', suggestions: ['大水漫灌洗盐', '增施有机肥和秸秆还田', '减少化肥用量推广水肥一体化', '种植绿肥改良土壤'] },
+            { id: 'risk-26', title: '粉虱爆发风险提示', time: '2026-06-26 09:30', level: '黄色', area: '白舍镇', status: '已审核', desc: '白舍镇粉虱虫口密度持续上升，分泌蜜露诱发煤污病，影响叶片光合作用和果实外观品质。', suggestions: ['使用噻虫嗪或呋虫胺喷雾', '悬挂黄色粘虫板诱杀成虫', '保护和利用寄生蜂天敌', '剪除严重受害枝叶'] },
+            { id: 'risk-27', title: '果实蝇危害风险', time: '2026-06-25 16:00', level: '橙色', area: '桑田镇', status: '待审核', desc: '桑田镇果实蝇监测诱捕量大幅增加，7月蜜桔果实进入膨大后期，果实蝇产卵危害将导致果实腐烂脱落。', suggestions: ['悬挂诱捕器和诱饵进行诱杀', '捡拾和深埋虫果', '果实套袋保护', '性诱剂迷向法防治'] },
+            { id: 'risk-28', title: '山体滑坡风险', time: '2026-06-24 11:00', level: '红色', area: '琴城镇山区', status: '已审核', desc: '琴城镇山区24小时降雨量达150mm，山体土壤含水饱和，存在滑坡和泥石流风险，山区果园安全受到威胁。', suggestions: ['立即转移山区果园作业人员', '加强地质灾害隐患点巡查', '疏通排水沟渠防止积水', '灾后及时清理和修复'] },
+            { id: 'risk-29', title: '钾元素缺乏风险', time: '2026-06-23 14:30', level: '蓝色', area: '南丰镇', status: '待审核', desc: '南丰镇部分果园叶片钾含量低于正常水平（1.0%-1.5%），7月是钾需求高峰期，缺钾影响果实膨大和糖分积累。', suggestions: ['增施硫酸钾或氯化钾', '叶面喷施磷酸二氢钾', '增施草木灰补充钾素', '调整氮钾比例至1:1.2'] },
+            { id: 'risk-30', title: '冰雹灾后恢复提示', time: '2026-06-22 08:00', level: '橙色', area: '太和镇', status: '已审核', desc: '太和镇7月21日遭受冰雹袭击，3200亩果园受灾，果实受损率达45%，需立即开展灾后恢复工作。', suggestions: ['清理受伤果实和折断枝条', '喷施杀菌剂和伤口保护剂', '追施速效氮肥促进树势恢复', '统计灾情申请保险理赔'] },
+            { id: 'risk-31', title: '雾霾天气风险提示', time: '2026-06-21 10:30', level: '蓝色', area: '全县范围', status: '待审核', desc: '受外来输入影响全县出现中度雾霾天气，光照减弱影响光合作用，颗粒物沉降可能影响果面洁净度。', suggestions: ['雾霾过后清洗叶片和果实', '加强叶面营养补充', '适当降低灌溉量', '关注空气质量变化'] },
+            { id: 'risk-32', title: '天牛危害风险提示', time: '2026-06-20 15:00', level: '黄色', area: '市山镇', status: '已审核', desc: '市山镇果园天牛危害上升，幼虫蛀食树干木质部，造成树势衰弱甚至枯死，7月是成虫产卵高峰期。', suggestions: ['人工捕捉成虫', '树干涂白防止产卵', '发现蛀孔注入杀虫剂', '保护和释放天牛天敌'] },
+            { id: 'risk-33', title: '水涝灾害恢复提示', time: '2026-06-19 09:00', level: '橙色', area: '洽湾镇', status: '待审核', desc: '洽湾镇低洼果园积水严重，长达48小时的浸泡导致根系缺氧受损，需紧急排水并开展恢复工作。', suggestions: ['紧急抽水排涝', '积水退后及时中耕松土', '喷施生根剂促进根系恢复', '剪除部分枝叶减轻蒸腾'] },
+            { id: 'risk-34', title: '鼠害风险提示', time: '2026-06-18 14:00', level: '蓝色', area: '白舍镇', status: '已审核', desc: '白舍镇部分果园鼠害活动频繁，果实开始转色变甜吸引鼠类啃食，造成直接经济损失。', suggestions: ['投放安全鼠药或捕鼠器', '清理果园周边杂草减少鼠类栖息', '树干包裹防护材料', '保护猫头鹰等鼠类天敌'] },
+            { id: 'risk-35', title: '秋季连阴雨预警', time: '2026-06-17 16:30', level: '黄色', area: '全县范围', status: '待审核', desc: '中长期预报显示8月中旬可能出现持续7天的连阴雨天气，将影响蜜桔成熟期糖分积累和采收作业。', suggestions: ['提前做好排水系统维护', '果实成熟度达标的提前采收', '准备烘干和储藏设施', '关注短期天气预报调整采收计划'] }
+        ];
+
+        function nowStr() {
+            const d = new Date();
+            const pad = n => String(n).padStart(2, '0');
+            return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+        }
+
+        function getFilteredRisks() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const levelFilter = document.getElementById('level-filter').value;
+            const statusFilter = document.getElementById('status-filter').value;
+            return risks.filter(r => {
+                const matchesSearch = r.title.toLowerCase().includes(searchTerm) || r.desc.toLowerCase().includes(searchTerm);
+                const matchesLevel = !levelFilter || r.level === levelFilter;
+                const matchesStatus = !statusFilter || r.status === statusFilter;
+                return matchesSearch && matchesLevel && matchesStatus;
+            });
+        }
+
+        function renderCard(risk) {
+            const levelClass = levelMap[risk.level] || 'bg-gray-100 text-gray-700';
+            const statusClass = risk.status === '已审核' ? 'bg-green-100 text-green-700' : risk.status === '已驳回' ? 'bg-red-100 text-red-700' : 'bg-orange-100 text-orange-700';
+            const suggestionsHtml = risk.suggestions.map(s => '<li>• ' + escapeHtml(s) + '</li>').join('');
+            return '<div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">' +
+                '<div class="flex items-start justify-between mb-4">' +
+                    '<div>' +
+                        '<h3 class="text-lg font-semibold text-gray-800">' + escapeHtml(risk.title) + '</h3>' +
+                        '<p class="text-sm text-gray-500 mt-1">发布时间：' + escapeHtml(risk.time) + ' | 影响范围：' + escapeHtml(risk.area) + '</p>' +
+                    '</div>' +
+                    '<div class="flex items-center space-x-2 flex-shrink-0 whitespace-nowrap">' +
+                        '<span class="px-2 py-1 ' + statusClass + ' text-xs rounded-full">' + escapeHtml(risk.status) + '</span>' +
+                        '<span class="px-2 py-1 ' + levelClass + ' text-xs rounded-full">' + escapeHtml(risk.level) + '风险</span>' +
+                    '</div>' +
+                '</div>' +
+                '<p class="text-sm text-gray-600 mb-4">' + escapeHtml(risk.desc) + '</p>' +
+                '<div class="bg-blue-50 rounded-lg p-4">' +
+                    '<h4 class="font-medium text-blue-800 mb-2">防护建议</h4>' +
+                    '<ul class="text-sm text-blue-700 space-y-1">' + suggestionsHtml + '</ul>' +
+                '</div>' +
+                '<div class="flex items-center justify-end mt-4 space-x-3">' +
+                    '<button onclick="openEditModal(\'' + risk.id + '\')" class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50">编辑</button>' +
+                    '<button onclick="openAuditModal(\'' + risk.id + '\')" class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-blue-600 hover:bg-blue-50">审核</button>' +
+                    '<button onclick="openDeleteModal(\'' + risk.id + '\')" class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm text-red-600 hover:bg-red-50">删除</button>' +
+                '</div>' +
+            '</div>';
+        }
+
+        function renderRisks() {
+            const filtered = getFilteredRisks();
+            const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+            if (currentPage > totalPages) currentPage = totalPages;
+            const start = (currentPage - 1) * pageSize;
+            const pageRisks = filtered.slice(start, start + pageSize);
+
+            const container = document.getElementById('risk-list');
+            if (pageRisks.length === 0) {
+                container.innerHTML = '<div class="bg-white rounded-xl shadow-sm border border-gray-100 p-10 text-center text-gray-400">暂无风险提示数据</div>';
+            } else {
+                container.innerHTML = pageRisks.map(renderCard).join('');
+            }
+
+            document.getElementById('record-count').textContent = '共 ' + filtered.length + ' 条记录';
+            renderPagination(totalPages);
+            renderStats();
+        }
+
+        function renderPagination(totalPages) {
+            const container = document.getElementById('pagination');
+            let html = '';
+            const prevDisabled = currentPage === 1;
+            html += '<button onclick="prevPage()" ' + (prevDisabled ? 'disabled' : '') + ' class="px-3 py-1 border border-gray-300 rounded text-sm ' + (prevDisabled ? 'text-gray-300 cursor-not-allowed' : 'text-gray-600 hover:bg-gray-50') + '">上一页</button>';
+            const maxVisible = 7;
+            if (totalPages <= maxVisible) {
+                for (let i = 1; i <= totalPages; i++) {
+                    if (i === currentPage) {
+                        html += '<button class="px-3 py-1 bg-green-600 text-white rounded text-sm">' + i + '</button>';
+                    } else {
+                        html += '<button onclick="goToPage(' + i + ')" class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50">' + i + '</button>';
+                    }
+                }
+            } else {
+                const start = Math.max(1, currentPage - 2);
+                const end = Math.min(totalPages, start + 4);
+                if (start > 1) {
+                    html += '<button onclick="goToPage(1)" class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50">1</button>';
+                    if (start > 2) html += '<span class="px-2 text-gray-400">...</span>';
+                }
+                for (let i = start; i <= end; i++) {
+                    if (i === currentPage) {
+                        html += '<button class="px-3 py-1 bg-green-600 text-white rounded text-sm">' + i + '</button>';
+                    } else {
+                        html += '<button onclick="goToPage(' + i + ')" class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50">' + i + '</button>';
+                    }
+                }
+                if (end < totalPages) {
+                    if (end < totalPages - 1) html += '<span class="px-2 text-gray-400">...</span>';
+                    html += '<button onclick="goToPage(' + totalPages + ')" class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50">' + totalPages + '</button>';
+                }
+            }
+            const nextDisabled = currentPage === totalPages;
+            html += '<button onclick="nextPage()" ' + (nextDisabled ? 'disabled' : '') + ' class="px-3 py-1 border border-gray-300 rounded text-sm ' + (nextDisabled ? 'text-gray-300 cursor-not-allowed' : 'text-gray-600 hover:bg-gray-50') + '">下一页</button>';
+            container.innerHTML = html;
+        }
+
+        function renderStats() {
+            document.getElementById('stat-total').textContent = risks.length;
+            document.getElementById('stat-pending').textContent = risks.filter(r => r.status === '待审核').length;
+            document.getElementById('stat-approved').textContent = risks.filter(r => r.status === '已审核').length;
+            document.getElementById('stat-rejected').textContent = risks.filter(r => r.status === '已驳回').length;
+        }
+
+        function openAddModal() {
+            document.getElementById('add-title').value = '';
+            document.getElementById('add-level').value = '红色';
+            document.getElementById('add-area').value = '';
+            document.getElementById('add-desc').value = '';
+            document.getElementById('add-suggestion').value = '';
+            document.getElementById('add-modal').classList.add('active');
+        }
+
+        function openEditModal(id) {
+            currentRiskId = id;
+            const risk = risks.find(r => r.id === id);
+            if (risk) {
+                document.getElementById('edit-title').value = risk.title;
+                document.getElementById('edit-level').value = risk.level;
+                document.getElementById('edit-area').value = risk.area;
+                document.getElementById('edit-desc').value = risk.desc;
+                document.getElementById('edit-suggestion').value = risk.suggestions.join('\n');
+            }
+            document.getElementById('edit-modal').classList.add('active');
+        }
+
+        function openDeleteModal(id) {
+            currentRiskId = id;
+            document.getElementById('delete-modal').classList.add('active');
+        }
+
+        function openAuditModal(id) {
+            currentRiskId = id;
+            const risk = risks.find(r => r.id === id);
+            if (risk) {
+                document.getElementById('audit-title').textContent = risk.title;
+                document.getElementById('audit-level').textContent = risk.level + '风险';
+                document.getElementById('audit-area').textContent = risk.area;
+                document.getElementById('audit-time').textContent = risk.time;
+                document.getElementById('audit-status').textContent = risk.status;
+                document.getElementById('audit-desc').textContent = risk.desc;
+                document.getElementById('audit-comment').value = '';
+            }
+            document.getElementById('audit-modal').classList.add('active');
+        }
+
+        function approveAudit() {
+            const risk = risks.find(r => r.id === currentRiskId);
+            if (risk) {
+                risk.status = '已审核';
+                alert('风险提示审核通过！\n标题: ' + risk.title + '\n审核时间: ' + nowStr());
+            }
+            closeModal('audit-modal');
+            renderRisks();
+        }
+
+        function rejectAudit() {
+            const risk = risks.find(r => r.id === currentRiskId);
+            if (risk) {
+                risk.status = '已驳回';
+                alert('风险提示已驳回！\n标题: ' + risk.title + '\n驳回时间: ' + nowStr());
+            }
+            closeModal('audit-modal');
+            renderRisks();
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function saveRisk() {
+            const title = document.getElementById('add-title').value.trim();
+            const level = document.getElementById('add-level').value;
+            const area = document.getElementById('add-area').value.trim() || '全县范围';
+            const desc = document.getElementById('add-desc').value.trim();
+            const suggestion = document.getElementById('add-suggestion').value;
+
+            if (!title) {
+                alert('请填写风险标题');
+                return;
+            }
+
+            const newId = 'risk-' + Date.now();
+            const suggestions = suggestion ? suggestion.split('\n').map(s => s.trim()).filter(s => s) : [];
+
+            risks.unshift({
+                id: newId,
+                title: title,
+                time: nowStr(),
+                level: level,
+                area: area,
+                status: '待审核',
+                desc: desc || '暂无描述',
+                suggestions: suggestions
+            });
+
+            currentPage = 1;
+            closeModal('add-modal');
+            renderRisks();
+            alert('风险提示创建成功！\n标题: ' + title + '\n级别: ' + level);
+        }
+
+        function updateRisk() {
+            const risk = risks.find(r => r.id === currentRiskId);
+            if (risk) {
+                risk.title = document.getElementById('edit-title').value.trim();
+                risk.level = document.getElementById('edit-level').value;
+                risk.area = document.getElementById('edit-area').value.trim() || '全县范围';
+                risk.desc = document.getElementById('edit-desc').value.trim();
+                risk.suggestions = document.getElementById('edit-suggestion').value.split('\n').map(s => s.trim()).filter(s => s);
+            }
+            closeModal('edit-modal');
+            renderRisks();
+            alert('风险提示更新成功！');
+        }
+
+        function confirmDelete() {
+            risks = risks.filter(r => r.id !== currentRiskId);
+            closeModal('delete-modal');
+            renderRisks();
+            alert('风险提示删除成功！');
+        }
+
+        function exportRisks() {
+            const filtered = getFilteredRisks();
+            let csv = '\ufeff风险标题,风险级别,影响范围,发布时间,状态,风险描述\n';
+            filtered.forEach(r => {
+                csv += '"' + r.title + '","' + r.level + '","' + r.area + '","' + r.time + '","' + r.status + '","' + r.desc.replace(/"/g, '""') + '"\n';
+            });
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = '风险提示_' + new Date().toISOString().split('T')[0] + '.csv';
+            link.click();
+        }
+
+        function filterRisks() {
+            currentPage = 1;
+            renderRisks();
+        }
+
+        function resetFilter() {
+            document.getElementById('search-input').value = '';
+            document.getElementById('level-filter').value = '';
+            document.getElementById('status-filter').value = '';
+            filterRisks();
+        }
+
+        function changePageSize() {
+            pageSize = parseInt(document.getElementById('page-size').value);
+            currentPage = 1;
+            renderRisks();
+        }
+
+        function prevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                renderRisks();
+            }
+        }
+
+        function nextPage() {
+            const totalPages = Math.max(1, Math.ceil(getFilteredRisks().length / pageSize));
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderRisks();
+            }
+        }
+
+        function goToPage(page) {
+            currentPage = page;
+            renderRisks();
+        }
+
+        document.addEventListener('click', (e) => {
+            const mapping = {
+                'add-modal': '[onclick="openAddModal()"]',
+                'edit-modal': '[onclick^="openEditModal"]',
+                'delete-modal': '[onclick^="openDeleteModal"]',
+                'audit-modal': '[onclick^="openAuditModal"]'
+            };
+            Object.entries(mapping).forEach(([id, selector]) => {
+                const modal = document.getElementById(id);
+                if (!modal.contains(e.target) && !e.target.closest(selector)) {
+                    modal.classList.remove('active');
+                }
+            });
+        });
+
+        renderRisks();
+    </script>
+</body>
+</html>

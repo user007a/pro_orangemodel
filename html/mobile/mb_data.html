@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>桔农通 - 监测</title>
+  <link rel="stylesheet" href="css/mobile-design-system.css">
+  <style>
+    .custom-data-header {
+      background: #ffffff !important;
+      padding: 0 16px;
+      border-bottom: 1px solid #e0e0e0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    
+    .custom-data-header .header-nav {
+      display: flex;
+      align-items: center;
+      height: 44px !important;
+      min-height: 44px;
+    }
+    
+    .custom-data-header .header-back {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #333333;
+    }
+    
+    .custom-data-header .header-title {
+      font-size: var(--font-md);
+      font-weight: var(--font-semibold);
+    }
+    
+    .mb-header-tool .header-sub {
+      font-size: var(--font-sm);
+      color: var(--text-secondary);
+      margin-top: 4px;
+      text-align: center;
+    }
+    
+    .stats-bar {
+      display: flex; gap: 8px;
+      padding: 0 16px; margin-top: 12px;
+      position: relative; z-index: 10;
+    }
+    
+    .stat-card {
+      flex: 1;
+      background: var(--bg-white);
+      border-radius: var(--radius-lg);
+      padding: 10px 8px;
+      text-align: center;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .stat-num {
+      font-size: var(--font-lg); font-weight: 700;
+      color: var(--primary);
+    }
+    
+    .stat-label {
+      font-size: var(--font-xs);
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    .chart-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: var(--space-4);
+      padding: 4px;
+      background: var(--gray-100);
+      border-radius: var(--radius-lg);
+    }
+    .chart-tab {
+      flex: 1;
+      padding: 8px 12px;
+      text-align: center;
+      font-size: var(--font-sm);
+      font-weight: var(--font-medium);
+      color: var(--text-secondary);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    .chart-tab.active {
+      background: var(--bg-white);
+      color: var(--primary);
+      box-shadow: var(--shadow-sm);
+    }
+    .mb-chart-placeholder {
+      padding: var(--space-2) 0;
+    }
+    .mb-chart-title {
+      font-size: var(--font-sm);
+      font-weight: var(--font-semibold);
+      color: var(--text-secondary);
+      margin-bottom: var(--space-4);
+    }
+    .mb-chart-bar {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-around;
+      height: 140px;
+      padding: 0 4px;
+    }
+    .mb-bar-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+      gap: 4px;
+    }
+    .mb-bar-label {
+      font-size: 10px;
+      color: var(--text-secondary);
+      margin-bottom: 2px;
+      font-weight: 600;
+    }
+    .mb-bar-fill {
+      width: 22px;
+      border-radius: 4px 4px 0 0;
+      transition: height var(--transition-slow);
+      min-height: 4px;
+      position: relative;
+    }
+    .mb-bar-fill.temp { background: linear-gradient(180deg, #f87171, #ef4444); }
+    .mb-bar-fill.humi { background: linear-gradient(180deg, #60a5fa, #3b82f6); }
+    .mb-bar-fill.soil { background: linear-gradient(180deg, #a78bfa, #7c3aed); }
+    .mb-bar-item span {
+      font-size: 10px;
+      color: var(--text-tertiary);
+    }
+
+    .mb-env-card-sm .mb-env-icon {
+      width: 28px; height: 28px;
+    }
+    .mb-env-card-sm .mb-env-icon svg {
+      width: 14px; height: 14px;
+    }
+    .mb-env-card-sm .mb-env-name {
+      font-size: 10px;
+    }
+    .mb-env-card-sm .mb-env-value {
+      font-size: var(--font-base);
+    }
+    .mb-env-card-sm .mb-env-unit {
+      font-size: 10px;
+    }
+    .mb-env-card-sm .mb-env-trend {
+      font-size: 10px;
+      margin-top: 0;
+      display: inline;
+    }
+    .mb-env-card-sm .env-value-wrap {
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      white-space: nowrap;
+      gap: 1px;
+    }
+    .mb-env-card-sm .env-value-wrap .mb-env-trend {
+      margin-left: 3px;
+    }
+
+    .quick-actions {
+      display: flex; gap: 12px;
+      padding: 0 16px 16px;
+    }
+    
+    .quick-action {
+      flex: 1;
+      background: var(--bg-white);
+      border-radius: var(--radius-xl);
+      padding: 16px 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .quick-action:active { transform: scale(0.96); }
+    
+    .quick-icon {
+      width: 44px; height: 44px;
+      border-radius: var(--radius-lg);
+      display: flex; align-items: center; justify-content: center;
+    }
+    
+    .quick-icon svg { width: 22px; height: 22px; }
+    .quick-icon.green { background: var(--primary-light); color: var(--primary); }
+    .quick-icon.blue { background: var(--info-bg); color: var(--info); }
+    .quick-icon.purple { background: var(--purple-bg); color: var(--purple); }
+    
+    .quick-name {
+      font-size: var(--font-sm);
+      color: var(--text);
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .skeleton-state { display: none; }
+    .mb-app.loading .real-content { display: none; }
+    .mb-app.loading .skeleton-state { display: block; }
+  </style>
+</head>
+<body>
+  <div class="mb-app loading">
+    <div class="skeleton-state">
+      <div style="background: #ffffff; padding: 0 16px; border-bottom: 1px solid #e0e0e0;">
+        <div style="display: flex; align-items: center; height: 44px;">
+          <div style="width:36px;height:36px;"></div>
+          <div class="mb-skeleton" style="width:100px;height:20px;"></div>
+          <div style="width:36px;height:36px;"></div>
+        </div>
+      </div>
+      <div class="stats-bar">
+        <div class="stat-card"><div class="mb-skeleton" style="width:32px;height:24px;margin:0 auto;"></div><div class="mb-skeleton" style="width:40px;height:12px;margin:6px auto 0;"></div></div>
+        <div class="stat-card"><div class="mb-skeleton" style="width:32px;height:24px;margin:0 auto;"></div><div class="mb-skeleton" style="width:40px;height:12px;margin:6px auto 0;"></div></div>
+        <div class="stat-card"><div class="mb-skeleton" style="width:32px;height:24px;margin:0 auto;"></div><div class="mb-skeleton" style="width:40px;height:12px;margin:6px auto 0;"></div></div>
+      </div>
+      <div class="mb-body">
+        <div class="mb-section">
+          <div class="mb-skeleton" style="width:80px;height:16px;margin-bottom:12px;"></div>
+          <div class="mb-card">
+            <div class="mb-card-body">
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;">
+                <div class="mb-skeleton" style="width:100%;height:80px;border-radius:var(--radius-lg);"></div>
+                <div class="mb-skeleton" style="width:100%;height:80px;border-radius:var(--radius-lg);"></div>
+                <div class="mb-skeleton" style="width:100%;height:80px;border-radius:var(--radius-lg);"></div>
+                <div class="mb-skeleton" style="width:100%;height:80px;border-radius:var(--radius-lg);"></div>
+                <div class="mb-skeleton" style="width:100%;height:80px;border-radius:var(--radius-lg);"></div>
+                <div class="mb-skeleton" style="width:100%;height:80px;border-radius:var(--radius-lg);"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="mb-section">
+          <div class="mb-skeleton" style="width:120px;height:16px;margin-bottom:12px;"></div>
+          <div class="mb-card">
+            <div class="mb-card-body">
+              <div class="mb-skeleton" style="width:100%;height:160px;border-radius:var(--radius-lg);"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="real-content">
+      <div style="background: #ffffff; padding: 0 16px; border-bottom: 1px solid #e0e0e0; position: sticky; top: 0; z-index: 100;">
+        <div style="display: flex; align-items: center; height: 44px;">
+          <div style="width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #333333;" onclick="navigateTo('mb_home.html')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+          </div>
+          <div style="flex: 1; text-align: center; font-size: 17px; font-weight: 600; color: #333333;">监测管理</div>
+          <div style="width: 36px;"></div>
+        </div>
+      </div>
+
+    <div class="stats-bar">
+      <div class="stat-card">
+        <div class="stat-num">6</div>
+        <div class="stat-label">监测指标</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">8</div>
+        <div class="stat-label">在线设备</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">3</div>
+        <div class="stat-label">预警提醒</div>
+      </div>
+    </div>
+
+    <div class="mb-body">
+      <div class="mb-section">
+        <div class="mb-section-title"><span class="mb-section-dot"></span>环境数据</div>
+        <div class="mb-card">
+          <div class="mb-card-body">
+            <div class="mb-env-grid mb-env-card-sm" style="grid-template-columns: repeat(3, 1fr); gap: 6px;">
+              <div class="mb-env-card">
+                <div class="mb-env-icon" style="background: var(--danger-bg);">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg>
+                </div>
+                <div class="mb-env-name">空气温度</div>
+                <div class="env-value-wrap">
+                  <div class="mb-env-value" style="color: var(--danger);">35.8</div>
+                  <div class="mb-env-unit">°C</div>
+                  <div class="mb-env-trend up">↑2.3</div>
+                </div>
+              </div>
+              <div class="mb-env-card">
+                <div class="mb-env-icon" style="background: var(--info-bg);">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
+                </div>
+                <div class="mb-env-name">空气湿度</div>
+                <div class="env-value-wrap">
+                  <div class="mb-env-value">45</div>
+                  <div class="mb-env-unit">%</div>
+                  <div class="mb-env-trend down">↓3.2</div>
+                </div>
+              </div>
+              <div class="mb-env-card">
+                <div class="mb-env-icon" style="background: var(--warning-bg);">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                </div>
+                <div class="mb-env-name">土壤温度</div>
+                <div class="env-value-wrap">
+                  <div class="mb-env-value" style="color: var(--warning);">32.1</div>
+                  <div class="mb-env-unit">°C</div>
+                  <div class="mb-env-trend up">↑1.8</div>
+                </div>
+              </div>
+              <div class="mb-env-card">
+                <div class="mb-env-icon" style="background: var(--success-bg);">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                </div>
+                <div class="mb-env-name">土壤湿度</div>
+                <div class="env-value-wrap">
+                  <div class="mb-env-value" style="color: var(--success);">52</div>
+                  <div class="mb-env-unit">%</div>
+                  <div class="mb-env-trend down">↓5.1</div>
+                </div>
+              </div>
+              <div class="mb-env-card">
+                <div class="mb-env-icon" style="background: var(--primary-50);">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 2.83 2.83"/><path d="m16.24 16.24 2.83 2.83"/><path d="M2 12h2"/><path d="M20 12h2"/></svg>
+                </div>
+                <div class="mb-env-name">光照强度</div>
+                <div class="env-value-wrap">
+                  <div class="mb-env-value" style="color: var(--primary);">1250</div>
+                  <div class="mb-env-unit">lux</div>
+                  <div class="mb-env-trend">正常</div>
+                </div>
+              </div>
+              <div class="mb-env-card">
+                <div class="mb-env-icon" style="background: var(--primary-50);">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                </div>
+                <div class="mb-env-name">土壤EC值</div>
+                <div class="env-value-wrap">
+                  <div class="mb-env-value" style="color: var(--primary);">1.2</div>
+                  <div class="mb-env-unit">mS/cm</div>
+                  <div class="mb-env-trend">正常</div>
+                </div>
+              </div>
+            </div>
+            <div class="text-center text-xs text-secondary mt-3">数据更新时间：2026-07-23 14:30</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-section">
+        <div class="mb-section-title"><span class="mb-section-dot"></span>数据趋势</div>
+        <div class="mb-card">
+          <div class="mb-card-body">
+            <div class="chart-tabs">
+              <div class="chart-tab active" onclick="switchChart('temp', this)">温度</div>
+              <div class="chart-tab" onclick="switchChart('humi', this)">湿度</div>
+              <div class="chart-tab" onclick="switchChart('soil', this)">土壤</div>
+            </div>
+            <div class="mb-chart-placeholder" id="chart-temp">
+              <div class="mb-chart-title">近7日温度变化 (°C)</div>
+              <div class="mb-chart-bar">
+                <div class="mb-bar-item"><div class="mb-bar-label">35</div><div class="mb-bar-fill temp" style="height:65%"></div><span>16日</span></div>
+                <div class="mb-bar-item"><div class="mb-bar-label">37</div><div class="mb-bar-fill temp" style="height:72%"></div><span>17日</span></div>
+                <div class="mb-bar-item"><div class="mb-bar-label">36</div><div class="mb-bar-fill temp" style="height:68%"></div><span>18日</span></div>
+                <div class="mb-bar-item"><div class="mb-bar-label">39</div><div class="mb-bar-fill temp" style="height:85%"></div><span>19日</span></div>
+                <div class="mb-bar-item"><div class="mb-bar-label">41</div><div class="mb-bar-fill temp" style="height:92%"></div><span>20日</span></div>
+                <div class="mb-bar-item"><div class="mb-bar-label">40</div><div class="mb-bar-fill temp" style="height:88%"></div><span>21日</span></div>
+                <div class="mb-bar-item"><div class="mb-bar-label">42</div><div class="mb-bar-fill temp" style="height:100%"></div><span>22日</span></div>
+              </div>
+            </div>
+            <div class="mb-chart-placeholder" id="chart-humi" style="display:none;">
+              <div class="mb-chart-title">近7日湿度变化 (%)</div>
+              <div class="mb-chart-bar">
+                <div class="mb-bar-item"><div class="mb-bar-label">52</div><div class="mb-bar-fill humi" style="height:75%"></div><span>16日</span></div>
+                <div class="mb-bar-item"><div class="mb-bar-label">48</div><div class="mb-bar-fill humi" style="height:65%"></div><span>17日</span></div>
+                <div class="mb-bar-item"><div class="mb-bar-label">45</div><div class="mb-bar-fill humi" style="height:58%"></div><span>18日</span></div>
+                <div class="mb-bar-item"><div class="mb-bar-label">55</div><div class="mb-bar-fill humi" style="height:82%"></div><span>19日</span></div>
+                <div class="mb-bar-item"><div class="mb-bar-label">60</div><div class="mb-bar-fill humi" style="height:95%"></div><span>20日</span></div>
+                <div class="mb-bar-item"><div class="mb-bar-label">42</div><div class="mb-bar-fill humi" style="height:52%"></div><span>21日</span></div>
+                <div class="mb-bar-item"><div class="mb-bar-label">38</div><div class="mb-bar-fill humi" style="height:45%"></div><span>22日</span></div>
+              </div>
+            </div>
+            <div class="mb-chart-placeholder" id="chart-soil" style="display:none;">
+              <div class="mb-chart-title">近7日土壤温湿度变化</div>
+              <div class="mb-chart-bar">
+                <div class="mb-bar-item"><div class="mb-bar-label">30°</div><div class="mb-bar-fill soil" style="height:100%; width:12px;"></div><span>16日</span></div>
+                <div class="mb-bar-item"><div class="mb-bar-label">31°</div><div class="mb-bar-fill soil" style="height:65%; width:12px;"></div><span>17日</span></div>
+                <div class="mb-bar-item"><div class="mb-bar-label">32°</div><div class="mb-bar-fill soil" style="height:75%; width:12px;"></div><span>18日</span></div>
+                <div class="mb-bar-item"><div class="mb-bar-label">33°</div><div class="mb-bar-fill soil" style="height:85%; width:12px;"></div><span>19日</span></div>
+                <div class="mb-bar-item"><div class="mb-bar-label">34°</div><div class="mb-bar-fill soil" style="height:92%; width:12px;"></div><span>20日</span></div>
+                <div class="mb-bar-item"><div class="mb-bar-label">33°</div><div class="mb-bar-fill soil" style="height:88%; width:12px;"></div><span>21日</span></div>
+                <div class="mb-bar-item"><div class="mb-bar-label">34°</div><div class="mb-bar-fill soil" style="height:95%; width:12px;"></div><span>22日</span></div>
+              </div>
+              <div style="margin-top:16px; padding-top:12px; border-top:1px dashed var(--border);">
+                <div class="mb-chart-title" style="font-size:11px;">土壤湿度(%)</div>
+                <div class="mb-chart-bar" style="height:100px;">
+                  <div class="mb-bar-item"><div class="mb-bar-label">48</div><div class="mb-bar-fill humi" style="height:75%"></div><span>16日</span></div>
+                  <div class="mb-bar-item"><div class="mb-bar-label">45</div><div class="mb-bar-fill humi" style="height:65%"></div><span>17日</span></div>
+                  <div class="mb-bar-item"><div class="mb-bar-label">42</div><div class="mb-bar-fill humi" style="height:55%"></div><span>18日</span></div>
+                  <div class="mb-bar-item"><div class="mb-bar-label">50</div><div class="mb-bar-fill humi" style="height:80%"></div><span>19日</span></div>
+                  <div class="mb-bar-item"><div class="mb-bar-label">55</div><div class="mb-bar-fill humi" style="height:95%"></div><span>20日</span></div>
+                  <div class="mb-bar-item"><div class="mb-bar-label">52</div><div class="mb-bar-fill humi" style="height:85%"></div><span>21日</span></div>
+                  <div class="mb-bar-item"><div class="mb-bar-label">50</div><div class="mb-bar-fill humi" style="height:78%"></div><span>22日</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    </div>
+
+    <div class="mb-tab-bar">
+      <div class="mb-tab-item" onclick="navigateTo('mb_home.html')">首页</div>
+      <div class="mb-tab-item active">监测</div>
+      <div class="mb-tab-item" onclick="navigateTo('mb_ai.html')">AI助手</div>
+      <div class="mb-tab-item" onclick="navigateTo('mb_disease.html')">病虫害</div>
+      <div class="mb-tab-item" onclick="navigateTo('mb_profile.html')">我的</div>
+    </div>
+  </div>
+
+  <script>
+    function navigateTo(page) { window.location.href = page; }
+    function switchChart(type, el) {
+      document.querySelectorAll('.chart-tab').forEach(t => t.classList.remove('active'));
+      el.classList.add('active');
+      document.getElementById('chart-temp').style.display = type === 'temp' ? 'block' : 'none';
+      document.getElementById('chart-humi').style.display = type === 'humi' ? 'block' : 'none';
+      document.getElementById('chart-soil').style.display = type === 'soil' ? 'block' : 'none';
+    }
+
+    (function() {
+      var app = document.querySelector('.mb-app');
+      setTimeout(function() {
+        app.classList.remove('loading');
+      }, 600);
+    })();
+  </script>
+</body>
+</html>

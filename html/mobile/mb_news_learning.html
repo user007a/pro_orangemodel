@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>桔农通 - 学习中心</title>
+  <link rel="stylesheet" href="css/mobile-design-system.css">
+  <style>
+    .page-header {
+      position: relative;
+      background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+      padding: 44px 16px 20px;
+      color: var(--bg-white);
+    }
+    
+    .header-back {
+      position: absolute;
+      left: 12px;
+      top: 44px;
+      width: 36px;
+      height: 36px;
+      background: rgba(255,255,255,0.2);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    
+    .header-back svg { width: 18px; height: 18px; }
+    
+    .header-content { padding-left: 44px; }
+    .header-title { font-size: var(--font-xl); font-weight: 700; }
+    .header-sub { font-size: var(--font-sm); opacity: 0.85; margin-top: 4px; }
+
+    .card {
+      background: var(--bg-white);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4);
+      margin-bottom: var(--space-4);
+      box-shadow: var(--shadow-card);
+      border: 1px solid var(--border);
+    }
+    
+    .card-title {
+      font-size: var(--font-md);
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: var(--space-4);
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+    
+    .card-title svg { width: 18px; height: 18px; color: var(--primary); }
+
+    .course-tags {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-3);
+    }
+    
+    .course-tag {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: var(--space-3);
+      background: var(--bg);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    
+    .course-tag.active { background: var(--primary-light); border: 1px solid var(--primary); }
+    .course-tag svg { width: 24px; height: 24px; color: var(--text-secondary); margin-bottom: var(--space-2); }
+    .course-tag.active svg { color: var(--primary); }
+    .course-tag span { font-size: var(--font-xs); color: var(--text-secondary); }
+    .course-tag.active span { color: var(--primary); font-weight: 500; }
+
+    .course-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-3);
+    }
+    
+    .course-item {
+      background: var(--bg);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    
+    .course-item:active { transform: scale(0.98); }
+    .course-image {
+      width: 100%;
+      height: 80px;
+      object-fit: cover;
+    }
+    .course-info { padding: var(--space-3); }
+    .course-name { font-size: var(--font-sm); font-weight: 500; color: var(--text); margin-bottom: var(--space-1); }
+    .course-meta { font-size: var(--font-xs); color: var(--text-light); }
+
+    .video-card {
+      display: flex;
+      gap: var(--space-3);
+      padding: var(--space-3);
+      background: var(--bg);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      margin-bottom: var(--space-2);
+    }
+    
+    .video-card:active { background: var(--gray-100); }
+    .video-thumb {
+      width: 80px;
+      height: 60px;
+      border-radius: var(--radius-sm);
+      object-fit: cover;
+      flex-shrink: 0;
+      position: relative;
+    }
+    
+    .video-thumb::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 24px;
+      height: 24px;
+      background: rgba(0,0,0,0.6);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .video-thumb::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-40%, -50%);
+      width: 0;
+      height: 0;
+      border-style: solid;
+      border-width: 6px 0 6px 10px;
+      border-color: transparent transparent transparent white;
+      z-index: 1;
+    }
+    
+    .video-info { flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+    .video-title { font-size: var(--font-sm); font-weight: 500; color: var(--text); }
+    .video-meta { font-size: var(--font-xs); color: var(--text-light); }
+
+    .faq-item {
+      padding: var(--space-4) 0;
+      border-bottom: 1px solid var(--border-light);
+      cursor: pointer;
+    }
+    
+    .faq-item:last-child { border-bottom: none; }
+    .faq-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .faq-question { font-size: var(--font-base); font-weight: 500; color: var(--text); }
+    .faq-arrow {
+      width: 18px;
+      height: 18px;
+      transition: transform var(--transition-fast);
+    }
+    .faq-arrow svg { width: 100%; height: 100%; color: var(--text-light); }
+    .faq-item.active .faq-arrow { transform: rotate(180deg); }
+    .faq-content {
+      display: none;
+      padding-top: var(--space-3);
+      font-size: var(--font-sm);
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+    .faq-item.active .faq-content { display: block; }
+
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5); z-index: 1000;
+      display: none; justify-content: center; align-items: center;
+    }
+    
+    .modal-overlay.show { display: flex; }
+    
+    .modal-box {
+      background: var(--bg-white);
+      border-radius: var(--radius-xl);
+      width: 90%;
+      max-width: 360px;
+      max-height: 85vh;
+      overflow: hidden;
+    }
+    
+    .modal-header {
+      padding: var(--space-5);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .modal-title { font-size: var(--font-lg); font-weight: 600; color: var(--text); }
+    .modal-close {
+      width: 32px; height: 32px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      border-radius: var(--radius-md);
+      background: var(--gray-100);
+    }
+    
+    .modal-close svg { width: 18px; height: 18px; color: var(--text-secondary); }
+    
+    .modal-body { padding: var(--space-4); max-height: 60vh; overflow-y: auto; }
+    .modal-footer { padding: var(--space-4); border-top: 1px solid var(--border); }
+    
+    .video-modal {
+      width: 95%;
+      max-width: 380px;
+      padding: 0;
+    }
+    
+    .video-player {
+      background: #000;
+      width: 100%;
+      aspect-ratio: 16/9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    
+    .play-btn {
+      width: 64px;
+      height: 64px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .play-btn svg { width: 32px; height: 32px; color: white; margin-left: 4px; }
+    .video-duration {
+      position: absolute;
+      bottom: 12px;
+      right: 12px;
+      background: rgba(0,0,0,0.6);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      color: white;
+    }
+
+    .skeleton-state { display: none; }
+    .mb-app.loading .real-content { display: none; }
+    .mb-app.loading .skeleton-state { display: block; }
+  </style>
+</head>
+<body>
+  <div class="mb-app loading">
+    <!-- ===================== 骨架屏 ===================== -->
+    <div class="skeleton-state">
+      <div class="page-header">
+        <div class="header-nav">
+          <div style="width:36px;height:36px;"></div>
+          <div class="header-title"></div>
+        </div>
+      </div>
+      <div class="mb-section">
+        <div class="mb-skeleton-card">
+          <div class="mb-skeleton" style="width:80px;height:16px;margin-bottom:16px;"></div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;">
+            <div class="mb-skeleton" style="height:60px;border-radius:8px;"></div>
+            <div class="mb-skeleton" style="height:60px;border-radius:8px;"></div>
+            <div class="mb-skeleton" style="height:60px;border-radius:8px;"></div>
+            <div class="mb-skeleton" style="height:60px;border-radius:8px;"></div>
+          </div>
+        </div>
+        <div style="height:20px;"></div>
+        <div class="mb-skeleton-card">
+          <div class="mb-skeleton" style="width:80px;height:16px;margin-bottom:16px;"></div>
+          <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;">
+            <div class="mb-skeleton-card" style="padding:0;border:none;box-shadow:none;">
+              <div class="mb-skeleton" style="width:100%;height:80px;border-radius:8px;margin-bottom:8px;"></div>
+              <div class="mb-skeleton" style="width:100%;height:12px;margin-bottom:4px;"></div>
+              <div class="mb-skeleton" style="width:60%;height:10px;"></div>
+            </div>
+            <div class="mb-skeleton-card" style="padding:0;border:none;box-shadow:none;">
+              <div class="mb-skeleton" style="width:100%;height:80px;border-radius:8px;margin-bottom:8px;"></div>
+              <div class="mb-skeleton" style="width:100%;height:12px;margin-bottom:4px;"></div>
+              <div class="mb-skeleton" style="width:60%;height:10px;"></div>
+            </div>
+          </div>
+        </div>
+        <div style="height:20px;"></div>
+        <div class="mb-skeleton-card">
+          <div class="mb-skeleton" style="width:80px;height:16px;margin-bottom:16px;"></div>
+          <div class="mb-skeleton" style="width:100%;height:60px;border-radius:8px;margin-bottom:12px;"></div>
+          <div class="mb-skeleton" style="width:100%;height:60px;border-radius:8px;margin-bottom:12px;"></div>
+        </div>
+        <div style="height:20px;"></div>
+        <div class="mb-skeleton-card">
+          <div class="mb-skeleton" style="width:80px;height:16px;margin-bottom:16px;"></div>
+          <div class="mb-skeleton-line long"></div>
+          <div class="mb-skeleton-line medium"></div>
+          <div class="mb-skeleton-line long"></div>
+          <div class="mb-skeleton-line medium"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================== 真实内容 ===================== -->
+    <div class="real-content">
+      <!-- Header -->
+      <div class="page-header">
+        <div class="header-back" onclick="goBack()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M15 18l-6-6 6-6"/>
+          </svg>
+        </div>
+        <div class="header-content">
+          <div class="header-title">学习中心</div>
+          <div class="header-sub">系统学习蜜桔种植技术，提升管理水平</div>
+        </div>
+      </div>
+
+      <div class="mb-section">
+        <!-- 课程分类 -->
+        <div class="card">
+          <div class="card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            课程分类
+          </div>
+          <div class="course-tags">
+            <div class="course-tag active" data-tag="all" onclick="filterCourse('all')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              <span>全部</span>
+            </div>
+            <div class="course-tag" data-tag="intro" onclick="filterCourse('intro')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+              <span>入门</span>
+            </div>
+            <div class="course-tag" data-tag="advanced" onclick="filterCourse('advanced')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              <span>进阶</span>
+            </div>
+            <div class="course-tag" data-tag="expert" onclick="filterCourse('expert')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+              <span>专家</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 推荐课程 -->
+        <div class="card">
+          <div class="card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+            推荐课程
+          </div>
+          <div class="course-grid" id="courseGrid">
+            <div class="course-item" onclick="viewCourse()">
+              <div class="course-image" style="background: linear-gradient(135deg, #e8f5e9, #c8e6c9); height: 80px; display: flex; align-items: center; justify-content: center;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="%2366bb6a" stroke-width="1.5" style="width: 28px; height: 28px; opacity: 0.5;"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+              </div>
+              <div class="course-info">
+                <div class="course-name">南丰蜜桔种植基础</div>
+                <div class="course-meta">3课时 · 2,580人学习</div>
+              </div>
+            </div>
+            <div class="course-item" onclick="viewCourse()">
+              <div class="course-image" style="background: linear-gradient(135deg, #ffebee, #ffcdd2); height: 80px; display: flex; align-items: center; justify-content: center;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="%23e57373" stroke-width="1.5" style="width: 28px; height: 28px; opacity: 0.5;"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+              </div>
+              <div class="course-info">
+                <div class="course-name">病虫害综合防治</div>
+                <div class="course-meta">4课时 · 3,120人学习</div>
+              </div>
+            </div>
+            <div class="course-item" onclick="viewCourse()">
+              <div class="course-image" style="background: linear-gradient(135deg, #fff8e1, #ffecb3); height: 80px; display: flex; align-items: center; justify-content: center;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="%23ffb74d" stroke-width="1.5" style="width: 28px; height: 28px; opacity: 0.5;"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+              </div>
+              <div class="course-info">
+                <div class="course-name">科学施肥管理</div>
+                <div class="course-meta">3课时 · 1,890人学习</div>
+              </div>
+            </div>
+            <div class="course-item" onclick="viewCourse()">
+              <div class="course-image" style="background: linear-gradient(135deg, #e3f2fd, #bbdefb); height: 80px; display: flex; align-items: center; justify-content: center;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="%2364b5f6" stroke-width="1.5" style="width: 28px; height: 28px; opacity: 0.5;"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+              </div>
+              <div class="course-info">
+                <div class="course-name">品质提升专家课</div>
+                <div class="course-meta">5课时 · 980人学习</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 实操视频 -->
+        <div class="card">
+          <div class="card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            实操视频
+          </div>
+          <div class="video-card" onclick="viewVideo()">
+            <div class="video-thumb" style="background: linear-gradient(135deg, #e8f5e9, #a5d6a7);"></div>
+            <div class="video-info">
+              <div class="video-title">蜜桔夏季高温管理实操</div>
+              <div class="video-meta">播放量：12,680 | 时长：25:30</div>
+            </div>
+          </div>
+          <div class="video-card" onclick="viewVideo()">
+            <div class="video-thumb" style="background: linear-gradient(135deg, #e3f2fd, #90caf9);"></div>
+            <div class="video-info">
+              <div class="video-title">夏季修剪技术实操演示</div>
+              <div class="video-meta">播放量：8,520 | 时长：18:45</div>
+            </div>
+          </div>
+          <div class="video-card" onclick="viewVideo()">
+            <div class="video-thumb" style="background: linear-gradient(135deg, #fff8e1, #ffe082);"></div>
+            <div class="video-info">
+              <div class="video-title">科学施肥方法指导</div>
+              <div class="video-meta">播放量：6,340 | 时长：22:10</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /real-content -->
+
+    <!-- 底部导航 -->
+    <div class="mb-tab-bar">
+      <div class="mb-tab-item" onclick="navigateTo('mb_home.html')">首页</div>
+      <div class="mb-tab-item" onclick="navigateTo('mb_data.html')">监测</div>
+      <div class="mb-tab-item" onclick="navigateTo('mb_ai.html')">AI助手</div>
+      <div class="mb-tab-item" onclick="navigateTo('mb_disease.html')">病虫害</div>
+      <div class="mb-tab-item" onclick="navigateTo('mb_profile.html')">我的</div>
+    </div>
+
+    <!-- 课程详情弹窗 -->
+    <div class="modal-overlay" id="courseModal">
+      <div class="modal-box">
+        <div class="modal-header">
+          <div class="modal-title">课程详情</div>
+          <div class="modal-close" onclick="closeModal('courseModal')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </div>
+        </div>
+        <div class="modal-body">
+          <div style="width: 100%; height: 150px; border-radius: var(--radius-md); margin-bottom: var(--space-3); background: linear-gradient(135deg, #e8f5e9, #c8e6c9); display: flex; align-items: center; justify-content: center;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#66bb6a" stroke-width="1.5" style="width: 36px; height: 36px; opacity: 0.4;"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+          </div>
+          <div style="font-size: var(--font-lg); font-weight: 600; color: var(--text); margin-bottom: var(--space-2);">南丰蜜桔种植基础课程</div>
+          <div style="font-size: var(--font-sm); color: var(--text-secondary); line-height: 1.6; margin-bottom: var(--space-3);">本课程系统介绍南丰蜜桔的种植技术，包括育苗、定植、修剪、施肥、病虫害防治等方面的知识，适合新手种植户学习。</div>
+          <div style="display: flex; gap: var(--space-4); font-size: var(--font-xs); color: var(--text-light);">
+            <span>3课时</span>
+            <span>•</span>
+            <span>2,580人学习</span>
+            <span>•</span>
+            <span>入门难度</span>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="mb-btn mb-btn-outline" onclick="closeModal('courseModal')">关闭</button>
+          <button class="mb-btn mb-btn-primary" onclick="startCourse()">开始学习</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 视频播放弹窗 -->
+    <div class="modal-overlay" id="videoModal">
+      <div class="modal-box video-modal">
+        <div class="video-player">
+          <div class="play-btn" onclick="playVideo()">
+            <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          </div>
+          <div class="video-duration">00:25:30</div>
+        </div>
+        <div style="padding: var(--space-4);">
+          <div style="font-size: var(--font-base); font-weight: 600; color: var(--text); margin-bottom: var(--space-2);">蜜桔夏季高温管理实操视频</div>
+          <div style="font-size: var(--font-sm); color: var(--text-light);">播放量：12,680 | 时长：25:30</div>
+        </div>
+        <div style="border-top: 1px solid var(--border); padding: var(--space-4);">
+          <button class="mb-btn mb-btn-primary mb-btn-block" onclick="playVideo()">播放视频</button>
+        </div>
+        <div class="modal-close" style="position: absolute; top: 12px; right: 12px; z-index: 10;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function goBack() {
+        window.history.back();
+      }
+
+      function navigateTo(page) {
+        window.location.href = page;
+      }
+
+      function filterCourse(tag) {
+        document.querySelectorAll('.course-tag').forEach(el => {
+          el.classList.remove('active');
+        });
+        document.querySelector(`[data-tag="${tag}"]`).classList.add('active');
+        
+        var courseItems = document.querySelectorAll('.course-item');
+        courseItems.forEach(function(item, index) {
+          if (tag === 'all') {
+            item.style.display = 'block';
+          } else if (tag === 'intro' && index < 2) {
+            item.style.display = 'block';
+          } else if (tag === 'advanced' && (index === 1 || index === 2)) {
+            item.style.display = 'block';
+          } else if (tag === 'expert' && index >= 2) {
+            item.style.display = 'block';
+          } else {
+            item.style.display = 'none';
+          }
+        });
+      }
+
+      function viewCourse() {
+        document.getElementById('courseModal').classList.add('show');
+      }
+
+      function startCourse() {
+        closeModal('courseModal');
+        alert('课程播放中...');
+      }
+
+      function viewVideo() {
+        document.getElementById('videoModal').classList.add('show');
+      }
+
+      function playVideo() {
+        alert('视频播放中...');
+      }
+
+      function toggleFaq(el) {
+        el.classList.toggle('active');
+      }
+
+      function closeModal(id) {
+        document.getElementById(id).classList.remove('show');
+      }
+
+      (function() {
+        var app = document.querySelector('.mb-app');
+        setTimeout(function() {
+          app.classList.remove('loading');
+        }, 600);
+      })();
+    </script>
+  </body>
+</html>

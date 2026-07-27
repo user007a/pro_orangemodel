@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>桔农通 - 服务记录</title>
+  <link rel="stylesheet" href="css/mobile-design-system.css">
+  <style>
+    .page-header {
+      position: relative;
+      background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+      padding: 44px 16px 20px;
+      color: var(--bg-white);
+    }
+    
+    .header-back {
+      position: absolute;
+      left: 12px;
+      top: 44px;
+      width: 36px;
+      height: 36px;
+      background: rgba(255,255,255,0.2);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    
+    .header-back svg { width: 18px; height: 18px; }
+    
+    .header-content { padding-left: 44px; }
+    .header-title { font-size: var(--font-xl); font-weight: 700; }
+    .header-sub { font-size: var(--font-sm); opacity: 0.85; margin-top: 4px; }
+
+    .tab-bar {
+      display: flex;
+      background: var(--bg-white);
+      border-bottom: 1px solid var(--border);
+      padding: 0 16px;
+    }
+    
+    .tab-item {
+      flex: 1;
+      padding: var(--space-3) 0;
+      text-align: center;
+      font-size: var(--font-base);
+      color: var(--text-secondary);
+      cursor: pointer;
+      position: relative;
+      transition: all var(--transition-fast);
+    }
+    
+    .tab-item.active {
+      color: var(--primary);
+      font-weight: 600;
+    }
+    
+    .tab-item.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 40px;
+      height: 3px;
+      background: var(--primary);
+      border-radius: var(--radius-full);
+    }
+
+    .record-card {
+      background: var(--bg-white);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4);
+      margin-bottom: var(--space-4);
+      box-shadow: var(--shadow-card);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    
+    .record-card:active { transform: scale(0.98); background: var(--gray-50); }
+    
+    .record-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-3);
+    }
+    
+    .record-title {
+      font-size: var(--font-md);
+      font-weight: 600;
+      color: var(--text);
+    }
+    
+    .record-tag {
+      padding: var(--space-1) var(--space-2);
+      border-radius: var(--radius-lg);
+      font-size: var(--font-xs);
+      font-weight: 500;
+    }
+    
+    .record-tag.warning { background: var(--warning-bg); color: var(--warning); }
+    .record-tag.success { background: var(--success-bg); color: var(--success); }
+    .record-tag.info { background: var(--info-bg); color: var(--info); }
+    
+    .record-desc {
+      font-size: var(--font-sm);
+      color: var(--text-secondary);
+      line-height: 1.5;
+      margin-bottom: var(--space-3);
+    }
+    
+    .record-meta {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+      font-size: var(--font-xs);
+      color: var(--text-light);
+    }
+
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5); z-index: 1000;
+      display: none; justify-content: center; align-items: center;
+    }
+    
+    .modal-overlay.show { display: flex; }
+    
+    .modal-box {
+      background: var(--bg-white);
+      border-radius: var(--radius-xl);
+      width: 90%;
+      max-width: 360px;
+      max-height: 85vh;
+      overflow: hidden;
+    }
+    
+    .modal-header {
+      padding: var(--space-5);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .modal-title { font-size: var(--font-lg); font-weight: 600; color: var(--text); }
+    .modal-close {
+      width: 32px; height: 32px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      border-radius: var(--radius-md);
+      background: var(--gray-100);
+    }
+    
+    .modal-close svg { width: 18px; height: 18px; color: var(--text-secondary); }
+    
+    .modal-body { padding: var(--space-5); }
+    .modal-footer { padding: var(--space-4); border-top: 1px solid var(--border); }
+    
+    .btn-row { display: flex; gap: var(--space-3); }
+    .btn-row button { flex: 1; }
+
+    .skeleton-state { display: none; }
+    .mb-app.loading .real-content { display: none; }
+    .mb-app.loading .skeleton-state { display: block; }
+  </style>
+</head>
+<body>
+  <div class="mb-app loading">
+    <!-- ===================== 骨架屏 ===================== -->
+    <div class="skeleton-state">
+      <div class="page-header">
+        <div class="header-nav">
+          <div style="width:36px;height:36px;"></div>
+          <div class="header-title"></div>
+        </div>
+      </div>
+      <div class="tab-bar">
+        <div class="tab-item"></div>
+        <div class="tab-item"></div>
+        <div class="tab-item"></div>
+      </div>
+      <div class="mb-section">
+        <div class="mb-skeleton-card">
+          <div class="mb-skeleton" style="width:100px;height:16px;margin-bottom:12px;"></div>
+          <div class="mb-skeleton-line long"></div>
+          <div class="mb-skeleton-line medium"></div>
+        </div>
+        <div style="height:20px;"></div>
+        <div class="mb-skeleton-card">
+          <div class="mb-skeleton" style="width:100px;height:16px;margin-bottom:12px;"></div>
+          <div class="mb-skeleton-line long"></div>
+          <div class="mb-skeleton-line medium"></div>
+        </div>
+        <div style="height:20px;"></div>
+        <div class="mb-skeleton-card">
+          <div class="mb-skeleton" style="width:100px;height:16px;margin-bottom:12px;"></div>
+          <div class="mb-skeleton-line long"></div>
+          <div class="mb-skeleton-line medium"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================== 真实内容 ===================== -->
+    <div class="real-content">
+      <!-- Header -->
+      <div class="page-header">
+        <div class="header-back" onclick="goBack()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M15 18l-6-6 6-6"/>
+          </svg>
+        </div>
+        <div class="header-content">
+          <div class="header-title">服务记录</div>
+          <div class="header-sub">查看您的服务申请和处理记录</div>
+        </div>
+      </div>
+
+      <!-- Tab Bar -->
+      <div class="tab-bar">
+        <div class="tab-item active" data-tab="all" onclick="switchTab('all')">全部</div>
+        <div class="tab-item" data-tab="suggestion" onclick="switchTab('suggestion')">智能建议</div>
+        <div class="tab-item" data-tab="report" onclick="switchTab('report')">预警上报</div>
+      </div>
+
+      <!-- Content -->
+      <div class="mb-section">
+        <div id="allRecords">
+          <div class="record-card" onclick="viewDetail('suggestion')">
+            <div class="record-header">
+              <div class="record-title">施肥建议</div>
+              <span class="record-tag success">已查看</span>
+            </div>
+            <div class="record-desc">当前土壤氮含量偏低（1.2g/kg），建议在7月下旬施用复合肥，配合叶面喷施磷酸二氢钾，提高果实膨大期营养供给。</div>
+            <div class="record-meta">
+              <span>2026-07-22</span>
+              <span>1号早熟蜜桔区</span>
+            </div>
+          </div>
+
+          <div class="record-card" onclick="viewDetail('report')">
+            <div class="record-header">
+              <div class="record-title">红蜘蛛虫害上报</div>
+              <span class="record-tag info">处理中</span>
+            </div>
+            <div class="record-desc">发现红蜘蛛虫害，中度发生，已拍照上传，等待农技人员审核处理。</div>
+            <div class="record-meta">
+              <span>2026-07-21</span>
+              <span>2号中熟蜜桔区</span>
+            </div>
+          </div>
+
+          <div class="record-card" onclick="viewDetail('suggestion')">
+            <div class="record-header">
+              <div class="record-title">灌溉建议</div>
+              <span class="record-tag success">已执行</span>
+            </div>
+            <div class="record-desc">根据土壤湿度监测数据，建议今日进行滴灌灌溉，灌溉时长约2小时，水量约15立方米/亩。</div>
+            <div class="record-meta">
+              <span>2026-07-20</span>
+              <span>1号早熟蜜桔区</span>
+            </div>
+          </div>
+
+          <div class="record-card" onclick="viewDetail('report')">
+            <div class="record-header">
+              <div class="record-title">黑点病病害上报</div>
+              <span class="record-tag success">已完成</span>
+            </div>
+            <div class="record-desc">发现黑点病，轻度发生，已按照农技人员指导进行药剂防治。</div>
+            <div class="record-meta">
+              <span>2026-07-18</span>
+              <span>3号晚熟蜜桔区</span>
+            </div>
+          </div>
+
+          <div class="record-card" onclick="viewDetail('suggestion')">
+            <div class="record-header">
+              <div class="record-title">病虫害预警</div>
+              <span class="record-tag warning">待处理</span>
+            </div>
+            <div class="record-desc">根据气象预测，未来一周高温高湿，易引发多种病虫害，建议加强监测和预防。</div>
+            <div class="record-meta">
+              <span>2026-07-19</span>
+              <span>全部地块</span>
+            </div>
+          </div>
+        </div>
+
+        <div id="suggestionRecords" style="display:none;">
+          <div class="record-card" onclick="viewDetail('suggestion')">
+            <div class="record-header">
+              <div class="record-title">施肥建议</div>
+              <span class="record-tag success">已查看</span>
+            </div>
+            <div class="record-desc">当前土壤氮含量偏低（1.2g/kg），建议在7月下旬施用复合肥，配合叶面喷施磷酸二氢钾，提高果实膨大期营养供给。</div>
+            <div class="record-meta">
+              <span>2026-07-22</span>
+              <span>1号早熟蜜桔区</span>
+            </div>
+          </div>
+
+          <div class="record-card" onclick="viewDetail('suggestion')">
+            <div class="record-header">
+              <div class="record-title">灌溉建议</div>
+              <span class="record-tag success">已执行</span>
+            </div>
+            <div class="record-desc">根据土壤湿度监测数据，建议今日进行滴灌灌溉，灌溉时长约2小时，水量约15立方米/亩。</div>
+            <div class="record-meta">
+              <span>2026-07-20</span>
+              <span>1号早熟蜜桔区</span>
+            </div>
+          </div>
+
+          <div class="record-card" onclick="viewDetail('suggestion')">
+            <div class="record-header">
+              <div class="record-title">病虫害预警</div>
+              <span class="record-tag warning">待处理</span>
+            </div>
+            <div class="record-desc">根据气象预测，未来一周高温高湿，易引发多种病虫害，建议加强监测和预防。</div>
+            <div class="record-meta">
+              <span>2026-07-19</span>
+              <span>全部地块</span>
+            </div>
+          </div>
+        </div>
+
+        <div id="reportRecords" style="display:none;">
+          <div class="record-card" onclick="viewDetail('report')">
+            <div class="record-header">
+              <div class="record-title">红蜘蛛虫害上报</div>
+              <span class="record-tag info">处理中</span>
+            </div>
+            <div class="record-desc">发现红蜘蛛虫害，中度发生，已拍照上传，等待农技人员审核处理。</div>
+            <div class="record-meta">
+              <span>2026-07-21</span>
+              <span>2号中熟蜜桔区</span>
+            </div>
+          </div>
+
+          <div class="record-card" onclick="viewDetail('report')">
+            <div class="record-header">
+              <div class="record-title">黑点病病害上报</div>
+              <span class="record-tag success">已完成</span>
+            </div>
+            <div class="record-desc">发现黑点病，轻度发生，已按照农技人员指导进行药剂防治。</div>
+            <div class="record-meta">
+              <span>2026-07-18</span>
+              <span>3号晚熟蜜桔区</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /real-content -->
+
+    <!-- 底部导航 -->
+    <div class="mb-tab-bar">
+      <div class="mb-tab-item" onclick="navigateTo('mb_home.html')">首页</div>
+      <div class="mb-tab-item" onclick="navigateTo('mb_data.html')">监测</div>
+      <div class="mb-tab-item" onclick="navigateTo('mb_ai.html')">AI助手</div>
+      <div class="mb-tab-item" onclick="navigateTo('mb_disease.html')">病虫害</div>
+      <div class="mb-tab-item active" onclick="navigateTo('mb_profile.html')">我的</div>
+    </div>
+
+    <!-- 详情弹窗 -->
+    <div class="modal-overlay" id="detailModal">
+      <div class="modal-box">
+        <div class="modal-header">
+          <div class="modal-title">记录详情</div>
+          <div class="modal-close" onclick="closeModal('detailModal')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </div>
+        </div>
+        <div class="modal-body" id="detailContent"></div>
+        <div class="modal-footer">
+          <div class="btn-row">
+            <button class="mb-btn mb-btn-outline" onclick="closeModal('detailModal')">关闭</button>
+            <button class="mb-btn mb-btn-primary" onclick="executeAction()">执行操作</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function goBack() {
+        window.history.back();
+      }
+
+      function navigateTo(page) {
+        window.location.href = page;
+      }
+
+      function switchTab(tab) {
+        document.querySelectorAll('.tab-item').forEach(el => {
+          el.classList.remove('active');
+        });
+        document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+        
+        document.querySelectorAll('[id$="Records"]').forEach(el => {
+          el.style.display = 'none';
+        });
+        document.getElementById(tab + 'Records').style.display = 'block';
+      }
+
+      function viewDetail(type) {
+        var content = '';
+        if (type === 'suggestion') {
+          content = `
+            <div style="font-size: var(--font-lg); font-weight: 600; color: var(--text); margin-bottom: var(--space-3);">施肥建议</div>
+            <div style="font-size: var(--font-sm); color: var(--text-secondary); line-height: 1.6; margin-bottom: var(--space-4);">
+              当前土壤氮含量偏低（1.2g/kg），建议在7月下旬施用复合肥，配合叶面喷施磷酸二氢钾，提高果实膨大期营养供给。<br><br>
+              <strong>建议用量：</strong><br>
+              - 复合肥（15-15-15）：30-40kg/亩<br>
+              - 磷酸二氢钾：0.3%浓度叶面喷施<br>
+              - 施肥时间：选择早晚气温较低时进行
+            </div>
+            <div style="display: flex; gap: var(--space-4); font-size: var(--font-xs); color: var(--text-light);">
+              <span>2026-07-22</span>
+              <span>•</span>
+              <span>1号早熟蜜桔区</span>
+              <span>•</span>
+              <span>已查看</span>
+            </div>
+          `;
+        } else {
+          content = `
+            <div style="font-size: var(--font-lg); font-weight: 600; color: var(--text); margin-bottom: var(--space-3);">红蜘蛛虫害上报</div>
+            <div style="font-size: var(--font-sm); color: var(--text-secondary); line-height: 1.6; margin-bottom: var(--space-4);">
+              发现红蜘蛛虫害，中度发生，已拍照上传，等待农技人员审核处理。<br><br>
+              <strong>上报信息：</strong><br>
+              - 病虫害类型：红蜘蛛（虫害）<br>
+              - 发生程度：中度<br>
+              - 发生地块：2号中熟蜜桔区<br>
+              - 上报时间：2026-07-21
+            </div>
+            <div style="padding: var(--space-3); background: var(--info-bg); border-radius: var(--radius-md); margin-bottom: var(--space-4);">
+              <div style="font-size: var(--font-sm); font-weight: 600; color: var(--info); margin-bottom: var(--space-2);">农技人员回复</div>
+              <div style="font-size: var(--font-sm); color: var(--text-secondary);">已收到您的上报信息，农技人员将于24小时内上门查看并给出防治建议。</div>
+            </div>
+            <div style="display: flex; gap: var(--space-4); font-size: var(--font-xs); color: var(--text-light);">
+              <span>2026-07-21</span>
+              <span>•</span>
+              <span>处理中</span>
+            </div>
+          `;
+        }
+        document.getElementById('detailContent').innerHTML = content;
+        document.getElementById('detailModal').classList.add('show');
+      }
+
+      function executeAction() {
+        closeModal('detailModal');
+        alert('操作执行成功');
+      }
+
+      function closeModal(id) {
+        document.getElementById(id).classList.remove('show');
+      }
+
+      (function() {
+        var app = document.querySelector('.mb-app');
+        setTimeout(function() {
+          app.classList.remove('loading');
+        }, 600);
+      })();
+    </script>
+  </div>
+</body>
+</html>

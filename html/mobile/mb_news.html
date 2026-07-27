@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>桔农通 - 农技资讯</title>
+  <link rel="stylesheet" href="css/mobile-design-system.css">
+  <style>
+    .page-header {
+      position: relative;
+      background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+      padding: 44px 16px 20px;
+      color: var(--bg-white);
+    }
+    
+    .header-back {
+      position: absolute;
+      left: 12px;
+      top: 44px;
+      width: 36px;
+      height: 36px;
+      background: rgba(255,255,255,0.2);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    
+    .header-back svg { width: 18px; height: 18px; }
+    
+    .header-content { padding-left: 44px; }
+    .header-title { font-size: var(--font-xl); font-weight: 700; }
+    .header-sub { font-size: var(--font-sm); opacity: 0.85; margin-top: 4px; }
+
+    .stats-bar {
+      display: flex; gap: 8px;
+      padding: 0 16px; margin-top: 12px;
+      position: relative; z-index: 10;
+    }
+    
+    .stat-card {
+      flex: 1;
+      background: var(--bg-white);
+      border-radius: var(--radius-lg);
+      padding: 10px 8px;
+      text-align: center;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .stat-num {
+      font-size: var(--font-lg); font-weight: 700;
+      color: var(--primary);
+    }
+    
+    .stat-label {
+      font-size: var(--font-xs);
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    .quick-actions {
+      display: flex; gap: 12px;
+      padding: 0 16px 16px;
+    }
+    
+    .quick-action {
+      flex: 1;
+      background: var(--bg-white);
+      border-radius: var(--radius-xl);
+      padding: 16px 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .quick-action:active { transform: scale(0.96); }
+    
+    .quick-icon {
+      width: 44px; height: 44px;
+      border-radius: var(--radius-lg);
+      display: flex; align-items: center; justify-content: center;
+    }
+    
+    .quick-icon svg { width: 22px; height: 22px; }
+    .quick-icon.cyan { background: var(--info-bg); color: var(--info); }
+    .quick-icon.orange { background: var(--warning-bg); color: var(--warning); }
+    .quick-icon.purple { background: var(--purple-bg); color: var(--purple); }
+    .quick-icon.green { background: var(--primary-light); color: var(--primary); }
+    
+    .quick-name {
+      font-size: var(--font-sm);
+      color: var(--text);
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .news-card {
+      background: var(--bg-white);
+      border-radius: var(--radius-xl);
+      margin: 0 16px 12px;
+      padding: 16px;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .news-card:active { transform: scale(0.99); }
+    
+    .news-header {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    
+    .news-title {
+      font-size: var(--font-base);
+      font-weight: 600;
+      color: var(--text);
+      flex: 1;
+      margin-right: 8px;
+      line-height: 1.4;
+    }
+    
+    .news-tag {
+      font-size: var(--font-xs);
+      padding: 3px 10px;
+      border-radius: var(--radius-full);
+      font-weight: 500;
+      flex-shrink: 0;
+    }
+    
+    .news-tag.important { background: var(--error-bg); color: var(--error); }
+    .news-tag.training { background: var(--primary-light); color: var(--primary); }
+    .news-tag.technology { background: var(--info-bg); color: var(--info); }
+    .news-tag.policy { background: var(--success-bg); color: var(--success); }
+    
+    .news-footer {
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: var(--font-xs);
+      color: var(--text-light);
+    }
+
+    .skeleton-state { display: none; }
+    .mb-app.loading .real-content { display: none; }
+    .mb-app.loading .skeleton-state { display: block; }
+  </style>
+</head>
+<body>
+  <div class="mb-app loading">
+    <div class="skeleton-state">
+      <div class="page-header">
+        <div style="width:36px;height:36px;"></div>
+        <div class="header-content">
+          <div class="mb-skeleton" style="width:100px;height:20px;"></div>
+          <div class="mb-skeleton" style="width:160px;height:14px;margin-top:6px;"></div>
+        </div>
+      </div>
+      <div class="stats-bar">
+        <div class="stat-card"><div class="mb-skeleton" style="width:32px;height:24px;margin:0 auto;"></div><div class="mb-skeleton" style="width:40px;height:12px;margin:6px auto 0;"></div></div>
+        <div class="stat-card"><div class="mb-skeleton" style="width:32px;height:24px;margin:0 auto;"></div><div class="mb-skeleton" style="width:40px;height:12px;margin:6px auto 0;"></div></div>
+        <div class="stat-card"><div class="mb-skeleton" style="width:32px;height:24px;margin:0 auto;"></div><div class="mb-skeleton" style="width:40px;height:12px;margin:6px auto 0;"></div></div>
+      </div>
+      <div class="mb-body">
+        <div class="mb-section">
+          <div class="mb-skeleton" style="width:80px;height:16px;margin-bottom:12px;"></div>
+          <div class="quick-actions">
+            <div class="quick-action"><div class="mb-skeleton" style="width:44px;height:44px;border-radius:var(--radius-lg);"></div><div class="mb-skeleton" style="width:32px;height:12px;margin-top:8px;"></div></div>
+            <div class="quick-action"><div class="mb-skeleton" style="width:44px;height:44px;border-radius:var(--radius-lg);"></div><div class="mb-skeleton" style="width:32px;height:12px;margin-top:8px;"></div></div>
+            <div class="quick-action"><div class="mb-skeleton" style="width:44px;height:44px;border-radius:var(--radius-lg);"></div><div class="mb-skeleton" style="width:32px;height:12px;margin-top:8px;"></div></div>
+            <div class="quick-action"><div class="mb-skeleton" style="width:44px;height:44px;border-radius:var(--radius-lg);"></div><div class="mb-skeleton" style="width:32px;height:12px;margin-top:8px;"></div></div>
+          </div>
+        </div>
+        <div class="mb-section">
+          <div class="mb-skeleton" style="width:120px;height:16px;margin-bottom:12px;"></div>
+          <div class="mb-skeleton-card"><div class="mb-skeleton-line long"></div><div class="mb-skeleton-line medium"></div></div>
+          <div class="mb-skeleton-card"><div class="mb-skeleton-line long"></div><div class="mb-skeleton-line medium"></div></div>
+          <div class="mb-skeleton-card"><div class="mb-skeleton-line long"></div><div class="mb-skeleton-line medium"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="real-content">
+      <div class="page-header">
+        <div class="header-back" onclick="navigateTo('mb_home.html')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        </div>
+        <div class="header-content">
+          <div class="header-title">农技资讯</div>
+          <div class="header-sub">获取最新农技知识与政策信息</div>
+        </div>
+      </div>
+
+      <div class="mb-body">
+        <div class="mb-section">
+          <div class="mb-section-title"><span class="mb-section-dot"></span>资讯功能</div>
+          <div class="quick-actions">
+            <div class="quick-action" onclick="navigateTo('mb_news_list.html')">
+              <div class="quick-icon cyan">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+                </svg>
+              </div>
+              <div class="quick-name">资讯列表</div>
+            </div>
+            <div class="quick-action" onclick="navigateTo('mb_news_learning.html')">
+              <div class="quick-icon orange">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                </svg>
+              </div>
+              <div class="quick-name">学习中心</div>
+            </div>
+            <div class="quick-action" onclick="navigateTo('mb_news_list.html')">
+              <div class="quick-icon purple">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+                </svg>
+              </div>
+              <div class="quick-name">政策法规</div>
+            </div>
+            <div class="quick-action" onclick="navigateTo('mb_news_learning.html')">
+              <div class="quick-icon green">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+                </svg>
+              </div>
+              <div class="quick-name">视频教程</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mb-section">
+          <div class="flex justify-between items-center mb-3 px-4">
+            <div class="mb-section-title" style="margin-bottom:0;"><span class="mb-section-dot"></span>最新资讯</div>
+            <span class="text-xs text-secondary" onclick="navigateTo('mb_news_list.html')">查看全部 ›</span>
+          </div>
+          <div class="news-card" onclick="navigateTo('mb_news_detail.html')">
+            <div class="news-header">
+              <div class="news-title">南丰蜜桔夏季病虫害综合防治技术要点</div>
+              <span class="news-tag important">重要</span>
+            </div>
+            <div class="news-footer">
+              <span>2026-07-22</span>
+              <span>3258人已读</span>
+            </div>
+          </div>
+          <div class="news-card" onclick="navigateTo('mb_news_detail.html')">
+            <div class="news-header">
+              <div class="news-title">高温天气下南丰蜜桔灌溉管理技巧</div>
+              <span class="news-tag technology">技术</span>
+            </div>
+            <div class="news-footer">
+              <span>2026-07-21</span>
+              <span>2186人已读</span>
+            </div>
+          </div>
+          <div class="news-card" onclick="navigateTo('mb_news_detail.html')">
+            <div class="news-header">
+              <div class="news-title">南丰蜜桔果实膨大期施肥管理指南</div>
+              <span class="news-tag technology">技术</span>
+            </div>
+            <div class="news-footer">
+              <span>2026-07-20</span>
+              <span>1856人已读</span>
+            </div>
+          </div>
+          <div class="news-card" onclick="navigateTo('mb_news_detail.html')">
+            <div class="news-header">
+              <div class="news-title">2026年南丰蜜桔种植技术培训通知</div>
+              <span class="news-tag training">培训</span>
+            </div>
+            <div class="news-footer">
+              <span>2026-07-19</span>
+              <span>1523人已读</span>
+            </div>
+          </div>
+          <div class="news-card" onclick="navigateTo('mb_news_detail.html')">
+            <div class="news-header">
+              <div class="news-title">关于加强夏季果园安全生产管理的通知</div>
+              <span class="news-tag policy">政策</span>
+            </div>
+            <div class="news-footer">
+              <span>2026-07-18</span>
+              <span>1245人已读</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mb-tab-bar">
+      <div class="mb-tab-item" onclick="navigateTo('mb_home.html')">首页</div>
+      <div class="mb-tab-item" onclick="navigateTo('mb_data.html')">监测</div>
+      <div class="mb-tab-item" onclick="navigateTo('mb_ai.html')">AI助手</div>
+      <div class="mb-tab-item" onclick="navigateTo('mb_disease.html')">病虫害</div>
+      <div class="mb-tab-item" onclick="navigateTo('mb_profile.html')">我的</div>
+    </div>
+  </div>
+
+  <script>
+    function navigateTo(page) { window.location.href = page; }
+    (function() {
+      var app = document.querySelector('.mb-app');
+      setTimeout(function() {
+        app.classList.remove('loading');
+      }, 600);
+    })();
+  </script>
+</body>
+</html>

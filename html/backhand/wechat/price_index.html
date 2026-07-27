@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>价格数据库 - 南丰蜜桔模型管理系统</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { margin: 0; padding: 0; background: #f0f2f5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; }
+    .page-header { padding: 20px 24px; background: #fff; border-bottom: 1px solid #e8ecf1; display: flex; justify-content: space-between; align-items: center; }
+    .page-title { font-size: 18px; font-weight: 600; color: #1b2a41; }
+    .page-subtitle { font-size: 14px; color: #8898aa; margin-top: 4px; }
+    
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+    .modal-overlay.active { display: flex; }
+    .modal-content { background: #fff; border-radius: 8px; width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
+    .modal-header { padding: 16px 20px; border-bottom: 1px solid #e8ecf1; display: flex; justify-content: space-between; align-items: center; }
+    .modal-title { font-size: 16px; font-weight: 600; color: #1b2a41; }
+    .modal-body { padding: 20px; }
+    .modal-footer { padding: 16px 20px; border-top: 1px solid #e8ecf1; display: flex; justify-content: flex-end; gap: 12px; }
+    
+    .form-item { margin-bottom: 16px; }
+    .form-label { display: block; font-size: 14px; font-weight: 500; color: #525f7f; margin-bottom: 6px; }
+    .form-input { width: 100%; padding: 10px 12px; border: 1px solid #e6ebf1; border-radius: 6px; font-size: 14px; outline: none; }
+    .form-input:focus { border-color: #22a84a; }
+    
+    .btn { padding: 8px 16px; border-radius: 6px; font-size: 14px; cursor: pointer; border: none; transition: all 0.2s; }
+    .btn-primary { background: #22a84a; color: #fff; }
+    .btn-primary:hover { background: #1e9441; }
+    .btn-secondary { background: #fff; color: #525f7f; border: 1px solid #e6ebf1; }
+    .btn-secondary:hover { background: #f7f8fc; }
+    
+    .card { background: #fff; border-radius: 8px; margin: 24px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+    
+    .search-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .search-input { flex: 1; max-width: 300px; padding: 8px 12px; border: 1px solid #e6ebf1; border-radius: 6px; font-size: 14px; }
+    
+    .table-wrapper { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid #f0f2f5; }
+    th { background: #f7f8fc; font-weight: 600; color: #525f7f; font-size: 13px; }
+    td { font-size: 14px; color: #1b2a41; }
+    
+    .price-up { color: #ef4444; }
+    .price-down { color: #10b981; }
+    .price-same { color: #6b7280; }
+    
+    .pagination { display: flex; justify-content: flex-end; align-items: center; gap: 8px; margin-top: 20px; }
+    .page-btn { padding: 6px 12px; border: 1px solid #e6ebf1; border-radius: 4px; cursor: pointer; font-size: 13px; }
+    .page-btn.active { background: #22a84a; color: #fff; border-color: #22a84a; }
+    
+    .detail-info { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .detail-item { padding: 10px; background: #f7f8fc; border-radius: 6px; }
+    .detail-label { font-size: 12px; color: #8898aa; margin-bottom: 4px; }
+    .detail-value { font-size: 14px; color: #1b2a41; }
+    
+    .stats-card { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 24px; }
+    .stat-item { background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); display: flex; align-items: center; justify-content: space-between; }
+    .stat-info { text-align: left; }
+    .stat-number { font-size: 24px; font-weight: 700; color: #1b2a41; margin-bottom: 2px; }
+    .stat-label { font-size: 12px; color: #8898aa; }
+    .stat-icon { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .stat-icon svg { width: 20px; height: 20px; }
+    .stat-icon.days { background: #e6f7ee; color: #22a84a; }
+    .stat-icon.market { background: #dbeafe; color: #3b82f6; }
+    .stat-icon.max { background: #fee2e2; color: #ef4444; }
+    .stat-icon.min { background: #dcfce7; color: #10b981; }
+  </style>
+</head>
+<body>
+  <div class="page-header">
+    <div>
+      <div class="page-title">价格数据库</div>
+      <div class="page-subtitle">管理南丰蜜桔价格数据</div>
+    </div>
+    <button class="btn btn-primary" onclick="openAddModal()">+ 新增数据</button>
+  </div>
+
+  <div class="stats-card" id="statsCard">
+  </div>
+
+  <div class="card">
+    <div class="search-bar">
+      <input type="text" class="search-input" id="searchInput" placeholder="搜索日期..." oninput="searchPrices()">
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>日期</th>
+            <th>农批市场</th>
+            <th>品种</th>
+            <th>最高价(元/斤)</th>
+            <th>最低价(元/斤)</th>
+            <th>大宗价(元/斤)</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="priceTable">
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination" id="pagination">
+    </div>
+  </div>
+
+  <!-- 新增/编辑弹窗 -->
+  <div id="add-modal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title" id="add-modal-title">新增价格数据</div>
+        <button class="btn btn-secondary" onclick="closeModal('add-modal')">关闭</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="edit-id">
+        <div class="form-item">
+          <label class="form-label">日期 *</label>
+          <input type="date" class="form-input" id="add-date">
+        </div>
+        <div class="form-item">
+          <label class="form-label">农批市场 *</label>
+          <select class="form-input" id="add-market">
+            <option value="南丰县农产品批发市场">南丰县农产品批发市场</option>
+            <option value="抚州市农产品批发市场">抚州市农产品批发市场</option>
+            <option value="南昌市农产品批发市场">南昌市农产品批发市场</option>
+            <option value="赣州市农产品批发市场">赣州市农产品批发市场</option>
+          </select>
+        </div>
+        <div class="form-item">
+          <label class="form-label">品种 *</label>
+          <select class="form-input" id="add-variety">
+            <option value="南丰蜜桔早熟种">南丰蜜桔早熟种</option>
+            <option value="南丰蜜桔中熟种">南丰蜜桔中熟种</option>
+            <option value="南丰蜜桔晚熟种">南丰蜜桔晚熟种</option>
+            <option value="其他">其他</option>
+          </select>
+        </div>
+        <div class="form-item">
+          <label class="form-label">最高价(元/斤) *</label>
+          <input type="number" step="0.01" class="form-input" id="add-high-price" placeholder="请输入最高价">
+        </div>
+        <div class="form-item">
+          <label class="form-label">最低价(元/斤) *</label>
+          <input type="number" step="0.01" class="form-input" id="add-low-price" placeholder="请输入最低价">
+        </div>
+        <div class="form-item">
+          <label class="form-label">大宗价(元/斤) *</label>
+          <input type="number" step="0.01" class="form-input" id="add-bulk-price" placeholder="请输入大宗价">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('add-modal')">取消</button>
+        <button class="btn btn-primary" onclick="submitAdd()">确认</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 查看弹窗 -->
+  <div id="detail-modal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title">价格详情</div>
+        <button class="btn btn-secondary" onclick="closeModal('detail-modal')">关闭</button>
+      </div>
+      <div class="modal-body" id="detail-content">
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('detail-modal')">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 删除弹窗 -->
+  <div id="delete-modal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title">确认删除</div>
+        <button class="btn btn-secondary" onclick="closeModal('delete-modal')">关闭</button>
+      </div>
+      <div class="modal-body">
+        <p>确定要删除 <span id="delete-date" style="font-weight:bold;"></span> 的价格数据吗？</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('delete-modal')">取消</button>
+        <button class="btn btn-primary" onclick="submitDelete()">确认删除</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var prices = [
+      { id: 'pr-001', date: '2026-07-24', market: '南丰县农产品批发市场', variety: '南丰蜜桔早熟种', highPrice: '3.50', lowPrice: '3.00', bulkPrice: '3.25' },
+      { id: 'pr-002', date: '2026-07-23', market: '南丰县农产品批发市场', variety: '南丰蜜桔早熟种', highPrice: '3.40', lowPrice: '2.95', bulkPrice: '3.20' },
+      { id: 'pr-003', date: '2026-07-22', market: '南丰县农产品批发市场', variety: '南丰蜜桔中熟种', highPrice: '3.60', lowPrice: '3.10', bulkPrice: '3.30' },
+      { id: 'pr-004', date: '2026-07-21', market: '抚州市农产品批发市场', variety: '南丰蜜桔早熟种', highPrice: '3.55', lowPrice: '3.05', bulkPrice: '3.28' },
+      { id: 'pr-005', date: '2026-07-20', market: '南丰县农产品批发市场', variety: '南丰蜜桔晚熟种', highPrice: '3.50', lowPrice: '3.00', bulkPrice: '3.25' },
+      { id: 'pr-006', date: '2026-07-19', market: '南昌市农产品批发市场', variety: '南丰蜜桔中熟种', highPrice: '3.70', lowPrice: '3.20', bulkPrice: '3.35' },
+      { id: 'pr-007', date: '2026-07-18', market: '南丰县农产品批发市场', variety: '南丰蜜桔早熟种', highPrice: '3.60', lowPrice: '3.10', bulkPrice: '3.30' },
+      { id: 'pr-008', date: '2026-07-17', market: '南丰县农产品批发市场', variety: '南丰蜜桔中熟种', highPrice: '3.50', lowPrice: '3.00', bulkPrice: '3.25' },
+      { id: 'pr-009', date: '2026-07-16', market: '赣州市农产品批发市场', variety: '南丰蜜桔早熟种', highPrice: '3.45', lowPrice: '2.98', bulkPrice: '3.22' },
+      { id: 'pr-010', date: '2026-07-15', market: '南丰县农产品批发市场', variety: '南丰蜜桔晚熟种', highPrice: '3.40', lowPrice: '2.95', bulkPrice: '3.20' },
+      { id: 'pr-011', date: '2026-07-14', market: '抚州市农产品批发市场', variety: '南丰蜜桔中熟种', highPrice: '3.55', lowPrice: '3.05', bulkPrice: '3.28' },
+      { id: 'pr-012', date: '2026-07-13', market: '南丰县农产品批发市场', variety: '南丰蜜桔早熟种', highPrice: '3.60', lowPrice: '3.10', bulkPrice: '3.30' },
+      { id: 'pr-013', date: '2026-07-12', market: '南昌市农产品批发市场', variety: '南丰蜜桔晚熟种', highPrice: '3.70', lowPrice: '3.20', bulkPrice: '3.35' },
+      { id: 'pr-014', date: '2026-07-11', market: '南丰县农产品批发市场', variety: '南丰蜜桔中熟种', highPrice: '3.65', lowPrice: '3.15', bulkPrice: '3.32' },
+      { id: 'pr-015', date: '2026-07-10', market: '南丰县农产品批发市场', variety: '南丰蜜桔早熟种', highPrice: '3.60', lowPrice: '3.10', bulkPrice: '3.30' },
+      { id: 'pr-016', date: '2026-07-09', market: '赣州市农产品批发市场', variety: '南丰蜜桔中熟种', highPrice: '3.50', lowPrice: '3.00', bulkPrice: '3.25' },
+      { id: 'pr-017', date: '2026-07-08', market: '南丰县农产品批发市场', variety: '南丰蜜桔晚熟种', highPrice: '3.40', lowPrice: '2.95', bulkPrice: '3.20' },
+      { id: 'pr-018', date: '2026-07-07', market: '抚州市农产品批发市场', variety: '南丰蜜桔早熟种', highPrice: '3.55', lowPrice: '3.05', bulkPrice: '3.28' },
+      { id: 'pr-019', date: '2026-07-06', market: '南丰县农产品批发市场', variety: '南丰蜜桔中熟种', highPrice: '3.60', lowPrice: '3.10', bulkPrice: '3.30' },
+      { id: 'pr-020', date: '2026-07-05', market: '南昌市农产品批发市场', variety: '南丰蜜桔晚熟种', highPrice: '3.70', lowPrice: '3.20', bulkPrice: '3.35' },
+      { id: 'pr-021', date: '2026-07-04', market: '南丰县农产品批发市场', variety: '南丰蜜桔早熟种', highPrice: '3.65', lowPrice: '3.15', bulkPrice: '3.32' },
+      { id: 'pr-022', date: '2026-07-03', market: '南丰县农产品批发市场', variety: '南丰蜜桔中熟种', highPrice: '3.60', lowPrice: '3.10', bulkPrice: '3.30' },
+      { id: 'pr-023', date: '2026-07-02', market: '赣州市农产品批发市场', variety: '南丰蜜桔晚熟种', highPrice: '3.50', lowPrice: '3.00', bulkPrice: '3.25' },
+      { id: 'pr-024', date: '2026-07-01', market: '南丰县农产品批发市场', variety: '南丰蜜桔早熟种', highPrice: '3.40', lowPrice: '2.95', bulkPrice: '3.20' },
+      { id: 'pr-025', date: '2026-06-30', market: '抚州市农产品批发市场', variety: '南丰蜜桔中熟种', highPrice: '3.38', lowPrice: '2.92', bulkPrice: '3.18' },
+      { id: 'pr-026', date: '2026-06-29', market: '南丰县农产品批发市场', variety: '南丰蜜桔晚熟种', highPrice: '3.35', lowPrice: '2.90', bulkPrice: '3.15' },
+      { id: 'pr-027', date: '2026-06-28', market: '南丰县农产品批发市场', variety: '南丰蜜桔早熟种', highPrice: '3.40', lowPrice: '2.95', bulkPrice: '3.20' },
+      { id: 'pr-028', date: '2026-06-27', market: '南昌市农产品批发市场', variety: '南丰蜜桔中熟种', highPrice: '3.38', lowPrice: '2.92', bulkPrice: '3.18' },
+      { id: 'pr-029', date: '2026-06-26', market: '南丰县农产品批发市场', variety: '南丰蜜桔晚熟种', highPrice: '3.35', lowPrice: '2.90', bulkPrice: '3.15' },
+      { id: 'pr-030', date: '2026-06-25', market: '赣州市农产品批发市场', variety: '南丰蜜桔早熟种', highPrice: '3.32', lowPrice: '2.88', bulkPrice: '3.12' }
+    ];
+
+    var originalPrices = JSON.parse(JSON.stringify(prices));
+
+    var currentPage = 1;
+    var pageSize = 10;
+    var deleteTargetId = null;
+
+    function renderStats() {
+      var totalDays = originalPrices.length;
+      var markets = new Set(originalPrices.map(function(p) { return p.market; })).size;
+      var maxPrice = Math.max.apply(null, originalPrices.map(function(p) { return parseFloat(p.highPrice); }));
+      var minPrice = Math.min.apply(null, originalPrices.map(function(p) { return parseFloat(p.lowPrice); }));
+      
+      var statsCard = document.getElementById('statsCard');
+      statsCard.innerHTML = `
+        <div class="stat-item">
+          <div class="stat-info">
+            <div class="stat-number">${totalDays}</div>
+            <div class="stat-label">价格数据(天)</div>
+          </div>
+          <div class="stat-icon days">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          </div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-info">
+            <div class="stat-number">${markets}</div>
+            <div class="stat-label">批发市场(个)</div>
+          </div>
+          <div class="stat-icon market">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+          </div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-info">
+            <div class="stat-number">${maxPrice.toFixed(2)}</div>
+            <div class="stat-label">历史最高价</div>
+          </div>
+          <div class="stat-icon max">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="21 10 17 10 14 21 10 7 6 10 3 10"/></svg>
+          </div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-info">
+            <div class="stat-number">${minPrice.toFixed(2)}</div>
+            <div class="stat-label">历史最低价</div>
+          </div>
+          <div class="stat-icon min">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 14 7 14 10 3 14 17 18 14 21 14"/></svg>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderTable() {
+      var tbody = document.getElementById('priceTable');
+      tbody.innerHTML = '';
+      
+      var start = (currentPage - 1) * pageSize;
+      var end = start + pageSize;
+      var displayPrices = prices.slice(start, end);
+      
+      displayPrices.forEach(function(p, index) {
+        tbody.innerHTML += `
+          <tr>
+            <td>${p.date}</td>
+            <td>${p.market}</td>
+            <td>${p.variety}</td>
+            <td>${p.highPrice}</td>
+            <td>${p.lowPrice}</td>
+            <td>${p.bulkPrice}</td>
+            <td>
+              <button class="btn btn-secondary" onclick="openDetailModal('${p.id}')">查看</button>
+              <button class="btn btn-secondary" onclick="openEditModal('${p.id}')">编辑</button>
+              <button class="btn btn-secondary" onclick="openDeleteModal('${p.id}', '${p.date}')">删除</button>
+            </td>
+          </tr>
+        `;
+      });
+      
+      renderPagination();
+    }
+
+    function renderPagination() {
+      var totalPages = Math.ceil(prices.length / pageSize);
+      var pagination = document.getElementById('pagination');
+      pagination.innerHTML = '';
+      
+      if (currentPage > 1) {
+        pagination.innerHTML += `<button class="page-btn" onclick="goPage(${currentPage - 1})">上一页</button>`;
+      }
+      
+      for (var i = 1; i <= totalPages; i++) {
+        var active = i === currentPage ? 'active' : '';
+        pagination.innerHTML += `<button class="page-btn ${active}" onclick="goPage(${i})">${i}</button>`;
+      }
+      
+      if (currentPage < totalPages) {
+        pagination.innerHTML += `<button class="page-btn" onclick="goPage(${currentPage + 1})">下一页</button>`;
+      }
+    }
+
+    function goPage(page) {
+      currentPage = page;
+      renderTable();
+    }
+
+    function searchPrices() {
+      var keyword = document.getElementById('searchInput').value.toLowerCase();
+      prices = originalPrices.filter(function(p) {
+        return p.date.includes(keyword) || p.market.toLowerCase().includes(keyword);
+      });
+      currentPage = 1;
+      renderTable();
+    }
+
+    function openAddModal() {
+      document.getElementById('add-modal-title').textContent = '新增价格数据';
+      document.getElementById('edit-id').value = '';
+      document.getElementById('add-date').value = '';
+      document.getElementById('add-market').value = '南丰县农产品批发市场';
+      document.getElementById('add-variety').value = '南丰蜜桔早熟种';
+      document.getElementById('add-high-price').value = '';
+      document.getElementById('add-low-price').value = '';
+      document.getElementById('add-bulk-price').value = '';
+      document.getElementById('add-modal').classList.add('active');
+    }
+
+    function openEditModal(id) {
+      var p = prices.find(function(item) { return item.id === id; });
+      if (!p) return;
+      document.getElementById('add-modal-title').textContent = '编辑价格数据';
+      document.getElementById('edit-id').value = p.id;
+      document.getElementById('add-date').value = p.date;
+      document.getElementById('add-market').value = p.market;
+      document.getElementById('add-variety').value = p.variety;
+      document.getElementById('add-high-price').value = p.highPrice;
+      document.getElementById('add-low-price').value = p.lowPrice;
+      document.getElementById('add-bulk-price').value = p.bulkPrice;
+      document.getElementById('add-modal').classList.add('active');
+    }
+
+    function submitAdd() {
+      var id = document.getElementById('edit-id').value;
+      var date = document.getElementById('add-date').value;
+      var market = document.getElementById('add-market').value;
+      var variety = document.getElementById('add-variety').value;
+      var highPrice = document.getElementById('add-high-price').value.trim();
+      var lowPrice = document.getElementById('add-low-price').value.trim();
+      var bulkPrice = document.getElementById('add-bulk-price').value.trim();
+      
+      if (!date || !highPrice || !lowPrice || !bulkPrice) {
+        alert('请填写必填项');
+        return;
+      }
+      
+      if (id) {
+        var index = originalPrices.findIndex(function(item) { return item.id === id; });
+        if (index > -1) {
+          originalPrices[index] = { ...originalPrices[index], date, market, variety, highPrice, lowPrice, bulkPrice };
+        }
+      } else {
+        var newId = 'pr-' + String(originalPrices.length + 1).padStart(3, '0');
+        originalPrices.unshift({ id: newId, date, market, variety, highPrice, lowPrice, bulkPrice });
+        originalPrices.sort(function(a, b) { return new Date(b.date) - new Date(a.date); });
+      }
+      
+      closeModal('add-modal');
+      prices = JSON.parse(JSON.stringify(originalPrices));
+      renderStats();
+      renderTable();
+      alert(id ? '编辑成功' : '新增成功');
+    }
+
+    function openDetailModal(id) {
+      var p = prices.find(function(item) { return item.id === id; });
+      if (!p) return;
+      document.getElementById('detail-content').innerHTML = `
+        <div class="detail-info">
+          <div class="detail-item"><div class="detail-label">数据ID</div><div class="detail-value">${p.id}</div></div>
+          <div class="detail-item"><div class="detail-label">日期</div><div class="detail-value">${p.date}</div></div>
+          <div class="detail-item"><div class="detail-label">农批市场</div><div class="detail-value">${p.market}</div></div>
+          <div class="detail-item"><div class="detail-label">品种</div><div class="detail-value">${p.variety}</div></div>
+          <div class="detail-item"><div class="detail-label">最高价</div><div class="detail-value">${p.highPrice} 元/斤</div></div>
+          <div class="detail-item"><div class="detail-label">最低价</div><div class="detail-value">${p.lowPrice} 元/斤</div></div>
+          <div class="detail-item"><div class="detail-label">大宗价</div><div class="detail-value">${p.bulkPrice} 元/斤</div></div>
+        </div>
+      `;
+      document.getElementById('detail-modal').classList.add('active');
+    }
+
+    function openDeleteModal(id, date) {
+      deleteTargetId = id;
+      document.getElementById('delete-date').textContent = date;
+      document.getElementById('delete-modal').classList.add('active');
+    }
+
+    function submitDelete() {
+      if (!deleteTargetId) return;
+      originalPrices = originalPrices.filter(function(item) { return item.id !== deleteTargetId; });
+      prices = JSON.parse(JSON.stringify(originalPrices));
+      closeModal('delete-modal');
+      renderStats();
+      renderTable();
+      alert('删除成功');
+      deleteTargetId = null;
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('active');
+    }
+
+    renderStats();
+    renderTable();
+  </script>
+</body>
+</html>

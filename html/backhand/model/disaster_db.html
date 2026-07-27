@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>灾害数据库 - 南丰蜜桔模型管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { margin: 0; padding: 0; background-color: #F0F2F5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans SC', sans-serif; }
+        .content-wrapper { padding: 24px; height: 100vh; overflow-y: auto; }
+    </style>
+</head>
+<body>
+    <div class="content-wrapper">
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800">灾害数据库</h1>
+                <p class="text-gray-500 mt-1">管理南丰蜜桔气象灾害知识数据</p>
+            </div>
+            <div class="flex items-center space-x-3">
+                <button onclick="showModal('import-modal')" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 flex items-center">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                    导入灾害
+                </button>
+                <button onclick="exportDisasters()" class="px-4 py-2 bg-gray-600 text-white rounded-lg text-sm hover:bg-gray-700 flex items-center">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                    导出灾害
+                </button>
+                <button onclick="openAddModal()" class="px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 flex items-center">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    添加灾害
+                </button>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="p-4 border-b border-gray-100">
+                <div class="flex items-center space-x-4 flex-wrap">
+                    <div class="flex-1 max-w-md">
+                        <div class="relative">
+                            <svg class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                            <input type="text" id="search-input" placeholder="搜索灾害名称..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500" oninput="filterDisasters()">
+                        </div>
+                    </div>
+                    <select id="type-filter" class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500" onchange="filterDisasters()">
+                        <option value="">全部类型</option>
+                        <option value="气象灾害">气象灾害</option>
+                        <option value="生物灾害">生物灾害</option>
+                        <option value="其他灾害">其他灾害</option>
+                    </select>
+                    <button onclick="resetFilter()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200">重置</button>
+                </div>
+            </div>
+
+            <div id="disaster-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+            </div>
+
+            <div class="px-6 py-4 border-t border-gray-100 flex items-center justify-between">
+                <p class="text-sm text-gray-500">共 <span id="total-count">15</span> 条记录</p>
+                <div class="flex items-center space-x-2">
+                    <button onclick="prevPage()" class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50">上一页</button>
+                    <span class="text-sm text-gray-600"><span id="current-page">1</span> / <span id="total-pages">4</span></span>
+                    <button onclick="nextPage()" class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50">下一页</button>
+                    <select id="page-size" class="px-3 py-1 border border-gray-300 rounded text-sm" onchange="changePageSize()">
+                        <option value="6">6条/页</option>
+                        <option value="10">10条/页</option>
+                        <option value="20">20条/页</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 导入灾害弹窗 -->
+    <div id="import-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center" onclick="if(event.target===this)closeModal('import-modal')">
+        <div style="background:#fff;border-radius:12px;width:90%;max-width:500px;max-height:85vh;overflow-y:auto">
+            <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+                <h3 style="font-size:18px;font-weight:600;color:#1f2937">导入灾害数据</h3>
+                <button onclick="closeModal('import-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px;color:#6b7280;line-height:1">&times;</button>
+            </div>
+            <div style="padding:24px">
+                <div style="border:2px dashed #d1d5db;border-radius:12px;padding:32px;text-align:center;cursor:pointer" onclick="document.getElementById('import-file').click()">
+                    <svg style="width:48px;height:48px;color:#9ca3af;margin:0 auto 12px;display:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                    <p style="color:#374151;margin-bottom:4px">点击或拖拽文件到此处上传</p>
+                    <p style="color:#9ca3af;font-size:14px">支持 Excel (.xlsx)、CSV 文件</p>
+                    <input type="file" id="import-file" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleImportFile(this)">
+                </div>
+                <div style="margin-top:16px;padding:12px;background:#eff6ff;border-radius:8px">
+                    <p style="font-size:14px;color:#1d4ed8">导入模板说明：灾害名称为必填字段</p>
+                </div>
+                <div style="margin-top:16px">
+                    <button onclick="downloadTemplate()" style="color:#2563eb;font-size:14px;background:none;border:none;cursor:pointer;padding:0;text-decoration:underline">下载导入模板</button>
+                </div>
+            </div>
+            <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:12px">
+                <button onclick="closeModal('import-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
+                <button onclick="submitImport()" style="padding:8px 16px;background:#2563eb;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">开始导入</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加灾害弹窗 -->
+    <div id="add-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center" onclick="if(event.target===this)closeModal('add-modal')">
+        <div style="background:#fff;border-radius:12px;width:90%;max-width:500px;max-height:85vh;overflow-y:auto">
+            <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+                <h3 style="font-size:18px;font-weight:600;color:#1f2937">添加灾害</h3>
+                <button onclick="closeModal('add-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px;color:#6b7280;line-height:1">&times;</button>
+            </div>
+            <div style="padding:24px">
+                <div style="margin-bottom:16px">
+                    <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">灾害名称</label>
+                    <input type="text" id="add-name" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box" placeholder="请输入灾害名称">
+                </div>
+                <div style="margin-bottom:16px">
+                    <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">灾害类型</label>
+                    <select id="add-type" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box">
+                        <option value="气象灾害">气象灾害</option>
+                        <option value="生物灾害">生物灾害</option>
+                        <option value="其他灾害">其他灾害</option>
+                    </select>
+                </div>
+                <div style="margin-bottom:16px">
+                    <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">触发条件</label>
+                    <input type="text" id="add-condition" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box" placeholder="例如：温度>35°C">
+                </div>
+                <div style="margin-bottom:16px">
+                    <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">高发季节</label>
+                    <input type="text" id="add-season" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box" placeholder="例如：7-8月">
+                </div>
+                <div style="margin-bottom:16px">
+                    <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">风险等级</label>
+                    <select id="add-risk" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box">
+                        <option value="高风险">高风险</option>
+                        <option value="中风险">中风险</option>
+                        <option value="低风险">低风险</option>
+                    </select>
+                </div>
+                <div style="margin-bottom:16px">
+                    <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">灾害描述</label>
+                    <textarea id="add-desc" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box;resize:vertical" rows="3" placeholder="请输入灾害描述"></textarea>
+                </div>
+                <div style="margin-bottom:16px">
+                    <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">灾害图片（最多4张）</label>
+                    <input type="file" id="add-images" accept="image/*" multiple style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box" onchange="previewAddImages(this)">
+                    <div id="add-image-preview" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:8px"></div>
+                </div>
+            </div>
+            <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:12px">
+                <button onclick="closeModal('add-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
+                <button onclick="saveDisaster()" style="padding:8px 16px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑灾害弹窗 -->
+    <div id="edit-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center" onclick="if(event.target===this)closeModal('edit-modal')">
+        <div style="background:#fff;border-radius:12px;width:90%;max-width:500px;max-height:85vh;overflow-y:auto">
+            <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+                <h3 style="font-size:18px;font-weight:600;color:#1f2937">编辑灾害</h3>
+                <button onclick="closeModal('edit-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px;color:#6b7280;line-height:1">&times;</button>
+            </div>
+            <div style="padding:24px">
+                <input type="hidden" id="edit-id">
+                <div style="margin-bottom:16px">
+                    <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">灾害名称</label>
+                    <input type="text" id="edit-name" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box">
+                </div>
+                <div style="margin-bottom:16px">
+                    <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">灾害类型</label>
+                    <select id="edit-type" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box">
+                        <option value="气象灾害">气象灾害</option>
+                        <option value="生物灾害">生物灾害</option>
+                        <option value="其他灾害">其他灾害</option>
+                    </select>
+                </div>
+                <div style="margin-bottom:16px">
+                    <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">触发条件</label>
+                    <input type="text" id="edit-condition" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box">
+                </div>
+                <div style="margin-bottom:16px">
+                    <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">高发季节</label>
+                    <input type="text" id="edit-season" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box">
+                </div>
+                <div style="margin-bottom:16px">
+                    <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">风险等级</label>
+                    <select id="edit-risk" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box">
+                        <option value="高风险">高风险</option>
+                        <option value="中风险">中风险</option>
+                        <option value="低风险">低风险</option>
+                    </select>
+                </div>
+                <div style="margin-bottom:16px">
+                    <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">灾害描述</label>
+                    <textarea id="edit-desc" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box;resize:vertical" rows="3"></textarea>
+                </div>
+                <div style="margin-bottom:16px">
+                    <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">灾害图片（最多4张）</label>
+                    <input type="file" id="edit-images" accept="image/*" multiple style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box" onchange="previewEditImages(this)">
+                    <div id="edit-image-preview" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:8px"></div>
+                </div>
+            </div>
+            <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:12px">
+                <button onclick="closeModal('edit-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
+                <button onclick="updateDisaster()" style="padding:8px 16px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 查看详情弹窗 -->
+    <div id="detail-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center" onclick="if(event.target===this)closeModal('detail-modal')">
+        <div style="background:#fff;border-radius:12px;width:90%;max-width:500px;max-height:85vh;overflow-y:auto">
+            <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+                <h3 style="font-size:18px;font-weight:600;color:#1f2937">灾害详情</h3>
+                <button onclick="closeModal('detail-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px;color:#6b7280;line-height:1">&times;</button>
+            </div>
+            <div style="padding:24px">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+                    <div>
+                        <label style="display:block;font-size:13px;color:#6b7280;margin-bottom:2px">灾害名称</label>
+                        <p style="font-size:14px;font-weight:500;color:#1f2937" id="detail-name"></p>
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:13px;color:#6b7280;margin-bottom:2px">灾害类型</label>
+                        <p style="font-size:14px;font-weight:500;color:#1f2937" id="detail-type"></p>
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:13px;color:#6b7280;margin-bottom:2px">触发条件</label>
+                        <p style="font-size:14px;font-weight:500;color:#1f2937" id="detail-condition"></p>
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:13px;color:#6b7280;margin-bottom:2px">高发季节</label>
+                        <p style="font-size:14px;font-weight:500;color:#1f2937" id="detail-season"></p>
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:13px;color:#6b7280;margin-bottom:2px">风险等级</label>
+                        <p style="font-size:14px;font-weight:500;color:#1f2937" id="detail-risk"></p>
+                    </div>
+                </div>
+                <div style="margin-bottom:16px">
+                    <label style="display:block;font-size:13px;color:#6b7280;margin-bottom:4px">灾害描述</label>
+                    <p style="font-size:14px;color:#374151;line-height:1.6" id="detail-desc"></p>
+                </div>
+                <div>
+                    <label style="display:block;font-size:13px;color:#6b7280;margin-bottom:8px">灾害图片</label>
+                    <div id="detail-images" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px"></div>
+                </div>
+            </div>
+            <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:12px">
+                <button onclick="closeModal('detail-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 删除确认弹窗 -->
+    <div id="delete-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center" onclick="if(event.target===this)closeModal('delete-modal')">
+        <div style="background:#fff;border-radius:12px;width:90%;max-width:400px">
+            <div style="padding:32px 24px;text-align:center">
+                <div style="width:56px;height:56px;background:#fee2e2;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
+                    <svg style="width:32px;height:32px;color:#ef4444" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                </div>
+                <h3 style="font-size:18px;font-weight:600;color:#1f2937;margin-bottom:8px">确认删除</h3>
+                <p style="font-size:14px;color:#6b7280;margin-bottom:8px">确定要删除灾害 "<span id="delete-name" style="font-weight:600;color:#1f2937"></span>" 吗？</p>
+                <p style="font-size:13px;color:#9ca3af;margin-bottom:24px">此操作不可撤销</p>
+                <div style="display:flex;justify-content:center;gap:12px">
+                    <button onclick="closeModal('delete-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
+                    <button onclick="confirmDelete()" style="padding:8px 16px;background:#ef4444;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">确认删除</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 图片预览弹窗 -->
+    <div id="image-preview-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:99999;align-items:center;justify-content:center" onclick="if(event.target===this)closeModal('image-preview-modal')">
+        <button onclick="closeModal('image-preview-modal')" style="position:absolute;top:16px;right:16px;padding:8px;background:rgba(0,0,0,0.5);color:#fff;border:none;border-radius:50%;cursor:pointer;font-size:24px;width:40px;height:40px;display:flex;align-items:center;justify-content:center;z-index:1">&times;</button>
+        <img id="preview-image" src="" alt="预览图片" style="max-width:90%;max-height:90vh;object-fit:contain;border-radius:4px" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22><rect fill=%22%23f3f4f6%22 width=%22200%22 height=%22200%22/><text x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%239ca3af%22 font-size=%2214%22>图片加载失败</text></svg>'">
+    </div>
+
+    <script>
+        function showModal(id) { var m = document.getElementById(id); if (m) m.style.display = 'flex'; }
+        function hideModal(id) { var m = document.getElementById(id); if (m) m.style.display = 'none'; }
+        function closeModal(id) { hideModal(id); }
+
+        const disasters = [
+            { id: 'disaster-1', name: '高温热害', type: '气象灾害', condition: '>35°C', season: '7-8月', risk: '高风险', desc: '持续高温导致果实日灼、落果，影响果实品质和产量，7-8月高发。', images: [
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=高温日灼灾害症状，蜜桔果实表面日灼斑&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=高温日灼果园实景，蜜桔树叶片卷曲&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=高温日灼灾害蜜桔树体损伤，果实干瘪&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=高温日灼灾害恢复后蜜桔果园状态&image_size=square_hd'
+            ]},
+            { id: 'disaster-2', name: '暴雨洪涝', type: '气象灾害', condition: '>100mm/日', season: '6-7月', risk: '中风险', desc: '短时强降雨导致果园积水、根系缺氧，诱发病害发生，夏季汛期高发。', images: [
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=暴雨涝害果园实景，蜜桔园大面积积水&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=暴雨洪涝灾害症状，蜜桔根系裸露&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=暴雨涝害蜜桔树体损伤，叶片发黄萎蔫&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=暴雨洪涝灾害恢复后蜜桔果园状态&image_size=square_hd'
+            ]},
+            { id: 'disaster-3', name: '干旱缺水', type: '气象灾害', condition: '<20mm/月', season: '7-9月', risk: '高风险', desc: '持续无雨导致土壤缺水，叶片卷曲、果实发育迟缓，影响产量和品质。', images: [
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=干旱灾害症状，蜜桔叶片卷曲发黄&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=干旱果园实景，蜜桔园土壤干裂&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=干旱灾害蜜桔树体损伤，果实干瘪&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=干旱灾害恢复后蜜桔果园状态&image_size=square_hd'
+            ]},
+            { id: 'disaster-4', name: '台风灾害', type: '气象灾害', condition: '>8级', season: '8-9月', risk: '中风险', desc: '强风导致树枝折断、果实掉落，伴随暴雨引发山洪和泥石流，8-9月高发。', images: [
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=台风灾害症状，蜜桔树枝折断倒伏&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=台风灾害果园实景，蜜桔园受灾倒塌&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=台风灾害蜜桔树体损伤，果实满地掉落&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=台风灾害恢复后蜜桔果园状态&image_size=square_hd'
+            ]},
+            { id: 'disaster-5', name: '低温冷害', type: '气象灾害', condition: '<5°C', season: '12-2月', risk: '中风险', desc: '低温影响花芽分化和开花，导致落花落果，冬季高发。', images: [
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=低温冷害症状，蜜桔花芽受冻&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=低温冷害果园实景，蜜桔园霜冻覆盖&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=低温冷害蜜桔树体损伤，叶片冻伤&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=低温冷害恢复后蜜桔果园状态&image_size=square_hd'
+            ]},
+            { id: 'disaster-6', name: '寒潮冻害', type: '气象灾害', condition: '<-5°C', season: '1-2月', risk: '高风险', desc: '极端低温导致树体冻害、枝条冻死，严重影响来年产量。', images: [
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=寒潮冻害症状，蜜桔枝条冻死干枯&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=寒潮冻害果园实景，蜜桔园冰雪覆盖&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=冻害蜜桔树体损伤，树干冻裂&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=寒潮冻害恢复后蜜桔果园状态&image_size=square_hd'
+            ]},
+            { id: 'disaster-7', name: '冰雹灾害', type: '气象灾害', condition: '冰雹天气', season: '3-4月', risk: '中风险', desc: '冰雹击打叶片和果实，造成机械损伤，影响树势和果实品质。', images: [
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=冰雹灾害症状，蜜桔果实被冰雹击伤&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=冰雹灾害果园实景，蜜桔园满地冰雹&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=冰雹灾害蜜桔树体损伤，叶片被打穿&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=冰雹灾害恢复后蜜桔果园状态&image_size=square_hd'
+            ]},
+            { id: 'disaster-8', name: '大风灾害', type: '气象灾害', condition: '>6级', season: '4-5月', risk: '低风险', desc: '大风导致枝条摇摆、果实掉落，春季高发。', images: [
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=大风灾害症状，蜜桔枝条摇摆落叶&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=大风灾害果园实景，蜜桔园树木倾斜&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=大风灾害蜜桔树体损伤，果实掉落满地&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=大风灾害恢复后蜜桔果园状态&image_size=square_hd'
+            ]},
+            { id: 'disaster-9', name: '雷电灾害', type: '气象灾害', condition: '雷暴天气', season: '4-9月', risk: '低风险', desc: '雷电击伤树体，引发火灾，夏季雷暴期高发。', images: [
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=雷电灾害症状，蜜桔树被雷击劈裂&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=雷电灾害果园实景，蜜桔园雷击现场&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=雷电灾害蜜桔树体损伤，树干烧焦&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=雷电灾害恢复后蜜桔果园状态&image_size=square_hd'
+            ]},
+            { id: 'disaster-10', name: '连阴雨', type: '气象灾害', condition: '>7天', season: '3-4月', risk: '中风险', desc: '持续阴雨导致光照不足、病害滋生，影响授粉和坐果。', images: [
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=连阴雨灾害症状，蜜桔花器发霉&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=连阴雨灾害果园实景，蜜桔园阴雨连绵&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=连阴雨蜜桔树体损伤，叶片病害滋生&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=连阴雨灾害恢复后蜜桔果园状态&image_size=square_hd'
+            ]},
+            { id: 'disaster-11', name: '倒春寒', type: '气象灾害', condition: '<10°C', season: '3-4月', risk: '高风险', desc: '春季气温骤降影响开花授粉，导致落花落果。', images: [
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=倒春寒灾害症状，蜜桔花朵受冻凋落&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=倒春寒果园实景，蜜桔园春雪覆盖&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=倒春寒蜜桔树体损伤，嫩梢冻伤&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=倒春寒灾害恢复后蜜桔果园状态&image_size=square_hd'
+            ]},
+            { id: 'disaster-12', name: '秋旱', type: '气象灾害', condition: '<30mm/月', season: '9-10月', risk: '中风险', desc: '秋季干旱影响果实成熟和糖分积累，降低果实品质。', images: [
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=秋旱灾害症状，蜜桔果实发育不良&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=秋旱果园实景，蜜桔园干旱缺水&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=秋旱蜜桔树体损伤，叶片提早落叶&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=秋旱灾害恢复后蜜桔果园状态&image_size=square_hd'
+            ]},
+            { id: 'disaster-13', name: '寒露风', type: '气象灾害', condition: '<15°C', season: '10月', risk: '低风险', desc: '秋季低温影响晚熟品种成熟，导致果实品质下降。', images: [
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=寒露风灾害症状，蜜桔果实着色不良&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=寒露风果园实景，蜜桔园秋风萧瑟&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=寒露风蜜桔树体损伤，果实品质下降&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=寒露风灾害恢复后蜜桔果园状态&image_size=square_hd'
+            ]},
+            { id: 'disaster-14', name: '洪涝灾害', type: '气象灾害', condition: '水位>50cm', season: '6-7月', risk: '高风险', desc: '长时间积水导致根系腐烂，树体死亡。', images: [
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=洪涝灾害症状，蜜桔树泡水根系腐烂&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=洪涝灾害果园实景，蜜桔园水深淹没&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=洪涝灾害蜜桔树体损伤，整株死亡&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=洪涝灾害恢复后蜜桔果园状态&image_size=square_hd'
+            ]},
+            { id: 'disaster-15', name: '山体滑坡', type: '其他灾害', condition: '降雨>200mm', season: '6-7月', risk: '高风险', desc: '暴雨引发山体滑坡，摧毁果园设施，威胁人身安全。', images: [
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=山体滑坡灾害症状，蜜桔园被泥石覆盖&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=山体滑坡果园实景，蜜桔园受灾现场&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=山体滑坡蜜桔树体损伤，树木被掩埋&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=山体滑坡灾害恢复后蜜桔果园状态&image_size=square_hd'
+            ]}
+        ];
+
+        let currentPage = 1;
+        let pageSize = 6;
+        let currentId = null;
+        let currentDisaster = null;
+        let filteredDisasters = [...disasters];
+
+        function findDisasterById(id) {
+            return disasters.find(function(d) { return d.id === id; });
+        }
+
+        function getTypeColor(type) {
+            switch(type) {
+                case '气象灾害': return 'bg-red-100 text-red-700';
+                case '生物灾害': return 'bg-green-100 text-green-700';
+                default: return 'bg-purple-100 text-purple-700';
+            }
+        }
+
+        function getTypeBgColor(type) {
+            switch(type) {
+                case '气象灾害': return 'bg-red-100';
+                case '生物灾害': return 'bg-green-100';
+                default: return 'bg-purple-100';
+            }
+        }
+
+        function getRiskColor(risk) {
+            switch(risk) {
+                case '高风险': return 'text-red-600';
+                case '中风险': return 'text-yellow-600';
+                case '低风险': return 'text-green-600';
+                default: return 'text-gray-600';
+            }
+        }
+
+        function renderDisasters() {
+            var container = document.getElementById('disaster-list');
+            var start = (currentPage - 1) * pageSize;
+            var end = start + pageSize;
+            var pageData = filteredDisasters.slice(start, end);
+
+            container.innerHTML = pageData.map(function(disaster) {
+                return `<div class="border border-gray-200 rounded-xl p-4 hover:border-green-300 hover:shadow-md transition" data-id="${disaster.id}" data-name="${disaster.name}" data-type="${disaster.type}" data-condition="${disaster.condition}" data-season="${disaster.season}" data-risk="${disaster.risk}" data-desc="${disaster.desc}">
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-12 h-12 ${getTypeBgColor(disaster.type)} rounded-lg flex items-center justify-center">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7h-9m0 0V5a3 3 0 016 0v2m-6 0a3 3 0 00-6 0v10a3 3 0 006 0m10-3a2 2 0 11-4 0 2 2 0 014 0zM17 10H7m0 0l3-3m-3 3l3 3"/></svg>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-gray-800">${disaster.name}</h3>
+                                <span class="px-2 py-0.5 ${getTypeColor(disaster.type)} text-xs rounded">${disaster.type}</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="openDetailModal('${disaster.id}')" class="p-1 text-gray-400 hover:text-blue-600" title="查看详情">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                            </button>
+                            <button onclick="openEditModal('${disaster.id}')" class="p-1 text-gray-400 hover:text-blue-600" title="编辑">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                            </button>
+                            <button onclick="openDeleteModal('${disaster.id}')" class="p-1 text-gray-400 hover:text-red-600" title="删除">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-3">${disaster.desc}</p>
+                    <div class="flex items-center space-x-4 text-xs text-gray-500 mb-3">
+                        <span class="flex items-center"><svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>${disaster.condition}</span>
+                        <span class="flex items-center"><svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>${disaster.season}</span>
+                        <span class="flex items-center ${getRiskColor(disaster.risk)}"><svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.66 1.732-3L13.732 4c-.77-1.34-2.694-1.34-3.464 0L3.34 16c-.77 1.34.192 3 1.732 3z"/></svg>${disaster.risk}</span>
+                    </div>
+                    <div class="grid grid-cols-4 gap-2">
+                        ${disaster.images.map(function(img, idx) { return '<img src="' + img + '" alt="灾害图片' + (idx + 1) + '" class="w-full h-20 object-cover rounded cursor-pointer" onclick="openImagePreview(\'' + img + '\')" onerror="this.style.display=\'none\'" />'; }).join('')}
+                    </div>
+                </div>`;
+            }).join('');
+
+            updatePagination();
+        }
+
+        function updatePagination() {
+            var totalPages = Math.ceil(filteredDisasters.length / pageSize);
+            document.getElementById('total-count').textContent = filteredDisasters.length;
+            document.getElementById('current-page').textContent = currentPage;
+            document.getElementById('total-pages').textContent = totalPages;
+        }
+
+        function openImagePreview(url) {
+            document.getElementById('preview-image').src = url;
+            showModal('image-preview-modal');
+        }
+
+        function previewAddImages(input) {
+            var container = document.getElementById('add-image-preview');
+            container.innerHTML = '';
+            if (input.files && input.files.length > 0) {
+                var maxFiles = Math.min(input.files.length, 4);
+                for (var i = 0; i < maxFiles; i++) {
+                    (function(file) {
+                        var reader = new FileReader();
+                        reader.onload = function(e) {
+                            var img = document.createElement('img');
+                            img.src = e.target.result;
+                            img.style.cssText = 'width:100%;height:64px;object-fit:cover;border-radius:4px';
+                            img.onerror = function() { img.style.display = 'none'; };
+                            container.appendChild(img);
+                        };
+                        reader.readAsDataURL(file);
+                    })(input.files[i]);
+                }
+            }
+        }
+
+        function previewEditImages(input) {
+            var container = document.getElementById('edit-image-preview');
+            container.innerHTML = '';
+            if (input.files && input.files.length > 0) {
+                var maxFiles = Math.min(input.files.length, 4);
+                for (var i = 0; i < maxFiles; i++) {
+                    (function(file) {
+                        var reader = new FileReader();
+                        reader.onload = function(e) {
+                            var img = document.createElement('img');
+                            img.src = e.target.result;
+                            img.style.cssText = 'width:100%;height:64px;object-fit:cover;border-radius:4px';
+                            img.onerror = function() { img.style.display = 'none'; };
+                            container.appendChild(img);
+                        };
+                        reader.readAsDataURL(file);
+                    })(input.files[i]);
+                }
+            }
+        }
+
+        function openAddModal() {
+            document.getElementById('add-name').value = '';
+            document.getElementById('add-type').value = '气象灾害';
+            document.getElementById('add-condition').value = '';
+            document.getElementById('add-season').value = '';
+            document.getElementById('add-risk').value = '中风险';
+            document.getElementById('add-desc').value = '';
+            document.getElementById('add-images').value = '';
+            document.getElementById('add-image-preview').innerHTML = '';
+            showModal('add-modal');
+        }
+
+        function handleImportFile(input) {
+            var file = input.files[0];
+            if (file) {
+                alert('已选择文件: ' + file.name);
+            }
+        }
+
+        function downloadTemplate() {
+            var content = '灾害名称,灾害类型,触发条件,高发季节,风险等级,灾害描述\n高温热害,气象灾害,>35°C,7-8月,高风险,持续高温导致果实日灼';
+            var blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+            var link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = '灾害导入模板.csv';
+            link.click();
+        }
+
+        function submitImport() {
+            var file = document.getElementById('import-file').files[0];
+            if (!file) {
+                alert('请先选择要导入的文件');
+                return;
+            }
+            alert('灾害数据导入成功！\n文件: ' + file.name + '\n导入数量: 5 条');
+            closeModal('import-modal');
+        }
+
+        function exportDisasters() {
+            var content = disasters.map(function(d) { return d.name + ',' + d.type + ',' + d.condition + ',' + d.season + ',' + d.risk + ',' + d.desc; }).join('\n');
+            var blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+            var link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = '灾害列表_' + new Date().toISOString().split('T')[0] + '.csv';
+            link.click();
+        }
+
+        function openEditModal(id) {
+            currentId = id;
+            var d = findDisasterById(id);
+            if (d) {
+                document.getElementById('edit-id').value = d.id;
+                document.getElementById('edit-name').value = d.name;
+                document.getElementById('edit-type').value = d.type;
+                document.getElementById('edit-condition').value = d.condition;
+                document.getElementById('edit-season').value = d.season;
+                document.getElementById('edit-risk').value = d.risk;
+                document.getElementById('edit-desc').value = d.desc;
+                var preview = document.getElementById('edit-image-preview');
+                preview.innerHTML = d.images.map(function(img, idx) {
+                    return '<img src="' + img + '" alt="当前图片' + (idx + 1) + '" style="width:100%;height:64px;object-fit:cover;border-radius:4px" onerror="this.style.display=\'none\'" />';
+                }).join('');
+            }
+            document.getElementById('edit-images').value = '';
+            showModal('edit-modal');
+        }
+
+        function openDetailModal(id) {
+            var d = findDisasterById(id);
+            if (d) {
+                document.getElementById('detail-name').textContent = d.name;
+                document.getElementById('detail-type').textContent = d.type;
+                document.getElementById('detail-condition').textContent = d.condition;
+                document.getElementById('detail-season').textContent = d.season;
+                document.getElementById('detail-risk').textContent = d.risk;
+                document.getElementById('detail-desc').textContent = d.desc;
+                document.getElementById('detail-images').innerHTML = d.images.map(function(img, idx) {
+                    return '<img src="' + img + '" alt="灾害图片' + (idx + 1) + '" style="width:100%;height:80px;object-fit:cover;border-radius:6px;cursor:pointer" onclick="openImagePreview(\'' + img + '\')" onerror="this.style.display=\'none\'" />';
+                }).join('');
+            }
+            showModal('detail-modal');
+        }
+
+        function openDeleteModal(id) {
+            currentId = id;
+            var d = findDisasterById(id);
+            document.getElementById('delete-name').textContent = d ? d.name : '';
+            showModal('delete-modal');
+        }
+
+        function saveDisaster() {
+            var name = document.getElementById('add-name').value;
+            if (!name) {
+                alert('请填写灾害名称');
+                return;
+            }
+            alert('灾害数据添加成功！\n名称: ' + name);
+            closeModal('add-modal');
+        }
+
+        function updateDisaster() {
+            alert('灾害数据更新成功！');
+            closeModal('edit-modal');
+        }
+
+        function confirmDelete() {
+            alert('灾害数据删除成功！');
+            closeModal('delete-modal');
+        }
+
+        function filterDisasters() {
+            var searchTerm = document.getElementById('search-input').value.toLowerCase();
+            var typeFilter = document.getElementById('type-filter').value;
+            
+            filteredDisasters = disasters.filter(function(d) {
+                var matchesSearch = d.name.toLowerCase().indexOf(searchTerm) !== -1 || d.desc.toLowerCase().indexOf(searchTerm) !== -1;
+                var matchesType = !typeFilter || d.type === typeFilter;
+                return matchesSearch && matchesType;
+            });
+            
+            currentPage = 1;
+            renderDisasters();
+        }
+
+        function resetFilter() {
+            document.getElementById('search-input').value = '';
+            document.getElementById('type-filter').value = '';
+            filteredDisasters = disasters.slice();
+            currentPage = 1;
+            renderDisasters();
+        }
+
+        function prevPage() {
+            var totalPages = Math.ceil(filteredDisasters.length / pageSize);
+            if (currentPage > 1) {
+                currentPage--;
+                renderDisasters();
+            }
+        }
+
+        function nextPage() {
+            var totalPages = Math.ceil(filteredDisasters.length / pageSize);
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderDisasters();
+            }
+        }
+
+        function changePageSize() {
+            pageSize = parseInt(document.getElementById('page-size').value);
+            currentPage = 1;
+            renderDisasters();
+        }
+
+        renderDisasters();
+    </script>
+</body>
+</html>

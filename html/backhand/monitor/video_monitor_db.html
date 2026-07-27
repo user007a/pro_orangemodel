@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>视频监测库 - 南丰蜜桔模型管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <style>
+        body { margin: 0; padding: 0; background-color: #F0F2F5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans SC', sans-serif; overflow: visible !important; }
+        .content-wrapper { padding: 24px; min-height: 100%; overflow: visible !important; }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.5); z-index: 9999; align-items: center; justify-content: center; overflow: auto; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background-color: white; border-radius: 12px; width: 95%; max-width: 1100px; max-height: 90vh; overflow-y: auto; }
+        .video-card:hover { transform: translateY(-2px); transition: transform 0.2s; }
+        input[name="download-quality"]:checked + .radio-indicator {
+            border-color: #10b981;
+        }
+        input[name="download-quality"]:checked + .radio-indicator div {
+            opacity: 1;
+        }
+        input[name="download-quality"]:checked + .radio-indicator + div span:first-child {
+            color: #10b981;
+        }
+    </style>
+</head>
+<body>
+    <div class="content-wrapper">
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800">视频监测库</h1>
+                <p class="text-gray-500 mt-1">果园监控视频管理</p>
+            </div>
+            <div class="flex items-center space-x-3">
+                <input type="text" id="search-input" placeholder="搜索监控点名称..." class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 w-48" oninput="filterVideos()">
+                <select id="camera-filter" class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500" onchange="filterVideos()">
+                    <option value="">全部类型</option>
+                    <option value="固定">固定相机</option>
+                    <option value="移动">移动相机</option>
+                </select>
+                <button onclick="refreshData()" class="px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition flex items-center">
+                    <iconify-icon icon="material-symbols:refresh" class="w-4 h-4 mr-1"></iconify-icon>
+                    刷新数据
+                </button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">监控点位</p>
+                        <h3 class="text-2xl font-bold text-gray-800 mt-1">8</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                        <iconify-icon icon="material-symbols:video-camera-front" class="w-6 h-6 text-blue-500"></iconify-icon>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">在线监控</p>
+                        <h3 class="text-2xl font-bold text-green-600 mt-1">6</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                        <iconify-icon icon="material-symbols:check-circle" class="w-6 h-6 text-green-500"></iconify-icon>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">离线监控</p>
+                        <h3 class="text-2xl font-bold text-red-600 mt-1">2</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                        <iconify-icon icon="material-symbols:offline-bolt" class="w-6 h-6 text-red-500"></iconify-icon>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">录制时长</p>
+                        <h3 class="text-2xl font-bold text-purple-600 mt-1">1,248 h</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                        <iconify-icon icon="material-symbols:timer" class="w-6 h-6 text-purple-500"></iconify-icon>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 video-card cursor-pointer" onclick="openVideoPlayer(1)">
+                <div class="relative h-40 bg-gray-900 rounded-lg overflow-hidden mb-3">
+                    <img src="https://images.unsplash.com/photo-1564349683136-77e08dba1ef7?q=80&w=800&auto=format&fit=crop" alt="果园监控" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 flex items-center justify-center bg-black/30">
+                        <div class="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center">
+                            <iconify-icon icon="material-symbols:play-arrow" class="w-6 h-6 text-green-600 ml-1"></iconify-icon>
+                        </div>
+                    </div>
+                    <span class="absolute top-2 right-2 px-2 py-1 bg-green-600 text-white text-xs rounded-full">LIVE</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h4 class="text-sm font-medium text-gray-800">太和镇果园</h4>
+                        <p class="text-xs text-gray-500 mt-1">固定相机 | 实时监控</p>
+                    </div>
+                    <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 video-card cursor-pointer" onclick="openVideoPlayer(2)">
+                <div class="relative h-40 bg-gray-900 rounded-lg overflow-hidden mb-3">
+                    <img src="https://images.unsplash.com/photo-1455065166274-4b61319b3031?q=80&w=800&auto=format&fit=crop" alt="果园监控" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 flex items-center justify-center bg-black/30">
+                        <div class="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center">
+                            <iconify-icon icon="material-symbols:play-arrow" class="w-6 h-6 text-green-600 ml-1"></iconify-icon>
+                        </div>
+                    </div>
+                    <span class="absolute top-2 right-2 px-2 py-1 bg-green-600 text-white text-xs rounded-full">LIVE</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h4 class="text-sm font-medium text-gray-800">桑田镇果园</h4>
+                        <p class="text-xs text-gray-500 mt-1">固定相机 | 实时监控</p>
+                    </div>
+                    <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 video-card cursor-pointer" onclick="openVideoPlayer(3)">
+                <div class="relative h-40 bg-gray-900 rounded-lg overflow-hidden mb-3">
+                    <img src="https://images.unsplash.com/photo-1518977676609-a2b51f8f0e4e?q=80&w=800&auto=format&fit=crop" alt="果园监控" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 flex items-center justify-center bg-black/30">
+                        <div class="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center">
+                            <iconify-icon icon="material-symbols:play-arrow" class="w-6 h-6 text-green-600 ml-1"></iconify-icon>
+                        </div>
+                    </div>
+                    <span class="absolute top-2 right-2 px-2 py-1 bg-green-600 text-white text-xs rounded-full">LIVE</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h4 class="text-sm font-medium text-gray-800">市山镇果园</h4>
+                        <p class="text-xs text-gray-500 mt-1">移动相机 | 实时监控</p>
+                    </div>
+                    <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 video-card cursor-pointer" onclick="openVideoPlayer(4)">
+                <div class="relative h-40 bg-gray-900 rounded-lg overflow-hidden mb-3">
+                    <img src="https://images.unsplash.com/photo-1526392060635-9d6019884377?q=80&w=800&auto=format&fit=crop" alt="果园监控" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 flex items-center justify-center bg-black/30">
+                        <div class="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center">
+                            <iconify-icon icon="material-symbols:play-arrow" class="w-6 h-6 text-green-600 ml-1"></iconify-icon>
+                        </div>
+                    </div>
+                    <span class="absolute top-2 right-2 px-2 py-1 bg-yellow-600 text-white text-xs rounded-full">REC</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h4 class="text-sm font-medium text-gray-800">白舍镇果园</h4>
+                        <p class="text-xs text-gray-500 mt-1">固定相机 | 录制中</p>
+                    </div>
+                    <span class="w-2 h-2 bg-yellow-500 rounded-full"></span>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 video-card cursor-pointer" onclick="openVideoPlayer(5)">
+                <div class="relative h-40 bg-gray-900 rounded-lg overflow-hidden mb-3">
+                    <img src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=800&auto=format&fit=crop" alt="果园监控" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 flex items-center justify-center bg-black/30">
+                        <div class="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center">
+                            <iconify-icon icon="material-symbols:play-arrow" class="w-6 h-6 text-green-600 ml-1"></iconify-icon>
+                        </div>
+                    </div>
+                    <span class="absolute top-2 right-2 px-2 py-1 bg-green-600 text-white text-xs rounded-full">LIVE</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h4 class="text-sm font-medium text-gray-800">三溪乡果园</h4>
+                        <p class="text-xs text-gray-500 mt-1">固定相机 | 实时监控</p>
+                    </div>
+                    <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 video-card cursor-pointer" onclick="openVideoPlayer(6)">
+                <div class="relative h-40 bg-gray-900 rounded-lg overflow-hidden mb-3">
+                    <img src="https://images.unsplash.com/photo-1543382758-b11d1456e229?q=80&w=800&auto=format&fit=crop" alt="果园监控" class="w-full h-full object-cover grayscale">
+                    <div class="absolute inset-0 flex items-center justify-center bg-black/50">
+                        <div class="text-center">
+                            <iconify-icon icon="material-symbols:wifi-off" class="w-8 h-8 text-gray-400 mx-auto"></iconify-icon>
+                            <p class="text-gray-400 text-xs mt-1">离线</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h4 class="text-sm font-medium text-gray-800">洽湾镇果园</h4>
+                        <p class="text-xs text-gray-500 mt-1">固定相机 | 设备离线</p>
+                    </div>
+                    <span class="w-2 h-2 bg-gray-400 rounded-full"></span>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 video-card cursor-pointer" onclick="openVideoPlayer(7)">
+                <div class="relative h-40 bg-gray-900 rounded-lg overflow-hidden mb-3">
+                    <img src="https://images.unsplash.com/photo-1507146426996-ef05306b995a?q=80&w=800&auto=format&fit=crop" alt="果园监控" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 flex items-center justify-center bg-black/30">
+                        <div class="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center">
+                            <iconify-icon icon="material-symbols:play-arrow" class="w-6 h-6 text-green-600 ml-1"></iconify-icon>
+                        </div>
+                    </div>
+                    <span class="absolute top-2 right-2 px-2 py-1 bg-green-600 text-white text-xs rounded-full">LIVE</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h4 class="text-sm font-medium text-gray-800">东坪乡果园</h4>
+                        <p class="text-xs text-gray-500 mt-1">移动相机 | 实时监控</p>
+                    </div>
+                    <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 video-card cursor-pointer" onclick="openVideoPlayer(8)">
+                <div class="relative h-40 bg-gray-900 rounded-lg overflow-hidden mb-3">
+                    <img src="https://images.unsplash.com/photo-1564349683136-77e08dba1ef7?q=80&w=800&auto=format&fit=crop" alt="果园监控" class="w-full h-full object-cover grayscale">
+                    <div class="absolute inset-0 flex items-center justify-center bg-black/50">
+                        <div class="text-center">
+                            <iconify-icon icon="material-symbols:wifi-off" class="w-8 h-8 text-gray-400 mx-auto"></iconify-icon>
+                            <p class="text-gray-400 text-xs mt-1">离线</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h4 class="text-sm font-medium text-gray-800">莱溪乡果园</h4>
+                        <p class="text-xs text-gray-500 mt-1">固定相机 | 设备离线</p>
+                    </div>
+                    <span class="w-2 h-2 bg-gray-400 rounded-full"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+            <div class="px-6 py-4 border-b border-gray-100">
+                <h3 class="text-lg font-semibold text-gray-800">录像回放列表</h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="bg-gray-50">
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">监控点</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">日期</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">时长</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">大小</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="video-table-body" class="divide-y divide-gray-100">
+                    </tbody>
+                </table>
+            </div>
+            <div class="px-6 py-4 border-t border-gray-100 flex items-center justify-between">
+                <div class="text-sm text-gray-500">显示 <span id="page-size">10</span> 条，共 <span id="total-count">0</span> 条</div>
+                <div class="flex items-center space-x-2">
+                    <button onclick="prevPage()" class="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50" id="prev-btn">上一页</button>
+                    <span id="page-info" class="text-sm text-gray-600">第 1 页 / 共 1 页</span>
+                    <button onclick="nextPage()" class="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-50" id="next-btn">下一页</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="video-modal">
+        <div class="modal-content">
+            <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-800" id="video-modal-title">视频播放</h3>
+                <button onclick="closeVideoModal()" class="text-gray-400 hover:text-gray-600">
+                    <iconify-icon icon="material-symbols:close" class="w-6 h-6"></iconify-icon>
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="bg-gray-900 rounded-xl overflow-hidden mb-4">
+                    <video id="video-player" controls class="w-full h-80" poster="https://images.unsplash.com/photo-1564349683136-77e08dba1ef7?q=80&w=800&auto=format&fit=crop">
+                        <source src="" type="video/mp4">
+                        您的浏览器不支持视频播放。
+                    </video>
+                </div>
+                <div class="grid grid-cols-3 gap-4">
+                    <div class="bg-gray-50 rounded-lg p-3">
+                        <p class="text-gray-500 text-xs">监控点</p>
+                        <p class="text-gray-800 font-medium mt-1" id="video-info-camera">-</p>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-3">
+                        <p class="text-gray-500 text-xs">录制时间</p>
+                        <p class="text-gray-800 font-medium mt-1" id="video-info-time">-</p>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-3">
+                        <p class="text-gray-500 text-xs">分辨率</p>
+                        <p class="text-gray-800 font-medium mt-1" id="video-info-resolution">-</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="detail-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                    <span id="detail-title">录像详情</span>
+                </h3>
+                <button onclick="closeModal('detail-modal')" class="p-1 hover:bg-gray-100 rounded">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="p-5">
+                <div class="flex items-center mb-4">
+                    <h4 class="text-xl font-bold text-gray-800" id="detail-camera">太和镇果园</h4>
+                    <span id="detail-status-badge" class="ml-3 px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">已完成</span>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-5">
+                    <div class="lg:col-span-1">
+                        <h5 class="text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                            <iconify-icon icon="material-symbols:video-camera-front" class="w-4 h-4 mr-2 text-blue-500"></iconify-icon>
+                            基本信息
+                        </h5>
+                        <div class="space-y-2">
+                            <div class="p-2.5 bg-gray-50 rounded-lg">
+                                <p class="text-xs text-gray-500">录像编号</p>
+                                <p class="text-sm font-medium text-gray-800" id="detail-id">REC-001</p>
+                            </div>
+                            <div class="p-2.5 bg-gray-50 rounded-lg">
+                                <p class="text-xs text-gray-500">监控点名称</p>
+                                <p class="text-sm font-medium text-gray-800" id="detail-camera-name">太和镇果园</p>
+                            </div>
+                            <div class="p-2.5 bg-gray-50 rounded-lg">
+                                <p class="text-xs text-gray-500">录制日期</p>
+                                <p class="text-sm font-medium text-gray-800" id="detail-date">2026-07-25</p>
+                            </div>
+                            <div class="p-2.5 bg-gray-50 rounded-lg">
+                                <p class="text-xs text-gray-500">录制时间</p>
+                                <p class="text-sm font-medium text-gray-800" id="detail-time">14:00</p>
+                            </div>
+                            <div class="p-2.5 bg-gray-50 rounded-lg">
+                                <p class="text-xs text-gray-500">录像时长</p>
+                                <p class="text-sm font-medium text-gray-800" id="detail-duration">2小时30分</p>
+                            </div>
+                            <div class="p-2.5 bg-gray-50 rounded-lg">
+                                <p class="text-xs text-gray-500">文件大小</p>
+                                <p class="text-sm font-medium text-gray-800" id="detail-size">450 MB</p>
+                            </div>
+                            <div class="p-2.5 bg-gray-50 rounded-lg">
+                                <p class="text-xs text-gray-500">录像状态</p>
+                                <p class="text-sm font-medium text-gray-800" id="detail-status">已完成</p>
+                            </div>
+                            <div class="p-2.5 bg-gray-50 rounded-lg">
+                                <p class="text-xs text-gray-500">分辨率</p>
+                                <p class="text-sm font-medium text-gray-800" id="detail-resolution">1920×1080 (1080P)</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-2">
+                        <h5 class="text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                            <iconify-icon icon="material-symbols:play-circle" class="w-4 h-4 mr-2 text-green-500"></iconify-icon>
+                            视频预览
+                        </h5>
+                        <div class="bg-gray-900 rounded-xl overflow-hidden mb-5 relative cursor-pointer" onclick="playVideoFromDetail()">
+                            <img src="https://images.unsplash.com/photo-1564349683136-77e08dba1ef7?q=80&w=800&auto=format&fit=crop" alt="视频预览" class="w-full h-64 object-cover">
+                            <div class="absolute inset-0 flex items-center justify-center bg-black/30">
+                                <div class="w-16 h-16 bg-white/90 rounded-full flex items-center justify-center">
+                                    <iconify-icon icon="material-symbols:play-arrow" class="w-8 h-8 text-green-600 ml-1"></iconify-icon>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h5 class="text-sm font-semibold text-gray-700 mb-3 flex items-center">
+                            <iconify-icon icon="material-symbols:info" class="w-4 h-4 mr-2 text-gray-500"></iconify-icon>
+                            录像信息
+                        </h5>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                            <div class="p-3 bg-gray-50 rounded-lg text-center">
+                                <div class="text-xs text-gray-500 mb-1">码率</div>
+                                <div class="text-sm font-medium text-gray-800">2.5 Mbps</div>
+                            </div>
+                            <div class="p-3 bg-gray-50 rounded-lg text-center">
+                                <div class="text-xs text-gray-500 mb-1">帧率</div>
+                                <div class="text-sm font-medium text-gray-800">25 fps</div>
+                            </div>
+                            <div class="p-3 bg-gray-50 rounded-lg text-center">
+                                <div class="text-xs text-gray-500 mb-1">编码格式</div>
+                                <div class="text-sm font-medium text-gray-800">H.265</div>
+                            </div>
+                            <div class="p-3 bg-gray-50 rounded-lg text-center">
+                                <div class="text-xs text-gray-500 mb-1">存储路径</div>
+                                <div class="text-sm font-medium text-gray-800 truncate">/video/2026/07/</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="p-4 border-t border-gray-200 flex justify-end space-x-3">
+                <button onclick="playVideoFromDetail()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm">播放录像</button>
+                <button onclick="downloadVideoFromDetail()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">下载录像</button>
+                <button onclick="closeModal('detail-modal')" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="edit-modal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="bg-gradient-to-r from-blue-500 to-blue-600 p-4 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-white flex items-center">
+                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                    <span>编辑录像信息</span>
+                </h3>
+                <button onclick="closeModal('edit-modal')" class="p-1.5 hover:bg-white/20 rounded-lg transition-colors">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="p-6 bg-white">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <label class="block text-sm font-medium text-gray-600 mb-2 flex items-center">
+                            <iconify-icon icon="material-symbols:video-camera-front" class="w-4 h-4 mr-2 text-blue-500"></iconify-icon>
+                            监控点名称
+                        </label>
+                        <input type="text" id="edit-camera" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" placeholder="请输入监控点名称">
+                    </div>
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <label class="block text-sm font-medium text-gray-600 mb-2 flex items-center">
+                            <iconify-icon icon="material-symbols:date-range" class="w-4 h-4 mr-2 text-blue-500"></iconify-icon>
+                            录制日期
+                        </label>
+                        <input type="date" id="edit-date" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                    </div>
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <label class="block text-sm font-medium text-gray-600 mb-2 flex items-center">
+                            <iconify-icon icon="material-symbols:schedule" class="w-4 h-4 mr-2 text-green-500"></iconify-icon>
+                            录制时间
+                        </label>
+                        <input type="time" id="edit-time" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                    </div>
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <label class="block text-sm font-medium text-gray-600 mb-2 flex items-center">
+                            <iconify-icon icon="material-symbols:timer" class="w-4 h-4 mr-2 text-orange-500"></iconify-icon>
+                            录像时长
+                        </label>
+                        <input type="text" id="edit-duration" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" placeholder="请输入录像时长">
+                    </div>
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <label class="block text-sm font-medium text-gray-600 mb-2 flex items-center">
+                            <iconify-icon icon="material-symbols:storage" class="w-4 h-4 mr-2 text-purple-500"></iconify-icon>
+                            文件大小
+                        </label>
+                        <input type="text" id="edit-size" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" placeholder="请输入文件大小">
+                    </div>
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <label class="block text-sm font-medium text-gray-600 mb-2 flex items-center">
+                            <iconify-icon icon="material-symbols:check-circle" class="w-4 h-4 mr-2 text-cyan-500"></iconify-icon>
+                            录像状态
+                        </label>
+                        <select id="edit-status" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                            <option value="已完成">已完成</option>
+                            <option value="录制中">录制中</option>
+                            <option value="已删除">已删除</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="p-4 bg-gray-50 border-t border-gray-200 flex justify-end space-x-3">
+                <button onclick="closeModal('edit-modal')" class="px-5 py-2.5 bg-white text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-100 text-sm font-medium transition-colors">取消</button>
+                <button onclick="saveEditModal()" class="px-5 py-2.5 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-sm font-medium transition-colors shadow-md hover:shadow-lg">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="download-modal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 480px;">
+            <div class="bg-gradient-to-r from-green-500 to-emerald-600 p-4 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-white flex items-center">
+                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                    <span>下载录像</span>
+                </h3>
+                <button onclick="closeModal('download-modal')" class="p-1.5 hover:bg-white/20 rounded-lg transition-colors">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="p-6 bg-white">
+                <div class="flex items-center mb-5">
+                    <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mr-4">
+                        <iconify-icon icon="material-symbols:video-file" class="w-6 h-6 text-green-600"></iconify-icon>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-800" id="download-camera">太和镇果园</h4>
+                        <p class="text-sm text-gray-500" id="download-info">2026-07-25 14:00 | 2小时30分 | 450 MB</p>
+                    </div>
+                </div>
+
+                <div class="mb-5">
+                    <label class="block text-sm font-medium text-gray-600 mb-3 flex items-center">
+                        <iconify-icon icon="material-symbols:high-quality" class="w-4 h-4 mr-2 text-green-500"></iconify-icon>
+                        选择画质
+                    </label>
+                    <div class="space-y-2">
+                        <label class="flex items-center p-3 border border-gray-200 rounded-xl cursor-pointer hover:border-green-300 hover:bg-green-50 transition-all group">
+                            <input type="radio" name="download-quality" value="original" checked class="w-4 h-4 text-green-600 border-gray-300 focus:ring-green-500">
+                            <div class="radio-indicator w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center ml-2 group-hover:border-green-500">
+                                <div class="w-3 h-3 rounded-full bg-green-600 opacity-0"></div>
+                            </div>
+                            <div class="ml-3 flex-1">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-medium text-gray-800">原画质</span>
+                                    <span class="text-sm text-gray-500" id="download-size-original">450 MB</span>
+                                </div>
+                                <p class="text-xs text-gray-400 mt-0.5">1920×1080 | 最佳画质</p>
+                            </div>
+                        </label>
+                        <label class="flex items-center p-3 border border-gray-200 rounded-xl cursor-pointer hover:border-green-300 hover:bg-green-50 transition-all group">
+                            <input type="radio" name="download-quality" value="hd" class="w-4 h-4 text-green-600 border-gray-300 focus:ring-green-500">
+                            <div class="radio-indicator w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center ml-2 group-hover:border-green-500">
+                                <div class="w-3 h-3 rounded-full bg-green-600 opacity-0"></div>
+                            </div>
+                            <div class="ml-3 flex-1">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-medium text-gray-800">高清</span>
+                                    <span class="text-sm text-gray-500" id="download-size-hd">225 MB</span>
+                                </div>
+                                <p class="text-xs text-gray-400 mt-0.5">1280×720 | 均衡画质</p>
+                            </div>
+                        </label>
+                        <label class="flex items-center p-3 border border-gray-200 rounded-xl cursor-pointer hover:border-green-300 hover:bg-green-50 transition-all group">
+                            <input type="radio" name="download-quality" value="sd" class="w-4 h-4 text-green-600 border-gray-300 focus:ring-green-500">
+                            <div class="radio-indicator w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center ml-2 group-hover:border-green-500">
+                                <div class="w-3 h-3 rounded-full bg-green-600 opacity-0"></div>
+                            </div>
+                            <div class="ml-3 flex-1">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-medium text-gray-800">标清</span>
+                                    <span class="text-sm text-gray-500" id="download-size-sd">112 MB</span>
+                                </div>
+                                <p class="text-xs text-gray-400 mt-0.5">640×360 | 快速下载</p>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div id="download-progress-area" class="hidden mb-5">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm text-gray-600 flex items-center">
+                            <iconify-icon icon="material-symbols:downloading" class="w-4 h-4 mr-2 text-green-500"></iconify-icon>
+                            下载进度
+                        </span>
+                        <span class="text-sm font-medium text-green-600" id="download-percent">0%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
+                        <div id="download-progress-bar" class="bg-gradient-to-r from-green-500 to-emerald-600 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                    <div class="flex items-center justify-between mt-2">
+                        <span class="text-xs text-gray-400" id="download-status">准备下载...</span>
+                        <span class="text-xs text-gray-400" id="download-speed">- MB/s</span>
+                    </div>
+                </div>
+            </div>
+            <div class="p-4 bg-gray-50 border-t border-gray-200 flex justify-end space-x-3">
+                <button onclick="closeModal('download-modal')" class="px-5 py-2.5 bg-white text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-100 text-sm font-medium transition-colors">取消</button>
+                <button id="download-btn" onclick="startDownload()" class="px-5 py-2.5 bg-green-500 text-white rounded-lg hover:bg-green-600 text-sm font-medium transition-colors shadow-md hover:shadow-lg flex items-center">
+                    <iconify-icon icon="material-symbols:download" class="w-4 h-4 mr-2"></iconify-icon>
+                    开始下载
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const mockVideos = [
+            { id: 1, camera: '太和镇果园', date: '2026-07-25', time: '14:00', duration: '2小时30分', size: '450 MB', status: '已完成' },
+            { id: 2, camera: '桑田镇果园', date: '2026-07-25', time: '13:00', duration: '3小时00分', size: '580 MB', status: '已完成' },
+            { id: 3, camera: '市山镇果园', date: '2026-07-25', time: '12:00', duration: '2小时15分', size: '410 MB', status: '已完成' },
+            { id: 4, camera: '白舍镇果园', date: '2026-07-25', time: '11:00', duration: '1小时45分', size: '320 MB', status: '录制中' },
+            { id: 5, camera: '三溪乡果园', date: '2026-07-25', time: '10:00', duration: '2小时00分', size: '380 MB', status: '已完成' },
+            { id: 6, camera: '洽湾镇果园', date: '2026-07-24', time: '16:00', duration: '1小时30分', size: '280 MB', status: '已完成' },
+            { id: 7, camera: '东坪乡果园', date: '2026-07-24', time: '15:00', duration: '2小时45分', size: '510 MB', status: '已完成' },
+            { id: 8, camera: '莱溪乡果园', date: '2026-07-24', time: '14:00', duration: '1小时00分', size: '190 MB', status: '已完成' },
+            { id: 9, camera: '太和镇果园', date: '2026-07-24', time: '13:00', duration: '2小时30分', size: '450 MB', status: '已完成' },
+            { id: 10, camera: '桑田镇果园', date: '2026-07-24', time: '12:00', duration: '3小时00分', size: '580 MB', status: '已完成' },
+            { id: 11, camera: '市山镇果园', date: '2026-07-23', time: '11:00', duration: '2小时15分', size: '410 MB', status: '已完成' },
+            { id: 12, camera: '白舍镇果园', date: '2026-07-23', time: '10:00', duration: '1小时45分', size: '320 MB', status: '已完成' }
+        ];
+
+        let currentPage = 1;
+        const pageSize = 10;
+        let filteredVideos = [...mockVideos];
+
+        function getStatusClass(status) {
+            return status === '录制中' ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-700';
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('video-table-body');
+            const start = (currentPage - 1) * pageSize;
+            const end = start + pageSize;
+            const data = filteredVideos.slice(start, end);
+
+            tbody.innerHTML = data.map(video => `
+                <tr class="hover:bg-gray-50 transition">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900">${video.camera}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-500">${video.date} ${video.time}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">${video.duration}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">${video.size}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 py-1 rounded-full text-xs font-medium ${getStatusClass(video.status)}">${video.status}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                <div class="flex space-x-2">
+                                    <button onclick="openDetailModal(${video.id})" class="p-1.5 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded" title="查看详情"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button>
+                                    <button onclick="openEditModal(${video.id})" class="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded" title="编辑"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>
+                                    <button onclick="playVideo(${video.id})" class="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded" title="播放"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></button>
+                                    <button onclick="downloadVideo(${video.id})" class="p-1.5 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded" title="下载"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg></button>
+                                </div>
+                            </td>
+                </tr>
+            `).join('');
+
+            updatePagination();
+        }
+
+        function updatePagination() {
+            const totalPages = Math.ceil(filteredVideos.length / pageSize);
+            document.getElementById('total-count').textContent = filteredVideos.length;
+            document.getElementById('page-info').textContent = `第 ${currentPage} 页 / 共 ${totalPages} 页`;
+            document.getElementById('prev-btn').disabled = currentPage === 1;
+            document.getElementById('next-btn').disabled = currentPage === totalPages;
+        }
+
+        function prevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                renderTable();
+            }
+        }
+
+        function nextPage() {
+            const totalPages = Math.ceil(filteredVideos.length / pageSize);
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderTable();
+            }
+        }
+
+        function filterVideos() {
+            const search = document.getElementById('search-input').value.toLowerCase();
+            const cameraType = document.getElementById('camera-filter').value;
+            
+            filteredVideos = mockVideos.filter(v => {
+                const matchSearch = v.camera.toLowerCase().includes(search);
+                const matchType = !cameraType || (cameraType === '固定' && ['太和镇果园', '桑田镇果园', '白舍镇果园', '三溪乡果园', '洽湾镇果园', '莱溪乡果园'].includes(v.camera)) || 
+                                 (cameraType === '移动' && ['市山镇果园', '东坪乡果园'].includes(v.camera));
+                return matchSearch && matchType;
+            });
+            
+            currentPage = 1;
+            renderTable();
+        }
+
+        function refreshData() {
+            document.getElementById('search-input').value = '';
+            filteredVideos = [...mockVideos];
+            currentPage = 1;
+            renderTable();
+        }
+
+        function openVideoPlayer(id) {
+            const cameras = ['太和镇果园', '桑田镇果园', '市山镇果园', '白舍镇果园', '三溪乡果园', '洽湾镇果园', '东坪乡果园', '莱溪乡果园'];
+            const cameraName = cameras[id - 1] || '未知监控点';
+            
+            document.getElementById('video-modal-title').textContent = cameraName;
+            document.getElementById('video-info-camera').textContent = cameraName;
+            document.getElementById('video-info-time').textContent = new Date().toLocaleString('zh-CN');
+            document.getElementById('video-info-resolution').textContent = '1080P';
+            
+            document.getElementById('video-modal').classList.add('active');
+        }
+
+        function playVideo(id) {
+            const video = mockVideos.find(v => v.id === id);
+            if (!video) return;
+
+            document.getElementById('video-modal-title').textContent = video.camera;
+            document.getElementById('video-info-camera').textContent = video.camera;
+            document.getElementById('video-info-time').textContent = video.date + ' ' + video.time;
+            document.getElementById('video-info-resolution').textContent = '1080P';
+            
+            document.getElementById('video-modal').classList.add('active');
+        }
+
+        function downloadVideo(id) {
+            const video = mockVideos.find(v => v.id === id);
+            if (!video) return;
+
+            document.getElementById('download-camera').textContent = video.camera;
+            document.getElementById('download-info').textContent = video.date + ' ' + video.time + ' | ' + video.duration + ' | ' + video.size;
+
+            const size = parseFloat(video.size);
+            document.getElementById('download-size-original').textContent = video.size;
+            document.getElementById('download-size-hd').textContent = (size / 2).toFixed(0) + ' MB';
+            document.getElementById('download-size-sd').textContent = (size / 4).toFixed(0) + ' MB';
+
+            resetDownloadModal();
+            document.getElementById('download-modal').classList.add('active');
+        }
+
+        function closeVideoModal() {
+            document.getElementById('video-modal').classList.remove('active');
+            const player = document.getElementById('video-player');
+            player.pause();
+        }
+
+        let currentDetailVideoId = null;
+        let currentEditVideoId = null;
+
+        function openDetailModal(id) {
+            try {
+                currentDetailVideoId = id;
+                const video = mockVideos.find(v => v.id === id);
+                if (!video) return;
+
+                document.getElementById('detail-id').textContent = 'REC-' + String(id).padStart(3, '0');
+                document.getElementById('detail-camera').textContent = video.camera;
+                document.getElementById('detail-camera-name').textContent = video.camera;
+                document.getElementById('detail-date').textContent = video.date;
+                document.getElementById('detail-time').textContent = video.time;
+                document.getElementById('detail-duration').textContent = video.duration;
+                document.getElementById('detail-size').textContent = video.size;
+                document.getElementById('detail-status').textContent = video.status;
+
+                const badge = document.getElementById('detail-status-badge');
+                if (video.status === '录制中') {
+                    badge.textContent = '录制中';
+                    badge.className = 'ml-3 px-2 py-1 bg-yellow-100 text-yellow-700 text-xs rounded-full';
+                } else if (video.status === '已删除') {
+                    badge.textContent = '已删除';
+                    badge.className = 'ml-3 px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full';
+                } else {
+                    badge.textContent = '已完成';
+                    badge.className = 'ml-3 px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full';
+                }
+
+                document.getElementById('detail-modal').classList.add('active');
+            } catch (e) {
+                console.error('openDetailModal error:', e);
+            }
+        }
+
+        function openEditModal(id) {
+            try {
+                currentEditVideoId = id;
+                const video = mockVideos.find(v => v.id === id);
+                if (!video) return;
+
+                document.getElementById('edit-camera').value = video.camera;
+                document.getElementById('edit-date').value = video.date;
+                document.getElementById('edit-time').value = video.time;
+                document.getElementById('edit-duration').value = video.duration;
+                document.getElementById('edit-size').value = video.size;
+                document.getElementById('edit-status').value = video.status;
+
+                document.getElementById('edit-modal').classList.add('active');
+            } catch (e) {
+                console.error('openEditModal error:', e);
+            }
+        }
+
+        function saveEditModal() {
+            const camera = document.getElementById('edit-camera').value.trim();
+            const date = document.getElementById('edit-date').value;
+            const time = document.getElementById('edit-time').value;
+            const duration = document.getElementById('edit-duration').value.trim();
+            const size = document.getElementById('edit-size').value.trim();
+            const status = document.getElementById('edit-status').value;
+
+            if (!camera) {
+                alert('请输入监控点名称');
+                return;
+            }
+            if (!date) {
+                alert('请选择录制日期');
+                return;
+            }
+            if (!time) {
+                alert('请选择录制时间');
+                return;
+            }
+
+            const videoIndex = mockVideos.findIndex(v => v.id === currentEditVideoId);
+            if (videoIndex !== -1) {
+                mockVideos[videoIndex] = {
+                    id: currentEditVideoId,
+                    camera: camera,
+                    date: date,
+                    time: time,
+                    duration: duration,
+                    size: size,
+                    status: status
+                };
+            }
+
+            closeModal('edit-modal');
+            filterVideos();
+            alert('录像信息已保存');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function playVideoFromDetail() {
+            if (currentDetailVideoId) {
+                closeModal('detail-modal');
+                playVideo(currentDetailVideoId);
+            }
+        }
+
+        function downloadVideoFromDetail() {
+            if (currentDetailVideoId) {
+                downloadVideo(currentDetailVideoId);
+            }
+        }
+
+        let downloadInterval = null;
+
+        function resetDownloadModal() {
+            document.getElementById('download-progress-area').classList.add('hidden');
+            document.getElementById('download-progress-bar').style.width = '0%';
+            document.getElementById('download-percent').textContent = '0%';
+            document.getElementById('download-status').textContent = '准备下载...';
+            document.getElementById('download-speed').textContent = '- MB/s';
+            
+            const downloadBtn = document.getElementById('download-btn');
+            downloadBtn.innerHTML = '<iconify-icon icon="material-symbols:download" class="w-4 h-4 mr-2"></iconify-icon>开始下载';
+            downloadBtn.disabled = false;
+            downloadBtn.classList.remove('bg-gray-400');
+            downloadBtn.classList.add('bg-green-500');
+            
+            if (downloadInterval) {
+                clearInterval(downloadInterval);
+                downloadInterval = null;
+            }
+        }
+
+        function startDownload() {
+            const quality = document.querySelector('input[name="download-quality"]:checked').value;
+            const sizeText = document.getElementById(`download-size-${quality}`).textContent;
+            const size = parseFloat(sizeText);
+            
+            document.getElementById('download-progress-area').classList.remove('hidden');
+            
+            const downloadBtn = document.getElementById('download-btn');
+            downloadBtn.innerHTML = '<iconify-icon icon="material-symbols:pause" class="w-4 h-4 mr-2"></iconify-icon>暂停';
+            downloadBtn.onclick = pauseDownload;
+            
+            let progress = 0;
+            const speeds = [15, 18, 12, 20, 16, 19, 14, 17];
+            
+            downloadInterval = setInterval(() => {
+                const speed = speeds[Math.floor(Math.random() * speeds.length)];
+                progress += speed / size * 100;
+                
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(downloadInterval);
+                    downloadInterval = null;
+                    
+                    document.getElementById('download-progress-bar').style.width = '100%';
+                    document.getElementById('download-percent').textContent = '100%';
+                    document.getElementById('download-status').textContent = '下载完成！';
+                    document.getElementById('download-speed').textContent = '- MB/s';
+                    
+                    downloadBtn.innerHTML = '<iconify-icon icon="material-symbols:check" class="w-4 h-4 mr-2"></iconify-icon>下载完成';
+                    downloadBtn.onclick = () => closeModal('download-modal');
+                    downloadBtn.classList.remove('bg-green-500');
+                    downloadBtn.classList.add('bg-gray-400');
+                } else {
+                    document.getElementById('download-progress-bar').style.width = progress + '%';
+                    document.getElementById('download-percent').textContent = Math.floor(progress) + '%';
+                    document.getElementById('download-status').textContent = '正在下载...';
+                    document.getElementById('download-speed').textContent = speed + ' MB/s';
+                }
+            }, 500);
+        }
+
+        function pauseDownload() {
+            if (downloadInterval) {
+                clearInterval(downloadInterval);
+                downloadInterval = null;
+                
+                const downloadBtn = document.getElementById('download-btn');
+                downloadBtn.innerHTML = '<iconify-icon icon="material-symbols:play-arrow" class="w-4 h-4 mr-2"></iconify-icon>继续';
+                downloadBtn.onclick = startDownload;
+                document.getElementById('download-status').textContent = '已暂停';
+            }
+        }
+
+        document.addEventListener('click', (e) => {
+            const detailModal = document.getElementById('detail-modal');
+            const editModal = document.getElementById('edit-modal');
+            const downloadModal = document.getElementById('download-modal');
+            const detailBtn = e.target.closest('[onclick*="openDetailModal"]');
+            const editBtn = e.target.closest('[onclick*="openEditModal"]');
+            const downloadBtn = e.target.closest('[onclick*="downloadVideo"]');
+
+            if (!detailModal.contains(e.target) && !detailBtn) {
+                detailModal.classList.remove('active');
+            }
+            if (!editModal.contains(e.target) && !editBtn) {
+                editModal.classList.remove('active');
+            }
+            if (!downloadModal.contains(e.target) && !downloadBtn) {
+                downloadModal.classList.remove('active');
+                resetDownloadModal();
+            }
+        });
+
+        window.addEventListener('load', () => {
+            renderTable();
+        });
+    </script>
+</body>
+</html>

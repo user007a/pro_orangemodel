@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>预警规则 - 南丰蜜桔模型管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        body { margin: 0; padding: 0; background-color: #F0F2F5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans SC', sans-serif; }
+        .content-wrapper { padding: 24px; height: 100vh; overflow-y: auto; }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+        .status-active { background-color: #22C55E; }
+        .status-inactive { background-color: #9CA3AF; }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.5); z-index: 1000; align-items: center; justify-content: center; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background-color: white; border-radius: 12px; width: 90%; max-width: 600px; max-height: 85vh; overflow-y: auto; }
+        .pagination-btn.active { background-color: #16A34A; color: white; border-color: #16A34A; }
+    </style>
+</head>
+<body>
+    <div class="content-wrapper">
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800">预警规则</h1>
+                <p class="text-gray-500 mt-1">设置模型在各阈值下的预警规则</p>
+            </div>
+            <div class="flex items-center space-x-3">
+                <button onclick="importRules()" class="px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50 flex items-center transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                    导入规则
+                </button>
+                <button onclick="exportRules()" class="px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50 flex items-center transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                    导出规则
+                </button>
+                <button onclick="openAddModal()" class="px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 flex items-center transition" style="background-color: #16A34A;">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    新增规则
+                </button>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="p-4 border-b border-gray-100">
+                <div class="flex items-center space-x-4">
+                    <div class="flex-1 max-w-md">
+                        <div class="relative">
+                            <iconify-icon icon="material-symbols:search" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2"></iconify-icon>
+                            <input type="text" id="search-input" placeholder="搜索规则名称..." oninput="filterRules()" class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+                        </div>
+                    </div>
+                    <select id="type-filter" onchange="filterRules()" class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <option value="">全部类型</option>
+                        <option value="病虫害预警">病虫害预警</option>
+                        <option value="气象灾害预警">气象灾害预警</option>
+                        <option value="长势异常预警">长势异常预警</option>
+                        <option value="品质预警">品质预警</option>
+                    </select>
+                    <select id="status-filter" onchange="filterRules()" class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <option value="">全部状态</option>
+                        <option value="启用">启用</option>
+                        <option value="禁用">禁用</option>
+                    </select>
+                    <button onclick="resetFilter()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200 transition">重置</button>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="bg-gray-50">
+                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">规则名称</th>
+                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">预警类型</th>
+                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">阈值设置</th>
+                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">预警级别</th>
+                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">触发条件</th>
+                            <th class="text-center px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">状态</th>
+                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">创建时间</th>
+                            <th class="text-center px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rule-table-body" class="divide-y divide-gray-100"></tbody>
+                </table>
+                <div id="empty-tip" class="hidden py-12 text-center text-gray-400 text-sm">
+                    <iconify-icon icon="material-symbols:inbox" class="w-10 h-6 mx-auto mb-2 text-gray-300"></iconify-icon>
+                    <p>暂无匹配的预警规则</p>
+                </div>
+            </div>
+
+            <div class="px-6 py-4 border-t border-gray-100 flex items-center justify-between">
+                <p class="text-sm text-gray-500" id="page-info">共 0 条记录</p>
+                <div class="flex items-center space-x-2" id="pagination"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新增规则弹窗 -->
+    <div id="add-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    新增预警规则
+                </h3>
+                <button onclick="closeModal('add-modal')" class="p-1 hover:bg-gray-100 rounded">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">规则名称 <span class="text-red-500">*</span></label>
+                    <input type="text" id="add-name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="请输入规则名称">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">预警类型 <span class="text-red-500">*</span></label>
+                    <select id="add-type" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <option value="病虫害预警">病虫害预警</option>
+                        <option value="气象灾害预警">气象灾害预警</option>
+                        <option value="长势异常预警">长势异常预警</option>
+                        <option value="品质预警">品质预警</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">阈值设置 <span class="text-red-500">*</span></label>
+                    <input type="text" id="add-threshold" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="例如：虫口密度 > 30头/叶">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">预警级别 <span class="text-red-500">*</span></label>
+                    <select id="add-level" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <option value="红色预警">红色预警</option>
+                        <option value="橙色预警">橙色预警</option>
+                        <option value="黄色预警">黄色预警</option>
+                        <option value="蓝色预警">蓝色预警</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">触发条件 <span class="text-red-500">*</span></label>
+                    <input type="text" id="add-condition" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="例如：连续3天监测超标">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">状态</label>
+                    <select id="add-status" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <option value="启用">启用</option>
+                        <option value="禁用">禁用</option>
+                    </select>
+                </div>
+                <div class="mb-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">备注说明</label>
+                    <textarea id="add-remark" rows="2" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="可选，填写规则说明（如膨大期专项）"></textarea>
+                </div>
+            </div>
+            <div class="p-4 border-t border-gray-200 flex justify-end space-x-3">
+                <button onclick="closeModal('add-modal')" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm">取消</button>
+                <button onclick="submitAddRule()" class="px-4 py-2 text-white rounded-lg hover:bg-green-700 text-sm" style="background-color: #16A34A;">确认添加</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑规则弹窗 -->
+    <div id="edit-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                    编辑预警规则
+                </h3>
+                <button onclick="closeModal('edit-modal')" class="p-1 hover:bg-gray-100 rounded">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">规则名称 <span class="text-red-500">*</span></label>
+                    <input type="text" id="edit-name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="请输入规则名称">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">预警类型 <span class="text-red-500">*</span></label>
+                    <select id="edit-type" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <option value="病虫害预警">病虫害预警</option>
+                        <option value="气象灾害预警">气象灾害预警</option>
+                        <option value="长势异常预警">长势异常预警</option>
+                        <option value="品质预警">品质预警</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">阈值设置 <span class="text-red-500">*</span></label>
+                    <input type="text" id="edit-threshold" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="例如：虫口密度 > 30头/叶">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">预警级别 <span class="text-red-500">*</span></label>
+                    <select id="edit-level" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <option value="红色预警">红色预警</option>
+                        <option value="橙色预警">橙色预警</option>
+                        <option value="黄色预警">黄色预警</option>
+                        <option value="蓝色预警">蓝色预警</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">触发条件 <span class="text-red-500">*</span></label>
+                    <input type="text" id="edit-condition" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="例如：连续3天监测超标">
+                </div>
+                <div class="mb-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">状态</label>
+                    <select id="edit-status" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <option value="启用">启用</option>
+                        <option value="禁用">禁用</option>
+                    </select>
+                </div>
+            </div>
+            <div class="p-4 border-t border-gray-200 flex justify-end space-x-3">
+                <button onclick="closeModal('edit-modal')" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm">取消</button>
+                <button onclick="submitEditRule()" class="px-4 py-2 text-white rounded-lg hover:bg-green-700 text-sm" style="background-color: #16A34A;">保存修改</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 删除确认弹窗 -->
+    <div id="delete-modal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    删除确认
+                </h3>
+                <button onclick="closeModal('delete-modal')" class="p-1 hover:bg-gray-100 rounded">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.66 1.732-3L13.732 4c-.77-1.34-2.694-1.34-3.464 0L3.34 16c-.77 1.34.192 3 1.732 3z"/></svg>
+                    </div>
+                    <div>
+                        <p class="font-medium text-gray-800">确认删除预警规则？</p>
+                        <p class="text-sm text-gray-500 mt-1">删除后将无法恢复，请谨慎操作。</p>
+                    </div>
+                </div>
+                <p class="text-sm text-gray-600">要删除的规则：<span id="delete-rule-name" class="font-medium text-gray-800"></span></p>
+            </div>
+            <div class="p-4 border-t border-gray-200 flex justify-end space-x-3">
+                <button onclick="closeModal('delete-modal')" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm">取消</button>
+                <button onclick="submitDeleteRule()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm">确认删除</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 导入规则弹窗 -->
+    <div id="import-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                    导入预警规则
+                </h3>
+                <button onclick="closeModal('import-modal')" class="p-1 hover:bg-gray-100 rounded">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-green-500 transition cursor-pointer" onclick="document.getElementById('import-file').click()">
+                    <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                    <p class="text-gray-600 mb-2">点击或拖拽文件到此处上传</p>
+                    <p class="text-sm text-gray-400">支持 Excel (.xlsx)、CSV 文件</p>
+                    <input type="file" id="import-file" accept=".xlsx,.xls,.csv" class="hidden" onchange="handleImportFile(this)">
+                </div>
+                <div class="mt-4 p-3 bg-blue-50 rounded-lg">
+                    <p class="text-sm text-blue-700 flex items-center">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        导入模板说明：规则名称、预警类型、阈值设置为必填字段
+                    </p>
+                </div>
+                <div class="mt-4 flex justify-between items-center">
+                    <button onclick="downloadTemplate()" class="text-blue-600 hover:text-blue-700 text-sm flex items-center">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                        下载导入模板
+                    </button>
+                </div>
+            </div>
+            <div class="p-4 border-t border-gray-200 flex justify-end space-x-3">
+                <button onclick="closeModal('import-modal')" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm">取消</button>
+                <button onclick="submitImport()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm">开始导入</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 预警类型样式映射
+        const TYPE_STYLES = {
+            '病虫害预警': 'bg-green-100 text-green-700',
+            '气象灾害预警': 'bg-blue-100 text-blue-700',
+            '长势异常预警': 'bg-purple-100 text-purple-700',
+            '品质预警': 'bg-indigo-100 text-indigo-700'
+        };
+        // 预警级别样式映射
+        const LEVEL_STYLES = {
+            '红色预警': 'bg-red-100 text-red-700',
+            '橙色预警': 'bg-orange-100 text-orange-700',
+            '黄色预警': 'bg-yellow-100 text-yellow-700',
+            '蓝色预警': 'bg-blue-100 text-blue-700'
+        };
+
+        // 南丰蜜桔7月膨大期 mock 数据
+        let rules = [
+            { id: 1, name: '红蜘蛛爆发预警', type: '病虫害预警', threshold: '虫口密度 > 30头/叶', level: '红色预警', condition: '连续3天监测超标', status: '启用', created: '2026-07-15 09:30' },
+            { id: 2, name: '锈壁虱预警', type: '病虫害预警', threshold: '虫口密度 > 10头/视野', level: '橙色预警', condition: '单次监测超标即触发', status: '启用', created: '2026-07-12 14:20' },
+            { id: 3, name: '潜叶蛾预警', type: '病虫害预警', threshold: '新梢受害率 > 15%', level: '黄色预警', condition: '夏梢萌发期监测超标', status: '启用', created: '2026-07-08 10:15' },
+            { id: 4, name: '炭疽病预警', type: '病虫害预警', threshold: '病叶率 > 5%', level: '橙色预警', condition: '高温高湿天气监测', status: '启用', created: '2026-07-13 16:45' },
+            { id: 5, name: '高温热害预警', type: '气象灾害预警', threshold: '最高气温 > 38°C', level: '橙色预警', condition: '连续3天超过阈值', status: '启用', created: '2026-07-18 11:30' },
+            { id: 6, name: '日灼果预警', type: '气象灾害预警', threshold: '果面温度 > 45°C', level: '黄色预警', condition: '阳光直射4小时以上', status: '启用', created: '2026-07-16 09:00' },
+            { id: 7, name: '土壤干旱预警', type: '气象灾害预警', threshold: '土壤湿度 < 25%', level: '黄色预警', condition: '连续5天低于阈值', status: '启用', created: '2026-07-10 14:20' },
+            { id: 8, name: '裂果预警', type: '气象灾害预警', threshold: '单日降雨量 > 50mm', level: '橙色预警', condition: '干旱后突降大雨', status: '启用', created: '2026-07-14 15:10' },
+            { id: 9, name: '异常落果预警', type: '长势异常预警', threshold: '单株落果率 > 10%', level: '红色预警', condition: '连续2天监测超标', status: '启用', created: '2026-07-17 10:30' },
+            { id: 10, name: '膨大期缺钾预警', type: '长势异常预警', threshold: '叶片含钾量 < 1.2%', level: '蓝色预警', condition: '膨大期常规检测', status: '启用', created: '2026-07-09 09:45' },
+            { id: 11, name: '膨大期缺钙预警', type: '长势异常预警', threshold: '叶片含钙量 < 1.0%', level: '蓝色预警', condition: '膨大期常规检测', status: '启用', created: '2026-07-06 11:20' },
+            { id: 12, name: '糖度偏低预警', type: '品质预警', threshold: '预测糖度 < 11°Bx', level: '蓝色预警', condition: '采前60天预测', status: '启用', created: '2026-07-20 09:30' },
+            { id: 13, name: '果径偏小预警', type: '品质预警', threshold: '平均果径 < 35mm', level: '黄色预警', condition: '膨大期连续2周监测', status: '启用', created: '2026-07-19 16:00' },
+            { id: 14, name: '溃疡病预警', type: '病虫害预警', threshold: '病叶率 > 3%', level: '红色预警', condition: '台风暴雨后监测', status: '禁用', created: '2026-07-05 13:40' },
+            { id: 15, name: '果皮粗皮预警', type: '品质预警', threshold: '果皮粗糙度评分 > 3', level: '蓝色预警', condition: '膨大期中后期评估', status: '禁用', created: '2026-07-02 10:20' },
+            { id: 16, name: '粉虱预警', type: '病虫害预警', threshold: '虫口密度 > 50头/叶', level: '黄色预警', condition: '连续2天监测超标', status: '启用', created: '2026-07-21 08:45' },
+            { id: 17, name: '蚜虫预警', type: '病虫害预警', threshold: '新梢受害率 > 20%', level: '黄色预警', condition: '夏梢生长期监测', status: '启用', created: '2026-07-11 13:30' },
+            { id: 18, name: '黑星病预警', type: '病虫害预警', threshold: '病果率 > 2%', level: '蓝色预警', condition: '膨大期常规监测', status: '启用', created: '2026-07-07 10:00' },
+            { id: 19, name: '树脂病预警', type: '病虫害预警', threshold: '病枝率 > 3%', level: '橙色预警', condition: '高温多雨季节监测', status: '启用', created: '2026-07-14 09:20' },
+            { id: 20, name: '台风预警', type: '气象灾害预警', threshold: '风力 > 8级', level: '红色预警', condition: '台风路径预测进入影响范围', status: '启用', created: '2026-07-03 16:00' },
+            { id: 21, name: '暴雨预警', type: '气象灾害预警', threshold: '24小时降雨量 > 100mm', level: '橙色预警', condition: '气象预报发布暴雨预警', status: '启用', created: '2026-07-08 14:30' },
+            { id: 22, name: '冰雹预警', type: '气象灾害预警', threshold: '雷达回波强度 > 55dBZ', level: '红色预警', condition: '强对流天气监测', status: '启用', created: '2026-07-04 11:15' },
+            { id: 23, name: '连阴雨预警', type: '气象灾害预警', threshold: '连续阴雨 > 7天', level: '黄色预警', condition: '日照时数不足', status: '启用', created: '2026-07-09 10:45' },
+            { id: 24, name: '冻害预警', type: '气象灾害预警', threshold: '最低气温 < 2°C', level: '黄色预警', condition: '秋季夜间低温监测', status: '禁用', created: '2026-07-01 09:00' },
+            { id: 25, name: '树势衰弱预警', type: '长势异常预警', threshold: '叶色黄化率 > 20%', level: '橙色预警', condition: '连续3次监测下降', status: '启用', created: '2026-07-16 14:00' },
+            { id: 26, name: '根系缺氧预警', type: '长势异常预警', threshold: '土壤氧含量 < 5%', level: '黄色预警', condition: '雨后积水监测', status: '启用', created: '2026-07-12 11:30' },
+            { id: 27, name: '营养失衡预警', type: '长势异常预警', threshold: 'NPK比例失衡 > 15%', level: '蓝色预警', condition: '叶片营养检测', status: '启用', created: '2026-07-05 15:20' },
+            { id: 28, name: '叶片早衰预警', type: '长势异常预警', threshold: '叶片脱落率 > 10%', level: '黄色预警', condition: '膨大期监测', status: '启用', created: '2026-07-18 09:30' },
+            { id: 29, name: '果皮着色不均预警', type: '品质预警', threshold: '色差指数 > 5', level: '黄色预警', condition: '转色期评估', status: '禁用', created: '2026-07-02 14:00' },
+            { id: 30, name: '果实畸形预警', type: '品质预警', threshold: '畸形果率 > 5%', level: '蓝色预警', condition: '膨大期调查', status: '启用', created: '2026-07-20 11:00' },
+            { id: 31, name: '可溶性固形物偏低预警', type: '品质预警', threshold: '固形物含量 < 10%', level: '黄色预警', condition: '采前45天检测', status: '启用', created: '2026-07-17 15:30' },
+            { id: 32, name: '酸度偏高预警', type: '品质预警', threshold: '酸度 > 1.2%', level: '蓝色预警', condition: '采前30天检测', status: '启用', created: '2026-07-19 10:15' },
+            { id: 33, name: '蒂腐病预警', type: '病虫害预警', threshold: '病蒂率 > 2%', level: '蓝色预警', condition: '成熟期监测', status: '禁用', created: '2026-07-03 12:00' },
+            { id: 34, name: '脚腐病预警', type: '病虫害预警', threshold: '病株率 > 1%', level: '黄色预警', condition: '低洼地块监测', status: '启用', created: '2026-07-06 09:45' },
+            { id: 35, name: '缺镁预警', type: '长势异常预警', threshold: '叶片含镁量 < 0.3%', level: '蓝色预警', condition: '膨大期常规检测', status: '启用', created: '2026-07-13 10:30' }
+        ];
+
+        let currentPage = 1;
+        const PAGE_SIZE = 5;
+        let filteredRules = rules.slice();
+        let editTargetId = null;
+        let deleteTargetId = null;
+
+        // 渲染表格
+        function renderTable() {
+            const tbody = document.getElementById('rule-table-body');
+            const emptyTip = document.getElementById('empty-tip');
+            const total = filteredRules.length;
+            const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+            if (currentPage > totalPages) currentPage = totalPages;
+
+            const start = (currentPage - 1) * PAGE_SIZE;
+            const end = Math.min(start + PAGE_SIZE, total);
+            const pageData = filteredRules.slice(start, end);
+
+            if (pageData.length === 0) {
+                tbody.innerHTML = '';
+                emptyTip.classList.remove('hidden');
+            } else {
+                emptyTip.classList.add('hidden');
+                tbody.innerHTML = pageData.map(rule => {
+                    const typeStyle = TYPE_STYLES[rule.type] || 'bg-gray-100 text-gray-700';
+                    const levelStyle = LEVEL_STYLES[rule.level] || 'bg-gray-100 text-gray-700';
+                    const statusDot = rule.status === '启用' ? 'status-active' : 'status-inactive';
+                    return `
+                        <tr class="hover:bg-gray-50" data-id="${rule.id}">
+                            <td class="px-6 py-4"><span class="font-medium text-gray-900">${escapeHtml(rule.name)}</span></td>
+                            <td class="px-6 py-4"><span class="px-2 py-1 ${typeStyle} text-xs rounded-full">${escapeHtml(rule.type)}</span></td>
+                            <td class="px-6 py-4 text-sm text-gray-600">${escapeHtml(rule.threshold)}</td>
+                            <td class="px-6 py-4"><span class="px-2 py-1 ${levelStyle} text-xs rounded-full">${escapeHtml(rule.level)}</span></td>
+                            <td class="px-6 py-4 text-sm text-gray-600">${escapeHtml(rule.condition)}</td>
+                            <td class="px-6 py-4 text-center">
+                                <span class="flex items-center justify-center">
+                                    <span class="status-dot ${statusDot} mr-2"></span>
+                                    <span class="text-sm text-gray-600">${escapeHtml(rule.status)}</span>
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-500">${escapeHtml(rule.created)}</td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center justify-center space-x-2">
+                                    <button onclick="openEditModal(${rule.id})" class="p-1.5 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded" title="编辑">
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                    </button>
+                                    <button onclick="openDeleteModal(${rule.id})" class="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded" title="删除">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+
+            // 更新分页信息
+            document.getElementById('page-info').textContent = total === 0
+                ? '共 0 条记录'
+                : `第 ${start + 1}-${end} 条，共 ${total} 条记录`;
+
+            renderPagination(totalPages);
+        }
+
+        // 渲染分页按钮
+        function renderPagination(totalPages) {
+            const pagination = document.getElementById('pagination');
+            let html = '';
+            html += `<button onclick="prevPage()" class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50 ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''}">上一页</button>`;
+            for (let i = 1; i <= totalPages; i++) {
+                html += `<button onclick="changePage(${i})" class="pagination-btn px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50 ${i === currentPage ? 'active' : ''}">${i}</button>`;
+            }
+            html += `<button onclick="nextPage()" class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50 ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''}">下一页</button>`;
+            pagination.innerHTML = html;
+        }
+
+        function changePage(page) {
+            const totalPages = Math.max(1, Math.ceil(filteredRules.length / PAGE_SIZE));
+            if (page < 1 || page > totalPages) return;
+            currentPage = page;
+            renderTable();
+        }
+
+        function prevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                renderTable();
+            }
+        }
+
+        function nextPage() {
+            const totalPages = Math.max(1, Math.ceil(filteredRules.length / PAGE_SIZE));
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderTable();
+            }
+        }
+
+        // 搜索与筛选
+        function filterRules() {
+            const searchTerm = document.getElementById('search-input').value.trim().toLowerCase();
+            const typeFilter = document.getElementById('type-filter').value;
+            const statusFilter = document.getElementById('status-filter').value;
+
+            filteredRules = rules.filter(rule => {
+                const matchesSearch = !searchTerm || rule.name.toLowerCase().includes(searchTerm);
+                const matchesType = !typeFilter || rule.type === typeFilter;
+                const matchesStatus = !statusFilter || rule.status === statusFilter;
+                return matchesSearch && matchesType && matchesStatus;
+            });
+
+            currentPage = 1;
+            renderTable();
+        }
+
+        function resetFilter() {
+            document.getElementById('search-input').value = '';
+            document.getElementById('type-filter').value = '';
+            document.getElementById('status-filter').value = '';
+            filteredRules = rules.slice();
+            currentPage = 1;
+            renderTable();
+        }
+
+        // 导入/导出
+        function importRules() {
+            alert('导入规则功能：请选择本地规则配置文件（.json / .xlsx）进行批量导入。');
+        }
+
+        function exportRules() {
+            alert('导出规则功能：当前 ' + rules.length + ' 条预警规则将导出为文件，请稍候...');
+        }
+
+        // 新增
+        function openAddModal() {
+            document.getElementById('add-name').value = '';
+            document.getElementById('add-type').value = '病虫害预警';
+            document.getElementById('add-threshold').value = '';
+            document.getElementById('add-level').value = '黄色预警';
+            document.getElementById('add-condition').value = '';
+            document.getElementById('add-status').value = '启用';
+            document.getElementById('add-remark').value = '';
+            document.getElementById('add-modal').classList.add('active');
+        }
+
+        function submitAddRule() {
+            const name = document.getElementById('add-name').value.trim();
+            const type = document.getElementById('add-type').value;
+            const threshold = document.getElementById('add-threshold').value.trim();
+            const level = document.getElementById('add-level').value;
+            const condition = document.getElementById('add-condition').value.trim();
+            const status = document.getElementById('add-status').value;
+            const remark = document.getElementById('add-remark').value.trim();
+
+            if (!name || !threshold || !condition) {
+                alert('请完整填写规则名称、阈值设置和触发条件');
+                return;
+            }
+            const now = new Date();
+            const pad = (n) => String(n).padStart(2, '0');
+            const created = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+            const newId = rules.length ? Math.max(...rules.map(r => r.id)) + 1 : 1;
+            rules.unshift({ id: newId, name: name + (remark ? '（' + remark + '）' : ''), type, threshold, level, condition, status, created });
+            closeModal('add-modal');
+            filteredRules = applyCurrentFilter();
+            currentPage = 1;
+            renderTable();
+            alert('预警规则添加成功！');
+        }
+
+        // 编辑
+        function openEditModal(id) {
+            const rule = rules.find(r => r.id === id);
+            if (!rule) return;
+            editTargetId = id;
+            document.getElementById('edit-name').value = rule.name;
+            document.getElementById('edit-type').value = rule.type;
+            document.getElementById('edit-threshold').value = rule.threshold;
+            document.getElementById('edit-level').value = rule.level;
+            document.getElementById('edit-condition').value = rule.condition;
+            document.getElementById('edit-status').value = rule.status;
+            document.getElementById('edit-modal').classList.add('active');
+        }
+
+        function submitEditRule() {
+            if (editTargetId === null) return;
+            const name = document.getElementById('edit-name').value.trim();
+            const type = document.getElementById('edit-type').value;
+            const threshold = document.getElementById('edit-threshold').value.trim();
+            const level = document.getElementById('edit-level').value;
+            const condition = document.getElementById('edit-condition').value.trim();
+            const status = document.getElementById('edit-status').value;
+
+            if (!name || !threshold || !condition) {
+                alert('请完整填写规则名称、阈值设置和触发条件');
+                return;
+            }
+            const rule = rules.find(r => r.id === editTargetId);
+            if (rule) {
+                rule.name = name;
+                rule.type = type;
+                rule.threshold = threshold;
+                rule.level = level;
+                rule.condition = condition;
+                rule.status = status;
+            }
+            closeModal('edit-modal');
+            editTargetId = null;
+            filteredRules = applyCurrentFilter();
+            renderTable();
+            alert('预警规则修改成功！');
+        }
+
+        // 删除
+        function openDeleteModal(id) {
+            const rule = rules.find(r => r.id === id);
+            if (!rule) return;
+            deleteTargetId = id;
+            document.getElementById('delete-rule-name').textContent = rule.name;
+            document.getElementById('delete-modal').classList.add('active');
+        }
+
+        function submitDeleteRule() {
+            if (deleteTargetId === null) return;
+            rules = rules.filter(r => r.id !== deleteTargetId);
+            closeModal('delete-modal');
+            deleteTargetId = null;
+            filteredRules = applyCurrentFilter();
+            const totalPages = Math.max(1, Math.ceil(filteredRules.length / PAGE_SIZE));
+            if (currentPage > totalPages) currentPage = totalPages;
+            renderTable();
+            alert('预警规则删除成功！');
+        }
+
+        // 关闭弹窗
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // 根据当前筛选条件刷新 filteredRules
+        function applyCurrentFilter() {
+            const searchTerm = document.getElementById('search-input').value.trim().toLowerCase();
+            const typeFilter = document.getElementById('type-filter').value;
+            const statusFilter = document.getElementById('status-filter').value;
+            return rules.filter(rule => {
+                const matchesSearch = !searchTerm || rule.name.toLowerCase().includes(searchTerm);
+                const matchesType = !typeFilter || rule.type === typeFilter;
+                const matchesStatus = !statusFilter || rule.status === statusFilter;
+                return matchesSearch && matchesType && matchesStatus;
+            });
+        }
+
+        // HTML 转义，防止特殊字符破坏页面
+        function escapeHtml(str) {
+            if (str === null || str === undefined) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        // 导入规则
+        function importRules() {
+            document.getElementById('import-file').value = '';
+            document.getElementById('import-modal').classList.add('active');
+        }
+
+        function handleImportFile(input) {
+            const file = input.files[0];
+            if (file) {
+                alert('已选择文件: ' + file.name);
+            }
+        }
+
+        function downloadTemplate() {
+            const content = '规则名称,预警类型,阈值设置,预警级别,触发条件,状态\n红蜘蛛爆发预警,病虫害预警,虫口密度 > 30头/叶,红色预警,连续3天监测超标,启用';
+            const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = '预警规则导入模板.csv';
+            link.click();
+        }
+
+        function submitImport() {
+            const file = document.getElementById('import-file').files[0];
+            if (!file) {
+                alert('请先选择要导入的文件');
+                return;
+            }
+            alert('预警规则导入成功！\n文件: ' + file.name + '\n导入数量: 5 条');
+            closeModal('import-modal');
+            filteredRules = applyCurrentFilter();
+            renderTable();
+        }
+
+        // 导出规则
+        function exportRules() {
+            const content = '规则名称,预警类型,阈值设置,预警级别,触发条件,状态,创建时间\n' + 
+                rules.map(r => `${r.name},${r.type},${r.threshold},${r.level},${r.condition},${r.status},${r.created}`).join('\n');
+            const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = '预警规则_' + new Date().toISOString().split('T')[0] + '.csv';
+            link.click();
+        }
+
+        // 点击模态框外部关闭
+        document.addEventListener('click', (e) => {
+            ['add-modal', 'edit-modal', 'delete-modal', 'import-modal'].forEach(id => {
+                const modal = document.getElementById(id);
+                if (!modal) return;
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                }
+            });
+        });
+
+        // 初始化
+        renderTable();
+    </script>
+</body>
+</html>

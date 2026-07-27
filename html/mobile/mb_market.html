@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>桔农通 - 市场信息</title>
+  <link rel="stylesheet" href="css/mobile-design-system.css">
+  <style>
+    .page-header {
+      background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+      padding: calc(env(safe-area-inset-top, 0px) + 12px) 16px 20px;
+      color: var(--text-on-primary);
+      border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+    }
+
+    .header-title {
+      font-size: var(--font-xl);
+      font-weight: var(--font-bold);
+      margin-bottom: 4px;
+    }
+
+    .header-sub {
+      font-size: var(--font-sm);
+      opacity: 0.85;
+    }
+
+    .search-bar {
+      background: var(--bg-white);
+      margin: 12px 16px;
+      padding: 10px 14px;
+      border-radius: var(--radius-lg);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .search-item {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding-right: 12px;
+      border-right: 1px solid var(--border-light);
+    }
+
+    .search-item:last-child {
+      border-right: none;
+    }
+
+    .search-item svg {
+      width: 16px;
+      height: 16px;
+      color: var(--text-tertiary);
+      flex-shrink: 0;
+    }
+
+    .search-text {
+      font-size: var(--font-sm);
+      color: var(--text-secondary);
+      flex: 1;
+    }
+
+    .search-arrow {
+      width: 12px;
+      height: 12px;
+      color: var(--text-tertiary);
+      flex-shrink: 0;
+    }
+
+    .category-tabs {
+      display: flex;
+      gap: 6px;
+      padding: 0 16px 12px;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+
+    .category-tab {
+      padding: 6px 16px;
+      font-size: var(--font-sm);
+      font-weight: var(--font-medium);
+      color: var(--text-secondary);
+      background: var(--bg-white);
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      border: 1px solid var(--border);
+      flex-shrink: 0;
+      transition: all var(--transition-fast);
+    }
+
+    .category-tab.active {
+      background: var(--gradient-primary);
+      color: var(--text-on-primary);
+      border-color: transparent;
+    }
+
+    .price-summary {
+      background: var(--bg-white);
+      margin: 0 16px 12px;
+      padding: 16px;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+    }
+
+    .price-date {
+      font-size: var(--font-sm);
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+    }
+
+    .price-alert {
+      display: inline-block;
+      font-size: var(--font-xs);
+      padding: 2px 8px;
+      background: var(--warning-light);
+      color: var(--warning-dark);
+      border-radius: var(--radius-sm);
+      margin-left: 8px;
+      font-weight: var(--font-medium);
+    }
+
+    .price-info {
+      display: flex;
+      gap: 12px;
+      align-items: flex-end;
+    }
+
+    .price-item {
+      flex: 1;
+    }
+
+    .price-label {
+      font-size: var(--font-xs);
+      color: var(--text-tertiary);
+      margin-bottom: 4px;
+    }
+
+    .price-value {
+      font-size: var(--font-lg);
+      font-weight: var(--font-extrabold);
+      font-family: var(--font-family-number);
+    }
+
+    .price-value.min { color: var(--error); }
+    .price-value.avg { color: var(--text); }
+    .price-value.max { color: var(--success); }
+
+    .price-unit {
+      font-size: var(--font-sm);
+      color: var(--text-secondary);
+      font-weight: var(--font-normal);
+    }
+
+    .chart-section {
+      background: var(--bg-white);
+      margin: 0 16px 12px;
+      padding: 16px;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+    }
+
+    .chart-title {
+      font-size: var(--font-sm);
+      font-weight: var(--font-semibold);
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+    }
+
+    .chart-container {
+      height: 160px;
+      position: relative;
+    }
+
+    .chart-y-axis {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 20px;
+      width: 35px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .chart-y-label {
+      font-size: 10px;
+      color: var(--text-tertiary);
+      text-align: right;
+      padding-right: 4px;
+    }
+
+    .chart-area {
+      margin-left: 35px;
+      height: 100%;
+      position: relative;
+    }
+
+    .chart-grid {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .chart-grid-line {
+      height: 1px;
+      background: var(--border-light);
+    }
+
+    .chart-content {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 20px;
+    }
+
+    .chart-line {
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      cursor: pointer;
+    }
+
+    .chart-line.high { stroke: var(--success); }
+    .chart-line.avg { stroke: var(--primary); }
+    .chart-line.low { stroke: var(--error); }
+
+    .chart-tooltip {
+      position: absolute;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 8px 12px;
+      font-size: var(--font-xs);
+      color: var(--text);
+      pointer-events: none;
+      z-index: 100;
+      display: none;
+      white-space: nowrap;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .chart-tooltip.show {
+      display: block;
+    }
+
+    .chart-tooltip-date {
+      font-weight: var(--font-semibold);
+      margin-bottom: 4px;
+    }
+
+    .chart-tooltip-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 2px;
+    }
+
+    .chart-tooltip-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .chart-tooltip-label {
+      color: var(--text-secondary);
+    }
+
+    .chart-tooltip-value {
+      font-weight: var(--font-semibold);
+    }
+
+    .chart-points {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+    }
+
+    .chart-point {
+      position: absolute;
+      top: 0;
+      width: 16px;
+      height: 100%;
+      margin-left: -8px;
+      pointer-events: auto;
+      cursor: pointer;
+    }
+
+    .chart-point:hover {
+      background: rgba(0, 0, 0, 0.05);
+      border-radius: 8px;
+    }
+
+    .chart-x-axis {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 20px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .chart-x-label {
+      font-size: 10px;
+      color: var(--text-tertiary);
+    }
+
+    .chart-legend {
+      display: flex;
+      gap: 16px;
+      margin-top: 12px;
+      justify-content: center;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: var(--font-xs);
+      color: var(--text-secondary);
+    }
+
+    .legend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 2px;
+    }
+
+    .legend-dot.high { background: var(--success); }
+    .legend-dot.avg { background: var(--primary); }
+    .legend-dot.low { background: var(--error); }
+
+    .price-list-section {
+      background: var(--bg-white);
+      margin: 0 16px;
+      padding: 16px;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+    }
+
+    .list-title {
+      font-size: var(--font-sm);
+      font-weight: var(--font-semibold);
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+    }
+
+    .list-header {
+      display: flex;
+      font-size: var(--font-xs);
+      color: var(--text-tertiary);
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .list-header .col-1 { flex: 2; }
+    .list-header .col-2 { flex: 2; text-align: center; }
+    .list-header .col-3 { flex: 1; text-align: right; }
+
+    .list-item {
+      display: flex;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .list-item:last-child {
+      border-bottom: none;
+    }
+
+    .list-item .col-1 { flex: 2; }
+    .list-item .col-2 { flex: 2; text-align: center; }
+    .list-item .col-3 { flex: 1; text-align: right; }
+
+    .fruit-name {
+      font-size: var(--font-sm);
+      color: var(--text);
+      font-weight: var(--font-medium);
+    }
+
+    .market-name {
+      font-size: var(--font-xs);
+      color: var(--text-tertiary);
+      margin-top: 2px;
+    }
+
+    .market-cell {
+      font-size: var(--font-sm);
+      color: var(--text-secondary);
+    }
+
+    .price-cell {
+      font-size: var(--font-md);
+      font-weight: var(--font-bold);
+      color: var(--primary);
+      font-family: var(--font-family-number);
+    }
+
+    .skeleton-state { display: none; }
+    .mb-app.loading .real-content { display: none; }
+    .mb-app.loading .skeleton-state { display: block; }
+  </style>
+</head>
+<body>
+  <div class="mb-app loading">
+    <div class="skeleton-state">
+      <div class="page-header">
+        <div class="mb-skeleton" style="width:120px;height:24px;"></div>
+        <div class="mb-skeleton" style="width:180px;height:14px;margin-top:6px;"></div>
+      </div>
+      <div class="search-bar">
+        <div class="mb-skeleton" style="width:200px;height:40px;border-radius:var(--radius-lg);"></div>
+      </div>
+      <div class="price-summary">
+        <div class="mb-skeleton" style="width:100px;height:14px;margin-bottom:12px;"></div>
+        <div style="display:flex;gap:12px;">
+          <div class="mb-skeleton" style="flex:1;height:40px;border-radius:var(--radius-md);"></div>
+          <div class="mb-skeleton" style="flex:1;height:40px;border-radius:var(--radius-md);"></div>
+          <div class="mb-skeleton" style="flex:1;height:40px;border-radius:var(--radius-md);"></div>
+        </div>
+      </div>
+      <div class="chart-section">
+        <div class="mb-skeleton" style="width:120px;height:16px;margin-bottom:16px;"></div>
+        <div class="mb-skeleton" style="width:100%;height:160px;border-radius:var(--radius-lg);"></div>
+      </div>
+      <div class="price-list-section">
+        <div class="mb-skeleton" style="width:120px;height:16px;margin-bottom:12px;"></div>
+        <div class="mb-skeleton-line long"></div>
+        <div class="mb-skeleton-line long"></div>
+        <div class="mb-skeleton-line long"></div>
+        <div class="mb-skeleton-line long"></div>
+        <div class="mb-skeleton-line long"></div>
+      </div>
+    </div>
+
+    <div class="real-content">
+      <div class="page-header">
+      <div class="header-title">价格指数</div>
+      <div class="header-sub">实时掌握柑桔市场行情</div>
+    </div>
+
+    <div class="search-bar">
+      <div class="search-item" style="border-right: none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <span class="search-text">请输入市场</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="search-arrow"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+    </div>
+
+    <div class="price-summary">
+      <div class="price-date">2026-07-23<span class="price-alert">预警提醒</span></div>
+      <div class="price-info">
+        <div class="price-item">
+          <div class="price-label">最低</div>
+          <div class="price-value min">13.60<span class="price-unit">元/公斤</span></div>
+        </div>
+        <div class="price-item">
+          <div class="price-label">均价</div>
+          <div class="price-value avg">21.14<span class="price-unit">元/公斤</span></div>
+        </div>
+        <div class="price-item">
+          <div class="price-label">最高</div>
+          <div class="price-value max">32.60<span class="price-unit">元/公斤</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="chart-section">
+      <div class="chart-title">近8天的价格变化</div>
+      <div class="chart-container">
+        <div class="chart-y-axis">
+          <span class="chart-y-label">35</span>
+          <span class="chart-y-label">30</span>
+          <span class="chart-y-label">25</span>
+          <span class="chart-y-label">20</span>
+          <span class="chart-y-label">15</span>
+          <span class="chart-y-label">10</span>
+        </div>
+        <div class="chart-area">
+          <div class="chart-grid">
+            <div class="chart-grid-line"></div>
+            <div class="chart-grid-line"></div>
+            <div class="chart-grid-line"></div>
+            <div class="chart-grid-line"></div>
+            <div class="chart-grid-line"></div>
+          </div>
+          <div class="chart-content">
+            <div class="chart-tooltip" id="chartTooltip">
+              <div class="chart-tooltip-date" id="tooltipDate"></div>
+              <div class="chart-tooltip-item"><span class="chart-tooltip-label">最高价</span><span class="chart-tooltip-value" style="color:var(--success)" id="tooltipHigh"></span></div>
+              <div class="chart-tooltip-item"><span class="chart-tooltip-label">均价</span><span class="chart-tooltip-value" style="color:var(--primary)" id="tooltipAvg"></span></div>
+              <div class="chart-tooltip-item"><span class="chart-tooltip-label">最低价</span><span class="chart-tooltip-value" style="color:var(--error)" id="tooltipLow"></span></div>
+            </div>
+            <svg viewBox="0 0 280 140" preserveAspectRatio="none" style="width:100%;height:100%;">
+              <path class="chart-line high" d="M0,30 Q35,40 70,25 T140,20 T210,35 T280,30"/>
+              <path class="chart-line avg" d="M0,55 Q35,60 70,50 T140,45 T210,60 T280,55"/>
+              <path class="chart-line low" d="M0,80 Q35,85 70,75 T140,70 T210,85 T280,80"/>
+            </svg>
+            <div class="chart-points" id="chartPoints"></div>
+          </div>
+          <div class="chart-x-axis">
+            <span class="chart-x-label">06-15</span>
+            <span class="chart-x-label">06-18</span>
+            <span class="chart-x-label">06-21</span>
+            <span class="chart-x-label">06-24</span>
+            <span class="chart-x-label">06-27</span>
+            <span class="chart-x-label">07-01</span>
+            <span class="chart-x-label">07-04</span>
+            <span class="chart-x-label">07-07</span>
+          </div>
+        </div>
+      </div>
+      <div class="chart-legend">
+        <div class="legend-item"><div class="legend-dot high"></div><span>最高价</span></div>
+        <div class="legend-item"><div class="legend-dot avg"></div><span>均价</span></div>
+        <div class="legend-item"><div class="legend-dot low"></div><span>最低价</span></div>
+      </div>
+    </div>
+
+    <div class="price-list-section">
+      <div class="list-title">2026-07-23 价格</div>
+      <div class="list-header">
+        <div class="col-1">品种</div>
+        <div class="col-2">市场</div>
+        <div class="col-3">价格(元/公斤)</div>
+      </div>
+      <div class="list-item">
+        <div class="col-1">
+          <div class="fruit-name">南丰蜜桔</div>
+          <div class="market-name">江西南丰市场</div>
+        </div>
+        <div class="col-2"><span class="market-cell">江西南丰市...</span></div>
+        <div class="col-3"><span class="price-cell">17.00</span></div>
+      </div>
+      <div class="list-item">
+        <div class="col-1">
+          <div class="fruit-name">南丰蜜桔</div>
+          <div class="market-name">山东潍坊市场</div>
+        </div>
+        <div class="col-2"><span class="market-cell">山东潍坊市...</span></div>
+        <div class="col-3"><span class="price-cell">19.50</span></div>
+      </div>
+      <div class="list-item">
+        <div class="col-1">
+          <div class="fruit-name">南丰蜜桔</div>
+          <div class="market-name">浙江杭州市场</div>
+        </div>
+        <div class="col-2"><span class="market-cell">浙江杭州市...</span></div>
+        <div class="col-3"><span class="price-cell">21.00</span></div>
+      </div>
+      <div class="list-item">
+        <div class="col-1">
+          <div class="fruit-name">南丰蜜桔</div>
+          <div class="market-name">上海农产品市场</div>
+        </div>
+        <div class="col-2"><span class="market-cell">上海农产品...</span></div>
+        <div class="col-3"><span class="price-cell">23.50</span></div>
+      </div>
+      <div class="list-item">
+        <div class="col-1">
+          <div class="fruit-name">南丰蜜桔</div>
+          <div class="market-name">广东广州市场</div>
+        </div>
+        <div class="col-2"><span class="market-cell">广东广州市...</span></div>
+        <div class="col-3"><span class="price-cell">25.00</span></div>
+      </div>
+    </div>
+    </div>
+
+    <div class="mb-tab-bar">
+      <div class="mb-tab-item" onclick="navigateTo('mb_home.html')">首页</div>
+      <div class="mb-tab-item" onclick="navigateTo('mb_data.html')">监测</div>
+      <div class="mb-tab-item" onclick="navigateTo('mb_ai.html')">AI助手</div>
+      <div class="mb-tab-item" onclick="navigateTo('mb_disease.html')">病虫害</div>
+      <div class="mb-tab-item" onclick="navigateTo('mb_profile.html')">我的</div>
+    </div>
+  </div>
+
+  <script>
+    function navigateTo(page) { window.location.href = page; }
+    
+    var chartData = [
+      { date: '06-15', high: 28.5, avg: 23.2, low: 18.0 },
+      { date: '06-18', high: 27.8, avg: 22.8, low: 17.5 },
+      { date: '06-21', high: 29.0, avg: 24.0, low: 18.8 },
+      { date: '06-24', high: 29.5, avg: 24.5, low: 19.2 },
+      { date: '06-27', high: 30.2, avg: 25.0, low: 19.8 },
+      { date: '07-01', high: 28.8, avg: 23.8, low: 18.5 },
+      { date: '07-04', high: 27.5, avg: 22.5, low: 17.2 },
+      { date: '07-07', high: 28.2, avg: 23.0, low: 17.8 }
+    ];
+    
+    function initChartPoints() {
+      var container = document.getElementById('chartPoints');
+      var content = '';
+      chartData.forEach(function(item, index) {
+        var x = (index / 7) * 100;
+        content += '<div class="chart-point" style="left:' + x + '%" data-index="' + index + '"></div>';
+      });
+      container.innerHTML = content;
+      
+      var points = container.querySelectorAll('.chart-point');
+      points.forEach(function(point) {
+        point.addEventListener('mouseenter', function(e) {
+          showTooltip(parseInt(this.getAttribute('data-index')), e);
+        });
+        point.addEventListener('mouseleave', hideTooltip);
+      });
+    }
+    
+    function showTooltip(index, event) {
+      var data = chartData[index];
+      var tooltip = document.getElementById('chartTooltip');
+      
+      document.getElementById('tooltipDate').textContent = data.date;
+      document.getElementById('tooltipHigh').textContent = data.high + ' 元/公斤';
+      document.getElementById('tooltipAvg').textContent = data.avg + ' 元/公斤';
+      document.getElementById('tooltipLow').textContent = data.low + ' 元/公斤';
+      
+      tooltip.classList.add('show');
+      
+      var rect = event.currentTarget.getBoundingClientRect();
+      var containerRect = document.querySelector('.chart-content').getBoundingClientRect();
+      
+      tooltip.style.left = (rect.left - containerRect.left + rect.width / 2 - 60) + 'px';
+      tooltip.style.top = (rect.top - containerRect.top - 80) + 'px';
+    }
+    
+    function hideTooltip() {
+      document.getElementById('chartTooltip').classList.remove('show');
+    }
+    
+    initChartPoints();
+
+    (function() {
+      var app = document.querySelector('.mb-app');
+      setTimeout(function() {
+        app.classList.remove('loading');
+      }, 600);
+    })();
+  </script>
+</body>
+</html>

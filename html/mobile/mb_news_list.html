@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>桔农通 - 农技资讯</title>
+  <link rel="stylesheet" href="css/mobile-design-system.css">
+  <style>
+    .page-header {
+      position: relative;
+      background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+      padding: 44px 16px 20px;
+      color: var(--bg-white);
+    }
+    
+    .header-back {
+      position: absolute;
+      left: 12px;
+      top: 44px;
+      width: 36px;
+      height: 36px;
+      background: rgba(255,255,255,0.2);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    
+    .header-back svg { width: 18px; height: 18px; }
+    
+    .header-content { padding-left: 44px; }
+    .header-title { font-size: var(--font-xl); font-weight: 700; }
+    .header-sub { font-size: var(--font-sm); opacity: 0.85; margin-top: 4px; }
+
+    .search-box {
+      width: 100%;
+      height: 48px;
+      background: var(--bg-white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-full);
+      padding: 0 var(--space-4);
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      margin-bottom: var(--space-4);
+    }
+    
+    .search-box svg { width: 20px; height: 20px; color: var(--text-light); }
+    .search-input { flex: 1; height: 100%; font-size: var(--font-base); border: none; outline: none; background: transparent; }
+
+    .filter-tags { display: flex; gap: var(--space-2); overflow-x: auto; padding-bottom: var(--space-2); scrollbar-width: none; }
+    .filter-tags::-webkit-scrollbar { display: none; }
+    
+    .filter-tag {
+      padding: var(--space-2) var(--space-4);
+      border-radius: var(--radius-full);
+      font-size: var(--font-sm);
+      background: var(--bg-white);
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all var(--transition-fast);
+      flex-shrink: 0;
+    }
+    
+    .filter-tag.active { background: var(--primary); color: var(--bg-white); border-color: var(--primary); }
+
+    .news-card {
+      background: var(--bg-white);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4);
+      margin-bottom: var(--space-4);
+      box-shadow: var(--shadow-card);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      display: flex;
+      gap: var(--space-3);
+    }
+    
+    .news-card:active { transform: scale(0.98); background: var(--gray-50); }
+    
+    .news-image {
+      width: 100px;
+      height: 80px;
+      border-radius: var(--radius-md);
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+    
+    .news-content { flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+    
+    .news-title {
+      font-size: var(--font-md);
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    
+    .news-meta {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      font-size: var(--font-xs);
+      color: var(--text-light);
+    }
+    
+    .news-summary {
+      font-size: var(--font-sm);
+      color: var(--text-secondary);
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      margin-top: var(--space-2);
+    }
+
+    .load-more {
+      width: 100%;
+      height: 48px;
+      border-radius: var(--radius-full);
+      border: 1px solid var(--border);
+      background: var(--bg-white);
+      color: var(--text-secondary);
+      font-size: var(--font-base);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    
+    .load-more:active { background: var(--gray-50); }
+    .load-more.disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .skeleton-state { display: none; }
+    .mb-app.loading .real-content { display: none; }
+    .mb-app.loading .skeleton-state { display: block; }
+  </style>
+</head>
+<body>
+  <div class="mb-app loading">
+    <!-- ===================== 骨架屏 ===================== -->
+    <div class="skeleton-state">
+      <div class="page-header">
+        <div class="header-nav">
+          <div style="width:36px;height:36px;"></div>
+          <div class="header-title"></div>
+        </div>
+      </div>
+      <div class="mb-section">
+        <div class="mb-skeleton" style="width:100%;height:48px;border-radius:24px;margin-bottom:16px;"></div>
+        <div class="mb-skeleton" style="width:60px;height:32px;border-radius:16px;"></div>
+        <div style="height:20px;"></div>
+        <div class="mb-skeleton-card" style="display:flex;gap:12px;">
+          <div class="mb-skeleton" style="width:100px;height:80px;border-radius:8px;flex-shrink:0;"></div>
+          <div style="flex:1;">
+            <div class="mb-skeleton" style="width:100%;height:16px;margin-bottom:8px;"></div>
+            <div class="mb-skeleton" style="width:60%;height:12px;margin-bottom:8px;"></div>
+            <div class="mb-skeleton" style="width:40%;height:12px;"></div>
+          </div>
+        </div>
+        <div style="height:20px;"></div>
+        <div class="mb-skeleton-card" style="display:flex;gap:12px;">
+          <div class="mb-skeleton" style="width:100px;height:80px;border-radius:8px;flex-shrink:0;"></div>
+          <div style="flex:1;">
+            <div class="mb-skeleton" style="width:100%;height:16px;margin-bottom:8px;"></div>
+            <div class="mb-skeleton" style="width:60%;height:12px;margin-bottom:8px;"></div>
+            <div class="mb-skeleton" style="width:40%;height:12px;"></div>
+          </div>
+        </div>
+        <div style="height:20px;"></div>
+        <div class="mb-skeleton-card" style="display:flex;gap:12px;">
+          <div class="mb-skeleton" style="width:100px;height:80px;border-radius:8px;flex-shrink:0;"></div>
+          <div style="flex:1;">
+            <div class="mb-skeleton" style="width:100%;height:16px;margin-bottom:8px;"></div>
+            <div class="mb-skeleton" style="width:60%;height:12px;margin-bottom:8px;"></div>
+            <div class="mb-skeleton" style="width:40%;height:12px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================== 真实内容 ===================== -->
+    <div class="real-content">
+      <!-- Header -->
+      <div class="page-header">
+        <div class="header-back" onclick="goBack()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M15 18l-6-6 6-6"/>
+          </svg>
+        </div>
+        <div class="header-content">
+          <div class="header-title">农技资讯</div>
+          <div class="header-sub">获取最新蜜桔种植技术和管理资讯</div>
+        </div>
+      </div>
+
+      <div class="mb-section">
+        <!-- 搜索框 -->
+        <div class="search-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/>
+            <path d="M21 21l-4.35-4.35"/>
+          </svg>
+          <input type="text" class="search-input" placeholder="搜索资讯内容..." oninput="searchNews(event)">
+        </div>
+
+        <!-- 筛选标签 -->
+        <div class="filter-tags">
+          <div class="filter-tag active" data-category="all" onclick="filterCategory('all')">全部</div>
+          <div class="filter-tag" data-category="disease" onclick="filterCategory('disease')">病虫害防治</div>
+          <div class="filter-tag" data-category="fertilizer" onclick="filterCategory('fertilizer')">施肥管理</div>
+          <div class="filter-tag" data-category="weather" onclick="filterCategory('weather')">气象灾害</div>
+          <div class="filter-tag" data-category="irrigation" onclick="filterCategory('irrigation')">灌溉技术</div>
+          <div class="filter-tag" data-category="pruning" onclick="filterCategory('pruning')">修剪整形</div>
+        </div>
+
+        <!-- 资讯列表 -->
+        <div id="newsContainer"></div>
+
+        <!-- 加载更多 -->
+        <button class="load-more" onclick="loadMore()" id="loadMoreBtn">加载更多</button>
+      </div>
+    </div><!-- /real-content -->
+
+    <!-- 底部导航 -->
+    <div class="mb-tab-bar">
+      <div class="mb-tab-item" onclick="navigateTo('mb_home.html')">首页</div>
+      <div class="mb-tab-item" onclick="navigateTo('mb_data.html')">监测</div>
+      <div class="mb-tab-item" onclick="navigateTo('mb_ai.html')">AI助手</div>
+      <div class="mb-tab-item" onclick="navigateTo('mb_disease.html')">病虫害</div>
+      <div class="mb-tab-item" onclick="navigateTo('mb_profile.html')">我的</div>
+    </div>
+  </div>
+
+  <script>
+    var imgA = 'data:image/svg+xml,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 75%27><rect fill=%27%23e8f5e9%27 width=%27100%27 height=%2775%27/><path fill=%27%23a5d6a7%27 d=%27M0 50 Q25 40 50 50 T100 50 V75 H0z%27 opacity=%270.4%27/><circle cx=%2778%27 cy=%2722%27 r=%277%27 fill=%27%2366bb6a%27 opacity=%270.25%27/></svg>';
+    var imgB = 'data:image/svg+xml,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 75%27><rect fill=%27%23fff8e1%27 width=%27100%27 height=%2775%27/><path fill=%27%23ffe082%27 d=%27M0 50 Q25 40 50 50 T100 50 V75 H0z%27 opacity=%270.4%27/><circle cx=%2778%27 cy=%2722%27 r=%277%27 fill=%27%23ffb74d%27 opacity=%270.25%27/></svg>';
+    var imgC = 'data:image/svg+xml,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 75%27><rect fill=%27%23ffebee%27 width=%27100%27 height=%2775%27/><path fill=%27%23ef9a9a%27 d=%27M0 50 Q25 40 50 50 T100 50 V75 H0z%27 opacity=%270.4%27/><circle cx=%2778%27 cy=%2722%27 r=%277%27 fill=%27%23e57373%27 opacity=%270.25%27/></svg>';
+    
+    var newsData = [
+      { title: '南丰蜜桔夏季病虫害综合防治技术要点', image: imgC, date: '2026-07-22', views: '3258', summary: '高温高湿天气易引发多种病虫害，需加强监测和防治工作。本文详细介绍了夏季常见病虫害的识别特征和防治方法。', category: 'disease' },
+      { title: '果实膨大期科学施肥指南', image: imgB, date: '2026-07-21', views: '2196', summary: '根据土壤养分状况，合理搭配氮磷钾肥料，促进果实膨大，提高产量和品质。', category: 'fertilizer' },
+      { title: '高温天气果园管理注意事项', image: imgA, date: '2026-07-20', views: '1856', summary: '持续高温对蜜桔生长不利，需采取降温措施，保护果树健康生长。', category: 'weather' },
+      { title: '精准灌溉技术在蜜桔种植中的应用', image: imgA, date: '2026-07-19', views: '1562', summary: '根据土壤湿度数据，智能控制灌溉时机和水量，实现精准灌溉，节约水资源。', category: 'irrigation' },
+      { title: '南丰蜜桔品质提升关键技术', image: imgB, date: '2026-07-18', views: '2081', summary: '通过科学管理，提高蜜桔甜度和外观品质，增强市场竞争力。', category: 'all' },
+      { title: '蜜桔夏季高温热害防范与补救措施', image: imgA, date: '2026-07-17', views: '2156', summary: '持续高温影响蜜桔生长，需及时采取降温措施，减轻热害影响。', category: 'weather' },
+      { title: '蜜桔夏季修剪技术要点', image: imgC, date: '2026-07-16', views: '1723', summary: '夏季修剪可改善通风透光，促进果实发育，提高产量。', category: 'pruning' },
+      { title: '红蜘蛛综合防治方案', image: imgC, date: '2026-07-15', views: '2890', summary: '红蜘蛛是夏季主要害虫，需综合运用农业、物理和化学防治方法。', category: 'disease' },
+      { title: '叶面喷肥技术详解', image: imgB, date: '2026-07-14', views: '1654', summary: '叶面喷肥可快速补充养分，提高肥料利用率，增强树势。', category: 'fertilizer' },
+      { title: '果园夏季排水管理', image: imgA, date: '2026-07-13', views: '1432', summary: '夏季多雨需加强排水，防止根系积水导致烂根。', category: 'irrigation' }
+    ];
+
+    var currentCategory = 'all';
+    var currentKeyword = '';
+    var currentPage = 1;
+    var pageSize = 6;
+
+    function goBack() {
+      window.history.back();
+    }
+
+    function renderNews(data) {
+      var container = document.getElementById('newsContainer');
+      container.innerHTML = '';
+      
+      data.forEach(function(item) {
+        var card = document.createElement('div');
+        card.className = 'news-card';
+        card.onclick = function() { navigateTo('mb_news_detail.html'); };
+        card.innerHTML = `
+          <img src="${item.image}" class="news-image" alt="${item.title}">
+          <div class="news-content">
+            <div class="news-title">${item.title}</div>
+            <div class="news-summary">${item.summary}</div>
+            <div class="news-meta">
+              <span>${item.date}</span>
+              <span>阅读 ${item.views}</span>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function navigateTo(page) {
+      window.location.href = page;
+    }
+
+    function searchNews(event) {
+      currentKeyword = event.target.value.trim();
+      currentPage = 1;
+      filterAndRender();
+    }
+
+    function filterCategory(category) {
+      currentCategory = category;
+      currentPage = 1;
+      
+      document.querySelectorAll('.filter-tag').forEach(tag => {
+        tag.classList.remove('active');
+      });
+      document.querySelector(`[data-category="${category}"]`).classList.add('active');
+      
+      filterAndRender();
+    }
+
+    function filterAndRender() {
+      var filtered = newsData.filter(function(item) {
+        var matchCategory = currentCategory === 'all' || item.category === currentCategory;
+        var matchKeyword = !currentKeyword || item.title.includes(currentKeyword) || item.summary.includes(currentKeyword);
+        return matchCategory && matchKeyword;
+      });
+      
+      var start = (currentPage - 1) * pageSize;
+      var end = start + pageSize;
+      var paginated = filtered.slice(start, end);
+      
+      renderNews(paginated);
+      
+      var totalPages = Math.ceil(filtered.length / pageSize);
+      var loadBtn = document.getElementById('loadMoreBtn');
+      if (currentPage >= totalPages || filtered.length === 0) {
+        loadBtn.textContent = '暂无更多';
+        loadBtn.disabled = true;
+        loadBtn.classList.add('disabled');
+      } else {
+        loadBtn.textContent = '加载更多';
+        loadBtn.disabled = false;
+        loadBtn.classList.remove('disabled');
+      }
+      
+      if (filtered.length === 0) {
+        document.getElementById('newsContainer').innerHTML = `
+          <div style="text-align: center; padding: 60px 20px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 48px; height: 48px; color: var(--text-light); margin-bottom: 16px;">
+              <circle cx="11" cy="11" r="8"/>
+              <path d="M21 21l-4.35-4.35"/>
+            </svg>
+            <div style="font-size: var(--font-base); color: var(--text-secondary);">没有找到相关资讯</div>
+          </div>
+        `;
+      }
+    }
+
+    function loadMore() {
+      currentPage++;
+      filterAndRender();
+    }
+
+    (function() {
+      var app = document.querySelector('.mb-app');
+      setTimeout(function() {
+        app.classList.remove('loading');
+        filterAndRender();
+      }, 600);
+    })();
+  </script>
+</body>
+</html>

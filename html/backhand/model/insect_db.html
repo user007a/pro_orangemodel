@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>虫害数据库 - 南丰蜜桔模型管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { margin: 0; padding: 0; background-color: #F0F2F5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans SC', sans-serif; }
+        .content-wrapper { padding: 24px; height: 100vh; overflow-y: auto; }
+    </style>
+</head>
+<body>
+    <div class="content-wrapper">
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800">虫害数据库</h1>
+                <p class="text-gray-500 mt-1">管理南丰蜜桔虫害知识数据</p>
+            </div>
+            <div class="flex items-center space-x-3">
+                <button onclick="openImportModal()" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 flex items-center">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                    导入虫害
+                </button>
+                <button onclick="exportInsects()" class="px-4 py-2 bg-gray-600 text-white rounded-lg text-sm hover:bg-gray-700 flex items-center">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                    导出虫害
+                </button>
+                <button onclick="openAddModal()" class="px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 flex items-center">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    添加虫害
+                </button>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="p-4 border-b border-gray-100">
+                <div class="flex items-center space-x-4 flex-wrap">
+                    <div class="flex-1 max-w-md">
+                        <div class="relative">
+                            <svg class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                            <input type="text" id="search-input" placeholder="搜索虫害名称..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500" oninput="filterInsects()">
+                        </div>
+                    </div>
+                    <select id="type-filter" class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500" onchange="filterInsects()">
+                        <option value="">全部类型</option>
+                        <option value="螨类">螨类</option>
+                        <option value="蛾类">蛾类</option>
+                        <option value="虱类">虱类</option>
+                        <option value="其他">其他</option>
+                    </select>
+                    <button onclick="resetFilter()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200">重置</button>
+                </div>
+            </div>
+
+            <div id="insect-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+            </div>
+
+            <div class="px-6 py-4 border-t border-gray-100 flex items-center justify-between">
+                <p class="text-sm text-gray-500">共 <span id="total-count">15</span> 条记录</p>
+                <div class="flex items-center space-x-2">
+                    <button onclick="prevPage()" class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50">上一页</button>
+                    <span class="text-sm text-gray-600"><span id="current-page">1</span> / <span id="total-pages">4</span></span>
+                    <button onclick="nextPage()" class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50">下一页</button>
+                    <select id="page-size" class="px-3 py-1 border border-gray-300 rounded text-sm" onchange="changePageSize()">
+                        <option value="6">6条/页</option>
+                        <option value="10">10条/页</option>
+                        <option value="20">20条/页</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 导入虫害弹窗 -->
+    <div id="import-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center">
+        <div style="background:#fff;border-radius:12px;width:90%;max-width:500px;max-height:85vh;overflow-y:auto">
+            <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+                <h3 style="font-size:18px;font-weight:600;color:#1f2937">导入虫害数据</h3>
+                <button onclick="closeModal('import-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px;color:#6b7280;line-height:1">&times;</button>
+            </div>
+            <div style="padding:24px">
+                <div style="border:2px dashed #d1d5db;border-radius:8px;padding:32px;text-align:center;cursor:pointer" onclick="document.getElementById('import-file').click()">
+                    <svg style="width:48px;height:48px;margin:0 auto 12px;color:#9ca3af" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                    <p style="color:#374151;margin-bottom:4px">点击或拖拽文件到此处上传</p>
+                    <p style="font-size:14px;color:#9ca3af">支持 Excel (.xlsx)、CSV 文件</p>
+                    <input type="file" id="import-file" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleImportFile(this)">
+                </div>
+                <div style="margin-top:16px;padding:12px;background:#eff6ff;border-radius:8px">
+                    <p style="font-size:14px;color:#1d4ed8;margin:0">导入模板说明：虫害名称为必填字段</p>
+                </div>
+                <div style="margin-top:16px;display:flex;justify-content:space-between;align-items:center">
+                    <button onclick="downloadTemplate()" style="color:#2563eb;font-size:14px;background:none;border:none;cursor:pointer;text-decoration:underline">下载导入模板</button>
+                </div>
+                <div style="margin-top:16px">
+                    <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">批量上传图片（可选，支持多选）</label>
+                    <input type="file" id="import-images" accept="image/*" multiple style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px">
+                </div>
+            </div>
+            <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:12px">
+                <button onclick="closeModal('import-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
+                <button onclick="submitImport()" style="padding:8px 16px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">开始导入</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加虫害弹窗 -->
+    <div id="add-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center">
+        <div style="background:#fff;border-radius:12px;width:90%;max-width:500px;max-height:85vh;overflow-y:auto">
+            <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+                <h3 style="font-size:18px;font-weight:600;color:#1f2937">添加虫害</h3>
+                <button onclick="closeModal('add-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px;color:#6b7280;line-height:1">&times;</button>
+            </div>
+            <div style="padding:24px">
+                <div style="display:flex;flex-direction:column;gap:16px">
+                    <div>
+                        <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">虫害名称</label>
+                        <input type="text" id="add-name" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box" placeholder="请输入虫害名称">
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">虫害类型</label>
+                        <select id="add-type" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box">
+                            <option value="螨类">螨类</option>
+                            <option value="蛾类">蛾类</option>
+                            <option value="虱类">虱类</option>
+                            <option value="其他">其他</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">适宜温度</label>
+                        <input type="text" id="add-temperature" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box" placeholder="例如：25-30°C">
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">高发季节</label>
+                        <input type="text" id="add-season" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box" placeholder="例如：夏季">
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">风险等级</label>
+                        <select id="add-risk" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box">
+                            <option value="高风险">高风险</option>
+                            <option value="中风险">中风险</option>
+                            <option value="低风险">低风险</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">虫害描述</label>
+                        <textarea id="add-desc" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box;resize:vertical" rows="3" placeholder="请输入虫害描述"></textarea>
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">虫害图片（最多4张）</label>
+                        <input type="file" id="add-images" accept="image/*" multiple style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box" onchange="previewAddImages(this)">
+                        <div id="add-image-preview" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:8px"></div>
+                    </div>
+                </div>
+            </div>
+            <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:12px">
+                <button onclick="closeModal('add-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
+                <button onclick="saveInsect()" style="padding:8px 16px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑虫害弹窗 -->
+    <div id="edit-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center">
+        <div style="background:#fff;border-radius:12px;width:90%;max-width:500px;max-height:85vh;overflow-y:auto">
+            <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+                <h3 style="font-size:18px;font-weight:600;color:#1f2937">编辑虫害</h3>
+                <button onclick="closeModal('edit-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px;color:#6b7280;line-height:1">&times;</button>
+            </div>
+            <div style="padding:24px">
+                <div style="display:flex;flex-direction:column;gap:16px">
+                    <div>
+                        <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">虫害名称</label>
+                        <input type="text" id="edit-name" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box">
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">虫害类型</label>
+                        <select id="edit-type" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box">
+                            <option value="螨类">螨类</option>
+                            <option value="蛾类">蛾类</option>
+                            <option value="虱类">虱类</option>
+                            <option value="其他">其他</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">适宜温度</label>
+                        <input type="text" id="edit-temperature" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box">
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">高发季节</label>
+                        <input type="text" id="edit-season" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box">
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">风险等级</label>
+                        <select id="edit-risk" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box">
+                            <option value="高风险">高风险</option>
+                            <option value="中风险">中风险</option>
+                            <option value="低风险">低风险</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">虫害描述</label>
+                        <textarea id="edit-desc" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box;resize:vertical" rows="3"></textarea>
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">危害情况</label>
+                        <textarea id="edit-harm" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box;resize:vertical" rows="3" placeholder="请输入危害情况"></textarea>
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">防治方法</label>
+                        <textarea id="edit-control" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box;resize:vertical" rows="3" placeholder="请输入防治方法"></textarea>
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">当前图片</label>
+                        <div id="edit-existing-images" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px"></div>
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">替换图片（最多4张）</label>
+                        <input type="file" id="edit-images" accept="image/*" multiple style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box" onchange="previewEditImages(this)">
+                        <div id="edit-image-preview" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:8px"></div>
+                    </div>
+                </div>
+            </div>
+            <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:12px">
+                <button onclick="closeModal('edit-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
+                <button onclick="updateInsect()" style="padding:8px 16px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 查看详情弹窗 -->
+    <div id="detail-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center">
+        <div style="background:#fff;border-radius:12px;width:90%;max-width:500px;max-height:85vh;overflow-y:auto">
+            <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+                <h3 style="font-size:18px;font-weight:600;color:#1f2937">虫害详情</h3>
+                <button onclick="closeModal('detail-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px;color:#6b7280;line-height:1">&times;</button>
+            </div>
+            <div style="padding:24px">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+                    <div>
+                        <label style="display:block;font-size:14px;color:#6b7280;margin-bottom:4px">虫害名称</label>
+                        <p style="font-size:14px;font-weight:500;color:#1f2937;margin:0" id="detail-name"></p>
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:14px;color:#6b7280;margin-bottom:4px">虫害类型</label>
+                        <p style="font-size:14px;font-weight:500;color:#1f2937;margin:0" id="detail-type"></p>
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:14px;color:#6b7280;margin-bottom:4px">适宜温度</label>
+                        <p style="font-size:14px;font-weight:500;color:#1f2937;margin:0" id="detail-temperature"></p>
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:14px;color:#6b7280;margin-bottom:4px">高发季节</label>
+                        <p style="font-size:14px;font-weight:500;color:#1f2937;margin:0" id="detail-season"></p>
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:14px;color:#6b7280;margin-bottom:4px">风险等级</label>
+                        <p style="font-size:14px;font-weight:500;color:#1f2937;margin:0" id="detail-risk"></p>
+                    </div>
+                </div>
+                <div style="margin-bottom:16px">
+                    <label style="display:block;font-size:14px;color:#6b7280;margin-bottom:4px">虫害描述</label>
+                    <p style="font-size:14px;color:#1f2937;margin:0" id="detail-desc"></p>
+                </div>
+                <div style="margin-bottom:16px">
+                    <label style="display:block;font-size:14px;color:#6b7280;margin-bottom:4px">危害情况</label>
+                    <p style="font-size:14px;color:#1f2937;margin:0;white-space:pre-wrap" id="detail-harm"></p>
+                </div>
+                <div style="margin-bottom:16px">
+                    <label style="display:block;font-size:14px;color:#6b7280;margin-bottom:4px">防治方法</label>
+                    <p style="font-size:14px;color:#1f2937;margin:0;white-space:pre-wrap" id="detail-control"></p>
+                </div>
+                <div>
+                    <label style="display:block;font-size:14px;color:#6b7280;margin-bottom:8px">虫害图片</label>
+                    <div id="detail-images" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px"></div>
+                </div>
+            </div>
+            <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:12px">
+                <button onclick="closeModal('detail-modal')" style="padding:8px 16px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 删除确认弹窗 -->
+    <div id="delete-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center">
+        <div style="background:#fff;border-radius:12px;width:90%;max-width:400px;max-height:85vh;overflow-y:auto">
+            <div style="padding:24px;text-align:center">
+                <div style="width:64px;height:64px;background:#fee2e2;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
+                    <svg style="width:32px;height:32px;color:#ef4444" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                </div>
+                <h3 style="font-size:18px;font-weight:600;color:#1f2937;margin-bottom:8px">确认删除</h3>
+                <p style="font-size:14px;color:#6b7280;margin-bottom:24px">确定要删除虫害 <strong style="color:#1f2937" id="delete-name"></strong> 吗？此操作不可撤销。</p>
+                <div style="display:flex;justify-content:center;gap:12px">
+                    <button onclick="closeModal('delete-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
+                    <button onclick="confirmDelete()" style="padding:8px 16px;background:#ef4444;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">确认删除</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 图片预览弹窗 -->
+    <div id="image-preview-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:99999;align-items:center;justify-content:center">
+        <div style="position:relative;width:90%;max-width:800px;max-height:90vh;display:flex;align-items:center;justify-content:center">
+            <button onclick="closeModal('image-preview-modal')" style="position:absolute;top:-40px;right:0;padding:4px;background:none;border:none;cursor:pointer;font-size:28px;color:#fff;line-height:1">&times;</button>
+            <img id="preview-image" src="" alt="预览图片" style="max-width:100%;max-height:85vh;object-fit:contain;border-radius:8px" onerror="this.style.display='none'" />
+        </div>
+    </div>
+
+    <script>
+        function showModal(id) { var m = document.getElementById(id); if (m) m.style.display = 'flex'; }
+        function hideModal(id) { var m = document.getElementById(id); if (m) m.style.display = 'none'; }
+        function closeModal(id) { hideModal(id); }
+
+        const insects = [
+            { id: 'insect-1', name: '红蜘蛛', type: '螨类', temperature: '28-35°C', season: '夏季', risk: '高风险', desc: '吸食叶片汁液，导致叶片失绿变白，严重影响光合作用，是夏季主要害虫。', harm: '叶片失绿变白，严重影响光合作用；果实表皮受损，影响品质；严重时导致落叶减产。', control: '1.冬季清园，减少越冬虫源；2.保护天敌（如捕食螨）；3.喷施阿维菌素、螺螨酯等药剂；4.加强果园管理，保持树冠通风。', images: [
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=红蜘蛛幼虫形态特写，蜜桔叶片上的红色小虫&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=红蜘蛛成虫形态，放大特写&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=红蜘蛛危害蜜桔叶片症状，叶片发白失绿&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=红蜘蛛危害蜜桔果实症状，果实表皮变色&image_size=square_hd'
+            ]},
+            { id: 'insect-2', name: '潜叶蛾', type: '蛾类', temperature: '25-30°C', season: '夏梢期', risk: '高风险', desc: '幼虫潜入嫩叶表皮下取食，形成弯曲虫道，影响叶片正常生长和光合作用。', harm: '叶片畸形卷曲，影响光合作用；新梢生长受阻；果实表面伤痕，影响品质。', control: '1.统一放梢，减少虫源；2.新梢长0.5厘米时喷施氯氟氰菊酯、溴氰菊酯等药剂；3.及时摘除受害叶片。', images: [
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=潜叶蛾幼虫形态特写，蜜桔叶片中的白色小虫&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=潜叶蛾成虫形态，小型蛾类特写&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=潜叶蛾危害蜜桔叶片症状，叶片弯曲虫道&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=潜叶蛾危害蜜桔果实症状，果实表面伤痕&image_size=square_hd'
+            ]},
+            { id: 'insect-3', name: '蚜虫', type: '其他', temperature: '20-28°C', season: '春梢期', risk: '中风险', desc: '群集于嫩梢、嫩叶上吸食汁液，分泌蜜露引发煤烟病，影响树势和果实品质。', harm: '嫩梢嫩叶受害，生长受阻；分泌蜜露引发煤烟病；影响树势和果实品质。', control: '1.保护天敌（如瓢虫、草蛉）；2.喷施吡虫啉、啶虫脒等药剂；3.及时清除杂草。', images: [
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=蚜虫幼虫形态特写，蜜桔嫩梢上的绿色小虫&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=蚜虫成虫形态，群集特写&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=蚜虫危害蜜桔叶片症状，叶片卷曲变形&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=蚜虫危害蜜桔果实症状，蜜露污染果实&image_size=square_hd'
+            ]},
+            { id: 'insect-4', name: '介壳虫', type: '其他', temperature: '22-28°C', season: '全年', risk: '中风险', desc: '附着于枝干和叶片上吸食汁液，严重时导致枝叶枯萎，分泌蜜露引发煤烟病。', harm: '枝干叶片受害，树势衰弱；分泌蜜露引发煤烟病；严重时枝叶枯萎死亡。', control: '1.冬季清园，喷施石硫合剂；2.人工刮除；3.喷施噻嗪酮、毒死蜱等药剂；4.保护天敌（如寄生蜂）。', images: [
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=介壳虫幼虫形态特写，蜜桔枝干上的白色小虫&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=介壳虫成虫形态，蜡壳覆盖特写&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=介壳虫危害蜜桔叶片症状，叶片发黄枯萎&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=介壳虫危害蜜桔果实症状，果实附着虫体&image_size=square_hd'
+            ]},
+            { id: 'insect-5', name: '木虱', type: '虱类', temperature: '20-28°C', season: '春秋季', risk: '高风险', desc: '传播黄龙病的主要媒介，吸食汁液同时传播病菌，对蜜桔产业危害极大。', harm: '传播黄龙病，是蜜桔产业的头号害虫；吸食汁液导致树势衰弱；黄龙病一旦感染无药可治。', control: '1.彻底防治木虱是防控黄龙病的关键；2.喷施噻虫嗪、联苯菊酯等药剂；3.及时挖除病株；4.加强检疫。', images: [
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=木虱幼虫形态特写，蜜桔叶片上的小虫&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=木虱成虫形态，翅膀透明特写&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=木虱危害蜜桔叶片症状，叶片黄化卷曲&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=木虱危害蜜桔果实症状，果实发育不良&image_size=square_hd'
+            ]},
+            { id: 'insect-6', name: '粉虱', type: '虱类', temperature: '25-30°C', season: '夏季', risk: '中风险', desc: '群集叶片背面吸食汁液，分泌蜜露引发煤烟病，影响光合作用和果实品质。', harm: '叶片背面群集，影响光合作用；分泌蜜露引发煤烟病；果实表面污染，影响品质。', control: '1.加强通风透光；2.喷施噻虫嗪、吡虫啉等药剂；3.悬挂黄板诱杀；4.保护天敌。', images: [
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=粉虱幼虫形态特写，蜜桔叶背的白色小虫&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=粉虱成虫形态，白色小飞虫特写&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=粉虱危害蜜桔叶片症状，叶片背面虫群&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=粉虱危害蜜桔果实症状，蜜露污染果实&image_size=square_hd'
+            ]},
+            { id: 'insect-7', name: '锈壁虱', type: '螨类', temperature: '25-30°C', season: '夏季', risk: '中风险', desc: '危害叶片和果实，导致叶片发黄和果实变黑，影响外观品质。', harm: '叶片发黄，光合作用减弱；果实表皮变黑粗糙，形成"黑皮果"，严重影响商品价值。', control: '1.加强果园管理，保持通风透光；2.喷施阿维菌素、螺螨酯等药剂；3.冬季清园。', images: [
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=锈壁虱幼虫形态特写，显微镜下的微型害虫&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=锈壁虱成虫形态，放大特写&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=锈壁虱危害蜜桔叶片症状，叶片锈色发黄&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=锈壁虱危害蜜桔果实症状，果实变黑粗糙&image_size=square_hd'
+            ]},
+            { id: 'insect-8', name: '卷叶蛾', type: '蛾类', temperature: '20-25°C', season: '春季', risk: '低风险', desc: '幼虫卷叶取食，影响叶片光合作用，严重时导致叶片残缺。', harm: '叶片卷曲残缺，影响光合作用；果实表面咬痕，影响品质；严重时影响树势。', control: '1.冬季清园，减少越冬虫源；2.幼虫期喷施氯氟氰菊酯、溴氰菊酯等药剂；3.人工摘除卷叶。', images: [
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=卷叶蛾幼虫形态特写，蜜桔叶片中的绿色毛虫&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=卷叶蛾成虫形态，褐色蛾类特写&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=卷叶蛾危害蜜桔叶片症状，叶片卷曲残缺&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=卷叶蛾危害蜜桔果实症状，果实表面咬痕&image_size=square_hd'
+            ]},
+            { id: 'insect-9', name: '食心虫', type: '蛾类', temperature: '22-28°C', season: '果实膨大期', risk: '中风险', desc: '幼虫蛀入果实内部取食，导致果实腐烂脱落，严重影响产量。', harm: '幼虫蛀入果实内部，导致果实腐烂脱落；严重影响产量和品质。', control: '1.冬季清园，减少越冬虫源；2.果实套袋；3.成虫期悬挂性诱剂诱杀；4.喷施氯氟氰菊酯等药剂。', images: [
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=食心虫幼虫形态特写，果实中的白色蛀虫&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=食心虫成虫形态，小型蛾类特写&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=食心虫危害蜜桔叶片症状，叶片蛀孔&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=食心虫危害蜜桔果实症状，果实蛀孔腐烂&image_size=square_hd'
+            ]},
+            { id: 'insect-10', name: '天牛', type: '其他', temperature: '20-25°C', season: '夏季', risk: '中风险', desc: '幼虫蛀食枝干木质部，破坏输导组织，导致树势衰弱甚至死亡。', harm: '幼虫蛀食枝干，破坏输导组织；树势衰弱，严重时整株死亡；影响产量和树体寿命。', control: '1.人工捕捉成虫；2.用钢丝钩杀幼虫；3.向蛀孔注入敌敌畏乳油；4.树干涂白。', images: [
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=天牛幼虫形态特写，树干中的白色胖虫&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=天牛成虫形态，长触角甲虫特写&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=天牛危害蜜桔叶片症状，叶片被啃食&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=天牛危害蜜桔果实症状，果实被啃食痕迹&image_size=square_hd'
+            ]},
+            { id: 'insect-11', name: '金龟子', type: '其他', temperature: '25-30°C', season: '夏季', risk: '低风险', desc: '成虫取食叶片和花朵，幼虫啃食根部，影响树体生长。', harm: '成虫取食叶片花朵，影响光合作用和授粉；幼虫啃食根部，影响养分吸收；树势衰弱。', control: '1.人工捕捉成虫；2.灯光诱杀；3.喷施氯氟氰菊酯等药剂；4.土壤处理幼虫。', images: [
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=金龟子幼虫形态特写，土壤中的白色蛴螬&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=金龟子成虫形态，金属光泽甲虫特写&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=金龟子危害蜜桔叶片症状，叶片被啃食残缺&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=金龟子危害蜜桔果实症状，果实表面咬痕&image_size=square_hd'
+            ]},
+            { id: 'insect-12', name: '凤蝶', type: '蛾类', temperature: '25-30°C', season: '春夏季', risk: '低风险', desc: '幼虫取食叶片，严重时可将叶片吃光，影响树势和产量。', harm: '幼虫大量取食叶片，严重时将叶片吃光；影响光合作用和树势；降低产量。', control: '1.人工捕捉幼虫；2.喷施氯氟氰菊酯、溴氰菊酯等药剂；3.保护天敌（如寄生蜂）。', images: [
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=凤蝶幼虫形态特写，蜜桔叶片上的大型毛虫&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=凤蝶成虫形态，美丽蝴蝶特写&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=凤蝶危害蜜桔叶片症状，叶片被大量啃食&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=凤蝶危害蜜桔果实症状，果实表面咬痕&image_size=square_hd'
+            ]},
+            { id: 'insect-13', name: '叶甲', type: '其他', temperature: '22-28°C', season: '春季', risk: '低风险', desc: '成虫和幼虫均取食叶片，导致叶片残缺，影响光合作用。', harm: '成虫幼虫取食叶片，导致叶片孔洞残缺；影响光合作用；树势衰弱。', control: '1.人工捕捉成虫；2.喷施氯氟氰菊酯、啶虫脒等药剂；3.及时清除杂草。', images: [
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=叶甲幼虫形态特写，蜜桔叶片上的小甲虫幼虫&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=叶甲成虫形态，小型甲虫特写&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=叶甲危害蜜桔叶片症状，叶片孔洞残缺&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=叶甲危害蜜桔果实症状，果实表面小孔&image_size=square_hd'
+            ]},
+            { id: 'insect-14', name: '蓟马', type: '其他', temperature: '20-25°C', season: '春季', risk: '中风险', desc: '取食嫩叶和幼果，导致叶片畸形和果实表皮粗糙，影响商品价值。', harm: '嫩叶畸形卷曲，影响光合作用；幼果表皮粗糙形成疤痕，影响外观和商品价值。', control: '1.悬挂蓝板诱杀；2.喷施吡虫啉、啶虫脒等药剂；3.加强果园管理。', images: [
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=蓟马幼虫形态特写，蜜桔嫩叶上的微小害虫&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=蓟马成虫形态，微小昆虫特写&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=蓟马危害蜜桔叶片症状，叶片畸形卷曲&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=蓟马危害蜜桔果实症状，果实表皮粗糙疤痕&image_size=square_hd'
+            ]},
+            { id: 'insect-15', name: '象鼻虫', type: '其他', temperature: '18-25°C', season: '春季', risk: '低风险', desc: '成虫取食叶片和嫩梢，幼虫蛀食根部，影响树体生长。', harm: '成虫取食叶片嫩梢，影响生长；幼虫蛀食根部，影响养分吸收；树势衰弱。', control: '1.人工捕捉成虫；2.喷施氯氟氰菊酯等药剂；3.土壤处理幼虫；4.冬季清园。', images: [
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=象鼻虫幼虫形态特写，根部白色蛴螬&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=象鼻虫成虫形态，长鼻甲虫特写&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=象鼻虫危害蜜桔叶片症状，叶片边缘被啃食&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=象鼻虫危害蜜桔果实症状，果实表面钻孔&image_size=square_hd'
+            ]}
+        ];
+
+        let currentPage = 1;
+        let pageSize = 6;
+        let currentId = null;
+        let filteredInsects = [...insects];
+
+        function getInsectById(id) {
+            return insects.find(function(i) { return i.id === id; });
+        }
+
+        function getTypeColor(type) {
+            switch(type) {
+                case '螨类': return 'bg-green-100 text-green-700';
+                case '蛾类': return 'bg-purple-100 text-purple-700';
+                case '虱类': return 'bg-blue-100 text-blue-700';
+                default: return 'bg-orange-100 text-orange-700';
+            }
+        }
+
+        function getTypeBgColor(type) {
+            switch(type) {
+                case '螨类': return 'bg-green-100';
+                case '蛾类': return 'bg-purple-100';
+                case '虱类': return 'bg-blue-100';
+                default: return 'bg-orange-100';
+            }
+        }
+
+        function getRiskColor(risk) {
+            switch(risk) {
+                case '高风险': return 'text-red-600';
+                case '中风险': return 'text-yellow-600';
+                case '低风险': return 'text-green-600';
+                default: return 'text-gray-600';
+            }
+        }
+
+        function renderInsects() {
+            var container = document.getElementById('insect-list');
+            var start = (currentPage - 1) * pageSize;
+            var end = start + pageSize;
+            var pageData = filteredInsects.slice(start, end);
+
+            container.innerHTML = pageData.map(function(insect) {
+                return `<div class="border border-gray-200 rounded-xl p-4 hover:border-green-300 hover:shadow-md transition" data-id="${insect.id}" data-name="${insect.name}" data-type="${insect.type}" data-temperature="${insect.temperature}" data-season="${insect.season}" data-risk="${insect.risk}" data-desc="${insect.desc}">
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-12 h-12 ${getTypeBgColor(insect.type)} rounded-lg flex items-center justify-center">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7h-9m0 0V5a3 3 0 016 0v2m-6 0a3 3 0 00-6 0v10a3 3 0 006 0m10-3a2 2 0 11-4 0 2 2 0 014 0zM17 10H7m0 0l3-3m-3 3l3 3"/></svg>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-gray-800">${insect.name}</h3>
+                                <span class="px-2 py-0.5 ${getTypeColor(insect.type)} text-xs rounded">${insect.type}</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="openDetailModal('${insect.id}')" class="p-1 text-gray-400 hover:text-blue-600" title="查看详情">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                            </button>
+                            <button onclick="openEditModal('${insect.id}')" class="p-1 text-gray-400 hover:text-blue-600" title="编辑">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                            </button>
+                            <button onclick="openDeleteModal('${insect.id}')" class="p-1 text-gray-400 hover:text-red-600" title="删除">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-3">${insect.desc}</p>
+                    <div class="flex items-center space-x-4 text-xs text-gray-500 mb-3">
+                        <span class="flex items-center"><svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>${insect.temperature}</span>
+                        <span class="flex items-center"><svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>${insect.season}</span>
+                        <span class="flex items-center ${getRiskColor(insect.risk)}"><svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.66 1.732-3L13.732 4c-.77-1.34-2.694-1.34-3.464 0L3.34 16c-.77 1.34.192 3 1.732 3z"/></svg>${insect.risk}</span>
+                    </div>
+                    <div class="grid grid-cols-4 gap-2">
+                        ${insect.images.map(function(img, idx) { return '<img src="' + img + '" alt="虫害图片' + (idx + 1) + '" class="w-full h-20 object-cover rounded cursor-pointer" onclick="openImagePreview(\'' + img + '\')" onerror="this.style.display=\'none\'" />'; }).join('')}
+                    </div>
+                </div>`;
+            }).join('');
+
+            updatePagination();
+        }
+
+        function updatePagination() {
+            var totalPages = Math.ceil(filteredInsects.length / pageSize);
+            document.getElementById('total-count').textContent = filteredInsects.length;
+            document.getElementById('current-page').textContent = currentPage;
+            document.getElementById('total-pages').textContent = totalPages;
+        }
+
+        function openImagePreview(url) {
+            document.getElementById('preview-image').src = url;
+            showModal('image-preview-modal');
+        }
+
+        function previewAddImages(input) {
+            var container = document.getElementById('add-image-preview');
+            container.innerHTML = '';
+            if (input.files && input.files.length > 0) {
+                var maxFiles = Math.min(input.files.length, 4);
+                for (var i = 0; i < maxFiles; i++) {
+                    var reader = new FileReader();
+                    reader.onload = function(e) {
+                        var img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.style.cssText = 'width:100%;height:64px;object-fit:cover;border-radius:8px';
+                        container.appendChild(img);
+                    };
+                    reader.readAsDataURL(input.files[i]);
+                }
+            }
+        }
+
+        function previewEditImages(input) {
+            var container = document.getElementById('edit-image-preview');
+            container.innerHTML = '';
+            if (input.files && input.files.length > 0) {
+                var maxFiles = Math.min(input.files.length, 4);
+                for (var i = 0; i < maxFiles; i++) {
+                    var reader = new FileReader();
+                    reader.onload = function(e) {
+                        var img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.style.cssText = 'width:100%;height:64px;object-fit:cover;border-radius:8px';
+                        container.appendChild(img);
+                    };
+                    reader.readAsDataURL(input.files[i]);
+                }
+            }
+        }
+
+        function openAddModal() {
+            document.getElementById('add-name').value = '';
+            document.getElementById('add-type').value = '螨类';
+            document.getElementById('add-temperature').value = '';
+            document.getElementById('add-season').value = '';
+            document.getElementById('add-risk').value = '中风险';
+            document.getElementById('add-desc').value = '';
+            document.getElementById('add-images').value = '';
+            document.getElementById('add-image-preview').innerHTML = '';
+            showModal('add-modal');
+        }
+
+        function openImportModal() {
+            document.getElementById('import-file').value = '';
+            if (document.getElementById('import-images')) document.getElementById('import-images').value = '';
+            showModal('import-modal');
+        }
+
+        function handleImportFile(input) {
+            var file = input.files[0];
+            if (file) {
+                alert('已选择文件: ' + file.name);
+            }
+        }
+
+        function downloadTemplate() {
+            var content = '虫害名称,虫害类型,适宜温度,高发季节,风险等级,虫害描述\n红蜘蛛,螨类,25-30°C,夏季,高风险,危害叶片导致落叶';
+            var blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+            var link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = '虫害导入模板.csv';
+            link.click();
+        }
+
+        function submitImport() {
+            var file = document.getElementById('import-file').files[0];
+            if (!file) {
+                alert('请先选择要导入的文件');
+                return;
+            }
+            alert('虫害数据导入成功！\n文件: ' + file.name + '\n导入数量: 5 条');
+            closeModal('import-modal');
+        }
+
+        function exportInsects() {
+            var content = insects.map(function(i) { return i.name + ',' + i.type + ',' + i.temperature + ',' + i.season + ',' + i.risk + ',' + i.desc; }).join('\n');
+            var blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+            var link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = '虫害列表_' + new Date().toISOString().split('T')[0] + '.csv';
+            link.click();
+        }
+
+        function openEditModal(id) {
+            currentId = id;
+            var insect = getInsectById(id);
+            if (insect) {
+                document.getElementById('edit-name').value = insect.name;
+                document.getElementById('edit-type').value = insect.type;
+                document.getElementById('edit-temperature').value = insect.temperature;
+                document.getElementById('edit-season').value = insect.season;
+                document.getElementById('edit-risk').value = insect.risk;
+                document.getElementById('edit-desc').value = insect.desc;
+                document.getElementById('edit-harm').value = insect.harm || '';
+                document.getElementById('edit-control').value = insect.control || '';
+                var existingContainer = document.getElementById('edit-existing-images');
+                existingContainer.innerHTML = insect.images.map(function(img, idx) {
+                    return `<img src="${img}" alt="虫害图片${idx + 1}" style="width:100%;height:64px;object-fit:cover;border-radius:8px;cursor:pointer" onclick="openImagePreview('${img}')" onerror="this.style.display='none'" />`;
+                }).join('');
+            }
+            document.getElementById('edit-images').value = '';
+            document.getElementById('edit-image-preview').innerHTML = '';
+            showModal('edit-modal');
+        }
+
+        function openDetailModal(id) {
+            var insect = getInsectById(id);
+            if (insect) {
+                document.getElementById('detail-name').textContent = insect.name;
+                document.getElementById('detail-type').textContent = insect.type;
+                document.getElementById('detail-temperature').textContent = insect.temperature;
+                document.getElementById('detail-season').textContent = insect.season;
+                document.getElementById('detail-risk').textContent = insect.risk;
+                document.getElementById('detail-desc').textContent = insect.desc;
+                document.getElementById('detail-harm').textContent = insect.harm || '暂无';
+                document.getElementById('detail-control').textContent = insect.control || '暂无';
+                var detailImagesContainer = document.getElementById('detail-images');
+                detailImagesContainer.innerHTML = insect.images.map(function(img, idx) {
+                    return `<img src="${img}" alt="虫害图片${idx + 1}" style="width:100%;height:80px;object-fit:cover;border-radius:8px;cursor:pointer" onclick="openImagePreview('${img}')" onerror="this.style.display='none'" />`;
+                }).join('');
+            }
+            showModal('detail-modal');
+        }
+
+        function openDeleteModal(id) {
+            currentId = id;
+            var insect = getInsectById(id);
+            if (insect) {
+                document.getElementById('delete-name').textContent = insect.name;
+            }
+            showModal('delete-modal');
+        }
+
+        function saveInsect() {
+            var name = document.getElementById('add-name').value;
+            if (!name) {
+                alert('请填写虫害名称');
+                return;
+            }
+            alert('虫害数据添加成功！\n名称: ' + name);
+            closeModal('add-modal');
+        }
+
+        function updateInsect() {
+            alert('虫害数据更新成功！');
+            closeModal('edit-modal');
+        }
+
+        function confirmDelete() {
+            alert('虫害数据删除成功！');
+            closeModal('delete-modal');
+        }
+
+        function filterInsects() {
+            var searchTerm = document.getElementById('search-input').value.toLowerCase();
+            var typeFilter = document.getElementById('type-filter').value;
+
+            filteredInsects = insects.filter(function(i) {
+                var matchesSearch = i.name.toLowerCase().indexOf(searchTerm) !== -1 || i.desc.toLowerCase().indexOf(searchTerm) !== -1;
+                var matchesType = !typeFilter || i.type === typeFilter;
+                return matchesSearch && matchesType;
+            });
+
+            currentPage = 1;
+            renderInsects();
+        }
+
+        function resetFilter() {
+            document.getElementById('search-input').value = '';
+            document.getElementById('type-filter').value = '';
+            filteredInsects = insects.slice();
+            currentPage = 1;
+            renderInsects();
+        }
+
+        function prevPage() {
+            var totalPages = Math.ceil(filteredInsects.length / pageSize);
+            if (currentPage > 1) {
+                currentPage--;
+                renderInsects();
+            }
+        }
+
+        function nextPage() {
+            var totalPages = Math.ceil(filteredInsects.length / pageSize);
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderInsects();
+            }
+        }
+
+        function changePageSize() {
+            pageSize = parseInt(document.getElementById('page-size').value);
+            currentPage = 1;
+            renderInsects();
+        }
+
+        document.addEventListener('click', function(e) {
+            var modals = ['add-modal', 'edit-modal', 'delete-modal', 'detail-modal', 'import-modal', 'image-preview-modal'];
+            modals.forEach(function(modalId) {
+                var modal = document.getElementById(modalId);
+                if (modal && modal.style.display === 'flex') {
+                    if (e.target === modal) {
+                        hideModal(modalId);
+                    }
+                }
+            });
+        });
+
+        renderInsects();
+    </script>
+</body>
+</html>

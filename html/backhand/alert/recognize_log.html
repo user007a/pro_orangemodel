@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>识别日志 - 南丰蜜桔模型管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        body { margin: 0; padding: 0; background-color: #F0F2F5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans SC', sans-serif; }
+        .content-wrapper { padding: 24px; height: 100vh; overflow-y: auto; }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.5); z-index: 1000; align-items: center; justify-content: center; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background-color: white; border-radius: 12px; width: 90%; max-width: 600px; max-height: 85vh; overflow-y: auto; }
+        .pagination-btn.active { background-color: #16A34A; color: white; border-color: #16A34A; }
+    </style>
+</head>
+<body>
+    <div class="content-wrapper">
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800">识别日志</h1>
+                <p class="text-gray-500 mt-1">管理病虫害AI识别日志</p>
+            </div>
+            <button onclick="exportLogs()" class="px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50 flex items-center transition">
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                导出日志
+            </button>
+        </div>
+
+        <!-- 统计数据 -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">总识别数</p>
+                        <h3 class="text-2xl font-bold text-gray-800 mt-1" id="stat-total">35</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                        <svg class="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">识别成功</p>
+                        <h3 class="text-2xl font-bold text-green-600 mt-1" id="stat-success">30</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                        <svg class="w-7 h-7 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">识别失败</p>
+                        <h3 class="text-2xl font-bold text-red-600 mt-1" id="stat-fail">5</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                        <svg class="w-7 h-7 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">平均置信度</p>
+                        <h3 class="text-2xl font-bold text-gray-800 mt-1" id="stat-confidence">84.5%</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
+                        <svg class="w-7 h-7 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 搜索栏 -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="p-4 border-b border-gray-100">
+                <div class="flex items-center space-x-4 flex-wrap">
+                    <div class="flex-1 max-w-md">
+                        <div class="relative">
+                            <svg class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                            <input type="text" id="search-input" placeholder="搜索任务编号、识别结果..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500" oninput="filterLogs()">
+                        </div>
+                    </div>
+                    <select id="type-filter" class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500" onchange="filterLogs()">
+                        <option value="">全部类型</option>
+                        <option value="病害识别">病害识别</option>
+                        <option value="虫害识别">虫害识别</option>
+                    </select>
+                    <select id="status-filter" class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500" onchange="filterLogs()">
+                        <option value="">全部状态</option>
+                        <option value="成功">成功</option>
+                        <option value="失败">失败</option>
+                    </select>
+                    <button onclick="resetFilter()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200">重置</button>
+                </div>
+            </div>
+
+            <!-- 数据列表 -->
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="bg-gray-50">
+                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">任务编号</th>
+                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">识别类型</th>
+                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">识别结果</th>
+                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">置信度</th>
+                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">上传用户</th>
+                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">上传时间</th>
+                            <th class="text-center px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">状态</th>
+                            <th class="text-center px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100" id="log-table-body"></tbody>
+                </table>
+                <div id="empty-tip" class="hidden py-12 text-center text-gray-400 text-sm">
+                    <p>暂无匹配的识别日志</p>
+                </div>
+            </div>
+
+            <!-- 分页 -->
+            <div class="px-6 py-4 border-t border-gray-100 flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <p class="text-sm text-gray-500" id="page-info">共 0 条记录</p>
+                    <select id="page-size" onchange="changePageSize()" class="px-2 py-1 border border-gray-300 rounded text-sm text-gray-600">
+                        <option value="5">5条/页</option>
+                        <option value="10">10条/页</option>
+                        <option value="20">20条/页</option>
+                    </select>
+                </div>
+                <div class="flex items-center space-x-2" id="pagination"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 查看详情弹窗 -->
+    <div id="detail-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                    识别详情
+                </h3>
+                <button onclick="closeModal('detail-modal')" class="p-1 hover:bg-gray-100 rounded">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div><p class="text-sm text-gray-500 mb-1">任务编号</p><p id="detail-id" class="text-sm text-gray-800 bg-gray-50 px-3 py-2 rounded"></p></div>
+                    <div><p class="text-sm text-gray-500 mb-1">识别类型</p><p id="detail-type" class="text-sm text-gray-800 bg-gray-50 px-3 py-2 rounded"></p></div>
+                    <div><p class="text-sm text-gray-500 mb-1">识别结果</p><p id="detail-result" class="text-sm text-gray-800 bg-gray-50 px-3 py-2 rounded"></p></div>
+                    <div><p class="text-sm text-gray-500 mb-1">置信度</p><p id="detail-confidence" class="text-sm text-gray-800 bg-gray-50 px-3 py-2 rounded"></p></div>
+                    <div><p class="text-sm text-gray-500 mb-1">上传用户</p><p id="detail-user" class="text-sm text-gray-800 bg-gray-50 px-3 py-2 rounded"></p></div>
+                    <div><p class="text-sm text-gray-500 mb-1">上传时间</p><p id="detail-time" class="text-sm text-gray-800 bg-gray-50 px-3 py-2 rounded"></p></div>
+                    <div><p class="text-sm text-gray-500 mb-1">状态</p><p id="detail-status" class="text-sm text-gray-800 bg-gray-50 px-3 py-2 rounded"></p></div>
+                    <div><p class="text-sm text-gray-500 mb-1">处理时长</p><p id="detail-duration" class="text-sm text-gray-800 bg-gray-50 px-3 py-2 rounded"></p></div>
+                </div>
+                <div class="mb-4">
+                    <p class="text-sm text-gray-500 mb-1">识别详情</p>
+                    <p id="detail-desc" class="text-sm text-gray-800 bg-gray-50 px-3 py-3 rounded leading-relaxed"></p>
+                </div>
+            </div>
+            <div class="p-4 border-t border-gray-200 flex justify-end">
+                <button onclick="closeModal('detail-modal')" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const TYPE_STYLES = {
+            '病害识别': 'bg-red-100 text-red-700',
+            '虫害识别': 'bg-green-100 text-green-700'
+        };
+        const STATUS_STYLES = {
+            '成功': 'bg-green-100 text-green-700',
+            '失败': 'bg-red-100 text-red-700'
+        };
+
+        let logs = [
+            { id: 'R-20260722-001', type: '虫害识别', result: '红蜘蛛', confidence: 92, user: '种植户A', time: '2026-07-22 10:30', status: '成功', duration: '1.2秒', desc: '识别到叶片背面有红蜘蛛活动痕迹，虫口密度较高，建议及时进行防治。检测到特征：叶片褪绿斑点、蛛网状纹路。' },
+            { id: 'R-20260722-002', type: '病害识别', result: '炭疽病', confidence: 71, user: '种植户B', time: '2026-07-22 09:15', status: '成功', duration: '1.5秒', desc: '叶片表面检测到炭疽病典型病斑，呈同心轮纹状，病斑边缘有黄色晕圈。建议喷施咪鲜胺防治。' },
+            { id: 'R-20260721-025', type: '病害识别', result: '无法识别', confidence: 28, user: '种植户C', time: '2026-07-21 16:45', status: '失败', duration: '2.0秒', desc: '图片质量不足或病变特征不明显，无法准确识别。建议重新拍摄清晰图片上传。' },
+            { id: 'R-20260722-003', type: '虫害识别', result: '潜叶蛾', confidence: 88, user: '种植户D', time: '2026-07-22 11:45', status: '成功', duration: '1.1秒', desc: '新梢叶片检测到潜叶蛾幼虫蛀食痕迹，形成弯曲虫道。夏梢萌发期高发，建议及时喷施氯氰菊酯。' },
+            { id: 'R-20260722-004', type: '虫害识别', result: '介壳虫', confidence: 85, user: '种植户A', time: '2026-07-22 13:20', status: '成功', duration: '1.3秒', desc: '枝条上检测到介壳虫成虫和若虫，附着在枝干表面吸食汁液。建议喷施矿物油或毒死蜱防治。' },
+            { id: 'R-20260721-026', type: '病害识别', result: '日灼病', confidence: 76, user: '种植户B', time: '2026-07-21 15:10', status: '成功', duration: '1.4秒', desc: '果面检测到日灼病斑，呈黄褐色凹陷，向阳面明显。高温天气导致，建议遮阳防晒。' },
+            { id: 'R-20260721-024', type: '虫害识别', result: '锈壁虱', confidence: 94, user: '种植户C', time: '2026-07-21 10:05', status: '成功', duration: '1.0秒', desc: '果实表面检测到锈壁虱危害症状，果皮呈黑褐色粗糙状。虫口密度较高，建议喷施螺螨酯防治。' },
+            { id: 'R-20260720-018', type: '病害识别', result: '溃疡病', confidence: 81, user: '种植户D', time: '2026-07-20 14:30', status: '成功', duration: '1.3秒', desc: '叶片检测到溃疡病病斑，呈木栓化突起，周围有黄色晕圈。台风暴雨后高发，建议喷施铜制剂。' },
+            { id: 'R-20260720-017', type: '病害识别', result: '煤烟病', confidence: 67, user: '种植户A', time: '2026-07-20 09:40', status: '成功', duration: '1.6秒', desc: '叶片表面检测到煤烟病黑色霉层，覆盖叶面影响光合作用。与蚜虫、蚧壳虫分泌蜜露有关，建议先治虫。' },
+            { id: 'R-20260719-012', type: '虫害识别', result: '红蜘蛛', confidence: 90, user: '种植户B', time: '2026-07-19 16:20', status: '成功', duration: '1.1秒', desc: '叶片背面检测到红蜘蛛成虫和卵，虫口密度较高。建议使用阿维菌素或螺螨酯进行防治。' },
+            { id: 'R-20260719-011', type: '病害识别', result: '无法识别', confidence: 35, user: '种植户C', time: '2026-07-19 11:15', status: '失败', duration: '2.1秒', desc: '图片拍摄角度不佳，病变特征不明显，无法准确识别。建议对准病斑近距离拍摄。' },
+            { id: 'R-20260718-009', type: '病害识别', result: '疮痂病', confidence: 79, user: '种植户D', time: '2026-07-18 14:00', status: '成功', duration: '1.4秒', desc: '叶片和果实检测到疮痂病疣状突起病斑。建议喷施代森锰锌防治，同时注意修剪通风。' },
+            { id: 'R-20260718-008', type: '虫害识别', result: '粉虱', confidence: 87, user: '种植户A', time: '2026-07-18 10:30', status: '成功', duration: '1.2秒', desc: '叶片背面检测到白粉虱成虫和若虫，受惊扰后飞起。建议采用黄板诱杀+吡虫啉喷雾防治。' },
+            { id: 'R-20260717-006', type: '虫害识别', result: '蚜虫', confidence: 86, user: '种植户B', time: '2026-07-17 15:45', status: '成功', duration: '1.2秒', desc: '新梢检测到蚜虫群集危害，叶片卷曲变形。建议喷施吡虫啉或啶虫脒防治。' },
+            { id: 'R-20260717-005', type: '病害识别', result: '树脂病', confidence: 73, user: '种植户C', time: '2026-07-17 09:20', status: '成功', duration: '1.5秒', desc: '枝干检测到树脂病流胶症状，树皮有裂纹和胶状物渗出。高温多雨季节高发，建议刮治涂药。' },
+            { id: 'R-20260716-003', type: '病害识别', result: '黑星病', confidence: 68, user: '种植户D', time: '2026-07-16 11:00', status: '成功', duration: '1.6秒', desc: '果实表面检测到黑星病黑色小斑点。建议喷施苯醚甲环唑防治，注意田间卫生。' },
+            { id: 'R-20260716-002', type: '虫害识别', result: '潜叶蛾', confidence: 89, user: '种植户A', time: '2026-07-16 14:15', status: '成功', duration: '1.1秒', desc: '嫩梢叶片检测到潜叶蛾蛀食虫道，弯曲盘旋状。夏梢期重点防治对象，建议喷施氯氰菊酯。' },
+            { id: 'R-20260715-008', type: '病害识别', result: '炭疽病', confidence: 82, user: '种植户B', time: '2026-07-15 10:40', status: '成功', duration: '1.3秒', desc: '叶片检测到炭疽病病斑，同心轮纹明显。高温高湿天气高发，建议喷施咪鲜胺防治。' },
+            { id: 'R-20260715-007', type: '虫害识别', result: '锈壁虱', confidence: 91, user: '种植户C', time: '2026-07-15 16:30', status: '成功', duration: '1.0秒', desc: '果实表面检测到锈壁虱危害，果皮变黑褐色粗糙。建议立即喷施螺螨酯进行防治。' },
+            { id: 'R-20260714-005', type: '虫害识别', result: '红蜘蛛', confidence: 83, user: '种植户D', time: '2026-07-14 09:15', status: '成功', duration: '1.2秒', desc: '叶片背面检测到红蜘蛛活动，有褪绿斑点。虫口密度中等，建议持续监测并适时防治。' },
+            { id: 'R-20260714-004', type: '病害识别', result: '溃疡病', confidence: 77, user: '种植户A', time: '2026-07-14 15:00', status: '成功', duration: '1.4秒', desc: '叶片检测到溃疡病木栓化病斑，周围有黄色晕圈。建议喷施氢氧化铜防治。' },
+            { id: 'R-20260713-009', type: '病害识别', result: '无法识别', confidence: 32, user: '种植户B', time: '2026-07-13 11:45', status: '失败', duration: '2.0秒', desc: '图片模糊，无法提取有效特征进行识别。建议在光线充足时重新拍摄。' },
+            { id: 'R-20260713-008', type: '虫害识别', result: '介壳虫', confidence: 80, user: '种植户C', time: '2026-07-13 10:20', status: '成功', duration: '1.3秒', desc: '枝条检测到介壳虫寄生，数量较多。建议剪除严重虫枝并喷施矿物油防治。' },
+            { id: 'R-20260712-006', type: '病害识别', result: '疮痂病', confidence: 75, user: '种植户D', time: '2026-07-12 14:30', status: '成功', duration: '1.5秒', desc: '果实检测到疮痂病疣状病斑，表面粗糙。建议喷施代森锰锌防治。' },
+            { id: 'R-20260712-005', type: '虫害识别', result: '粉虱', confidence: 84, user: '种植户A', time: '2026-07-12 09:00', status: '成功', duration: '1.2秒', desc: '叶片检测到粉虱若虫，叶片有少量蜜露。建议黄板监测，必要时喷施吡虫啉。' },
+            { id: 'R-20260711-003', type: '虫害识别', result: '蚜虫', confidence: 88, user: '种植户B', time: '2026-07-11 16:00', status: '成功', duration: '1.1秒', desc: '新梢检测到蚜虫危害，叶片卷曲。虫口密度偏高，建议及时喷施啶虫脒防治。' },
+            { id: 'R-20260711-002', type: '病害识别', result: '煤烟病', confidence: 65, user: '种植户C', time: '2026-07-11 10:45', status: '成功', duration: '1.7秒', desc: '叶片检测到煤烟病黑色霉层，与蚜虫分泌蜜露有关。建议先防治蚜虫等害虫。' },
+            { id: 'R-20260710-004', type: '病害识别', result: '无法识别', confidence: 30, user: '种植户D', time: '2026-07-10 15:20', status: '失败', duration: '2.2秒', desc: '图片分辨率过低，无法提取有效特征。建议使用更高分辨率拍摄。' },
+            { id: 'R-20260710-003', type: '虫害识别', result: '锈壁虱', confidence: 93, user: '种植户A', time: '2026-07-10 11:30', status: '成功', duration: '1.0秒', desc: '果实检测到锈壁虱早期危害症状，果皮开始变色。建议立即喷施螺螨酯防治。' },
+            { id: 'R-20260709-006', type: '病害识别', result: '炭疽病', confidence: 74, user: '种植户B', time: '2026-07-09 14:00', status: '成功', duration: '1.4秒', desc: '叶片检测到炭疽病早期病斑，建议加强田间管理并喷施保护性杀菌剂。' },
+            { id: 'R-20260709-005', type: '虫害识别', result: '红蜘蛛', confidence: 90, user: '种植户C', time: '2026-07-09 10:15', status: '成功', duration: '1.1秒', desc: '叶片检测到红蜘蛛活动痕迹，虫口密度偏高。建议喷施阿维菌素防治。' },
+            { id: 'R-20260708-002', type: '病害识别', result: '无法识别', confidence: 25, user: '种植户D', time: '2026-07-08 16:30', status: '失败', duration: '2.3秒', desc: '图片拍摄目标不明确，未包含典型病变部位。建议对准病斑拍摄。' },
+            { id: 'R-20260708-001', type: '虫害识别', result: '潜叶蛾', confidence: 86, user: '种植户A', time: '2026-07-08 09:45', status: '成功', duration: '1.2秒', desc: '嫩叶检测到潜叶蛾虫道，呈弯曲状。建议在夏梢萌发期重点防治。' },
+            { id: 'R-20260707-003', type: '病害识别', result: '溃疡病', confidence: 78, user: '种植户B', time: '2026-07-07 13:00', status: '成功', duration: '1.4秒', desc: '叶片检测到溃疡病病斑，木栓化突起。建议喷施铜制剂并修剪病枝。' },
+            { id: 'R-20260707-002', type: '病害识别', result: '无法识别', confidence: 38, user: '种植户C', time: '2026-07-07 10:30', status: '失败', duration: '2.0秒', desc: '图片光线不足，特征提取失败。建议在自然光下重新拍摄。' }
+        ];
+
+        let currentPage = 1;
+        let pageSize = 5;
+        let filteredLogs = logs.slice();
+
+        function escapeHtml(str) {
+            if (str === null || str === undefined) return '';
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+
+        function updateStats() {
+            document.getElementById('stat-total').textContent = logs.length;
+            document.getElementById('stat-success').textContent = logs.filter(l => l.status === '成功').length;
+            document.getElementById('stat-fail').textContent = logs.filter(l => l.status === '失败').length;
+            const successLogs = logs.filter(l => l.status === '成功');
+            const avgConf = successLogs.length ? Math.round(successLogs.reduce((s, l) => s + l.confidence, 0) / successLogs.length * 10) / 10 : 0;
+            document.getElementById('stat-confidence').textContent = avgConf + '%';
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('log-table-body');
+            const emptyTip = document.getElementById('empty-tip');
+            const total = filteredLogs.length;
+            const totalPages = Math.max(1, Math.ceil(total / pageSize));
+            if (currentPage > totalPages) currentPage = totalPages;
+
+            const start = (currentPage - 1) * pageSize;
+            const end = Math.min(start + pageSize, total);
+            const pageData = filteredLogs.slice(start, end);
+
+            if (pageData.length === 0) {
+                tbody.innerHTML = '';
+                emptyTip.classList.remove('hidden');
+            } else {
+                emptyTip.classList.add('hidden');
+                tbody.innerHTML = pageData.map(l => {
+                    const typeStyle = TYPE_STYLES[l.type] || 'bg-gray-100 text-gray-700';
+                    const statusStyle = STATUS_STYLES[l.status] || 'bg-gray-100 text-gray-700';
+                    const confColor = l.confidence >= 80 ? 'bg-green-600' : (l.confidence >= 60 ? 'bg-yellow-500' : 'bg-red-500');
+                    return `
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 text-sm text-gray-500">${escapeHtml(l.id)}</td>
+                            <td class="px-6 py-4"><span class="px-2 py-1 ${typeStyle} text-xs rounded-full">${escapeHtml(l.type)}</span></td>
+                            <td class="px-6 py-4 text-sm text-gray-900">${escapeHtml(l.result)}</td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center">
+                                    <div class="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
+                                        <div class="h-full ${confColor} rounded-full" style="width: ${l.confidence}%"></div>
+                                    </div>
+                                    <span class="ml-2 text-sm text-gray-600">${l.confidence}%</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-600">${escapeHtml(l.user)}</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">${escapeHtml(l.time)}</td>
+                            <td class="px-6 py-4 text-center"><span class="px-2 py-1 ${statusStyle} text-xs rounded-full">${escapeHtml(l.status)}</span></td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center justify-center space-x-2">
+                                    <button onclick="openDetailModal('${l.id}')" class="p-1.5 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded" title="查看">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+
+            document.getElementById('page-info').textContent = total === 0 ? '共 0 条记录' : `第 ${start + 1}-${end} 条，共 ${total} 条记录`;
+            renderPagination(totalPages);
+        }
+
+        function renderPagination(totalPages) {
+            const pagination = document.getElementById('pagination');
+            let html = '';
+            html += `<button onclick="prevPage()" class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50 ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''}">上一页</button>`;
+            let start = Math.max(1, currentPage - 2);
+            let end = Math.min(totalPages, start + 4);
+            if (end - start < 4) start = Math.max(1, end - 4);
+            if (start > 1) {
+                html += `<button onclick="changePage(1)" class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50">1</button>`;
+                if (start > 2) html += `<span class="px-2 text-gray-400">...</span>`;
+            }
+            for (let i = start; i <= end; i++) {
+                html += `<button onclick="changePage(${i})" class="pagination-btn px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50 ${i === currentPage ? 'active' : ''}">${i}</button>`;
+            }
+            if (end < totalPages) {
+                if (end < totalPages - 1) html += `<span class="px-2 text-gray-400">...</span>`;
+                html += `<button onclick="changePage(${totalPages})" class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50">${totalPages}</button>`;
+            }
+            html += `<button onclick="nextPage()" class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50 ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''}">下一页</button>`;
+            pagination.innerHTML = html;
+        }
+
+        function changePage(page) {
+            const totalPages = Math.max(1, Math.ceil(filteredLogs.length / pageSize));
+            if (page < 1 || page > totalPages) return;
+            currentPage = page;
+            renderTable();
+        }
+
+        function prevPage() { if (currentPage > 1) { currentPage--; renderTable(); } }
+        function nextPage() {
+            const totalPages = Math.max(1, Math.ceil(filteredLogs.length / pageSize));
+            if (currentPage < totalPages) { currentPage++; renderTable(); }
+        }
+
+        function changePageSize() {
+            pageSize = parseInt(document.getElementById('page-size').value);
+            currentPage = 1;
+            renderTable();
+        }
+
+        function filterLogs() {
+            const keyword = document.getElementById('search-input').value.trim().toLowerCase();
+            const type = document.getElementById('type-filter').value;
+            const status = document.getElementById('status-filter').value;
+            filteredLogs = logs.filter(l => {
+                const matchKeyword = !keyword || l.id.toLowerCase().includes(keyword) || l.result.toLowerCase().includes(keyword);
+                const matchType = !type || l.type === type;
+                const matchStatus = !status || l.status === status;
+                return matchKeyword && matchType && matchStatus;
+            });
+            currentPage = 1;
+            renderTable();
+        }
+
+        function resetFilter() {
+            document.getElementById('search-input').value = '';
+            document.getElementById('type-filter').value = '';
+            document.getElementById('status-filter').value = '';
+            filteredLogs = logs.slice();
+            currentPage = 1;
+            renderTable();
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function openDetailModal(id) {
+            const l = logs.find(x => x.id === id);
+            if (!l) return;
+            document.getElementById('detail-id').textContent = l.id;
+            document.getElementById('detail-type').textContent = l.type;
+            document.getElementById('detail-result').textContent = l.result;
+            document.getElementById('detail-confidence').textContent = l.confidence + '%';
+            document.getElementById('detail-user').textContent = l.user;
+            document.getElementById('detail-time').textContent = l.time;
+            document.getElementById('detail-status').textContent = l.status;
+            document.getElementById('detail-duration').textContent = l.duration;
+            document.getElementById('detail-desc').textContent = l.desc;
+            document.getElementById('detail-modal').classList.add('active');
+        }
+
+        function exportLogs() {
+            const content = '任务编号,识别类型,识别结果,置信度,上传用户,上传时间,状态\n' +
+                logs.map(l => `${l.id},${l.type},${l.result},${l.confidence}%,${l.user},${l.time},${l.status}`).join('\n');
+            const blob = new Blob(['\ufeff' + content], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = '识别日志_' + new Date().toISOString().split('T')[0] + '.csv';
+            link.click();
+            alert('导出成功！共导出 ' + logs.length + ' 条识别日志。');
+        }
+
+        document.addEventListener('click', (e) => {
+            const modal = document.getElementById('detail-modal');
+            if (modal && e.target === modal) modal.classList.remove('active');
+        });
+
+        updateStats();
+        renderTable();
+    </script>
+</body>
+</html>

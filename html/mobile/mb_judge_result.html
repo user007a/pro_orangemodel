@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>植株综合评价报告 - 桔农通</title>
+    <link rel="stylesheet" href="css/mobile-design-system.css">
+    <style>
+        .result-section {
+            margin-bottom: 16px;
+        }
+        .result-section-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 12px;
+        }
+        .result-section-num {
+            width: 20px;
+            height: 20px;
+            background: var(--gray-100);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+        .score-circle {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            margin: 0 auto;
+        }
+        .score-circle svg {
+            transform: rotate(-90deg);
+            width: 100%;
+            height: 100%;
+        }
+        .score-circle-bg {
+            fill: none;
+            stroke: var(--gray-100);
+            stroke-width: 10;
+        }
+        .score-circle-progress {
+            fill: none;
+            stroke: var(--gradient-primary);
+            stroke-width: 10;
+            stroke-linecap: round;
+        }
+        .score-inner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+        .score-value {
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--text);
+            line-height: 1;
+        }
+        .score-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+        .score-rating {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--warning);
+            margin-top: 2px;
+        }
+        .progress-bar-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .progress-bar-label {
+            width: 70px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            flex-shrink: 0;
+        }
+        .progress-bar-wrap {
+            flex: 1;
+            height: 8px;
+            background: var(--gray-100);
+            border-radius: var(--radius-full);
+            overflow: hidden;
+            margin: 0 8px;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            background: var(--gradient-primary);
+            border-radius: var(--radius-full);
+            transition: width var(--transition-normal);
+        }
+        .progress-bar-value {
+            font-size: 12px;
+            color: var(--text);
+            font-weight: 600;
+            width: 40px;
+            text-align: right;
+            flex-shrink: 0;
+        }
+        .progress-bar-diff {
+            font-size: 10px;
+            color: var(--error);
+            margin-left: 4px;
+        }
+        .problem-card {
+            background: var(--warning-light);
+            border: 1px solid var(--warning-light);
+            border-radius: var(--radius-lg);
+            padding: 14px;
+            margin-bottom: 12px;
+        }
+        .problem-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        .problem-title {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .problem-num {
+            width: 18px;
+            height: 18px;
+            background: var(--warning);
+            color: white;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .problem-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text);
+        }
+        .problem-badge {
+            font-size: 10px;
+            padding: 2px 6px;
+            background: var(--warning);
+            color: white;
+            border-radius: var(--radius-sm);
+        }
+        .problem-desc {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+        .suggestion-card {
+            background: var(--bg-white);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 14px;
+            margin-bottom: 12px;
+        }
+        .suggestion-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        .suggestion-priority {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+        }
+        .suggestion-priority.one {
+            background: var(--error-light);
+            color: var(--error-dark);
+        }
+        .suggestion-priority.two {
+            background: var(--warning-light);
+            color: var(--warning-dark);
+        }
+        .suggestion-priority.three {
+            background: var(--success-light);
+            color: var(--success-dark);
+        }
+        .suggestion-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text);
+        }
+        .suggestion-time {
+            font-size: 10px;
+            color: var(--text-tertiary);
+        }
+        .suggestion-desc {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+        .main-issue-card {
+            background: var(--gradient-primary);
+            color: white;
+            border-radius: var(--radius-lg);
+            padding: 16px;
+        }
+        .main-issue-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .main-issue-desc {
+            font-size: 12px;
+            opacity: 0.9;
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+        .main-issue-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        .main-issue-item {
+            background: rgba(255,255,255,0.15);
+            border-radius: var(--radius-md);
+            padding: 10px;
+            text-align: center;
+        }
+        .main-issue-label {
+            font-size: 10px;
+            opacity: 0.8;
+            margin-bottom: 4px;
+        }
+        .main-issue-value {
+            font-size: 18px;
+            font-weight: 700;
+        }
+        .bottom-actions {
+            padding: 16px;
+            padding-bottom: calc(16px + env(safe-area-inset-bottom));
+            background: var(--bg-white);
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 12px;
+        }
+        .bottom-actions .mb-btn {
+            flex: 1;
+            height: 48px;
+        }
+    </style>
+</head>
+<body>
+    <div class="mb-app">
+        <div class="mb-header-tool">
+            <div class="header-nav">
+                <div class="header-back" onclick="navigateTo('mb_judge_input.html')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                </div>
+                <div class="header-title">植株综合评价报告</div>
+                <div class="header-actions">
+                    <div class="header-action-btn" onclick="saveReport()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="padding: 16px;">
+            <div class="mb-card">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <span class="text-sm text-gray-500">东坡 A-03 地块 · 品系 A · 枳砧 · 6年生 · 果实膨大期</span>
+                    </div>
+                    <button class="mb-btn mb-btn-sm mb-btn-secondary" onclick="navigateTo('mb_judge_input.html')">修改数据</button>
+                </div>
+
+                <div class="flex items-center space-x-6">
+                    <div class="score-circle">
+                        <svg viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="42" class="score-circle-bg"/>
+                            <circle cx="50" cy="50" r="42" class="score-circle-progress" style="stroke-dasharray: 264; stroke-dashoffset: 71.28;"/>
+                        </svg>
+                        <div class="score-inner">
+                            <div class="score-value">79</div>
+                            <div class="score-label">综合得分</div>
+                            <div class="score-rating">一般</div>
+                        </div>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="font-semibold text-lg text-gray-800">存在明确短板，需安排处理</h3>
+                        <p class="text-sm text-gray-500 mt-2">本次模型综合得分79分，较基准下降23分</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="main-issue-card">
+                <div class="main-issue-title">
+                    <span>主要矛盾不是单纯缺肥</span>
+                    <button class="text-xs bg-white/20 px-3 py-1 rounded-full hover:bg-white/30">详情</button>
+                </div>
+                <div class="main-issue-desc">
+                    当前叶片SPAD值偏低，说明氮素吸收不足。但考虑到近期已施高钾水溶肥，问题根源可能在于水分不足、温度过高或根系活力下降导致养分吸收受阻。
+                </div>
+                <div class="main-issue-grid">
+                    <div class="main-issue-item">
+                        <div class="main-issue-label">果径不足</div>
+                        <div class="main-issue-value">差50.0 mm</div>
+                    </div>
+                    <div class="main-issue-item">
+                        <div class="main-issue-label">糖度不足</div>
+                        <div class="main-issue-value">差0.6 °Brix</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-card">
+                <div class="result-section">
+                    <div class="result-section-title">
+                        <span class="result-section-num">01</span>
+                        <span>九项综合评价</span>
+                    </div>
+                    <div class="progress-bar-item">
+                        <span class="progress-bar-label">树势与枝干</span>
+                        <div class="progress-bar-wrap">
+                            <div class="progress-bar-fill" style="width: 84%"></div>
+                        </div>
+                        <span class="progress-bar-value">8.4<span class="progress-bar-diff">-1.6</span></span>
+                    </div>
+                    <div class="progress-bar-item">
+                        <span class="progress-bar-label">叶片状态</span>
+                        <div class="progress-bar-wrap">
+                            <div class="progress-bar-fill" style="width: 79%"></div>
+                        </div>
+                        <span class="progress-bar-value">7.9<span class="progress-bar-diff">-2.1</span></span>
+                    </div>
+                    <div class="progress-bar-item">
+                        <span class="progress-bar-label">根系状态</span>
+                        <div class="progress-bar-wrap">
+                            <div class="progress-bar-fill" style="width: 73%"></div>
+                        </div>
+                        <span class="progress-bar-value">7.3<span class="progress-bar-diff">-2.7</span></span>
+                    </div>
+                    <div class="progress-bar-item">
+                        <span class="progress-bar-label">花果状态</span>
+                        <div class="progress-bar-wrap">
+                            <div class="progress-bar-fill" style="width: 73%"></div>
+                        </div>
+                        <span class="progress-bar-value">7.3<span class="progress-bar-diff">-2.7</span></span>
+                    </div>
+                    <div class="progress-bar-item">
+                        <span class="progress-bar-label">果实品质</span>
+                        <div class="progress-bar-wrap">
+                            <div class="progress-bar-fill" style="width: 85%"></div>
+                        </div>
+                        <span class="progress-bar-value">8.5<span class="progress-bar-diff">-1.5</span></span>
+                    </div>
+                    <div class="progress-bar-item">
+                        <span class="progress-bar-label">膨果品质</span>
+                        <div class="progress-bar-wrap">
+                            <div class="progress-bar-fill" style="width: 83%"></div>
+                        </div>
+                        <span class="progress-bar-value">8.3<span class="progress-bar-diff">-1.7</span></span>
+                    </div>
+                    <div class="progress-bar-item">
+                        <span class="progress-bar-label">温湿度</span>
+                        <div class="progress-bar-wrap">
+                            <div class="progress-bar-fill" style="width: 72%"></div>
+                        </div>
+                        <span class="progress-bar-value">7.2<span class="progress-bar-diff">-2.8</span></span>
+                    </div>
+                    <div class="progress-bar-item">
+                        <span class="progress-bar-label">水分与光照</span>
+                        <div class="progress-bar-wrap">
+                            <div class="progress-bar-fill" style="width: 77%"></div>
+                        </div>
+                        <span class="progress-bar-value">7.7<span class="progress-bar-diff">-2.3</span></span>
+                    </div>
+                    <div class="progress-bar-item">
+                        <span class="progress-bar-label">土壤与养分</span>
+                        <div class="progress-bar-wrap">
+                            <div class="progress-bar-fill" style="width: 81%"></div>
+                        </div>
+                        <span class="progress-bar-value">8.1<span class="progress-bar-diff">-1.9</span></span>
+                    </div>
+                    <div class="progress-bar-item">
+                        <span class="progress-bar-label">病虫与管理</span>
+                        <div class="progress-bar-wrap">
+                            <div class="progress-bar-fill" style="width: 46%"></div>
+                        </div>
+                        <span class="progress-bar-value">4.6<span class="progress-bar-diff">-5.4</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-card">
+                <div class="result-section">
+                    <div class="result-section-title">
+                        <span class="result-section-num">02</span>
+                        <span>主要不足与原因分析</span>
+                    </div>
+                    <div class="problem-card">
+                        <div class="problem-header">
+                            <div class="problem-title">
+                                <span class="problem-num">01</span>
+                                <span class="problem-name">花果状态</span>
+                            </div>
+                            <span class="problem-badge">扣分 2.9</span>
+                        </div>
+                        <div class="problem-desc">坐果率84%、落果率9%，略低于目标值。建议采取疏果措施，合理负载，避免过度消耗树体营养。</div>
+                    </div>
+                    <div class="problem-card">
+                        <div class="problem-header">
+                            <div class="problem-title">
+                                <span class="problem-num">02</span>
+                                <span class="problem-name">温湿度</span>
+                            </div>
+                            <span class="problem-badge">扣分 2.8</span>
+                        </div>
+                        <div class="problem-desc">当前气温32°C偏高，空气湿度82%。高温可能导致日灼伤害和果实发育受阻，建议加强水分管理和遮阳措施。</div>
+                    </div>
+                    <div class="problem-card">
+                        <div class="problem-header">
+                            <div class="problem-title">
+                                <span class="problem-num">03</span>
+                                <span class="problem-name">果实品质</span>
+                            </div>
+                            <span class="problem-badge">扣分 2.7</span>
+                        </div>
+                        <div class="problem-desc">平均果径48.6mm，糖度9.4°Brix，均未达到预期目标。需要加强钾肥供应和水分管理。</div>
+                    </div>
+                    <div class="problem-card">
+                        <div class="problem-header">
+                            <div class="problem-title">
+                                <span class="problem-num">04</span>
+                                <span class="problem-name">根系状态</span>
+                            </div>
+                            <span class="problem-badge">扣分 2.7</span>
+                        </div>
+                        <div class="problem-desc">根系活力68/100偏低，可能影响养分吸收。建议采用根际追肥方式，改善根系生长环境。</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-card">
+                <div class="result-section">
+                    <div class="result-section-title">
+                        <span class="result-section-num">03</span>
+                        <span>农事建议与执行计划</span>
+                    </div>
+                    <div class="suggestion-card">
+                        <div class="suggestion-header">
+                            <span class="suggestion-priority one">一项</span>
+                            <span class="suggestion-time">7天内完成</span>
+                        </div>
+                        <div class="suggestion-title">重视果实负载，优先疏除小果、伤果与过密果</div>
+                        <div class="suggestion-desc">当前挂果负载118%，超出目标值。建议立即进行疏果作业，保留健壮果实，确保树体营养合理分配。预计可提升坐果质量15-20%。</div>
+                    </div>
+                    <div class="suggestion-card">
+                        <div class="suggestion-header">
+                            <span class="suggestion-priority one">一项</span>
+                            <span class="suggestion-time">7天内完成</span>
+                        </div>
+                        <div class="suggestion-title">确保充足钾钙供应，预防裂果和浮皮</div>
+                        <div class="suggestion-desc">建议叶面喷施高钾钙肥，每周一次，连续3次。同时根部追施钾肥，提高果实品质和抗逆性。</div>
+                    </div>
+                    <div class="suggestion-card">
+                        <div class="suggestion-header">
+                            <span class="suggestion-priority two">二项</span>
+                            <span class="suggestion-time">持续执行</span>
+                        </div>
+                        <div class="suggestion-title">午间适度遮阴降温，避免高温伤害改善通风</div>
+                        <div class="suggestion-desc">在高温时段（10:00-16:00）可采用遮阳网覆盖，降低果园温度。同时加强果园通风，减少病虫害发生。</div>
+                    </div>
+                    <div class="suggestion-card">
+                        <div class="suggestion-header">
+                            <span class="suggestion-priority two">二项</span>
+                            <span class="suggestion-time">持续执行</span>
+                        </div>
+                        <div class="suggestion-title">保持水分平衡，优化水分分配提升根系活力</div>
+                        <div class="suggestion-desc">根据土壤湿度监测数据，合理安排灌溉。建议采用滴灌方式，保持土壤湿度在65-75%之间，促进根系健康生长。</div>
+                    </div>
+                    <div class="suggestion-card">
+                        <div class="suggestion-header">
+                            <span class="suggestion-priority three">三项</span>
+                            <span class="suggestion-time">14天内完成</span>
+                        </div>
+                        <div class="suggestion-title">保护叶片资源，优化夏剪平衡树体营养</div>
+                        <div class="suggestion-desc">适时进行夏季修剪，去除过密枝、病虫枝，改善通风透光条件。保留功能叶片，提高光合效率，为果实膨大提供充足养分。</div>
+                    </div>
+                    <div class="suggestion-card">
+                        <div class="suggestion-header">
+                            <span class="suggestion-priority three">三项</span>
+                            <span class="suggestion-time">14天内完成</span>
+                        </div>
+                        <div class="suggestion-title">强化病虫防控，排查潜在病虫害隐患</div>
+                        <div class="suggestion-desc">当前病虫健康度92%，总体良好但需保持警惕。重点监测红蜘蛛、潜叶蛾等夏季高发虫害，及时采取防治措施。</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-warning-light rounded-xl p-4 border border-warning-light">
+                <p class="text-xs text-warning-dark">
+                    <span class="font-semibold">模型说明：</span>本次评价采用 NF-Plant 1.0 模型版本。评价结果基于输入数据计算，仅供参考。实际生产决策请结合现场实际情况综合判断。
+                </p>
+            </div>
+        </div>
+
+        <div class="bottom-actions">
+            <button class="mb-btn mb-btn-secondary" onclick="navigateTo('mb_judge_input.html')">重新评价</button>
+            <button class="mb-btn mb-btn-primary" onclick="saveReport()">保存报告</button>
+        </div>
+    </div>
+
+    <script>
+        function navigateTo(page) {
+            window.location.href = page;
+        }
+
+        function saveReport() {
+            alert('报告已保存！');
+        }
+    </script>
+</body>
+</html>

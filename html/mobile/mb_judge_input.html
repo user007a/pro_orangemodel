@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>植株指标数据录入 - 桔农通</title>
+    <link rel="stylesheet" href="css/mobile-design-system.css">
+    <style>
+        .judge-section {
+            margin-bottom: 16px;
+        }
+        .judge-section-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 12px;
+        }
+        .judge-section-dot {
+            width: 4px;
+            height: 16px;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+        .judge-section-desc {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+        .judge-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        .judge-form-item {
+            margin-bottom: 12px;
+        }
+        .judge-form-label {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text);
+            margin-bottom: 6px;
+        }
+        .judge-form-label .core-tag {
+            font-size: 10px;
+            padding: 1px 4px;
+            background: var(--primary-100);
+            color: var(--primary-700);
+            border-radius: 4px;
+            font-weight: 600;
+        }
+        .judge-form-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            color: var(--text);
+            background: var(--bg-white);
+            transition: all var(--transition-fast);
+            outline: none;
+        }
+        .judge-form-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(46, 158, 90, 0.1);
+        }
+        .judge-form-input.small {
+            padding: 8px 10px;
+            font-size: 13px;
+        }
+        .judge-form-select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            color: var(--text);
+            background: var(--bg-white);
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23bfbfbf' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 14px;
+        }
+        .judge-form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(46, 158, 90, 0.1);
+        }
+        .judge-input-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .judge-input-row .judge-form-input {
+            flex: 1;
+        }
+        .judge-input-row .unit {
+            font-size: 12px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            padding-top: 10px;
+        }
+        .progress-bar-wrap {
+            background: var(--gray-100);
+            border-radius: var(--radius-full);
+            height: 6px;
+            overflow: hidden;
+            margin-top: 4px;
+        }
+        .progress-bar {
+            background: var(--gradient-primary);
+            height: 100%;
+            border-radius: var(--radius-full);
+            transition: width var(--transition-normal);
+        }
+        .bottom-btn-bar {
+            padding: 16px;
+            padding-bottom: calc(16px + env(safe-area-inset-bottom));
+            background: var(--bg-white);
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 12px;
+            position: sticky;
+            bottom: 0;
+            z-index: var(--z-sticky);
+        }
+        .bottom-btn-bar .mb-btn {
+            flex: 1;
+            height: 48px;
+        }
+    </style>
+</head>
+<body>
+    <div class="mb-app">
+        <div class="mb-header-tool">
+            <div class="header-nav">
+                <div class="header-back" onclick="navigateTo('mb_home.html')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                </div>
+                <div class="header-title">植株指标数据录入</div>
+                <div class="header-actions"></div>
+            </div>
+        </div>
+
+        <div class="mb-card" style="margin: 16px; margin-bottom: 0;">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="font-semibold text-white" style="color: var(--text); font-size: 16px;">填写当期果园与植株指标</h3>
+                    <p class="text-xs text-gray-500 mt-1">带"核心"的指标建议由传感器自动同步，其余可按巡园或抽样结果填写。</p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span class="text-xs text-gray-500">数据完整度</span>
+                    <div class="w-24 h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <div class="w-full h-full bg-primary rounded-full"></div>
+                    </div>
+                    <span class="text-primary font-bold text-sm">100%</span>
+                </div>
+            </div>
+        </div>
+
+        <div style="padding: 16px;">
+            <div class="mb-card">
+                <div class="judge-section">
+                    <div class="judge-section-title">
+                        <span class="judge-section-dot"></span>
+                        <span>评价对象</span>
+                    </div>
+                    <p class="judge-section-desc">用于匹配品系、砧木、树龄和生育阶段参数</p>
+                    <div class="judge-grid">
+                        <div class="judge-form-item">
+                            <label class="judge-form-label">果园主体</label>
+                            <input type="text" class="judge-form-input" id="input-orchard" value="南丰蜜桔示范园 01">
+                        </div>
+                        <div class="judge-form-item">
+                            <label class="judge-form-label">地块</label>
+                            <input type="text" class="judge-form-input" id="input-plot" value="东坡 A-03 地块">
+                        </div>
+                        <div class="judge-form-item">
+                            <label class="judge-form-label">品系/株系</label>
+                            <input type="text" class="judge-form-input" id="input-variety" value="品系 A">
+                        </div>
+                        <div class="judge-form-item">
+                            <label class="judge-form-label">砧木</label>
+                            <input type="text" class="judge-form-input" id="input-rootstock" value="枳砧">
+                        </div>
+                        <div class="judge-form-item">
+                            <label class="judge-form-label">树龄</label>
+                            <div class="judge-input-row">
+                                <input type="number" class="judge-form-input" id="input-age" value="6">
+                                <span class="unit">年</span>
+                            </div>
+                        </div>
+                        <div class="judge-form-item">
+                            <label class="judge-form-label">生育阶段</label>
+                            <select class="judge-form-select" id="input-stage">
+                                <option value="幼苗期">幼苗期</option>
+                                <option value="生长期">生长期</option>
+                                <option value="开花期">开花期</option>
+                                <option value="果实膨大期" selected>果实膨大期</option>
+                                <option value="成熟期">成熟期</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-card">
+                <div class="judge-section">
+                    <div class="judge-section-title">
+                        <span class="judge-section-dot" style="background: var(--primary);"></span>
+                        <span>环境与土壤</span>
+                    </div>
+                    <p class="judge-section-desc">温度为模型硬阈值，水分、光照和土壤用于综合扣分</p>
+                    <div class="judge-grid">
+                        <div class="judge-form-item">
+                            <label class="judge-form-label">空气温度 <span class="core-tag">核心</span></label>
+                            <div class="judge-input-row">
+                                <input type="number" class="judge-form-input" id="input-temp" value="32">
+                                <span class="unit">°C</span>
+                            </div>
+                        </div>
+                        <div class="judge-form-item">
+                            <label class="judge-form-label">空气湿度 <span class="core-tag">核心</span></label>
+                            <div class="judge-input-row">
+                                <input type="number" class="judge-form-input" id="input-humidity" value="82">
+                                <span class="unit">%</span>
+                            </div>
+                        </div>
+                        <div class="judge-form-item">
+                            <label class="judge-form-label">土壤含水量 <span class="core-tag">核心</span></label>
+                            <div class="judge-input-row">
+                                <input type="number" class="judge-form-input" id="input-soil-moisture" value="78">
+                                <span class="unit">%</span>
+                            </div>
+                        </div>
+                        <div class="judge-form-item">
+                            <label class="judge-form-label">光照适宜度 <span class="core-tag">核心</span></label>
+                            <div class="judge-input-row">
+                                <input type="number" class="judge-form-input" id="input-light" value="68">
+                                <span class="unit">/100</span>
+                            </div>
+                        </div>
+                        <div class="judge-form-item">
+                            <label class="judge-form-label">土壤 pH</label>
+                            <input type="number" step="0.1" class="judge-form-input" id="input-ph" value="5.3">
+                        </div>
+                        <div class="judge-form-item">
+                            <label class="judge-form-label">土壤 EC</label>
+                            <div class="judge-input-row">
+                                <input type="number" step="0.01" class="judge-form-input" id="input-ec" value="0.72">
+                                <span class="unit">mS/cm</span>
+                            </div>
+                        </div>
+                        <div class="judge-form-item" style="grid-column: span 2;">
+                            <label class="judge-form-label">钾营养适宜度</label>
+                            <div class="judge-input-row">
+                                <input type="number" class="judge-form-input" id="input-k-potassium" value="72">
+                                <span class="unit">/100</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-card">
+                <div class="judge-section">
+                    <div class="judge-section-title">
+                        <span class="judge-section-dot" style="background: var(--info);"></span>
+                        <span>植株与果实</span>
+                    </div>
+                    <p class="judge-section-desc">请填写代表性株株或地块抽样平均值</p>
+                    <div class="judge-grid">
+                        <div class="judge-form-item">
+                            <label class="judge-form-label">整体树势</label>
+                            <div class="judge-input-row">
+                                <input type="number" class="judge-form-input" id="input-tree-health" value="86">
+                                <span class="unit">/100</span>
+                            </div>
+                        </div>
+                        <div class="judge-form-item">
+                            <label class="judge-form-label">新梢状态</label>
+                            <div class="judge-input-row">
+                                <input type="number" class="judge-form-input" id="input-shoot" value="82">
+                                <span class="unit">/100</span>
+                            </div>
+                        </div>
+                        <div class="judge-form-item">
+                            <label class="judge-form-label">叶片状态</label>
+                            <div class="judge-input-row">
+                                <input type="number" class="judge-form-input" id="input-leaf" value="78">
+                                <span class="unit">/100</span>
+                            </div>
+                        </div>
+                        <div class="judge-form-item">
+                            <label class="judge-form-label">叶片 SPAD</label>
+                            <input type="number" class="judge-form-input" id="input-spad" value="36">
+                        </div>
+                        <div class="judge-form-item">
+                            <label class="judge-form-label">根系活力</label>
+                            <div class="judge-input-row">
+                                <input type="number" class="judge-form-input" id="input-root" value="68">
+                                <span class="unit">/100</span>
+                            </div>
+                        </div>
+                        <div class="judge-form-item">
+                            <label class="judge-form-label">挂果负载</label>
+                            <div class="judge-input-row">
+                                <input type="number" class="judge-form-input" id="input-fruit-load" value="118">
+                                <span class="unit">%目标值</span>
+                            </div>
+                        </div>
+                        <div class="judge-form-item">
+                            <label class="judge-form-label">坐果率</label>
+                            <div class="judge-input-row">
+                                <input type="number" class="judge-form-input" id="input-fruit-set" value="84">
+                                <span class="unit">%</span>
+                            </div>
+                        </div>
+                        <div class="judge-form-item">
+                            <label class="judge-form-label">落果率</label>
+                            <div class="judge-input-row">
+                                <input type="number" class="judge-form-input" id="input-fruit-drop" value="9">
+                                <span class="unit">%</span>
+                            </div>
+                        </div>
+                        <div class="judge-form-item">
+                            <label class="judge-form-label">平均果径</label>
+                            <div class="judge-input-row">
+                                <input type="number" step="0.1" class="judge-form-input" id="input-fruit-size" value="48.6">
+                                <span class="unit">mm</span>
+                            </div>
+                        </div>
+                        <div class="judge-form-item">
+                            <label class="judge-form-label">当前糖度</label>
+                            <div class="judge-input-row">
+                                <input type="number" step="0.1" class="judge-form-input" id="input-sugar" value="9.4">
+                                <span class="unit">°Brix</span>
+                            </div>
+                        </div>
+                        <div class="judge-form-item">
+                            <label class="judge-form-label">果实外观</label>
+                            <div class="judge-input-row">
+                                <input type="number" class="judge-form-input" id="input-fruit-appearance" value="88">
+                                <span class="unit">/100</span>
+                            </div>
+                        </div>
+                        <div class="judge-form-item">
+                            <label class="judge-form-label">病虫健康度</label>
+                            <div class="judge-input-row">
+                                <input type="number" class="judge-form-input" id="input-pest-health" value="92">
+                                <span class="unit">/100</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-card">
+                <div class="judge-section">
+                    <div class="judge-section-title">
+                        <span class="judge-section-dot" style="background: var(--harvest-500);"></span>
+                        <span>近期农事记录</span>
+                    </div>
+                    <p class="judge-section-desc">帮助模型判断问题是环境、营养还是管理造成</p>
+                    <div class="judge-grid" style="grid-template-columns: 1fr;">
+                        <div class="judge-form-item">
+                            <label class="judge-form-label">近期灌溉</label>
+                            <input type="text" class="judge-form-input" id="input-irrigation" value="近3日灌溉1次">
+                        </div>
+                        <div class="judge-form-item">
+                            <label class="judge-form-label">近期施肥</label>
+                            <input type="text" class="judge-form-input" id="input-fertilizer" value="10天前施用高钾水溶肥">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bottom-btn-bar">
+            <button class="mb-btn mb-btn-secondary" onclick="resetMockData()">恢复模拟数据</button>
+            <button class="mb-btn mb-btn-primary" onclick="runEvaluation()">运行综合评价</button>
+        </div>
+    </div>
+
+    <script>
+        function navigateTo(page) {
+            window.location.href = page;
+        }
+
+        const mockData = {
+            'input-orchard': '南丰蜜桔示范园 01',
+            'input-plot': '东坡 A-03 地块',
+            'input-variety': '品系 A',
+            'input-rootstock': '枳砧',
+            'input-age': '6',
+            'input-stage': '果实膨大期',
+            'input-temp': '32',
+            'input-humidity': '82',
+            'input-soil-moisture': '78',
+            'input-light': '68',
+            'input-ph': '5.3',
+            'input-ec': '0.72',
+            'input-k-potassium': '72',
+            'input-tree-health': '86',
+            'input-shoot': '82',
+            'input-leaf': '78',
+            'input-spad': '36',
+            'input-root': '68',
+            'input-fruit-load': '118',
+            'input-fruit-set': '84',
+            'input-fruit-drop': '9',
+            'input-fruit-size': '48.6',
+            'input-sugar': '9.4',
+            'input-fruit-appearance': '88',
+            'input-pest-health': '92',
+            'input-irrigation': '近3日灌溉1次',
+            'input-fertilizer': '10天前施用高钾水溶肥'
+        };
+
+        function resetMockData() {
+            Object.keys(mockData).forEach(key => {
+                const element = document.getElementById(key);
+                if (element) {
+                    element.value = mockData[key];
+                }
+            });
+            alert('模拟数据已恢复');
+        }
+
+        function runEvaluation() {
+            navigateTo('mb_judge_result.html');
+        }
+    </script>
+</body>
+</html>

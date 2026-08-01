@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>桔农通 - 我的果园</title>
+  <title>蜜桔农业助手 - 我的果园</title>
   <link rel="stylesheet" href="css/mobile-design-system.css">
   <style>
     .stats-bar {
       display: flex; gap: 8px;
-      padding: 0 16px; margin-top: 12px;
+      padding: 0 16px; margin: 12px 0 16px;
       position: relative; z-index: 10;
     }
     
@@ -33,30 +33,6 @@
       color: var(--text-secondary);
       margin-top: 2px;
       font-weight: var(--font-medium);
-    }
-
-    .filter-bar {
-      display: flex; gap: 8px;
-      padding: 16px;
-    }
-    
-    .filter-btn {
-      flex: 1;
-      height: 36px;
-      padding: 0 12px;
-      background: var(--bg-white);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-full);
-      font-size: var(--font-sm);
-      color: var(--text-secondary);
-      cursor: pointer;
-      transition: all var(--transition-fast);
-    }
-    
-    .filter-btn.active {
-      background: var(--primary);
-      border-color: var(--primary);
-      color: var(--text-on-primary);
     }
 
     .plot-card {
@@ -123,11 +99,6 @@
         <div class="stat-card"><div class="mb-skeleton" style="width:32px;height:24px;margin:0 auto;"></div><div class="mb-skeleton" style="width:40px;height:12px;margin:4px auto 0;"></div></div>
         <div class="stat-card"><div class="mb-skeleton" style="width:32px;height:24px;margin:0 auto;"></div><div class="mb-skeleton" style="width:40px;height:12px;margin:4px auto 0;"></div></div>
       </div>
-      <div class="filter-bar">
-        <div class="mb-skeleton" style="flex:1;height:36px;border-radius:var(--radius-full);"></div>
-        <div class="mb-skeleton" style="flex:1;height:36px;border-radius:var(--radius-full);"></div>
-        <div class="mb-skeleton" style="flex:1;height:36px;border-radius:var(--radius-full);"></div>
-      </div>
       <div class="plot-card"><div class="mb-skeleton" style="width:100%;height:80px;border-radius:var(--radius-xl);"></div></div>
       <div class="plot-card"><div class="mb-skeleton" style="width:100%;height:80px;border-radius:var(--radius-xl);"></div></div>
       <div class="plot-card"><div class="mb-skeleton" style="width:100%;height:80px;border-radius:var(--radius-xl);"></div></div>
@@ -137,7 +108,7 @@
     <div class="real-content">
       <div class="mb-header-detail">
       <div class="header-nav">
-        <div class="header-back" onclick="navigateTo('mb_data.html')">
+        <div class="header-back" onclick="navigateTo('mb_profile.html')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
         </div>
         <div class="header-title">我的果园</div>
@@ -160,12 +131,6 @@
         <div class="stat-num">1</div>
         <div class="stat-label">预警地块</div>
       </div>
-    </div>
-
-    <div class="filter-bar">
-      <button class="filter-btn active" onclick="filterPlots('all')">全部</button>
-      <button class="filter-btn" onclick="filterPlots('normal')">正常</button>
-      <button class="filter-btn" onclick="filterPlots('warning')">预警</button>
     </div>
 
     <div style="padding-bottom: 80px;">
@@ -253,32 +218,9 @@
         </div>
       </div>
 
-      <button class="mb-btn mb-btn-primary mb-btn-block" style="margin: 0 16px 16px;" onclick="showAddPlotModal()">+ 添加新地块</button>
+      <button class="mb-btn mb-btn-primary" style="display:flex;align-items:center;justify-content:center;margin: 16px auto 0;min-width:180px;" onclick="showAddPlotModal()">+ 添加新地块</button>
     </div>
-    </div>
-
-    <div class="mb-tab-bar">
-      <div class="mb-tab-item" onclick="navigateTo('mb_home.html')">首页</div>
-      <div class="mb-tab-item active" onclick="navigateTo('mb_data.html')">监测</div>
-      <div class="mb-tab-item" onclick="navigateTo('mb_ai.html')">AI助手</div>
-      <div class="mb-tab-item" onclick="navigateTo('mb_disease.html')">病虫害</div>
-      <div class="mb-tab-item" onclick="navigateTo('mb_profile.html')">我的</div>
-    </div>
-
-    <div class="mb-modal-overlay" id="detailModal">
-      <div class="mb-modal">
-        <div class="mb-modal-header">
-          <div class="mb-modal-title" id="plotTitle">地块详情</div>
-        </div>
-        <div class="mb-modal-body">
-          <div id="plotDetailContent"></div>
-        </div>
-        <div class="mb-modal-footer">
-          <div class="mb-modal-btn" onclick="closeModal('detailModal')">关闭</div>
-          <div class="mb-modal-btn primary" onclick="viewPlotData()">查看数据</div>
-        </div>
-      </div>
-    </div>
+    </div></div>
 
     <div class="mb-modal-overlay" id="addPlotModal">
       <div class="mb-modal">
@@ -343,8 +285,26 @@
         </div>
       </div>
     </div>
-
-    <script>
+    <!-- 底部导航 -->
+    <div class="mb-tab-bar">
+      <div class="mb-tab-item" onclick="navigateTo('mb_home.html')">
+        <svg class="mb-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span>首页</span>
+      </div>
+      <div class="mb-tab-item" onclick="navigateTo('mb_data.html')">
+        <svg class="mb-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        <span>监测</span>
+      </div>
+      <div class="mb-tab-item" onclick="navigateTo('mb_disease_knowledge.html')">
+        <svg class="mb-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><circle cx="12" cy="10" r="3"/></svg>
+        <span>病虫害</span>
+      </div>
+      <div class="mb-tab-item active">
+        <svg class="mb-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span>我的</span>
+      </div>
+    </div>
+<script>
       function navigateTo(page) { window.location.href = page; }
       
       function showPlotDetail(name, area, variety, status) {
@@ -429,28 +389,6 @@
         document.getElementById(id).classList.remove('show');
       }
       
-      function filterPlots(type) {
-        document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-        event.target.classList.add('active');
-        
-        const cards = document.querySelectorAll('.plot-card');
-        cards.forEach(card => card.style.display = 'block');
-        
-        if (type === 'normal') {
-          cards.forEach(card => {
-            if (card.querySelector('.plot-status.warning')) {
-              card.style.display = 'none';
-            }
-          });
-        } else if (type === 'warning') {
-          cards.forEach(card => {
-            if (!card.querySelector('.plot-status.warning')) {
-              card.style.display = 'none';
-            }
-          });
-        }
-      }
-
       (function() {
         var app = document.querySelector('.mb-app');
         setTimeout(function() {

@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>蜜桔农业助手 - 我的消息</title>
+  <link rel="stylesheet" href="css/mobile-design-system.css">
+  <style>
+    body {
+      background: var(--gray-50, #f5f6fa);
+      min-height: 100vh;
+    }
+
+    .msg-header {
+      background: linear-gradient(135deg, var(--primary-600), var(--primary-800));
+      padding: calc(var(--safe-top, 44px) + 12px) var(--space-4) 60px;
+      color: var(--bg-white);
+      position: relative;
+      overflow: hidden;
+    }
+    .msg-header::before {
+      content: '';
+      position: absolute;
+      top: -60px; right: -40px;
+      width: 180px; height: 180px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 50%;
+    }
+    .msg-header::after {
+      content: '';
+      position: absolute;
+      bottom: -30px; left: -20px;
+      width: 100px; height: 100px;
+      background: rgba(255,255,255,0.04);
+      border-radius: 50%;
+    }
+    .msg-header-curve {
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 24px;
+      background: var(--gray-50, #f5f6fa);
+      border-radius: 24px 24px 0 0;
+    }
+
+    .msg-header-nav {
+      display: flex;
+      align-items: center;
+      height: 44px;
+      position: relative;
+      z-index: 1;
+    }
+    .msg-back {
+      width: 36px;
+      height: 36px;
+      background: rgba(255,255,255,0.2);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background var(--transition-fast);
+    }
+    .msg-back:active { background: rgba(255,255,255,0.35); }
+    .msg-back svg { width: 18px; height: 18px; }
+    .msg-title {
+      flex: 1;
+      text-align: center;
+      font-size: var(--font-lg);
+      font-weight: 700;
+      margin: 0 8px;
+      letter-spacing: 1px;
+    }
+    .msg-header-placeholder { width: 36px; }
+
+    .msg-subtitle {
+      text-align: center;
+      font-size: var(--font-xs);
+      opacity: 0.75;
+      margin-top: 2px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .msg-tabs-wrap {
+      padding: 0 var(--space-4);
+      margin-top: -40px;
+      position: relative;
+      z-index: 10;
+    }
+    .msg-tabs {
+      display: flex;
+      background: var(--bg-white);
+      border-radius: var(--radius-xl);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+      padding: 6px;
+    }
+    .msg-tab {
+      flex: 1;
+      padding: 11px 4px 9px;
+      text-align: center;
+      font-size: var(--font-sm);
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      position: relative;
+      transition: all var(--transition-fast);
+      border-radius: var(--radius-lg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .msg-tab svg { width: 18px; height: 18px; }
+    .msg-tab.active {
+      color: var(--primary);
+      font-weight: 600;
+      background: var(--primary-light);
+    }
+    .msg-tab-badge {
+      position: absolute;
+      top: 4px;
+      right: calc(50% - 28px);
+      min-width: 16px;
+      height: 16px;
+      padding: 0 4px;
+      background: var(--error);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 600;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      box-shadow: 0 2px 4px rgba(255,77,79,0.4);
+    }
+
+    .msg-content {
+      padding: var(--space-4);
+    }
+
+    .filter-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-3);
+    }
+    .filter-tabs {
+      display: flex;
+      gap: 8px;
+    }
+    .filter-tab {
+      padding: 6px 14px;
+      border-radius: var(--radius-full);
+      font-size: var(--font-xs);
+      font-weight: 500;
+      cursor: pointer;
+      background: var(--bg-white);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-light);
+      transition: all var(--transition-fast);
+    }
+    .filter-tab.active {
+      background: var(--primary);
+      color: var(--bg-white);
+      border-color: var(--primary);
+      box-shadow: 0 2px 8px rgba(34,168,74,0.3);
+    }
+    .msg-count {
+      font-size: var(--font-xs);
+      color: var(--text-tertiary);
+    }
+
+    .msg-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+
+    .msg-item {
+      background: var(--bg-white);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+      position: relative;
+      transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+      overflow: hidden;
+    }
+    .msg-item:active {
+      transform: scale(0.98);
+      box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+    }
+    .msg-item::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+    }
+    .msg-item.unread::after {
+      content: '';
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--error);
+      box-shadow: 0 0 0 3px rgba(255,77,79,0.15);
+    }
+    .msg-item.priority-high::before { background: var(--error); }
+    .msg-item.priority-medium::before { background: var(--warning); }
+    .msg-item.priority-low::before { background: var(--primary); }
+
+    .msg-item-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .msg-type-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 10px;
+      padding: 3px 10px;
+      border-radius: var(--radius-full);
+      font-weight: 600;
+      letter-spacing: 0.3px;
+    }
+    .msg-type-tag.alert {
+      background: linear-gradient(135deg, #fff1f0, #ffccc7);
+      color: var(--error);
+    }
+    .msg-type-tag.risk {
+      background: linear-gradient(135deg, #fffbe6, #ffe58f);
+      color: var(--warning);
+    }
+    .msg-type-tag.recommend {
+      background: linear-gradient(135deg, var(--primary-light), var(--primary-100));
+      color: var(--primary-700);
+    }
+    .msg-type-tag.todo {
+      background: linear-gradient(135deg, #e6f7ff, #91d5ff);
+      color: var(--info);
+    }
+    .msg-type-tag.done {
+      background: var(--gray-100);
+      color: var(--text-tertiary);
+    }
+
+    .msg-item-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .msg-item-icon.alert {
+      background: linear-gradient(135deg, #fff1f0, #ff7875);
+    }
+    .msg-item-icon.alert svg { color: var(--error); }
+    .msg-item-icon.risk {
+      background: linear-gradient(135deg, #fffbe6, #ffc53d);
+    }
+    .msg-item-icon.risk svg { color: var(--warning); }
+    .msg-item-icon.recommend {
+      background: linear-gradient(135deg, var(--primary-light), var(--primary-300));
+    }
+    .msg-item-icon.recommend svg { color: var(--primary); }
+    .msg-item-icon.todo {
+      background: linear-gradient(135deg, #e6f7ff, #69c0ff);
+    }
+    .msg-item-icon.todo svg { color: var(--info); }
+    .msg-item-icon svg { width: 16px; height: 16px; }
+
+    .msg-item-title {
+      font-size: var(--font-base);
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 6px;
+      padding-right: 20px;
+      line-height: 1.4;
+    }
+    .msg-item-desc {
+      font-size: var(--font-sm);
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 12px;
+      padding: 10px 12px;
+      background: var(--gray-50);
+      border-radius: var(--radius-md);
+    }
+    .msg-item-foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .msg-item-time {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: var(--font-xs);
+      color: var(--text-tertiary);
+    }
+    .msg-item-time svg { width: 12px; height: 12px; }
+    .msg-item-action {
+      display: flex;
+      gap: 8px;
+    }
+    .msg-action-btn {
+      padding: 6px 14px;
+      border-radius: var(--radius-full);
+      font-size: var(--font-xs);
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: all var(--transition-fast);
+      white-space: nowrap;
+    }
+    .msg-action-btn.primary {
+      background: var(--primary);
+      color: var(--bg-white);
+      box-shadow: 0 2px 8px rgba(34,168,74,0.3);
+    }
+    .msg-action-btn.primary:active {
+      transform: scale(0.95);
+      box-shadow: 0 1px 4px rgba(34,168,74,0.2);
+    }
+    .msg-action-btn.outline {
+      background: var(--gray-50);
+      color: var(--text-secondary);
+    }
+    .msg-action-btn.outline:active {
+      background: var(--gray-100);
+    }
+
+    .msg-tab-content { display: none; }
+    .msg-tab-content.active { display: block; }
+
+    .todo-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .todo-checkbox {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: all var(--transition-fast);
+      margin-top: 2px;
+    }
+    .todo-checkbox:active { transform: scale(0.9); }
+    .todo-checkbox.checked {
+      background: var(--primary);
+      border-color: var(--primary);
+    }
+    .todo-checkbox svg {
+      display: none;
+      width: 12px;
+      height: 12px;
+      color: #fff;
+    }
+    .todo-checkbox.checked svg { display: block; }
+    .msg-item.completed .msg-item-title,
+    .msg-item.completed .msg-item-desc {
+      opacity: 0.5;
+      text-decoration: line-through;
+    }
+    .msg-item.completed::before {
+      background: var(--border-light) !important;
+    }
+    .msg-item.completed {
+      opacity: 0.75;
+    }
+    .msg-item-content { flex: 1; min-width: 0; }
+
+    .msg-empty {
+      text-align: center;
+      padding: 80px 20px;
+    }
+    .msg-empty-icon {
+      width: 100px;
+      height: 100px;
+      margin: 0 auto 16px;
+      background: var(--primary-light);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .msg-empty-icon svg { width: 48px; height: 48px; color: var(--primary); opacity: 0.5; }
+    .msg-empty-title {
+      font-size: var(--font-base);
+      color: var(--text);
+      font-weight: 500;
+      margin-bottom: 6px;
+    }
+    .msg-empty-desc {
+      font-size: var(--font-sm);
+      color: var(--text-tertiary);
+    }
+
+    .mb-app {
+      padding-bottom: 68px;
+    }
+  </style>
+</head>
+<body>
+  <div class="mb-app">
+    <!-- Header -->
+    <div class="msg-header">
+      <div class="msg-header-curve"></div>
+      <div class="msg-header-nav">
+        <a class="msg-back" href="mb_profile.html" style="text-decoration:none;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M15 18l-6-6 6-6"/>
+          </svg>
+        </a>
+        <div class="msg-title">我的消息</div>
+        <div class="msg-header-placeholder"></div>
+      </div>
+      <div class="msg-subtitle">系统通知 · 农事提醒 · 事务待办</div>
+    </div>
+
+    <!-- Tab Bar -->
+    <div class="msg-tabs-wrap">
+      <div class="msg-tabs">
+        <div class="msg-tab active" onclick="switchTab('alert', this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          预警
+          <span class="msg-tab-badge">2</span>
+        </div>
+        <div class="msg-tab" onclick="switchTab('risk', this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          风险
+          <span class="msg-tab-badge">3</span>
+        </div>
+        <div class="msg-tab" onclick="switchTab('recommend', this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.3A7 7 0 0 0 12 2z"/></svg>
+          推荐
+        </div>
+        <div class="msg-tab" onclick="switchTab('todo', this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          待办
+          <span class="msg-tab-badge">4</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 预警信息 -->
+    <div id="tab-alert" class="msg-tab-content active">
+      <div class="msg-content">
+        <div class="filter-bar">
+          <div class="filter-tabs">
+            <div class="filter-tab active" onclick="filterMessages('alert', 'all', this)">全部</div>
+            <div class="filter-tab" onclick="filterMessages('alert', 'unread', this)">未读</div>
+          </div>
+          <div class="msg-count">共 2 条</div>
+        </div>
+
+        <div class="msg-list">
+          <div class="msg-item priority-high unread">
+            <div class="msg-item-head">
+              <div class="msg-item-icon alert">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              </div>
+              <div style="flex:1;">
+                <span class="msg-type-tag alert">紧急预警</span>
+              </div>
+            </div>
+            <div class="msg-item-title">A2区土壤湿度严重偏低</div>
+            <div class="msg-item-content">
+              <div class="msg-item-desc">土壤湿度仅 28%，低于适宜范围下限 (40%)，可能影响果实膨大，建议立即灌溉。</div>
+              <div class="msg-item-foot">
+                <div class="msg-item-time">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  32分钟前
+                </div>
+                <div class="msg-item-action">
+                  <div class="msg-action-btn outline" onclick="markRead(this)">忽略</div>
+                  <div class="msg-action-btn primary" onclick="navigateTo('mb_data_input.html')">立即处理</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="msg-item priority-high unread">
+            <div class="msg-item-head">
+              <div class="msg-item-icon alert">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
+              </div>
+              <div style="flex:1;">
+                <span class="msg-type-tag alert">气象预警</span>
+              </div>
+            </div>
+            <div class="msg-item-title">明日高温38°C，注意防热</div>
+            <div class="msg-item-content">
+              <div class="msg-item-desc">预计明日（8月2日）最高气温将达38°C，蜜桔处于果实膨大期，建议做好树冠遮阴和灌溉降温准备。</div>
+              <div class="msg-item-foot">
+                <div class="msg-item-time">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  1小时前
+                </div>
+                <div class="msg-item-action">
+                  <div class="msg-action-btn outline" onclick="markRead(this)">知道了</div>
+                  <div class="msg-action-btn primary" onclick="navigateTo('mb_data_input.html')">查看应对</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 风险信息 -->
+    <div id="tab-risk" class="msg-tab-content">
+      <div class="msg-content">
+        <div class="filter-bar">
+          <div class="filter-tabs">
+            <div class="filter-tab active" onclick="filterMessages('risk', 'all', this)">全部</div>
+            <div class="filter-tab" onclick="filterMessages('risk', 'unread', this)">未读</div>
+          </div>
+          <div class="msg-count">共 3 条</div>
+        </div>
+
+        <div class="msg-list">
+          <div class="msg-item priority-medium unread">
+            <div class="msg-item-head">
+              <div class="msg-item-icon risk">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 23c0-1.25-.5-2.5-1.4-3.4C19.7 18.7 18 18 16 18c-2 0-3.7.7-4.6 1.6C10.5 20.5 10 21.75 10 23"/><circle cx="12" cy="12" r="10"/></svg>
+              </div>
+              <div style="flex:1;">
+                <span class="msg-type-tag risk">虫害风险</span>
+              </div>
+            </div>
+            <div class="msg-item-title">红蜘蛛发生风险预警</div>
+            <div class="msg-item-content">
+              <div class="msg-item-desc">根据近期气象数据分析，未来3天红蜘蛛爆发风险等级为"中等"，建议提前喷施螺螨酯进行预防。</div>
+              <div class="msg-item-foot">
+                <div class="msg-item-time">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  2小时前
+                </div>
+                <div class="msg-item-action">
+                  <div class="msg-action-btn outline" onclick="markRead(this)">稍后处理</div>
+                  <div class="msg-action-btn primary" onclick="navigateTo('mb_disease_knowledge.html')">查看详情</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="msg-item priority-medium unread">
+            <div class="msg-item-head">
+              <div class="msg-item-icon risk">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><circle cx="12" cy="10" r="3"/></svg>
+              </div>
+              <div style="flex:1;">
+                <span class="msg-type-tag risk">虫害监测</span>
+              </div>
+            </div>
+            <div class="msg-item-title">柑桔木虱监测预警</div>
+            <div class="msg-item-content">
+              <div class="msg-item-desc">测报灯连续3天监测到柑桔木虱成虫，密度呈上升趋势，建议立即开展统防统治。</div>
+              <div class="msg-item-foot">
+                <div class="msg-item-time">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  5小时前
+                </div>
+                <div class="msg-item-action">
+                  <div class="msg-action-btn outline" onclick="markRead(this)">稍后处理</div>
+                  <div class="msg-action-btn primary" onclick="navigateTo('mb_data.html')">查看监测</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="msg-item priority-medium unread">
+            <div class="msg-item-head">
+              <div class="msg-item-icon risk">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg>
+              </div>
+              <div style="flex:1;">
+                <span class="msg-type-tag risk">环境风险</span>
+              </div>
+            </div>
+            <div class="msg-item-title">土壤温度偏高风险</div>
+            <div class="msg-item-content">
+              <div class="msg-item-desc">近期土壤温度持续在32°C以上，超过蜜桔适宜生长温度范围(20-28°C)，可能影响根系活力。</div>
+              <div class="msg-item-foot">
+                <div class="msg-item-time">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  昨天
+                </div>
+                <div class="msg-item-action">
+                  <div class="msg-action-btn outline" onclick="markRead(this)">知道了</div>
+                  <div class="msg-action-btn primary" onclick="navigateTo('mb_data_input.html')">立即处理</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 农事推荐 -->
+    <div id="tab-recommend" class="msg-tab-content">
+      <div class="msg-content">
+        <div class="filter-bar">
+          <div class="filter-tabs">
+            <div class="filter-tab active" onclick="filterMessages('recommend', 'all', this)">全部</div>
+            <div class="filter-tab" onclick="filterMessages('recommend', 'season', this)">当前季节</div>
+            <div class="filter-tab" onclick="filterMessages('recommend', 'growth', this)">生长期</div>
+          </div>
+          <div class="msg-count">共 2 条</div>
+        </div>
+
+        <div class="msg-list">
+          <div class="msg-item priority-low unread">
+            <div class="msg-item-head">
+              <div class="msg-item-icon recommend">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+              </div>
+              <div style="flex:1;">
+                <span class="msg-type-tag recommend">推荐方案</span>
+              </div>
+            </div>
+            <div class="msg-item-title">叶面喷施磷酸二氢钾</div>
+            <div class="msg-item-content">
+              <div class="msg-item-desc">当前处于果实膨大期，建议叶面喷施 0.2% 磷酸二氢钾溶液，促进果实发育和糖分积累。推荐时段：07:00-09:00。</div>
+              <div class="msg-item-foot">
+                <div class="msg-item-time">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  今日 06:00
+                </div>
+                <div class="msg-item-action">
+                  <div class="msg-action-btn outline" onclick="markRead(this)">不再提醒</div>
+                  <div class="msg-action-btn primary" onclick="navigateTo('mb_data_input.html')">加入计划</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="msg-item priority-low unread">
+            <div class="msg-item-head">
+              <div class="msg-item-icon recommend">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+              </div>
+              <div style="flex:1;">
+                <span class="msg-type-tag recommend">栽培建议</span>
+              </div>
+            </div>
+            <div class="msg-item-title">夏梢控制建议</div>
+            <div class="msg-item-content">
+              <div class="msg-item-desc">近期气温适宜，夏梢即将大量抽发。建议对结果树进行夏梢控制，采用"去早留齐"方法，保证秋梢质量。</div>
+              <div class="msg-item-foot">
+                <div class="msg-item-time">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  昨日推送
+                </div>
+                <div class="msg-item-action">
+                  <div class="msg-action-btn outline" onclick="markRead(this)">已了解</div>
+                  <div class="msg-action-btn primary" onclick="navigateTo('mb_news.html')">查看方法</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 事务待办 -->
+    <div id="tab-todo" class="msg-tab-content">
+      <div class="msg-content">
+        <div class="filter-bar">
+          <div class="filter-tabs">
+            <div class="filter-tab active" onclick="filterMessages('todo', 'all', this)">全部</div>
+            <div class="filter-tab" onclick="filterMessages('todo', 'pending', this)">待完成</div>
+            <div class="filter-tab" onclick="filterMessages('todo', 'done', this)">已完成</div>
+          </div>
+          <div class="msg-count">共 4 条</div>
+        </div>
+
+        <div class="msg-list">
+          <div class="msg-item priority-high unread">
+            <div class="todo-item">
+              <div class="todo-checkbox" onclick="toggleTodo(this)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <div class="msg-item-content">
+                <div class="msg-item-head">
+                  <span class="msg-type-tag todo">今日待办</span>
+                </div>
+                <div class="msg-item-title">A2区灌溉作业</div>
+                <div class="msg-item-desc">土壤湿度 28%，需进行灌溉。建议灌溉量 30-40L/株。</div>
+                <div class="msg-item-foot">
+                  <div class="msg-item-time">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    截止：今日 18:00
+                  </div>
+                  <div class="msg-item-action">
+                    <div class="msg-action-btn outline" onclick="markRead(this)">稍后提醒</div>
+                    <div class="msg-action-btn primary" onclick="navigateTo('mb_data_input.html')">去上报</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="msg-item priority-medium unread">
+            <div class="todo-item">
+              <div class="todo-checkbox" onclick="toggleTodo(this)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <div class="msg-item-content">
+                <div class="msg-item-head">
+                  <span class="msg-type-tag todo">明日待办</span>
+                </div>
+                <div class="msg-item-title">红蜘蛛防治作业</div>
+                <div class="msg-item-desc">建议喷施 螺螨酯 24%SC 5000倍液，重点喷叶片背面。</div>
+                <div class="msg-item-foot">
+                  <div class="msg-item-time">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    截止：明日 12:00
+                  </div>
+                  <div class="msg-item-action">
+                    <div class="msg-action-btn outline" onclick="markRead(this)">稍后提醒</div>
+                    <div class="msg-action-btn primary" onclick="navigateTo('mb_data_input.html')">去上报</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="msg-item priority-medium unread">
+            <div class="todo-item">
+              <div class="todo-checkbox" onclick="toggleTodo(this)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <div class="msg-item-content">
+                <div class="msg-item-head">
+                  <span class="msg-type-tag todo">本周待办</span>
+                </div>
+                <div class="msg-item-title">完成本周数据上报</div>
+                <div class="msg-item-desc">本周的农事记录、施肥记录尚未完成上报，请及时提交。</div>
+                <div class="msg-item-foot">
+                  <div class="msg-item-time">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    截止：本周五 17:00
+                  </div>
+                  <div class="msg-item-action">
+                    <div class="msg-action-btn outline" onclick="markRead(this)">稍后提醒</div>
+                    <div class="msg-action-btn primary" onclick="navigateTo('mb_data_input.html')">去上报</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="msg-item priority-low">
+            <div class="todo-item">
+              <div class="todo-checkbox checked" onclick="toggleTodo(this)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <div class="msg-item-content">
+                <div class="msg-item-head">
+                  <span class="msg-type-tag done">已完成</span>
+                </div>
+                <div class="msg-item-title">果园巡查打卡</div>
+                <div class="msg-item-desc">已完成今日果园巡查打卡作业。</div>
+                <div class="msg-item-foot">
+                  <div class="msg-item-time">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    今日 08:30 完成
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 底部导航 -->
+    <div class="mb-tab-bar">
+      <div class="mb-tab-item" onclick="navigateTo('mb_home.html')">
+        <svg class="mb-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span>首页</span>
+      </div>
+      <div class="mb-tab-item" onclick="navigateTo('mb_data.html')">
+        <svg class="mb-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        <span>监测</span>
+      </div>
+      <div class="mb-tab-item" onclick="navigateTo('mb_disease_knowledge.html')">
+        <svg class="mb-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><circle cx="12" cy="10" r="3"/></svg>
+        <span>病虫害</span>
+      </div>
+      <div class="mb-tab-item active">
+        <svg class="mb-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span>我的</span>
+      </div>
+    </div>
+
+    <script>
+      function goBack() {
+        navigateTo('mb_profile.html');
+      }
+
+      function navigateTo(page) {
+        window.location.href = page;
+      }
+
+      function switchTab(type, el) {
+        document.querySelectorAll('.msg-tab').forEach(function(t) { t.classList.remove('active'); });
+        el.classList.add('active');
+        document.querySelectorAll('.msg-tab-content').forEach(function(c) { c.classList.remove('active'); });
+        var tab = document.getElementById('tab-' + type);
+        if (tab) tab.classList.add('active');
+      }
+
+      function filterMessages(tab, filter, el) {
+        var parent = el.parentElement;
+        parent.querySelectorAll('.filter-tab').forEach(function(t) { t.classList.remove('active'); });
+        el.classList.add('active');
+
+        var items = document.querySelectorAll('#tab-' + tab + ' .msg-item');
+        var visibleCount = 0;
+        items.forEach(function(item) {
+          if (filter === 'all') {
+            item.style.display = '';
+            visibleCount++;
+          } else if (filter === 'unread') {
+            if (item.classList.contains('unread')) {
+              item.style.display = '';
+              visibleCount++;
+            } else {
+              item.style.display = 'none';
+            }
+          } else if (filter === 'pending') {
+            if (!item.classList.contains('completed')) {
+              item.style.display = '';
+              visibleCount++;
+            } else {
+              item.style.display = 'none';
+            }
+          } else if (filter === 'done') {
+            if (item.classList.contains('completed')) {
+              item.style.display = '';
+              visibleCount++;
+            } else {
+              item.style.display = 'none';
+            }
+          } else {
+            item.style.display = '';
+            visibleCount++;
+          }
+        });
+
+        var countEl = document.querySelector('#tab-' + tab + ' .msg-count');
+        if (countEl) countEl.textContent = '共 ' + visibleCount + ' 条';
+      }
+
+      function markRead(btn) {
+        var item = btn.closest('.msg-item');
+        if (item) {
+          item.classList.remove('unread');
+        }
+      }
+
+      function toggleTodo(checkbox) {
+        var item = checkbox.closest('.msg-item');
+        var isChecked = checkbox.classList.toggle('checked');
+        if (item && isChecked) {
+          item.classList.add('completed');
+          item.classList.remove('unread');
+          var headTag = item.querySelector('.msg-type-tag');
+          if (headTag) {
+            headTag.textContent = '已完成';
+            headTag.className = 'msg-type-tag done';
+          }
+        } else if (item) {
+          item.classList.remove('completed');
+        }
+      }
+    </script>
+  </div>
+</body>
+</html>

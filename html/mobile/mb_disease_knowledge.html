@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>桔农通 - 病虫害知识库</title>
+  <title>蜜桔农业助手 - 病虫害知识库</title>
   <link rel="stylesheet" href="css/mobile-design-system.css">
   <style>
     .page-header {
@@ -141,6 +141,51 @@
     .detail-section:last-child { margin-bottom: 0; }
     .detail-title { font-size: var(--font-base); font-weight: 600; color: var(--text); margin-bottom: var(--space-2); }
     .detail-text { font-size: var(--font-sm); color: var(--text-secondary); line-height: 1.6; }
+    
+    .treatment-plan { 
+      background: var(--primary-light); 
+      border-radius: var(--radius-lg); 
+      padding: var(--space-4); 
+      border: 1px solid var(--primary-light);
+    }
+    .treatment-plan .detail-title { color: var(--primary); }
+    .treatment-block { 
+      margin-bottom: var(--space-4); 
+      padding-bottom: var(--space-3); 
+      border-bottom: 1px dashed var(--border-light); 
+    }
+    .treatment-block:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+    .treatment-block.tips {
+      background: #fffbe6;
+      border-radius: var(--radius-md);
+      padding: var(--space-3);
+      border: 1px solid var(--warning-light);
+      border-bottom: none;
+    }
+    .treatment-label { 
+      display: flex; 
+      align-items: center; 
+      gap: 6px; 
+      font-size: var(--font-sm); 
+      font-weight: 600; 
+      color: var(--text); 
+      margin-bottom: var(--space-2); 
+    }
+    .treatment-label svg { color: var(--primary); }
+    .treatment-block.tips .treatment-label { color: var(--warning); }
+    .treatment-block.tips .treatment-label svg { color: var(--warning); }
+    .drug-list { display: flex; flex-wrap: wrap; gap: 8px; }
+    .drug-tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 10px;
+      background: var(--bg-white);
+      border: 1px solid var(--primary-light);
+      color: var(--primary);
+      border-radius: var(--radius-md);
+      font-size: var(--font-xs);
+      font-weight: 500;
+    }
     
     .detail-tags { display: flex; gap: var(--space-2); margin-bottom: var(--space-4); }
     .detail-tag {
@@ -339,18 +384,7 @@
           </div>
         </div>
       </div>
-    </div>
-
-    <div class="mb-tab-bar">
-      <div class="mb-tab-item" onclick="navigateTo('mb_home.html')">首页</div>
-      <div class="mb-tab-item" onclick="navigateTo('mb_data.html')">监测</div>
-      <div class="mb-tab-item" onclick="navigateTo('mb_ai.html')">AI助手</div>
-      <div class="mb-tab-item active" onclick="navigateTo('mb_disease.html')">病虫害</div>
-      <div class="mb-tab-item" onclick="navigateTo('mb_profile.html')">我的</div>
-    </div>
-  </div>
-
-  <div class="modal-overlay" id="detailModal">
+    </div><div class="modal-overlay" id="detailModal">
     <div class="modal-box">
       <div class="modal-header">
         <div class="modal-title" id="detailTitle">病虫害详情</div>
@@ -361,73 +395,130 @@
       <div class="modal-body" id="detailContent"></div>
       <div class="modal-footer">
         <button class="mb-btn mb-btn-outline" onclick="closeDetail()">关闭</button>
-        <button class="mb-btn mb-btn-primary" onclick="viewTreatment()">防治方案</button>
       </div>
     </div>
   </div>
-
-  <script>
+    <!-- 底部导航 -->
+    <div class="mb-tab-bar">
+      <div class="mb-tab-item" onclick="navigateTo('mb_home.html')">
+        <svg class="mb-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span>首页</span>
+      </div>
+      <div class="mb-tab-item" onclick="navigateTo('mb_data.html')">
+        <svg class="mb-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        <span>监测</span>
+      </div>
+      <div class="mb-tab-item active">
+        <svg class="mb-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><circle cx="12" cy="10" r="3"/></svg>
+        <span>病虫害</span>
+      </div>
+      <div class="mb-tab-item" onclick="navigateTo('mb_profile.html')">
+        <svg class="mb-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span>我的</span>
+      </div>
+    </div>
+<script>
     var diseaseData = {
       '黄龙病': {
         type: '病害',
         risk: '高风险',
         description: '黄龙病是由韧皮部杆菌引起的毁灭性病害，通过柑桔木虱传播。病树表现为叶片黄化、果实畸形、小果多，严重时整株死亡。',
         symptoms: '1. 叶片黄化，呈斑驳状，黄绿相间\n2. 果实变小、畸形，着色不均\n3. 病树生长衰弱，枝条干枯\n4. 根部腐烂',
-        prevention: '1. 严格检疫，杜绝病苗进入\n2. 种植无病苗木\n3. 彻底防治柑桔木虱\n4. 发现病树立即挖除烧毁\n5. 加强果园管理，增强树势'
+        prevention: '1. 严格检疫，杜绝病苗进入\n2. 种植无病苗木\n3. 彻底防治柑桔木虱\n4. 发现病树立即挖除烧毁\n5. 加强果园管理，增强树势',
+        treatment: {
+          drugs: ['噻虫嗪 25%SC 2000倍液', '吡虫啉 10%WP 1500倍液', '苦参碱 0.5%AS 500倍液'],
+          usage: '1. 梢期喷施，重点喷新梢嫩叶\n2. 每隔7-10天喷一次，连续2-3次\n3. 兼用杀木虱药剂，切断传播途径',
+          tips: '一旦发现黄龙病株，必须立即挖除烧毁，防止扩散。重点抓好柑桔木虱的防治。'
+        }
       },
       '黑点病': {
         type: '病害',
         risk: '中风险',
         description: '黑点病主要危害果实，在果实表面形成黑色小斑点，影响果实外观和商品价值。高温高湿环境易发病。',
         symptoms: '1. 果实表面出现针尖大小的黑色小斑点\n2. 斑点周围有黄色晕圈\n3. 严重时斑点连成一片',
-        prevention: '1. 冬季清园，减少病源\n2. 加强通风透光\n3. 药剂防治：谢花后喷代森锰锌等'
+        prevention: '1. 冬季清园，减少病源\n2. 加强通风透光\n3. 药剂防治：谢花后喷代森锰锌等',
+        treatment: {
+          drugs: ['代森锰锌 80%WP 600倍液', '苯醚甲环唑 10%WG 1500倍液', '甲基托布津 70%WP 800倍液'],
+          usage: '1. 谢花后10天开始喷药\n2. 每隔15-20天喷一次\n3. 重点喷施果实部位',
+          tips: '注意与其他杀菌剂交替使用，防止产生抗药性。雨前雨后及时补喷。'
+        }
       },
       '疮痂病': {
         type: '病害',
         risk: '中风险',
         description: '疮痂病主要危害嫩叶、嫩梢和幼果，导致叶片畸形、果实表面粗糙，影响产量和品质。',
         symptoms: '1. 叶片上出现蜡黄色圆锥形突起\n2. 病斑木栓化，表面粗糙\n3. 幼果表面出现瘤状突起',
-        prevention: '1. 冬季清园，剪除病枝\n2. 春梢和幼果期药剂防治\n3. 选用抗病品种'
+        prevention: '1. 冬季清园，剪除病枝\n2. 春梢和幼果期药剂防治\n3. 选用抗病品种',
+        treatment: {
+          drugs: ['苯醚甲环唑 10%WG 1500倍液', '吡唑醚菌酯 25%EC 2000倍液', '多菌灵 50%WP 800倍液'],
+          usage: '1. 春梢萌发期喷第一次药\n2. 花谢2/3时喷第二次\n3. 幼果膨大期喷第三次\n4. 每次间隔10-15天',
+          tips: '抓住春梢关键期用药，兼防其他叶部病害。避免在高温正午施药。'
+        }
       },
       '黑星病': {
         type: '病害',
         risk: '中风险',
         description: '黑星病主要危害果实，在果实成熟前后发病，形成黑色星状斑点，严重影响果实外观。',
         symptoms: '1. 果实表面出现圆形黑色斑点\n2. 病斑中心凹陷，周围有褐色晕圈\n3. 潮湿条件下病斑上长出黑色霉层',
-        prevention: '1. 加强果园排水\n2. 合理施肥，增强树势\n3. 幼果期药剂防治'
+        prevention: '1. 加强果园排水\n2. 合理施肥，增强树势\n3. 幼果期药剂防治',
+        treatment: {
+          drugs: ['氟硅唑 40%EC 8000倍液', '苯醚甲环唑 10%WG 2000倍液', '吡唑醚菌酯 25%EC 2000倍液'],
+          usage: '1. 幼果期开始喷药保护\n2. 每隔20天喷一次\n3. 连喷3-4次至果实套袋前',
+          tips: '套袋前必须喷药并待药液干后再套袋。采收前20天停止用药。'
+        }
       },
       '红蜘蛛': {
         type: '虫害',
         risk: '高风险',
         description: '红蜘蛛是蜜桔最常见的害虫之一，以刺吸式口器吸食叶片和果实汁液，导致叶片失绿、果实表面出现斑点。',
         symptoms: '1. 叶片出现灰白色小点，逐渐失绿\n2. 严重时叶片苍白脱落\n3. 果实表面出现褐色斑点\n4. 叶片背面有白色丝网',
-        prevention: '1. 冬季清园，刮除老皮\n2. 保护天敌（瓢虫、捕食螨等）\n3. 药剂防治：螺螨酯、乙螨唑等\n4. 注意药剂轮换，避免抗药性'
+        prevention: '1. 冬季清园，刮除老皮\n2. 保护天敌（瓢虫、捕食螨等）\n3. 药剂防治：螺螨酯、乙螨唑等\n4. 注意药剂轮换，避免抗药性',
+        treatment: {
+          drugs: ['螺螨酯 24%SC 5000倍液', '乙螨唑 11%SC 7000倍液', '阿维菌素 1.8%EC 2000倍液'],
+          usage: '1. 春季螨类始发期喷第一次药\n2. 7-10天喷一次，连喷2-3次\n3. 重点喷叶片背面\n4. 后期用杀卵剂与杀成螨剂混用',
+          tips: '红蜘蛛极易产生抗药性，必须轮换使用不同作用机制的药剂。保护和释放捕食螨等天敌。'
+        }
       },
       '柑桔木虱': {
         type: '虫害',
         risk: '高风险',
         description: '柑桔木虱是黄龙病的主要传播媒介，同时也是重要害虫，以成虫和若虫吸食嫩梢汁液。',
         symptoms: '1. 嫩梢叶片卷曲、畸形\n2. 若虫分泌白色蜜露，诱发煤烟病\n3. 严重时嫩梢枯萎',
-        prevention: '1. 彻底清除果园周围的芸香科植物\n2. 梢期重点防治\n3. 药剂防治：噻虫嗪、吡虫啉等\n4. 保持树冠通风透光'
+        prevention: '1. 彻底清除果园周围的芸香科植物\n2. 梢期重点防治\n3. 药剂防治：噻虫嗪、吡虫啉等\n4. 保持树冠通风透光',
+        treatment: {
+          drugs: ['噻虫嗪 25%SC 5000倍液', '吡虫啉 10%WP 3000倍液', '高效氯氟氰菊酯 4.5%EC 2000倍液'],
+          usage: '1. 每次新梢抽发期统一喷药\n2. 5-7天喷一次，连喷2-3次\n3. 优先使用内吸性药剂\n4. 全园统防统治效果最佳',
+          tips: '木虱是黄龙病唯一自然传播媒介，必须作为第一防控重点。建议建立统防统治机制。'
+        }
       },
       '蚧壳虫': {
         type: '虫害',
         risk: '中风险',
         description: '蚧壳虫种类繁多，主要有红蜡蚧、矢尖蚧、糠片蚧等，以刺吸式口器吸食汁液，分泌蜜露诱发煤烟病。',
         symptoms: '1. 枝条和叶片上出现白色或褐色蚧壳\n2. 叶片发黄、脱落\n3. 枝条衰弱，甚至枯死\n4. 诱发煤烟病',
-        prevention: '1. 冬季清园，剪除虫枝\n2. 保护天敌（寄生蜂、瓢虫等）\n3. 药剂防治：噻嗪酮、毒死蜱等\n4. 加强果园通风'
+        prevention: '1. 冬季清园，剪除虫枝\n2. 保护天敌（寄生蜂、瓢虫等）\n3. 药剂防治：噻嗪酮、毒死蜱等\n4. 加强果园通风',
+        treatment: {
+          drugs: ['噻嗪酮 25%WP 1500倍液', '毒死蜱 48%EC 1000倍液', '矿物油 95%EC 300倍液'],
+          usage: '1. 卵孵盛期至低龄若虫期喷药效果最佳\n2. 每隔10天喷一次，连喷2-3次\n3. 喷施时应充分湿润虫体\n4. 冬季可用松脂合剂清园',
+          tips: '蚧壳虫有蜡质外壳保护，需加洗衣粉或矿物油增加渗透性。剪除严重受害枝条并烧毁。'
+        }
       },
       '粉虱': {
         type: '虫害',
         risk: '中风险',
         description: '粉虱主要有白粉虱和黑刺粉虱，以成虫和若虫吸食叶片汁液，分泌蜜露诱发煤烟病。',
         symptoms: '1. 叶片背面有大量白色或黑色粉虱\n2. 叶片发黄、卷曲\n3. 诱发煤烟病，影响光合作用',
-        prevention: '1. 悬挂黄色粘虫板诱杀成虫\n2. 保护天敌（丽蚜小蜂等）\n3. 药剂防治：吡虫啉、啶虫脒等'
+        prevention: '1. 悬挂黄色粘虫板诱杀成虫\n2. 保护天敌（丽蚜小蜂等）\n3. 药剂防治：吡虫啉、啶虫脒等',
+        treatment: {
+          drugs: ['吡虫啉 10%WP 2000倍液', '啶虫脒 20%SP 3000倍液', '噻虫胺 20%SC 2000倍液'],
+          usage: '1. 成虫始盛期开始喷药\n2. 重点喷叶片背面\n3. 每隔7-10天喷一次\n4. 连喷2-3次',
+          tips: '黄板诱杀可作为物理防治手段配合使用。保护丽蚜小蜂等寄生性天敌效果显著。'
+        }
       }
     };
 
     function goBack() {
-      window.history.back();
+      navigateTo('mb_home.html');
     }
 
     function navigateTo(page) {
@@ -497,6 +588,34 @@
           <div class="detail-title">🌿 防治方法</div>
           <div class="detail-text" style="white-space: pre-line;">${data.prevention}</div>
         </div>
+        
+        ${data.treatment ? `
+        <div class="detail-section treatment-plan">
+          <div class="detail-title">💊 防治方案</div>
+          <div class="treatment-block">
+            <div class="treatment-label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><path d="M10.5 20.5L20 11a4.95 4.95 0 0 0-7-7l-9.5 9.5a4.95 4.95 0 0 0 7 7z"/></svg>
+              推荐用药
+            </div>
+            <div class="drug-list">
+              ${data.treatment.drugs.map(function(d) { return '<span class="drug-tag">' + d + '</span>'; }).join('')}
+            </div>
+          </div>
+          <div class="treatment-block">
+            <div class="treatment-label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              使用方法
+            </div>
+            <div class="detail-text" style="white-space: pre-line;">${data.treatment.usage}</div>
+          </div>
+          <div class="treatment-block tips">
+            <div class="treatment-label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+              注意事项
+            </div>
+            <div class="detail-text">${data.treatment.tips}</div>
+          </div>
+        </div>` : ''}
       `;
 
       document.getElementById('detailModal').classList.add('show');
@@ -504,11 +623,6 @@
 
     function closeDetail() {
       document.getElementById('detailModal').classList.remove('show');
-    }
-
-    function viewTreatment() {
-      closeDetail();
-      window.location.href = 'mb_disease_report.html';
     }
 
     document.querySelectorAll('.disease-card').forEach(function(card) {

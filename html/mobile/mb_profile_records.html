@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>桔农通 - 服务记录</title>
+  <title>蜜桔农业助手 - 上报记录</title>
   <link rel="stylesheet" href="css/mobile-design-system.css">
   <style>
     .page-header {
@@ -11,8 +11,17 @@
       background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
       padding: 44px 16px 20px;
       color: var(--bg-white);
+      overflow: hidden;
     }
-    
+    .page-header::before {
+      content: '';
+      position: absolute;
+      top: -40px; right: -30px;
+      width: 140px; height: 140px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 50%;
+    }
+
     .header-back {
       position: absolute;
       left: 12px;
@@ -25,142 +34,262 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
+      z-index: 1;
     }
-    
     .header-back svg { width: 18px; height: 18px; }
-    
-    .header-content { padding-left: 44px; }
+
+    .header-content { padding-left: 44px; position: relative; z-index: 1; }
     .header-title { font-size: var(--font-xl); font-weight: 700; }
     .header-sub { font-size: var(--font-sm); opacity: 0.85; margin-top: 4px; }
 
     .tab-bar {
       display: flex;
       background: var(--bg-white);
-      border-bottom: 1px solid var(--border);
-      padding: 0 16px;
+      margin: -12px 16px 16px;
+      border-radius: var(--radius-lg);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      padding: 4px;
+      position: relative;
+      z-index: 10;
     }
-    
     .tab-item {
       flex: 1;
-      padding: var(--space-3) 0;
+      padding: 10px 0;
       text-align: center;
-      font-size: var(--font-base);
+      font-size: var(--font-sm);
+      font-weight: 500;
       color: var(--text-secondary);
+      border-radius: var(--radius-md);
       cursor: pointer;
-      position: relative;
       transition: all var(--transition-fast);
     }
-    
     .tab-item.active {
+      background: var(--primary-light);
       color: var(--primary);
       font-weight: 600;
-    }
-    
-    .tab-item.active::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 40px;
-      height: 3px;
-      background: var(--primary);
-      border-radius: var(--radius-full);
     }
 
     .record-card {
       background: var(--bg-white);
-      border-radius: var(--radius-lg);
+      border-radius: var(--radius-xl);
       padding: var(--space-4);
-      margin-bottom: var(--space-4);
-      box-shadow: var(--shadow-card);
-      border: 1px solid var(--border);
+      margin: 0 16px 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.04);
       cursor: pointer;
       transition: all var(--transition-fast);
+      position: relative;
+      overflow: hidden;
     }
-    
-    .record-card:active { transform: scale(0.98); background: var(--gray-50); }
-    
+    .record-card:active { transform: scale(0.98); }
+    .record-card::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 4px;
+    }
+    .record-card.type-soil::before { background: var(--harvest-500); }
+    .record-card.type-weather::before { background: var(--info); }
+    .record-card.type-farming::before { background: var(--primary); }
+    .record-card.type-disease::before { background: var(--error); }
+
     .record-header {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      margin-bottom: var(--space-3);
+      gap: 10px;
+      margin-bottom: 10px;
     }
-    
+    .record-icon {
+      width: 36px; height: 36px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .record-icon svg { width: 18px; height: 18px; }
+    .record-icon.soil { background: var(--harvest-50); }
+    .record-icon.soil svg { color: var(--harvest-700); }
+    .record-icon.weather { background: var(--info-bg); }
+    .record-icon.weather svg { color: var(--info); }
+    .record-icon.farming { background: var(--primary-light); }
+    .record-icon.farming svg { color: var(--primary); }
+    .record-icon.disease { background: var(--error-bg); }
+    .record-icon.disease svg { color: var(--error); }
+
+    .record-title-wrap { flex: 1; }
     .record-title {
-      font-size: var(--font-md);
+      font-size: var(--font-base);
       font-weight: 600;
       color: var(--text);
     }
-    
-    .record-tag {
-      padding: var(--space-1) var(--space-2);
-      border-radius: var(--radius-lg);
+    .record-type-tag {
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+      font-weight: 600;
+      margin-top: 2px;
+      display: inline-block;
+    }
+    .record-type-tag.soil { background: var(--harvest-50); color: var(--harvest-700); }
+    .record-type-tag.weather { background: var(--info-bg); color: var(--info); }
+    .record-type-tag.farming { background: var(--primary-light); color: var(--primary); }
+    .record-type-tag.disease { background: var(--error-bg); color: var(--error); }
+
+    .record-status {
+      padding: 3px 10px;
+      border-radius: var(--radius-full);
       font-size: var(--font-xs);
       font-weight: 500;
     }
-    
-    .record-tag.warning { background: var(--warning-bg); color: var(--warning); }
-    .record-tag.success { background: var(--success-bg); color: var(--success); }
-    .record-tag.info { background: var(--info-bg); color: var(--info); }
-    
+    .record-status.success { background: var(--success-bg); color: var(--success); }
+    .record-status.info { background: var(--info-bg); color: var(--info); }
+
     .record-desc {
       font-size: var(--font-sm);
       color: var(--text-secondary);
-      line-height: 1.5;
-      margin-bottom: var(--space-3);
+      line-height: 1.6;
+      margin-bottom: 10px;
+      padding: 10px 12px;
+      background: var(--gray-50);
+      border-radius: var(--radius-md);
     }
-    
     .record-meta {
       display: flex;
       align-items: center;
-      gap: var(--space-4);
+      gap: 12px;
       font-size: var(--font-xs);
-      color: var(--text-light);
+      color: var(--text-tertiary);
+    }
+    .record-meta svg { width: 12px; height: 12px; }
+    .record-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
     }
 
+    /* 弹窗 */
     .modal-overlay {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(0,0,0,0.5); z-index: 1000;
-      display: none; justify-content: center; align-items: center;
+      display: none; justify-content: center; align-items: flex-end;
     }
-    
     .modal-overlay.show { display: flex; }
-    
-    .modal-box {
+    .detail-modal {
       background: var(--bg-white);
-      border-radius: var(--radius-xl);
-      width: 90%;
-      max-width: 360px;
+      border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+      width: 100%;
       max-height: 85vh;
       overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      animation: slideUp 0.3s ease;
     }
-    
-    .modal-header {
-      padding: var(--space-5);
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+    .detail-handle {
+      width: 36px; height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      margin: 8px auto 0;
+    }
+    .detail-header {
+      padding: 12px 20px 16px;
       border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
       justify-content: space-between;
     }
-    
-    .modal-title { font-size: var(--font-lg); font-weight: 600; color: var(--text); }
-    .modal-close {
+    .detail-header-title {
+      font-size: var(--font-lg);
+      font-weight: 700;
+      color: var(--text);
+    }
+    .detail-close {
       width: 32px; height: 32px;
       display: flex; align-items: center; justify-content: center;
       cursor: pointer;
       border-radius: var(--radius-md);
       background: var(--gray-100);
     }
-    
-    .modal-close svg { width: 18px; height: 18px; color: var(--text-secondary); }
-    
-    .modal-body { padding: var(--space-5); }
-    .modal-footer { padding: var(--space-4); border-top: 1px solid var(--border); }
-    
-    .btn-row { display: flex; gap: var(--space-3); }
-    .btn-row button { flex: 1; }
+    .detail-close svg { width: 18px; height: 18px; color: var(--text-secondary); }
+
+    .detail-body {
+      padding: 16px 20px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .detail-section {
+      margin-bottom: 20px;
+    }
+    .detail-section-title {
+      font-size: var(--font-sm);
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .detail-section-title svg { width: 16px; height: 16px; color: var(--primary); }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .detail-grid-item {
+      background: var(--gray-50);
+      border-radius: var(--radius-md);
+      padding: 12px;
+    }
+    .detail-grid-label {
+      font-size: var(--font-xs);
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+    }
+    .detail-grid-value {
+      font-size: var(--font-base);
+      font-weight: 600;
+      color: var(--text);
+    }
+    .detail-grid-value.success { color: var(--success); }
+    .detail-grid-value.warning { color: var(--warning); }
+    .detail-grid-value.error { color: var(--error); }
+
+    .detail-info-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border-light);
+      font-size: var(--font-sm);
+    }
+    .detail-info-row:last-child { border-bottom: none; }
+    .detail-info-label { color: var(--text-secondary); }
+    .detail-info-value { color: var(--text); font-weight: 500; }
+
+    .detail-note {
+      background: var(--gray-50);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      font-size: var(--font-sm);
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .detail-photo-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .detail-photo-item {
+      aspect-ratio: 1;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .detail-photo-item svg { width: 24px; height: 24px; opacity: 0.3; }
 
     .skeleton-state { display: none; }
     .mb-app.loading .real-content { display: none; }
@@ -169,223 +298,457 @@
 </head>
 <body>
   <div class="mb-app loading">
-    <!-- ===================== 骨架屏 ===================== -->
+    <!-- 骨架屏 -->
     <div class="skeleton-state">
       <div class="page-header">
-        <div class="header-nav">
-          <div style="width:36px;height:36px;"></div>
-          <div class="header-title"></div>
-        </div>
+        <div style="width:36px;height:36px;"></div>
+        <div class="mb-skeleton" style="width:100px;height:24px;margin-left:44px;"></div>
+        <div class="mb-skeleton" style="width:180px;height:14px;margin-left:44px;margin-top:6px;"></div>
       </div>
       <div class="tab-bar">
-        <div class="tab-item"></div>
-        <div class="tab-item"></div>
-        <div class="tab-item"></div>
+        <div class="mb-skeleton" style="flex:1;height:36px;border-radius:var(--radius-md);"></div>
+        <div class="mb-skeleton" style="flex:1;height:36px;border-radius:var(--radius-md);"></div>
+        <div class="mb-skeleton" style="flex:1;height:36px;border-radius:var(--radius-md);"></div>
+        <div class="mb-skeleton" style="flex:1;height:36px;border-radius:var(--radius-md);"></div>
+        <div class="mb-skeleton" style="flex:1;height:36px;border-radius:var(--radius-md);"></div>
       </div>
-      <div class="mb-section">
-        <div class="mb-skeleton-card">
-          <div class="mb-skeleton" style="width:100px;height:16px;margin-bottom:12px;"></div>
-          <div class="mb-skeleton-line long"></div>
-          <div class="mb-skeleton-line medium"></div>
-        </div>
-        <div style="height:20px;"></div>
-        <div class="mb-skeleton-card">
-          <div class="mb-skeleton" style="width:100px;height:16px;margin-bottom:12px;"></div>
-          <div class="mb-skeleton-line long"></div>
-          <div class="mb-skeleton-line medium"></div>
-        </div>
-        <div style="height:20px;"></div>
-        <div class="mb-skeleton-card">
-          <div class="mb-skeleton" style="width:100px;height:16px;margin-bottom:12px;"></div>
-          <div class="mb-skeleton-line long"></div>
-          <div class="mb-skeleton-line medium"></div>
-        </div>
+      <div class="mb-skeleton-card" style="margin:0 16px 16px;">
+        <div class="mb-skeleton" style="width:120px;height:16px;margin-bottom:12px;"></div>
+        <div class="mb-skeleton-line long"></div>
+        <div class="mb-skeleton-line medium"></div>
+      </div>
+      <div class="mb-skeleton-card" style="margin:0 16px 16px;">
+        <div class="mb-skeleton" style="width:120px;height:16px;margin-bottom:12px;"></div>
+        <div class="mb-skeleton-line long"></div>
+        <div class="mb-skeleton-line medium"></div>
+      </div>
+      <div class="mb-skeleton-card" style="margin:0 16px 16px;">
+        <div class="mb-skeleton" style="width:120px;height:16px;margin-bottom:12px;"></div>
+        <div class="mb-skeleton-line long"></div>
+        <div class="mb-skeleton-line medium"></div>
       </div>
     </div>
 
-    <!-- ===================== 真实内容 ===================== -->
+    <!-- 真实内容 -->
     <div class="real-content">
       <!-- Header -->
       <div class="page-header">
-        <div class="header-back" onclick="goBack()">
+        <a class="header-back" href="mb_profile.html" style="text-decoration:none;">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M15 18l-6-6 6-6"/>
           </svg>
-        </div>
+        </a>
         <div class="header-content">
-          <div class="header-title">服务记录</div>
-          <div class="header-sub">查看您的服务申请和处理记录</div>
+          <div class="header-title">上报记录</div>
+          <div class="header-sub">查看您通过数据上报提交的各项记录</div>
         </div>
       </div>
 
       <!-- Tab Bar -->
       <div class="tab-bar">
         <div class="tab-item active" data-tab="all" onclick="switchTab('all')">全部</div>
-        <div class="tab-item" data-tab="suggestion" onclick="switchTab('suggestion')">智能建议</div>
-        <div class="tab-item" data-tab="report" onclick="switchTab('report')">预警上报</div>
+        <div class="tab-item" data-tab="soil" onclick="switchTab('soil')">土壤数据</div>
+        <div class="tab-item" data-tab="weather" onclick="switchTab('weather')">气象数据</div>
+        <div class="tab-item" data-tab="farming" onclick="switchTab('farming')">农事记录</div>
+        <div class="tab-item" data-tab="disease" onclick="switchTab('disease')">病虫上报</div>
       </div>
 
-      <!-- Content -->
-      <div class="mb-section">
-        <div id="allRecords">
-          <div class="record-card" onclick="viewDetail('suggestion')">
-            <div class="record-header">
-              <div class="record-title">施肥建议</div>
-              <span class="record-tag success">已查看</span>
+      <!-- 内容区 -->
+      <div id="allRecords">
+        <!-- 土壤数据上报 -->
+        <div class="record-card type-soil" onclick="viewDetail('soil', 0)">
+          <div class="record-header">
+            <div class="record-icon soil">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
             </div>
-            <div class="record-desc">当前土壤氮含量偏低（1.2g/kg），建议在7月下旬施用复合肥，配合叶面喷施磷酸二氢钾，提高果实膨大期营养供给。</div>
-            <div class="record-meta">
-              <span>2026-07-22</span>
-              <span>1号早熟蜜桔区</span>
+            <div class="record-title-wrap">
+              <div class="record-title">土壤数据上报</div>
+              <span class="record-type-tag soil">土壤数据</span>
             </div>
+            <span class="record-status success">已提交</span>
           </div>
-
-          <div class="record-card" onclick="viewDetail('report')">
-            <div class="record-header">
-              <div class="record-title">红蜘蛛虫害上报</div>
-              <span class="record-tag info">处理中</span>
+          <div class="record-desc">pH值 5.8，有机质 2.1%，氮含量 1.2g/kg，磷 45mg/kg，钾 120mg/kg，土壤湿度 52%，墒情等级：适中。</div>
+          <div class="record-meta">
+            <div class="record-meta-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              2026-07-28
             </div>
-            <div class="record-desc">发现红蜘蛛虫害，中度发生，已拍照上传，等待农技人员审核处理。</div>
-            <div class="record-meta">
-              <span>2026-07-21</span>
-              <span>2号中熟蜜桔区</span>
-            </div>
-          </div>
-
-          <div class="record-card" onclick="viewDetail('suggestion')">
-            <div class="record-header">
-              <div class="record-title">灌溉建议</div>
-              <span class="record-tag success">已执行</span>
-            </div>
-            <div class="record-desc">根据土壤湿度监测数据，建议今日进行滴灌灌溉，灌溉时长约2小时，水量约15立方米/亩。</div>
-            <div class="record-meta">
-              <span>2026-07-20</span>
-              <span>1号早熟蜜桔区</span>
-            </div>
-          </div>
-
-          <div class="record-card" onclick="viewDetail('report')">
-            <div class="record-header">
-              <div class="record-title">黑点病病害上报</div>
-              <span class="record-tag success">已完成</span>
-            </div>
-            <div class="record-desc">发现黑点病，轻度发生，已按照农技人员指导进行药剂防治。</div>
-            <div class="record-meta">
-              <span>2026-07-18</span>
-              <span>3号晚熟蜜桔区</span>
-            </div>
-          </div>
-
-          <div class="record-card" onclick="viewDetail('suggestion')">
-            <div class="record-header">
-              <div class="record-title">病虫害预警</div>
-              <span class="record-tag warning">待处理</span>
-            </div>
-            <div class="record-desc">根据气象预测，未来一周高温高湿，易引发多种病虫害，建议加强监测和预防。</div>
-            <div class="record-meta">
-              <span>2026-07-19</span>
-              <span>全部地块</span>
-            </div>
+            <div class="record-meta-item">1号早熟蜜桔区</div>
           </div>
         </div>
 
-        <div id="suggestionRecords" style="display:none;">
-          <div class="record-card" onclick="viewDetail('suggestion')">
-            <div class="record-header">
-              <div class="record-title">施肥建议</div>
-              <span class="record-tag success">已查看</span>
+        <!-- 气象数据上报 -->
+        <div class="record-card type-weather" onclick="viewDetail('weather', 0)">
+          <div class="record-header">
+            <div class="record-icon weather">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h2M20 12h2"/></svg>
             </div>
-            <div class="record-desc">当前土壤氮含量偏低（1.2g/kg），建议在7月下旬施用复合肥，配合叶面喷施磷酸二氢钾，提高果实膨大期营养供给。</div>
-            <div class="record-meta">
-              <span>2026-07-22</span>
-              <span>1号早熟蜜桔区</span>
+            <div class="record-title-wrap">
+              <div class="record-title">气象数据上报</div>
+              <span class="record-type-tag weather">气象数据</span>
             </div>
+            <span class="record-status success">已提交</span>
           </div>
-
-          <div class="record-card" onclick="viewDetail('suggestion')">
-            <div class="record-header">
-              <div class="record-title">灌溉建议</div>
-              <span class="record-tag success">已执行</span>
+          <div class="record-desc">最高温 36.2°C，最低温 26.8°C，降雨量 0mm，天气状况：晴。</div>
+          <div class="record-meta">
+            <div class="record-meta-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              2026-07-28
             </div>
-            <div class="record-desc">根据土壤湿度监测数据，建议今日进行滴灌灌溉，灌溉时长约2小时，水量约15立方米/亩。</div>
-            <div class="record-meta">
-              <span>2026-07-20</span>
-              <span>1号早熟蜜桔区</span>
-            </div>
-          </div>
-
-          <div class="record-card" onclick="viewDetail('suggestion')">
-            <div class="record-header">
-              <div class="record-title">病虫害预警</div>
-              <span class="record-tag warning">待处理</span>
-            </div>
-            <div class="record-desc">根据气象预测，未来一周高温高湿，易引发多种病虫害，建议加强监测和预防。</div>
-            <div class="record-meta">
-              <span>2026-07-19</span>
-              <span>全部地块</span>
-            </div>
+            <div class="record-meta-item">1号早熟蜜桔区</div>
           </div>
         </div>
 
-        <div id="reportRecords" style="display:none;">
-          <div class="record-card" onclick="viewDetail('report')">
-            <div class="record-header">
-              <div class="record-title">红蜘蛛虫害上报</div>
-              <span class="record-tag info">处理中</span>
+        <!-- 农事记录上报 -->
+        <div class="record-card type-farming" onclick="viewDetail('farming', 0)">
+          <div class="record-header">
+            <div class="record-icon farming">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
             </div>
-            <div class="record-desc">发现红蜘蛛虫害，中度发生，已拍照上传，等待农技人员审核处理。</div>
-            <div class="record-meta">
-              <span>2026-07-21</span>
-              <span>2号中熟蜜桔区</span>
+            <div class="record-title-wrap">
+              <div class="record-title">农事记录上报</div>
+              <span class="record-type-tag farming">农事记录</span>
             </div>
+            <span class="record-status success">已提交</span>
           </div>
+          <div class="record-desc">农事类型：施肥，复合肥(15-15-15) 35kg/亩，配合叶面喷施磷酸二氢钾，选择早晚时段施肥。</div>
+          <div class="record-meta">
+            <div class="record-meta-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              2026-07-26
+            </div>
+            <div class="record-meta-item">2号中熟蜜桔区</div>
+          </div>
+        </div>
 
-          <div class="record-card" onclick="viewDetail('report')">
-            <div class="record-header">
-              <div class="record-title">黑点病病害上报</div>
-              <span class="record-tag success">已完成</span>
+        <!-- 病虫害数据上报 -->
+        <div class="record-card type-disease" onclick="viewDetail('disease', 0)">
+          <div class="record-header">
+            <div class="record-icon disease">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><circle cx="12" cy="10" r="3"/></svg>
             </div>
-            <div class="record-desc">发现黑点病，轻度发生，已按照农技人员指导进行药剂防治。</div>
-            <div class="record-meta">
-              <span>2026-07-18</span>
-              <span>3号晚熟蜜桔区</span>
+            <div class="record-title-wrap">
+              <div class="record-title">病虫害数据上报</div>
+              <span class="record-type-tag disease">病虫上报</span>
             </div>
+            <span class="record-status info">处理中</span>
+          </div>
+          <div class="record-desc">病虫害类型：红蜘蛛（虫害），发生程度：中度，发生地块：2号中熟蜜桔区，已拍照上传，等待农技人员审核。</div>
+          <div class="record-meta">
+            <div class="record-meta-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              2026-07-21
+            </div>
+            <div class="record-meta-item">2号中熟蜜桔区</div>
+          </div>
+        </div>
+
+        <!-- 更多记录 -->
+        <div class="record-card type-soil" onclick="viewDetail('soil', 1)">
+          <div class="record-header">
+            <div class="record-icon soil">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+            </div>
+            <div class="record-title-wrap">
+              <div class="record-title">土壤数据上报</div>
+              <span class="record-type-tag soil">土壤数据</span>
+            </div>
+            <span class="record-status success">已提交</span>
+          </div>
+          <div class="record-desc">pH值 6.0，有机质 2.3%，氮含量 1.5g/kg，磷 52mg/kg，钾 98mg/kg，土壤湿度 48%，墒情等级：适中。</div>
+          <div class="record-meta">
+            <div class="record-meta-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              2026-07-22
+            </div>
+            <div class="record-meta-item">2号中熟蜜桔区</div>
+          </div>
+        </div>
+
+        <div class="record-card type-disease" onclick="viewDetail('disease', 1)">
+          <div class="record-header">
+            <div class="record-icon disease">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><circle cx="12" cy="10" r="3"/></svg>
+            </div>
+            <div class="record-title-wrap">
+              <div class="record-title">病虫害数据上报</div>
+              <span class="record-type-tag disease">病虫上报</span>
+            </div>
+            <span class="record-status success">已完成</span>
+          </div>
+          <div class="record-desc">病虫害类型：黑点病（病害），发生程度：轻度，已按农技人员指导进行药剂防治。</div>
+          <div class="record-meta">
+            <div class="record-meta-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              2026-07-18
+            </div>
+            <div class="record-meta-item">3号晚熟蜜桔区</div>
+          </div>
+        </div>
+
+        <div class="record-card type-farming" onclick="viewDetail('farming', 1)">
+          <div class="record-header">
+            <div class="record-icon farming">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+            </div>
+            <div class="record-title-wrap">
+              <div class="record-title">农事记录上报</div>
+              <span class="record-type-tag farming">农事记录</span>
+            </div>
+            <span class="record-status success">已提交</span>
+          </div>
+          <div class="record-desc">农事类型：灌溉，滴灌2小时，水量约15立方米/亩，灌溉后土壤湿度提升至55%。</div>
+          <div class="record-meta">
+            <div class="record-meta-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              2026-07-20
+            </div>
+            <div class="record-meta-item">1号早熟蜜桔区</div>
+          </div>
+        </div>
+
+        <div class="record-card type-weather" onclick="viewDetail('weather', 1)">
+          <div class="record-header">
+            <div class="record-icon weather">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h2M20 12h2"/></svg>
+            </div>
+            <div class="record-title-wrap">
+              <div class="record-title">气象数据上报</div>
+              <span class="record-type-tag weather">气象数据</span>
+            </div>
+            <span class="record-status success">已提交</span>
+          </div>
+          <div class="record-desc">最高温 33.5°C，最低温 25.2°C，降雨量 8mm，天气状况：小雨。</div>
+          <div class="record-meta">
+            <div class="record-meta-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              2026-07-25
+            </div>
+            <div class="record-meta-item">2号中熟蜜桔区</div>
           </div>
         </div>
       </div>
+
+      <!-- 土壤数据 -->
+      <div id="soilRecords" style="display:none;">
+        <div class="record-card type-soil" onclick="viewDetail('soil', 0)">
+          <div class="record-header">
+            <div class="record-icon soil">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+            </div>
+            <div class="record-title-wrap">
+              <div class="record-title">土壤数据上报</div>
+              <span class="record-type-tag soil">土壤数据</span>
+            </div>
+            <span class="record-status success">已提交</span>
+          </div>
+          <div class="record-desc">pH值 5.8，有机质 2.1%，氮含量 1.2g/kg，磷 45mg/kg，钾 120mg/kg，土壤湿度 52%，墒情等级：适中。</div>
+          <div class="record-meta">
+            <div class="record-meta-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              2026-07-28
+            </div>
+            <div class="record-meta-item">1号早熟蜜桔区</div>
+          </div>
+        </div>
+
+        <div class="record-card type-soil" onclick="viewDetail('soil', 1)">
+          <div class="record-header">
+            <div class="record-icon soil">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+            </div>
+            <div class="record-title-wrap">
+              <div class="record-title">土壤数据上报</div>
+              <span class="record-type-tag soil">土壤数据</span>
+            </div>
+            <span class="record-status success">已提交</span>
+          </div>
+          <div class="record-desc">pH值 6.0，有机质 2.3%，氮含量 1.5g/kg，磷 52mg/kg，钾 98mg/kg，土壤湿度 48%，墒情等级：适中。</div>
+          <div class="record-meta">
+            <div class="record-meta-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              2026-07-22
+            </div>
+            <div class="record-meta-item">2号中熟蜜桔区</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 气象数据 -->
+      <div id="weatherRecords" style="display:none;">
+        <div class="record-card type-weather" onclick="viewDetail('weather', 0)">
+          <div class="record-header">
+            <div class="record-icon weather">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h2M20 12h2"/></svg>
+            </div>
+            <div class="record-title-wrap">
+              <div class="record-title">气象数据上报</div>
+              <span class="record-type-tag weather">气象数据</span>
+            </div>
+            <span class="record-status success">已提交</span>
+          </div>
+          <div class="record-desc">最高温 36.2°C，最低温 26.8°C，降雨量 0mm，天气状况：晴。</div>
+          <div class="record-meta">
+            <div class="record-meta-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              2026-07-28
+            </div>
+            <div class="record-meta-item">1号早熟蜜桔区</div>
+          </div>
+        </div>
+
+        <div class="record-card type-weather" onclick="viewDetail('weather', 1)">
+          <div class="record-header">
+            <div class="record-icon weather">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h2M20 12h2"/></svg>
+            </div>
+            <div class="record-title-wrap">
+              <div class="record-title">气象数据上报</div>
+              <span class="record-type-tag weather">气象数据</span>
+            </div>
+            <span class="record-status success">已提交</span>
+          </div>
+          <div class="record-desc">最高温 33.5°C，最低温 25.2°C，降雨量 8mm，天气状况：小雨。</div>
+          <div class="record-meta">
+            <div class="record-meta-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              2026-07-25
+            </div>
+            <div class="record-meta-item">2号中熟蜜桔区</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 农事记录 -->
+      <div id="farmingRecords" style="display:none;">
+        <div class="record-card type-farming" onclick="viewDetail('farming', 0)">
+          <div class="record-header">
+            <div class="record-icon farming">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+            </div>
+            <div class="record-title-wrap">
+              <div class="record-title">农事记录上报</div>
+              <span class="record-type-tag farming">农事记录</span>
+            </div>
+            <span class="record-status success">已提交</span>
+          </div>
+          <div class="record-desc">农事类型：施肥，复合肥(15-15-15) 35kg/亩，配合叶面喷施磷酸二氢钾，选择早晚时段施肥。</div>
+          <div class="record-meta">
+            <div class="record-meta-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              2026-07-26
+            </div>
+            <div class="record-meta-item">2号中熟蜜桔区</div>
+          </div>
+        </div>
+
+        <div class="record-card type-farming" onclick="viewDetail('farming', 1)">
+          <div class="record-header">
+            <div class="record-icon farming">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+            </div>
+            <div class="record-title-wrap">
+              <div class="record-title">农事记录上报</div>
+              <span class="record-type-tag farming">农事记录</span>
+            </div>
+            <span class="record-status success">已提交</span>
+          </div>
+          <div class="record-desc">农事类型：灌溉，滴灌2小时，水量约15立方米/亩，灌溉后土壤湿度提升至55%。</div>
+          <div class="record-meta">
+            <div class="record-meta-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              2026-07-20
+            </div>
+            <div class="record-meta-item">1号早熟蜜桔区</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 病虫上报 -->
+      <div id="diseaseRecords" style="display:none;">
+        <div class="record-card type-disease" onclick="viewDetail('disease', 0)">
+          <div class="record-header">
+            <div class="record-icon disease">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><circle cx="12" cy="10" r="3"/></svg>
+            </div>
+            <div class="record-title-wrap">
+              <div class="record-title">病虫害数据上报</div>
+              <span class="record-type-tag disease">病虫上报</span>
+            </div>
+            <span class="record-status info">处理中</span>
+          </div>
+          <div class="record-desc">病虫害类型：红蜘蛛（虫害），发生程度：中度，发生地块：2号中熟蜜桔区，已拍照上传，等待农技人员审核。</div>
+          <div class="record-meta">
+            <div class="record-meta-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              2026-07-21
+            </div>
+            <div class="record-meta-item">2号中熟蜜桔区</div>
+          </div>
+        </div>
+
+        <div class="record-card type-disease" onclick="viewDetail('disease', 1)">
+          <div class="record-header">
+            <div class="record-icon disease">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><circle cx="12" cy="10" r="3"/></svg>
+            </div>
+            <div class="record-title-wrap">
+              <div class="record-title">病虫害数据上报</div>
+              <span class="record-type-tag disease">病虫上报</span>
+            </div>
+            <span class="record-status success">已完成</span>
+          </div>
+          <div class="record-desc">病虫害类型：黑点病（病害），发生程度：轻度，已按农技人员指导进行药剂防治。</div>
+          <div class="record-meta">
+            <div class="record-meta-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              2026-07-18
+            </div>
+            <div class="record-meta-item">3号晚熟蜜桔区</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="height: 80px;"></div>
     </div><!-- /real-content -->
-
-    <!-- 底部导航 -->
-    <div class="mb-tab-bar">
-      <div class="mb-tab-item" onclick="navigateTo('mb_home.html')">首页</div>
-      <div class="mb-tab-item" onclick="navigateTo('mb_data.html')">监测</div>
-      <div class="mb-tab-item" onclick="navigateTo('mb_ai.html')">AI助手</div>
-      <div class="mb-tab-item" onclick="navigateTo('mb_disease.html')">病虫害</div>
-      <div class="mb-tab-item active" onclick="navigateTo('mb_profile.html')">我的</div>
-    </div>
 
     <!-- 详情弹窗 -->
     <div class="modal-overlay" id="detailModal">
-      <div class="modal-box">
-        <div class="modal-header">
-          <div class="modal-title">记录详情</div>
-          <div class="modal-close" onclick="closeModal('detailModal')">
+      <div class="detail-modal">
+        <div class="detail-handle"></div>
+        <div class="detail-header">
+          <div class="detail-header-title" id="detailTitle">上报详情</div>
+          <div class="detail-close" onclick="closeModal('detailModal')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
           </div>
         </div>
-        <div class="modal-body" id="detailContent"></div>
-        <div class="modal-footer">
-          <div class="btn-row">
-            <button class="mb-btn mb-btn-outline" onclick="closeModal('detailModal')">关闭</button>
-            <button class="mb-btn mb-btn-primary" onclick="executeAction()">执行操作</button>
-          </div>
-        </div>
+        <div class="detail-body" id="detailBody"></div>
       </div>
     </div>
 
-    <script>
+    <!-- 底部导航 -->
+    <div class="mb-tab-bar">
+      <div class="mb-tab-item" onclick="navigateTo('mb_home.html')">
+        <svg class="mb-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span>首页</span>
+      </div>
+      <div class="mb-tab-item" onclick="navigateTo('mb_data.html')">
+        <svg class="mb-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        <span>监测</span>
+      </div>
+      <div class="mb-tab-item" onclick="navigateTo('mb_disease_knowledge.html')">
+        <svg class="mb-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><circle cx="12" cy="10" r="3"/></svg>
+        <span>病虫害</span>
+      </div>
+      <div class="mb-tab-item active">
+        <svg class="mb-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span>我的</span>
+      </div>
+    </div>
+
+<script>
       function goBack() {
-        window.history.back();
+        navigateTo('mb_profile.html');
       }
 
       function navigateTo(page) {
@@ -396,63 +759,261 @@
         document.querySelectorAll('.tab-item').forEach(el => {
           el.classList.remove('active');
         });
-        document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
-        
-        document.querySelectorAll('[id$="Records"]').forEach(el => {
-          el.style.display = 'none';
+        document.querySelector('[data-tab="' + tab + '"]').classList.add('active');
+
+        var containers = ['allRecords', 'soilRecords', 'weatherRecords', 'farmingRecords', 'diseaseRecords'];
+        containers.forEach(function(id) {
+          var el = document.getElementById(id);
+          if (el) el.style.display = 'none';
         });
-        document.getElementById(tab + 'Records').style.display = 'block';
+        var target = document.getElementById(tab + 'Records');
+        if (target) target.style.display = 'block';
       }
 
-      function viewDetail(type) {
-        var content = '';
-        if (type === 'suggestion') {
-          content = `
-            <div style="font-size: var(--font-lg); font-weight: 600; color: var(--text); margin-bottom: var(--space-3);">施肥建议</div>
-            <div style="font-size: var(--font-sm); color: var(--text-secondary); line-height: 1.6; margin-bottom: var(--space-4);">
-              当前土壤氮含量偏低（1.2g/kg），建议在7月下旬施用复合肥，配合叶面喷施磷酸二氢钾，提高果实膨大期营养供给。<br><br>
-              <strong>建议用量：</strong><br>
-              - 复合肥（15-15-15）：30-40kg/亩<br>
-              - 磷酸二氢钾：0.3%浓度叶面喷施<br>
-              - 施肥时间：选择早晚气温较低时进行
-            </div>
-            <div style="display: flex; gap: var(--space-4); font-size: var(--font-xs); color: var(--text-light);">
-              <span>2026-07-22</span>
-              <span>•</span>
-              <span>1号早熟蜜桔区</span>
-              <span>•</span>
-              <span>已查看</span>
-            </div>
-          `;
-        } else {
-          content = `
-            <div style="font-size: var(--font-lg); font-weight: 600; color: var(--text); margin-bottom: var(--space-3);">红蜘蛛虫害上报</div>
-            <div style="font-size: var(--font-sm); color: var(--text-secondary); line-height: 1.6; margin-bottom: var(--space-4);">
-              发现红蜘蛛虫害，中度发生，已拍照上传，等待农技人员审核处理。<br><br>
-              <strong>上报信息：</strong><br>
-              - 病虫害类型：红蜘蛛（虫害）<br>
-              - 发生程度：中度<br>
-              - 发生地块：2号中熟蜜桔区<br>
-              - 上报时间：2026-07-21
-            </div>
-            <div style="padding: var(--space-3); background: var(--info-bg); border-radius: var(--radius-md); margin-bottom: var(--space-4);">
-              <div style="font-size: var(--font-sm); font-weight: 600; color: var(--info); margin-bottom: var(--space-2);">农技人员回复</div>
-              <div style="font-size: var(--font-sm); color: var(--text-secondary);">已收到您的上报信息，农技人员将于24小时内上门查看并给出防治建议。</div>
-            </div>
-            <div style="display: flex; gap: var(--space-4); font-size: var(--font-xs); color: var(--text-light);">
-              <span>2026-07-21</span>
-              <span>•</span>
-              <span>处理中</span>
-            </div>
-          `;
+      var recordData = {
+        soil: [
+          {
+            title: '土壤数据上报',
+            date: '2026-07-28',
+            location: '1号早熟蜜桔区',
+            status: '已提交',
+            soilData: { ph: '5.8', organic: '2.1%', nitrogen: '1.2 g/kg', phosphorus: '45 mg/kg', potassium: '120 mg/kg' },
+            moisture: { humidity: '52%', level: '适中' }
+          },
+          {
+            title: '土壤数据上报',
+            date: '2026-07-22',
+            location: '2号中熟蜜桔区',
+            status: '已提交',
+            soilData: { ph: '6.0', organic: '2.3%', nitrogen: '1.5 g/kg', phosphorus: '52 mg/kg', potassium: '98 mg/kg' },
+            moisture: { humidity: '48%', level: '适中' }
+          }
+        ],
+        weather: [
+          {
+            title: '气象数据上报',
+            date: '2026-07-28',
+            location: '1号早熟蜜桔区',
+            status: '已提交',
+            weatherData: { tempHigh: '36.2°C', tempLow: '26.8°C', rainfall: '0 mm', condition: '晴' }
+          },
+          {
+            title: '气象数据上报',
+            date: '2026-07-25',
+            location: '2号中熟蜜桔区',
+            status: '已提交',
+            weatherData: { tempHigh: '33.5°C', tempLow: '25.2°C', rainfall: '8 mm', condition: '小雨' }
+          }
+        ],
+        farming: [
+          {
+            title: '农事记录上报',
+            date: '2026-07-26',
+            location: '2号中熟蜜桔区',
+            status: '已提交',
+            farmingData: { type: '施肥', date: '2026-07-26', note: '复合肥(15-15-15) 35kg/亩，配合叶面喷施0.2%磷酸二氢钾溶液，选择早晚气温较低时施肥。' }
+          },
+          {
+            title: '农事记录上报',
+            date: '2026-07-20',
+            location: '1号早熟蜜桔区',
+            status: '已提交',
+            farmingData: { type: '灌溉', date: '2026-07-20', note: '滴灌2小时，水量约15立方米/亩，灌溉后土壤湿度从42%提升至55%。' }
+          }
+        ],
+        disease: [
+          {
+            title: '病虫害数据上报',
+            date: '2026-07-21',
+            location: '2号中熟蜜桔区',
+            status: '处理中',
+            diseaseData: {
+              type: '红蜘蛛（虫害）', level: '中度', date: '2026-07-21',
+              disposed: '未处置', method: '-', note: '叶片背面发现红蜘蛛活动迹象，中度发生，已拍照上传现场照片3张。',
+              photos: 3
+            },
+            reply: '已收到您的上报信息，农技人员将于24小时内上门查看并给出防治建议。'
+          },
+          {
+            title: '病虫害数据上报',
+            date: '2026-07-18',
+            location: '3号晚熟蜜桔区',
+            status: '已完成',
+            diseaseData: {
+              type: '黑点病（病害）', level: '轻度', date: '2026-07-18',
+              disposed: '已处置', method: '化学防治', note: '果实表面发现少量黑点病斑，轻度发生，已喷施代森锰锌进行防治。',
+              photos: 2
+            },
+            reply: '农技人员已确认防治措施到位，建议继续观察7天，如无新病斑出现即可解除预警。'
+          }
+        ]
+      };
+
+      function viewDetail(type, index) {
+        var data = recordData[type][index];
+        var html = '';
+
+        if (type === 'soil') {
+          html = renderSoilDetail(data);
+        } else if (type === 'weather') {
+          html = renderWeatherDetail(data);
+        } else if (type === 'farming') {
+          html = renderFarmingDetail(data);
+        } else if (type === 'disease') {
+          html = renderDiseaseDetail(data);
         }
-        document.getElementById('detailContent').innerHTML = content;
+
+        document.getElementById('detailTitle').textContent = data.title;
+        document.getElementById('detailBody').innerHTML = html;
         document.getElementById('detailModal').classList.add('show');
       }
 
-      function executeAction() {
-        closeModal('detailModal');
-        alert('操作执行成功');
+      function renderSoilDetail(data) {
+        return `
+          <div class="detail-section">
+            <div class="detail-section-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+              地块信息
+            </div>
+            <div class="detail-info-row"><span class="detail-info-label">定位地块</span><span class="detail-info-value">${data.location}</span></div>
+            <div class="detail-info-row"><span class="detail-info-label">采样日期</span><span class="detail-info-value">${data.date}</span></div>
+            <div class="detail-info-row"><span class="detail-info-label">提交状态</span><span class="detail-info-value" style="color:var(--success)">${data.status}</span></div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-section-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+              土壤指标
+            </div>
+            <div class="detail-grid">
+              <div class="detail-grid-item"><div class="detail-grid-label">pH值</div><div class="detail-grid-value">${data.soilData.ph}</div></div>
+              <div class="detail-grid-item"><div class="detail-grid-label">有机质</div><div class="detail-grid-value">${data.soilData.organic}</div></div>
+              <div class="detail-grid-item"><div class="detail-grid-label">氮含量</div><div class="detail-grid-value">${data.soilData.nitrogen}</div></div>
+              <div class="detail-grid-item"><div class="detail-grid-label">磷含量</div><div class="detail-grid-value">${data.soilData.phosphorus}</div></div>
+              <div class="detail-grid-item"><div class="detail-grid-label">钾含量</div><div class="detail-grid-value">${data.soilData.potassium}</div></div>
+            </div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-section-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l-5.5 9 1.8 0 0 5.5 7.4 0 0-5.5 1.8 0z"/><circle cx="12" cy="7" r="2"/></svg>
+              墒情数据
+            </div>
+            <div class="detail-grid">
+              <div class="detail-grid-item"><div class="detail-grid-label">土壤湿度</div><div class="detail-grid-value">${data.moisture.humidity}</div></div>
+              <div class="detail-grid-item"><div class="detail-grid-label">墒情等级</div><div class="detail-grid-value success">${data.moisture.level}</div></div>
+            </div>
+          </div>
+        `;
+      }
+
+      function renderWeatherDetail(data) {
+        return `
+          <div class="detail-section">
+            <div class="detail-section-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h2M20 12h2"/></svg>
+              气象数据
+            </div>
+            <div class="detail-info-row"><span class="detail-info-label">记录日期</span><span class="detail-info-value">${data.date}</span></div>
+            <div class="detail-info-row"><span class="detail-info-label">地块</span><span class="detail-info-value">${data.location}</span></div>
+            <div class="detail-info-row"><span class="detail-info-label">提交状态</span><span class="detail-info-value" style="color:var(--success)">${data.status}</span></div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-section-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h2M20 12h2"/></svg>
+              气象指标
+            </div>
+            <div class="detail-grid">
+              <div class="detail-grid-item"><div class="detail-grid-label">最高温度</div><div class="detail-grid-value error">${data.weatherData.tempHigh}</div></div>
+              <div class="detail-grid-item"><div class="detail-grid-label">最低温度</div><div class="detail-grid-value">${data.weatherData.tempLow}</div></div>
+              <div class="detail-grid-item"><div class="detail-grid-label">降雨量</div><div class="detail-grid-value">${data.weatherData.rainfall}</div></div>
+              <div class="detail-grid-item"><div class="detail-grid-label">天气状况</div><div class="detail-grid-value">${data.weatherData.condition}</div></div>
+            </div>
+          </div>
+        `;
+      }
+
+      function renderFarmingDetail(data) {
+        var d = data.farmingData;
+        return `
+          <div class="detail-section">
+            <div class="detail-section-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+              农事记录
+            </div>
+            <div class="detail-info-row"><span class="detail-info-label">定位地块</span><span class="detail-info-value">${data.location}</span></div>
+            <div class="detail-info-row"><span class="detail-info-label">农事类型</span><span class="detail-info-value">${d.type}</span></div>
+            <div class="detail-info-row"><span class="detail-info-label">执行日期</span><span class="detail-info-value">${d.date}</span></div>
+            <div class="detail-info-row"><span class="detail-info-label">提交状态</span><span class="detail-info-value" style="color:var(--success)">${data.status}</span></div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-section-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+              备注说明
+            </div>
+            <div class="detail-note">${d.note}</div>
+          </div>
+        `;
+      }
+
+      function renderDiseaseDetail(data) {
+        var d = data.diseaseData;
+        var levelClass = d.level === '轻度' ? 'success' : d.level === '中度' ? 'warning' : 'error';
+        var photoHtml = '';
+        for (var i = 0; i < d.photos; i++) {
+          photoHtml += '<div class="detail-photo-item" style="background:linear-gradient(135deg, #fff3e0, #ffe0b2);"><svg viewBox="0 0 24 24" fill="none" stroke="#ffb74d" stroke-width="1.5"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg></div>';
+        }
+        return `
+          <div class="detail-section">
+            <div class="detail-section-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+              基本信息
+            </div>
+            <div class="detail-info-row"><span class="detail-info-label">病虫害类型</span><span class="detail-info-value">${d.type}</span></div>
+            <div class="detail-info-row"><span class="detail-info-label">发生地块</span><span class="detail-info-value">${data.location}</span></div>
+            <div class="detail-info-row"><span class="detail-info-label">发生日期</span><span class="detail-info-value">${d.date}</span></div>
+            <div class="detail-info-row"><span class="detail-info-label">提交状态</span><span class="detail-info-value" style="color:${data.status === '已完成' ? 'var(--success)' : 'var(--info)'}">${data.status}</span></div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-section-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              发生程度
+            </div>
+            <div class="detail-grid">
+              <div class="detail-grid-item"><div class="detail-grid-label">发生程度</div><div class="detail-grid-value ${levelClass}">${d.level}</div></div>
+              <div class="detail-grid-item"><div class="detail-grid-label">照片数量</div><div class="detail-grid-value">${d.photos} 张</div></div>
+            </div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-section-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+              现场照片
+            </div>
+            <div class="detail-photo-grid">${photoHtml}</div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-section-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              处置情况
+            </div>
+            <div class="detail-info-row"><span class="detail-info-label">处置状态</span><span class="detail-info-value">${d.disposed}</span></div>
+            ${d.disposed === '已处置' ? '<div class="detail-info-row"><span class="detail-info-label">处置方式</span><span class="detail-info-value">' + d.method + '</span></div>' : ''}
+          </div>
+          <div class="detail-section">
+            <div class="detail-section-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+              备注信息
+            </div>
+            <div class="detail-note">${d.note}</div>
+          </div>
+          ${data.reply ? `
+          <div class="detail-section">
+            <div class="detail-section-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+              农技人员回复
+            </div>
+            <div class="detail-note" style="background:var(--info-bg);color:var(--text);">${data.reply}</div>
+          </div>
+          ` : ''}
+        `;
       }
 
       function closeModal(id) {

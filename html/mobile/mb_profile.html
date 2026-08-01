@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>桔农通 - 我的</title>
+  <title>蜜桔农业助手 - 我的</title>
   <link rel="stylesheet" href="css/mobile-design-system.css">
   <style>
     .profile-section {
@@ -185,7 +185,7 @@
       max-width: 380px;
       max-height: 85vh;
       overflow: hidden;
-      animation: slideUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+      animation: slideUp 0.3s ease;
       box-shadow: 0 20px 60px rgba(0,0,0,0.2);
     }
 
@@ -441,25 +441,6 @@
           <div class="profile-area">负责区域：南丰县 · 白舍镇 · 6块地块</div>
         </div>
       </div>
-
-      <div class="profile-stats">
-        <div class="stat-item">
-          <div class="stat-num">800</div>
-          <div class="stat-label">亩</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-num">2.8</div>
-          <div class="stat-label">万株</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-num">6</div>
-          <div class="stat-label">地块</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-num">96%</div>
-          <div class="stat-label">良品率</div>
-        </div>
-      </div>
     </header>
 
     <div class="content">
@@ -472,6 +453,22 @@
           </div>
           <div class="mb-list-content">
             <div class="mb-list-title">我的果园</div>
+          </div>
+          <div class="mb-list-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
+          </div>
+        </div>
+
+        <div class="mb-list-item" onclick="navigateTo('mb_messages.html')">
+          <div class="mb-list-icon menu-icon red">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+          </div>
+          <div class="mb-list-content">
+            <div class="mb-list-title">我的消息</div>
           </div>
           <div class="mb-list-arrow">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -493,6 +490,24 @@
           </div>
           <div class="mb-list-content">
             <div class="mb-list-title">我的上报</div>
+          </div>
+          <div class="mb-list-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
+          </div>
+        </div>
+
+        <div class="mb-list-item" onclick="navigateTo('mb_profile_reports.html')">
+          <div class="mb-list-icon menu-icon green">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-4"/>
+              <rect x="9" y="3" width="6" height="8" rx="1"/>
+              <path d="M9 14l2 2 4-4"/>
+            </svg>
+          </div>
+          <div class="mb-list-content">
+            <div class="mb-list-title">我的报告</div>
           </div>
           <div class="mb-list-arrow">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -574,20 +589,9 @@
         </div>
       </div>
 
-      <button class="mb-btn mb-btn-secondary mb-btn-block" style="margin: var(--space-4);" onclick="confirmLogout()">退出登录</button>
+      <button class="mb-btn mb-btn-secondary" style="margin: var(--space-4) auto; display: block; min-width: 180px;" onclick="confirmLogout()">退出登录</button>
     </div>
-    </div>
-
-    <div class="mb-tab-bar">
-      <div class="mb-tab-item" onclick="navigateTo('mb_home.html')">首页</div>
-      <div class="mb-tab-item" onclick="navigateTo('mb_data.html')">监测</div>
-      <div class="mb-tab-item" onclick="navigateTo('mb_ai.html')">AI助手</div>
-      <div class="mb-tab-item" onclick="navigateTo('mb_disease.html')">病虫害</div>
-      <div class="mb-tab-item active">我的</div>
-    </div>
-  </div>
-
-  <div class="modal-overlay" id="modal">
+    </div><div class="modal-overlay" id="modal">
     <div class="modal-box">
       <div class="modal-title" id="modalTitle">操作提示</div>
       <div class="modal-content" id="modalContent">确定要退出登录吗？</div>
@@ -680,7 +684,7 @@
             在线服务
           </div>
           <div class="info-list">
-            <div class="info-list-item">微信公众号：桔农通服务号</div>
+            <div class="info-list-item">微信公众号：蜜桔农业助手服务号</div>
             <div class="info-list-item">QQ群：123456789</div>
             <div class="info-list-item">在线时间：工作日 9:00-17:00</div>
           </div>
@@ -688,8 +692,26 @@
       </div>
     </div>
   </div>
-
-  <script>
+    <!-- 底部导航 -->
+    <div class="mb-tab-bar">
+      <div class="mb-tab-item" onclick="navigateTo('mb_home.html')">
+        <svg class="mb-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span>首页</span>
+      </div>
+      <div class="mb-tab-item" onclick="navigateTo('mb_data.html')">
+        <svg class="mb-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        <span>监测</span>
+      </div>
+      <div class="mb-tab-item" onclick="navigateTo('mb_disease_knowledge.html')">
+        <svg class="mb-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><circle cx="12" cy="10" r="3"/></svg>
+        <span>病虫害</span>
+      </div>
+      <div class="mb-tab-item active">
+        <svg class="mb-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span>我的</span>
+      </div>
+    </div>
+<script>
     function navigateTo(page) { window.location.href = page; }
 
     function openModal(title, content) {

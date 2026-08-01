@@ -77,29 +77,7 @@
         </div>
     </div>
 
-    <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 mt-6">
-        <div class="flex items-center justify-between mb-4">
-            <h2 class="text-lg font-semibold text-gray-800">农事年历</h2>
-            <div class="flex items-center space-x-3">
-                <input type="text" id="calendar-search" placeholder="搜索物候期名称..." class="pl-3 pr-4 py-2 border border-gray-300 rounded-lg text-sm w-56" oninput="filterCalendar()">
-                <button onclick="openCalendarAddModal()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">+ 添加</button>
-            </div>
-        </div>
-        <div class="overflow-x-auto">
-            <table class="w-full text-sm">
-                <thead><tr class="border-b border-gray-200"><th class="text-left py-3 px-4 font-semibold text-gray-600">物候期</th><th class="text-left py-3 px-4 font-semibold text-gray-600">时间范围</th><th class="text-left py-3 px-4 font-semibold text-gray-600">主要农事操作</th><th class="text-left py-3 px-4 font-semibold text-gray-600">模型关注点</th><th class="text-left py-3 px-4 font-semibold text-gray-600">当前状态</th><th class="text-left py-3 px-4 font-semibold text-gray-600">操作</th></tr></thead>
-                <tbody id="calendar-tbody"></tbody>
-            </table>
-        </div>
-        <div class="pt-4 border-t border-gray-100 flex items-center justify-between">
-            <p class="text-sm text-gray-500">共 <span id="calendar-total-count">6</span> 条记录</p>
-            <div class="flex items-center space-x-2">
-                <button onclick="calendarPrevPage()" class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50">上一页</button>
-                <span class="text-sm text-gray-600"><span id="calendar-current-page">1</span> / <span id="calendar-total-pages">2</span></span>
-                <button onclick="calendarNextPage()" class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50">下一页</button>
-            </div>
-        </div>
-    </div>
+
 </div>
 
 <!-- 算法查看弹窗 -->
@@ -232,95 +210,6 @@
         <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:12px">
             <button onclick="closeModal('save-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
             <button onclick="submitSaveParams()" style="padding:8px 16px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">确认保存</button>
-        </div>
-    </div>
-</div>
-
-<!-- 查看物候期弹窗 -->
-<div id="calendar-view-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center">
-    <div style="background:#fff;border-radius:12px;width:90%;max-width:500px;max-height:85vh;overflow-y:auto">
-        <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
-            <h3 style="font-size:18px;font-weight:600;color:#1f2937">查看物候期详情</h3>
-            <button onclick="closeModal('calendar-view-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
-        </div>
-        <div style="padding:24px">
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
-                <div><label style="font-size:14px;color:#6b7280;display:block;margin-bottom:4px">物候期</label><p style="font-size:14px;font-weight:500;color:#1f2937" id="view-cal-name">-</p></div>
-                <div><label style="font-size:14px;color:#6b7280;display:block;margin-bottom:4px">时间范围</label><p style="font-size:14px;font-weight:500;color:#1f2937" id="view-cal-time">-</p></div>
-                <div><label style="font-size:14px;color:#6b7280;display:block;margin-bottom:4px">当前状态</label><p style="font-size:14px;font-weight:500;color:#1f2937" id="view-cal-status">-</p></div>
-                <div style="grid-column:1/-1"><label style="font-size:14px;color:#6b7280;display:block;margin-bottom:4px">主要农事操作</label><p style="font-size:14px;color:#1f2937" id="view-cal-operation">-</p></div>
-                <div style="grid-column:1/-1"><label style="font-size:14px;color:#6b7280;display:block;margin-bottom:4px">模型关注点</label><p style="font-size:14px;color:#1f2937" id="view-cal-focus">-</p></div>
-            </div>
-        </div>
-        <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end">
-            <button onclick="closeModal('calendar-view-modal')" style="padding:8px 16px;background:#f3f4f6;color:#374151;border:none;border-radius:8px;font-size:14px;cursor:pointer">关闭</button>
-        </div>
-    </div>
-</div>
-
-<!-- 添加物候期弹窗 -->
-<div id="calendar-add-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center">
-    <div style="background:#fff;border-radius:12px;width:90%;max-width:500px;max-height:85vh;overflow-y:auto">
-        <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
-            <h3 style="font-size:18px;font-weight:600;color:#1f2937">+ 添加物候期</h3>
-            <button onclick="closeModal('calendar-add-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
-        </div>
-        <div style="padding:24px;display:flex;flex-direction:column;gap:16px">
-            <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">物候期名称 <span style="color:#ef4444">*</span></label><input type="text" id="add-cal-name" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box" placeholder="请输入物候期名称"></div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">开始时间</label><input type="text" id="add-cal-time-start" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box" placeholder="如：7月中旬"></div>
-                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">结束时间</label><input type="text" id="add-cal-time-end" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box" placeholder="如：10月上旬"></div>
-            </div>
-            <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">主要农事操作 <span style="color:#ef4444">*</span></label><input type="text" id="add-cal-operation" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box" placeholder="如：追肥、灌溉、病虫害防治"></div>
-            <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">模型关注点 <span style="color:#ef4444">*</span></label><input type="text" id="add-cal-focus" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box" placeholder="如：果径增长、糖分积累"></div>
-            <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">当前状态</label><select id="add-cal-status" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"><option value="未开始">未开始</option><option value="进行中">进行中</option><option value="已结束">已结束</option></select></div>
-        </div>
-        <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:12px">
-            <button onclick="closeModal('calendar-add-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
-            <button onclick="submitCalendarAdd()" style="padding:8px 16px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">确认添加</button>
-        </div>
-    </div>
-</div>
-
-<!-- 编辑物候期弹窗 -->
-<div id="calendar-edit-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center">
-    <div style="background:#fff;border-radius:12px;width:90%;max-width:500px;max-height:85vh;overflow-y:auto">
-        <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
-            <h3 style="font-size:18px;font-weight:600;color:#1f2937">编辑物候期</h3>
-            <button onclick="closeModal('calendar-edit-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
-        </div>
-        <div style="padding:24px;display:flex;flex-direction:column;gap:16px">
-            <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">物候期名称 <span style="color:#ef4444">*</span></label><input type="text" id="edit-cal-name" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"></div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">开始时间</label><input type="text" id="edit-cal-time-start" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"></div>
-                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">结束时间</label><input type="text" id="edit-cal-time-end" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"></div>
-            </div>
-            <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">主要农事操作 <span style="color:#ef4444">*</span></label><input type="text" id="edit-cal-operation" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"></div>
-            <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">模型关注点 <span style="color:#ef4444">*</span></label><input type="text" id="edit-cal-focus" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"></div>
-            <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">当前状态</label><select id="edit-cal-status" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"><option value="未开始">未开始</option><option value="进行中">进行中</option><option value="已结束">已结束</option></select></div>
-        </div>
-        <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:12px">
-            <button onclick="closeModal('calendar-edit-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
-            <button onclick="submitCalendarEdit()" style="padding:8px 16px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">保存修改</button>
-        </div>
-    </div>
-</div>
-
-<!-- 删除确认弹窗 -->
-<div id="calendar-delete-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center">
-    <div style="background:#fff;border-radius:12px;width:90%;max-width:400px">
-        <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
-            <h3 style="font-size:18px;font-weight:600;color:#1f2937">删除确认</h3>
-            <button onclick="closeModal('calendar-delete-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
-        </div>
-        <div style="padding:24px;text-align:center">
-            <div style="width:60px;height:60px;background:#fee2e2;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px"><span style="font-size:28px;color:#dc2626">!</span></div>
-            <h3 style="font-size:18px;font-weight:600;color:#1f2937;margin-bottom:8px">确认删除</h3>
-            <p style="font-size:14px;color:#6b7280;margin-bottom:24px">确定要删除物候期"<span id="delete-cal-name" style="font-weight:500;color:#1f2937"></span>"吗？</p>
-            <div style="display:flex;justify-content:center;gap:12px">
-                <button onclick="closeModal('calendar-delete-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
-                <button onclick="confirmCalendarDelete()" style="padding:8px 16px;background:#dc2626;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">确认删除</button>
-            </div>
         </div>
     </div>
 </div>
@@ -492,20 +381,6 @@ var algorithmData = [
         ]
     }
 ];
-var calendarData = [
-    { id: 'cal-1', phenology: '萌芽期', timeRange: '2月上旬-3月中旬', operations: '修剪整枝、施肥、病虫害预防', focus: '有效积温累计、萌芽率预测', status: '已完成', statusClass: 'bg-gray-100 text-gray-600' },
-    { id: 'cal-2', phenology: '现蕾期', timeRange: '3月下旬-4月上旬', operations: '疏花、病虫害防治、叶面施肥', focus: '花芽分化、花蕾数量统计', status: '已完成', statusClass: 'bg-gray-100 text-gray-600' },
-    { id: 'cal-3', phenology: '开花期', timeRange: '4月中旬-5月上旬', operations: '授粉辅助、保花保果、病虫害防治', focus: '开花量、坐果率预测', status: '进行中', statusClass: 'bg-blue-100 text-blue-600' },
-    { id: 'cal-4', phenology: '幼果期', timeRange: '5月中旬-6月下旬', operations: '疏果、套袋、施肥、灌溉', focus: '果实膨大、落果率监测', status: '未开始', statusClass: 'bg-gray-200 text-gray-500' },
-    { id: 'cal-5', phenology: '膨大期', timeRange: '7月上旬-8月下旬', operations: '追肥、病虫害防治、水分管理', focus: '果径增长、糖分积累', status: '未开始', statusClass: 'bg-gray-200 text-gray-500' },
-    { id: 'cal-6', phenology: '成熟期', timeRange: '9月上旬-10月下旬', operations: '采收、分级、贮藏', focus: '成熟度判定、品质预测', status: '未开始', statusClass: 'bg-gray-200 text-gray-500' },
-    { id: 'cal-7', phenology: '花芽分化期', timeRange: '11月上旬-12月下旬', operations: '冬季修剪、清园、施肥', focus: '花芽分化、休眠管理', status: '未开始', statusClass: 'bg-gray-200 text-gray-500' },
-    { id: 'cal-8', phenology: '休眠期', timeRange: '1月上旬-1月下旬', operations: '冬季防寒、病虫害越冬防治', focus: '低温累积、休眠解除', status: '已完成', statusClass: 'bg-gray-100 text-gray-600' }
-];
-var calendarCurrentPage = 1;
-var calendarPageSize = 6;
-var filteredCalendarData = calendarData.slice();
-
 var algorithmCurrentPage = 1;
 var algorithmPageSize = 10;
 var filteredAlgorithmData = algorithmData.slice();
@@ -552,44 +427,6 @@ function filterAlgorithms(){
 
 function algorithmPrevPage(){if(algorithmCurrentPage>1){algorithmCurrentPage--;renderAlgorithmTable();}}
 function algorithmNextPage(){var t=Math.ceil(filteredAlgorithmData.length/algorithmPageSize);if(algorithmCurrentPage<t){algorithmCurrentPage++;renderAlgorithmTable();}}
-
-function renderCalendarTable(){
-    var tbody = document.getElementById('calendar-tbody');
-    var start = (calendarCurrentPage - 1) * calendarPageSize;
-    var end = start + calendarPageSize;
-    var pageData = filteredCalendarData.slice(start, end);
-    var html = '';
-    for(var i=0; i<pageData.length; i++){
-        var item = pageData[i];
-        html += '<tr class="border-b border-gray-100 hover:bg-gray-50">';
-        html += '<td class="py-3 px-4 font-medium text-gray-800">'+item.phenology+'</td>';
-        html += '<td class="py-3 px-4 text-gray-600">'+item.timeRange+'</td>';
-        html += '<td class="py-3 px-4 text-gray-600">'+item.operations+'</td>';
-        html += '<td class="py-3 px-4 text-gray-600">'+item.focus+'</td>';
-        html += '<td class="py-3 px-4"><span class="px-2 py-1 '+item.statusClass+' text-xs rounded">'+item.status+'</span></td>';
-        html += '<td class="py-3 px-4"><div style="display:flex;gap:4px">';
-        html += '<button onclick="viewCalendar(\''+item.id+'\')" style="padding:4px 8px;font-size:12px;color:#3b82f6;border:none;background:none;cursor:pointer;border-radius:4px;hover:bg-blue-50">查看</button>';
-        html += '<button onclick="editCalendar(\''+item.id+'\')" style="padding:4px 8px;font-size:12px;color:#f59e0b;border:none;background:none;cursor:pointer;border-radius:4px;hover:bg-amber-50">编辑</button>';
-        html += '<button onclick="deleteCalendar(\''+item.id+'\')" style="padding:4px 8px;font-size:12px;color:#ef4444;border:none;background:none;cursor:pointer;border-radius:4px;hover:bg-red-50">删除</button>';
-        html += '</div></td></tr>';
-    }
-    tbody.innerHTML = html;
-    document.getElementById('calendar-total-count').textContent = filteredCalendarData.length;
-    document.getElementById('calendar-current-page').textContent = calendarCurrentPage;
-    document.getElementById('calendar-total-pages').textContent = Math.ceil(filteredCalendarData.length/calendarPageSize)||1;
-}
-
-function filterCalendar(){
-    var term = document.getElementById('calendar-search').value.toLowerCase();
-    filteredCalendarData = calendarData.filter(function(item){
-        return item.phenology.toLowerCase().indexOf(term)!==-1 || item.timeRange.indexOf(term)!==-1;
-    });
-    calendarCurrentPage = 1;
-    renderCalendarTable();
-}
-
-function calendarPrevPage(){if(calendarCurrentPage>1){calendarCurrentPage--;renderCalendarTable();}}
-function calendarNextPage(){var t=Math.ceil(filteredCalendarData.length/calendarPageSize);if(calendarCurrentPage<t){calendarCurrentPage++;renderCalendarTable();}}
 
 function viewAlgorithm(id){
     for(var i=0;i<algorithmData.length;i++){
@@ -711,144 +548,8 @@ function confirmAlgorithmDelete(){
     alert('算法删除成功！');
 }
 
-var calendarEditId = null;
-var calendarDeleteId = null;
-
-function openCalendarAddModal(){
-    document.getElementById('add-cal-name').value = '';
-    document.getElementById('add-cal-time-start').value = '';
-    document.getElementById('add-cal-time-end').value = '';
-    document.getElementById('add-cal-operation').value = '';
-    document.getElementById('add-cal-focus').value = '';
-    document.getElementById('add-cal-status').value = '未开始';
-    showModal('calendar-add-modal');
-}
-
-function submitCalendarAdd(){
-    var name = document.getElementById('add-cal-name').value.trim();
-    var timeStart = document.getElementById('add-cal-time-start').value.trim();
-    var timeEnd = document.getElementById('add-cal-time-end').value.trim();
-    var operation = document.getElementById('add-cal-operation').value.trim();
-    var focus = document.getElementById('add-cal-focus').value.trim();
-    var status = document.getElementById('add-cal-status').value;
-    
-    if(!name){
-        alert('请填写物候期名称');
-        return;
-    }
-    if(!operation){
-        alert('请填写主要农事操作');
-        return;
-    }
-    if(!focus){
-        alert('请填写模型关注点');
-        return;
-    }
-    
-    var timeRange = (timeStart || '') + (timeStart && timeEnd ? '-' : '') + (timeEnd || '');
-    
-    var statusClass = status === '已完成' ? 'bg-gray-100 text-gray-600' : (status === '进行中' ? 'bg-blue-100 text-blue-600' : 'bg-gray-200 text-gray-500');
-    
-    var newItem = {
-        id: 'cal-' + (calendarData.length + 1),
-        phenology: name,
-        timeRange: timeRange || '-',
-        operations: operation,
-        focus: focus,
-        status: status,
-        statusClass: statusClass
-    };
-    
-    calendarData.push(newItem);
-    filteredCalendarData = calendarData.slice();
-    calendarCurrentPage = Math.ceil(filteredCalendarData.length / calendarPageSize);
-    renderCalendarTable();
-    hideModal('calendar-add-modal');
-    alert('农事年历添加成功！');
-}
-
-function viewCalendar(id){
-    for(var i=0;i<calendarData.length;i++){
-        if(calendarData[i].id===id){
-            var item=calendarData[i];
-            document.getElementById('view-cal-name').textContent=item.phenology;
-            document.getElementById('view-cal-time').textContent=item.timeRange;
-            document.getElementById('view-cal-status').textContent=item.status;
-            document.getElementById('view-cal-status').className='font-medium text-xs px-2 py-1 rounded '+item.statusClass;
-            document.getElementById('view-cal-operation').textContent=item.operations;
-            document.getElementById('view-cal-focus').textContent=item.focus;
-            showModal('calendar-view-modal');
-            break;
-        }
-    }
-}
-
-function editCalendar(id){
-    for(var i=0;i<calendarData.length;i++){
-        if(calendarData[i].id===id){
-            var item=calendarData[i];
-            calendarEditId=id;
-            document.getElementById('edit-cal-name').value=item.phenology;
-            var timeParts = item.timeRange.split('-');
-            document.getElementById('edit-cal-time-start').value = timeParts[0] || '';
-            document.getElementById('edit-cal-time-end').value = timeParts[1] || '';
-            document.getElementById('edit-cal-operation').value=item.operations;
-            document.getElementById('edit-cal-focus').value=item.focus;
-            document.getElementById('edit-cal-status').value=item.status;
-            showModal('calendar-edit-modal');
-            break;
-        }
-    }
-}
-
-function submitCalendarEdit(){
-    var name=document.getElementById('edit-cal-name').value.trim();
-    var timeStart=document.getElementById('edit-cal-time-start').value.trim();
-    var timeEnd=document.getElementById('edit-cal-time-end').value.trim();
-    if(!name){alert('请填写物候期名称');return;}
-    var timeRange = (timeStart || '') + (timeStart && timeEnd ? '-' : '') + (timeEnd || '');
-    for(var i=0;i<calendarData.length;i++){
-        if(calendarData[i].id===calendarEditId){
-            calendarData[i].phenology=name;
-            calendarData[i].timeRange=timeRange || '-';
-            calendarData[i].operations=document.getElementById('edit-cal-operation').value;
-            calendarData[i].focus=document.getElementById('edit-cal-focus').value;
-            calendarData[i].status=document.getElementById('edit-cal-status').value;
-            calendarData[i].statusClass=calendarData[i].status==='已完成'?'bg-gray-100 text-gray-600':(calendarData[i].status==='进行中'?'bg-blue-100 text-blue-600':'bg-gray-200 text-gray-500');
-            break;
-        }
-    }
-    hideModal('calendar-edit-modal');
-    calendarEditId=null;
-    filteredCalendarData=calendarData.slice();
-    renderCalendarTable();
-    alert('农事年历修改成功！');
-}
-
-function deleteCalendar(id){
-    for(var i=0;i<calendarData.length;i++){
-        if(calendarData[i].id===id){
-            calendarDeleteId=id;
-            document.getElementById('delete-cal-name').textContent=calendarData[i].phenology;
-            showModal('calendar-delete-modal');
-            break;
-        }
-    }
-}
-
-function confirmCalendarDelete(){
-    for(var i=0;i<calendarData.length;i++){if(calendarData[i].id===calendarDeleteId){calendarData.splice(i,1);break;}}
-    hideModal('calendar-delete-modal');
-    calendarDeleteId=null;
-    filteredCalendarData=calendarData.slice();
-    if(calendarCurrentPage>Math.ceil(filteredCalendarData.length/calendarPageSize)){calendarCurrentPage=Math.max(1,Math.ceil(filteredCalendarData.length/calendarPageSize)||1);}
-    renderCalendarTable();
-    alert('农事年历删除成功！');
-}
-
 window.onload = function(){
     renderAlgorithmTable();
-    renderCalendarTable();
     initCharts();
 };
 

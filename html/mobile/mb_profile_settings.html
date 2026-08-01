@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>桔农通 - 设置</title>
+  <title>蜜桔农业助手 - 设置</title>
   <link rel="stylesheet" href="css/mobile-design-system.css">
   <style>
     .page-header {
@@ -139,7 +139,7 @@
       border-radius: var(--radius-xl);
       width: 90%;
       max-width: 360px;
-      max-height: 80vh;
+      max-height: 85vh;
       overflow: hidden;
       animation: slideUp 0.3s ease;
     }
@@ -357,44 +357,6 @@
       </div>
 
       <div class="mb-section">
-        <!-- 通知设置 -->
-        <div class="card">
-          <div class="card-title">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/></svg>
-            通知设置
-          </div>
-          <div class="settings-item">
-            <div>
-              <div class="settings-label">预警通知</div>
-              <div class="settings-desc">接收病虫害、气象等预警信息</div>
-            </div>
-            <label class="toggle-switch">
-              <input type="checkbox" checked>
-              <div class="toggle-track"><div class="toggle-thumb"></div></div>
-            </label>
-          </div>
-          <div class="settings-item">
-            <div>
-              <div class="settings-label">审核通知</div>
-              <div class="settings-desc">接收服务申请审核结果通知</div>
-            </div>
-            <label class="toggle-switch">
-              <input type="checkbox" checked>
-              <div class="toggle-track"><div class="toggle-thumb"></div></div>
-            </label>
-          </div>
-          <div class="settings-item">
-            <div>
-              <div class="settings-label">系统通知</div>
-              <div class="settings-desc">接收系统公告和功能更新通知</div>
-            </div>
-            <label class="toggle-switch">
-              <input type="checkbox" checked>
-              <div class="toggle-track"><div class="toggle-thumb"></div></div>
-            </label>
-          </div>
-        </div>
-
         <!-- 通用设置 -->
         <div class="card">
           <div class="card-title">
@@ -437,53 +399,7 @@
       </div>
     </div><!-- /real-content -->
 
-    <!-- 底部导航 -->
-    <div class="mb-tab-bar">
-      <div class="mb-tab-item" onclick="navigateTo('mb_home.html')">首页</div>
-      <div class="mb-tab-item" onclick="navigateTo('mb_data.html')">监测</div>
-      <div class="mb-tab-item" onclick="navigateTo('mb_ai.html')">AI助手</div>
-      <div class="mb-tab-item" onclick="navigateTo('mb_disease.html')">病虫害</div>
-      <div class="mb-tab-item active" onclick="navigateTo('mb_profile.html')">我的</div>
-    </div>
-
-    <!-- 关于我们弹窗 -->
-    <div class="modal-overlay" id="aboutModal">
-      <div class="modal-box">
-        <div class="info-modal-header">
-          <div class="info-modal-title">关于我们</div>
-          <div class="info-modal-close" onclick="closeModal('aboutModal')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-          </div>
-        </div>
-        <div class="info-modal-body">
-          <div class="info-section">
-            <div class="info-section-title">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-              桔农通
-            </div>
-            <div class="info-text">
-              桔农通是一款专为南丰蜜桔种植户打造的智能化农事管理平台。我们致力于利用人工智能和大数据技术，为种植户提供精准化、高效化的种植解决方案。
-            </div>
-            <div class="info-text">
-              通过整合气象监测、病虫害识别、生长模型预测等核心功能，帮助桔农科学管理果园，提升产量和品质，实现增收致富。
-            </div>
-          </div>
-          
-          <div class="info-section">
-            <div class="info-section-title">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-              核心功能
-            </div>
-            <div class="info-list">
-              <div class="info-list-item">实时监测：土壤、气候、病虫害全方位监测</div>
-              <div class="info-list-item">AI识别：智能病虫害识别，快速诊断</div>
-              <div class="info-list-item">生长模型：基于大数据的产量和品质预测</div>
-              <div class="info-list-item">农事日历：精准指导各阶段农事操作</div>
-              <div class="info-list-item">预警提醒：病虫害、气象灾害及时预警</div>
-            </div>
-          </div>
-          
-          <div class="info-section">
+    <!-- 底部导航 --><div class="info-section">
             <div class="info-section-title">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 15s1.5-2 4-2 4 2 4 2"/><circle cx="12" cy="9" r="3"/></svg>
               我们的愿景
@@ -620,12 +536,28 @@
         </div>
       </div>
     </div>
-
-    
-
-    <script>
+    <!-- 底部导航 -->
+    <div class="mb-tab-bar">
+      <div class="mb-tab-item" onclick="navigateTo('mb_home.html')">
+        <svg class="mb-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span>首页</span>
+      </div>
+      <div class="mb-tab-item" onclick="navigateTo('mb_data.html')">
+        <svg class="mb-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        <span>监测</span>
+      </div>
+      <div class="mb-tab-item" onclick="navigateTo('mb_disease_knowledge.html')">
+        <svg class="mb-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><circle cx="12" cy="10" r="3"/></svg>
+        <span>病虫害</span>
+      </div>
+      <div class="mb-tab-item active">
+        <svg class="mb-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span>我的</span>
+      </div>
+    </div>
+<script>
       function goBack() {
-        window.history.back();
+        navigateTo('mb_profile.html');
       }
 
       function navigateTo(page) {

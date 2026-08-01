@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>桔农通 - 学习中心</title>
+  <title>蜜桔农业助手 - 学习中心</title>
   <link rel="stylesheet" href="css/mobile-design-system.css">
   <style>
     .page-header {
@@ -438,46 +438,7 @@
       </div>
     </div><!-- /real-content -->
 
-    <!-- 底部导航 -->
-    <div class="mb-tab-bar">
-      <div class="mb-tab-item" onclick="navigateTo('mb_home.html')">首页</div>
-      <div class="mb-tab-item" onclick="navigateTo('mb_data.html')">监测</div>
-      <div class="mb-tab-item" onclick="navigateTo('mb_ai.html')">AI助手</div>
-      <div class="mb-tab-item" onclick="navigateTo('mb_disease.html')">病虫害</div>
-      <div class="mb-tab-item" onclick="navigateTo('mb_profile.html')">我的</div>
-    </div>
-
-    <!-- 课程详情弹窗 -->
-    <div class="modal-overlay" id="courseModal">
-      <div class="modal-box">
-        <div class="modal-header">
-          <div class="modal-title">课程详情</div>
-          <div class="modal-close" onclick="closeModal('courseModal')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
-          </div>
-        </div>
-        <div class="modal-body">
-          <div style="width: 100%; height: 150px; border-radius: var(--radius-md); margin-bottom: var(--space-3); background: linear-gradient(135deg, #e8f5e9, #c8e6c9); display: flex; align-items: center; justify-content: center;">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#66bb6a" stroke-width="1.5" style="width: 36px; height: 36px; opacity: 0.4;"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-          </div>
-          <div style="font-size: var(--font-lg); font-weight: 600; color: var(--text); margin-bottom: var(--space-2);">南丰蜜桔种植基础课程</div>
-          <div style="font-size: var(--font-sm); color: var(--text-secondary); line-height: 1.6; margin-bottom: var(--space-3);">本课程系统介绍南丰蜜桔的种植技术，包括育苗、定植、修剪、施肥、病虫害防治等方面的知识，适合新手种植户学习。</div>
-          <div style="display: flex; gap: var(--space-4); font-size: var(--font-xs); color: var(--text-light);">
-            <span>3课时</span>
-            <span>•</span>
-            <span>2,580人学习</span>
-            <span>•</span>
-            <span>入门难度</span>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button class="mb-btn mb-btn-outline" onclick="closeModal('courseModal')">关闭</button>
-          <button class="mb-btn mb-btn-primary" onclick="startCourse()">开始学习</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- 视频播放弹窗 -->
+    <!-- 底部导航 --><!-- 视频播放弹窗 -->
     <div class="modal-overlay" id="videoModal">
       <div class="modal-box video-modal">
         <div class="video-player">
@@ -498,8 +459,26 @@
         </div>
       </div>
     </div>
-
-    <script>
+    <!-- 底部导航 -->
+    <div class="mb-tab-bar">
+      <div class="mb-tab-item active">
+        <svg class="mb-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span>首页</span>
+      </div>
+      <div class="mb-tab-item" onclick="navigateTo('mb_data.html')">
+        <svg class="mb-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        <span>监测</span>
+      </div>
+      <div class="mb-tab-item" onclick="navigateTo('mb_disease_knowledge.html')">
+        <svg class="mb-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><circle cx="12" cy="10" r="3"/></svg>
+        <span>病虫害</span>
+      </div>
+      <div class="mb-tab-item" onclick="navigateTo('mb_profile.html')">
+        <svg class="mb-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span>我的</span>
+      </div>
+    </div>
+<script>
       function goBack() {
         window.history.back();
       }

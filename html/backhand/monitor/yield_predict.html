@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -7,7 +7,13 @@
     <script src="https://cdn.tailwindcss.com"></script>
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
     <style>
+        @keyframes modalSlideIn {
+            from { opacity: 0; transform: translateY(-20px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .modal-overlay.active .modal-content { animation: modalSlideIn 0.3s ease; }
         body { margin: 0; padding: 0; background-color: #F0F2F5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans SC', sans-serif; }
         .content-wrapper { padding: 24px; height: 100vh; overflow-y: auto; }
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.5); z-index: 1000; align-items: center; justify-content: center; }
@@ -19,21 +25,8 @@
     <div class="content-wrapper">
         <div class="flex items-center justify-between mb-6">
             <div>
-                <h1 class="text-2xl font-bold text-gray-800">产量预测</h1>
-                <p class="text-gray-500 mt-1">监控产量预测数据（亩产量、总产量、年对比）</p>
-            </div>
-            <div class="flex items-center space-x-3">
-                <select class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
-                    <option>全部区域</option>
-                    <option>南丰镇</option>
-                    <option>太和镇</option>
-                    <option>白舍镇</option>
-                </select>
-                <select class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
-                    <option>预测年份</option>
-                    <option>2026年</option>
-                    <option>2025年</option>
-                </select>
+                <h1 class="text-xl font-bold text-gray-800">产量预测</h1>
+                <p class="text-gray-500 text-sm mt-1">监控产量预测数据（亩产量、总产量、年对比）</p>
             </div>
         </div>
 
@@ -234,43 +227,6 @@
             </div>
         </div>
 
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mt-6">
-            <div class="p-4 border-b border-gray-100 flex items-center justify-between">
-                <h3 class="text-lg font-semibold text-gray-800 flex items-center">
-                    <iconify-icon icon="material-symbols:table-chart" class="w-5 h-5 mr-2 text-green-600"></iconify-icon>
-                    预测记录管理
-                </h3>
-                <div class="flex items-center space-x-3">
-                    <input type="text" id="search-input" placeholder="搜索地块编号/名称/区域..." class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 w-64" oninput="searchPredictions()">
-                    <button onclick="openAddModal()" class="px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition flex items-center">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                        新增预测
-                    </button>
-                </div>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="w-full">
-                    <thead>
-                        <tr class="bg-gray-50">
-                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">地块编号</th>
-                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">地块名称</th>
-                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">区域</th>
-                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">预测亩产(斤)</th>
-                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">预测总产(吨)</th>
-                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">置信度</th>
-                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">更新时间</th>
-                            <th class="text-center px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">状态</th>
-                            <th class="text-center px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">操作</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-100" id="predict-table-body"></tbody>
-                </table>
-            </div>
-            <div class="p-4 border-t border-gray-100 flex items-center justify-between">
-                <p id="pagination-info" class="text-sm text-gray-500">显示 0-0 条，共 0 条</p>
-                <div id="pagination-buttons" class="flex items-center space-x-1"></div>
-            </div>
-        </div>
     </div>
 
     <div id="edit-modal" class="modal-overlay">
@@ -609,8 +565,6 @@
                 }
             });
         });
-
-        renderTable();
 
         document.addEventListener('DOMContentLoaded', () => {
             const ctx1 = document.getElementById('townYieldChart').getContext('2d');

@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -7,6 +7,11 @@
     <script src="https://cdn.tailwindcss.com"></script>
     
     <style>
+        @keyframes modalSlideIn {
+            from { opacity: 0; transform: translateY(-20px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .modal-overlay.active .modal-content { animation: modalSlideIn 0.3s ease; }
         body { margin: 0; padding: 0; background-color: #F0F2F5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans SC', sans-serif; }
         .content-wrapper { padding: 24px; height: 100vh; overflow-y: auto; }
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.5); z-index: 1000; align-items: center; justify-content: center; }
@@ -19,8 +24,8 @@
     <div class="content-wrapper">
         <div class="flex items-center justify-between mb-6">
             <div>
-                <h1 class="text-2xl font-bold text-gray-800">角色管理</h1>
-                <p class="text-gray-500 mt-1">管理系统角色和权限配置</p>
+                <h1 class="text-xl font-bold text-gray-800">角色管理</h1>
+                <p class="text-gray-500 text-sm mt-1">管理系统角色和权限配置</p>
             </div>
             <div class="flex items-center space-x-3">
                 <button onclick="openAddModal()" class="px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition flex items-center">
@@ -53,11 +58,15 @@
                             <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                         </div>
                         <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
-                            <span class="text-sm text-gray-600">数据查看</span>
+                            <span class="text-sm text-gray-600">预警管理</span>
                             <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                         </div>
                         <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
-                            <span class="text-sm text-gray-600">预警管理</span>
+                            <span class="text-sm text-gray-600">运行监控</span>
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        </div>
+                        <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
+                            <span class="text-sm text-gray-600">微信后台</span>
                             <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                         </div>
                         <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
@@ -76,11 +85,11 @@
                 </div>
             </div>
 
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden" data-role="操作员">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden" data-role="农技员">
                 <div class="p-4 border-b border-gray-100 bg-blue-50">
                     <h3 class="text-lg font-semibold text-blue-800 flex items-center">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                        操作员
+                        农技员
                     </h3>
                 </div>
                 <div class="p-4">
@@ -98,34 +107,38 @@
                             <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                         </div>
                         <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
-                            <span class="text-sm text-gray-600">数据查看</span>
-                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        </div>
-                        <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
                             <span class="text-sm text-gray-600">预警管理</span>
                             <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                         </div>
                         <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
+                            <span class="text-sm text-gray-600">运行监控</span>
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        </div>
+                        <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
+                            <span class="text-sm text-gray-600">微信后台</span>
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        </div>
+                        <div class="flex items-center justify-between p-2 bg-gray-50 rounded opacity-50">
                             <span class="text-sm text-gray-600">系统管理</span>
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
                         </div>
                     </div>
                     <div class="flex items-center space-x-2">
-                        <button onclick="openPermissionModal('操作员')" class="flex-1 px-3 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition">
+                        <button onclick="openPermissionModal('农技员')" class="flex-1 px-3 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition">
                             编辑权限
                         </button>
-                        <button onclick="openDeleteModal('操作员')" class="px-3 py-2 text-gray-500 text-sm rounded-lg hover:bg-gray-100 transition">
+                        <button onclick="openDeleteModal('农技员')" class="px-3 py-2 text-gray-500 text-sm rounded-lg hover:bg-gray-100 transition">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                         </button>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden" data-role="查看员">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden" data-role="数据管理员">
                 <div class="p-4 border-b border-gray-100 bg-gray-50">
                     <h3 class="text-lg font-semibold text-gray-800 flex items-center">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                        查看员
+                        数据管理员
                     </h3>
                 </div>
                 <div class="p-4">
@@ -134,32 +147,36 @@
                         <span class="text-sm font-medium text-gray-800">65人</span>
                     </div>
                     <div class="space-y-2 mb-4">
-                        <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
+                        <div class="flex items-center justify-between p-2 bg-gray-50 rounded opacity-50">
                             <span class="text-sm text-gray-600">模型管理</span>
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
                         </div>
                         <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
                             <span class="text-sm text-gray-600">数据管理</span>
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                        </div>
-                        <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
-                            <span class="text-sm text-gray-600">数据查看</span>
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                         </div>
                         <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
                             <span class="text-sm text-gray-600">预警管理</span>
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                         </div>
                         <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
+                            <span class="text-sm text-gray-600">运行监控</span>
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        </div>
+                        <div class="flex items-center justify-between p-2 bg-gray-50 rounded opacity-50">
+                            <span class="text-sm text-gray-600">微信后台</span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                        </div>
+                        <div class="flex items-center justify-between p-2 bg-gray-50 rounded opacity-50">
                             <span class="text-sm text-gray-600">系统管理</span>
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
                         </div>
                     </div>
                     <div class="flex items-center space-x-2">
-                        <button onclick="openPermissionModal('查看员')" class="flex-1 px-3 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition">
+                        <button onclick="openPermissionModal('数据管理员')" class="flex-1 px-3 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition">
                             编辑权限
                         </button>
-                        <button onclick="openDeleteModal('查看员')" class="px-3 py-2 text-gray-500 text-sm rounded-lg hover:bg-gray-100 transition">
+                        <button onclick="openDeleteModal('数据管理员')" class="px-3 py-2 text-gray-500 text-sm rounded-lg hover:bg-gray-100 transition">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                         </button>
                     </div>
@@ -312,21 +329,32 @@
 
         // 权限树数据结构
         const permissionTree = [
-            { id: 'data-view', name: '数据查看', desc: '查看数据报表与统计', children: [] },
-            { id: 'data-manage', name: '数据管理', desc: '数据的增删改维护', children: [
-                { id: 'data-input', name: '数据录入', desc: '手动录入传感器数据' },
-                { id: 'data-export', name: '数据导出', desc: '导出数据报表' },
-                { id: 'data-delete', name: '数据删除', desc: '删除历史数据' }
-            ]},
             { id: 'model', name: '模型管理', desc: 'AI模型的训练与部署', children: [
                 { id: 'model-train', name: '模型训练', desc: '训练AI预测模型' },
                 { id: 'model-deploy', name: '模型部署', desc: '部署模型到生产环境' },
                 { id: 'model-eval', name: '模型评估', desc: '评估模型性能指标' }
             ]},
+            { id: 'data', name: '数据管理', desc: '数据的增删改查与导出', children: [
+                { id: 'data-view', name: '数据查看', desc: '查看数据报表与统计' },
+                { id: 'data-input', name: '数据录入', desc: '手动录入传感器数据' },
+                { id: 'data-export', name: '数据导出', desc: '导出数据报表' },
+                { id: 'data-delete', name: '数据删除', desc: '删除历史数据' }
+            ]},
             { id: 'alert', name: '预警管理', desc: '预警规则的配置与处理', children: [
                 { id: 'alert-view', name: '预警查看', desc: '查看预警信息列表' },
                 { id: 'alert-config', name: '预警配置', desc: '配置预警阈值规则' },
                 { id: 'alert-handle', name: '预警处理', desc: '处理响应预警事件' }
+            ]},
+            { id: 'monitor', name: '运行监控', desc: '长势研判与产量品质预测', children: [
+                { id: 'monitor-growth', name: '长势研判', desc: '查看作物长势评价' },
+                { id: 'monitor-quality', name: '品质预测', desc: '查看果实品质预测' },
+                { id: 'monitor-yield', name: '产量预测', desc: '查看产量预测数据' }
+            ]},
+            { id: 'wechat', name: '微信后台', desc: '微信小程序用户与内容管理', children: [
+                { id: 'wechat-user', name: '微信用户', desc: '管理微信用户账号' },
+                { id: 'wechat-orchard', name: '果园管理', desc: '管理果园信息' },
+                { id: 'wechat-news', name: '资讯管理', desc: '发布与管理资讯' },
+                { id: 'wechat-question', name: '农户采纳', desc: '处理农户采纳反馈' }
             ]},
             { id: 'system', name: '系统管理', desc: '用户、角色与系统配置', children: [
                 { id: 'sys-user', name: '用户管理', desc: '管理系统用户账号' },
@@ -338,21 +366,27 @@
         // 角色权限配置
         const rolePermissions = {
             '管理员': {
-                'data-view': true, 'data-manage': true, 'data-input': true, 'data-export': true, 'data-delete': true,
                 'model': true, 'model-train': true, 'model-deploy': true, 'model-eval': true,
+                'data': true, 'data-view': true, 'data-input': true, 'data-export': true, 'data-delete': true,
                 'alert': true, 'alert-view': true, 'alert-config': true, 'alert-handle': true,
+                'monitor': true, 'monitor-growth': true, 'monitor-quality': true, 'monitor-yield': true,
+                'wechat': true, 'wechat-user': true, 'wechat-orchard': true, 'wechat-news': true, 'wechat-question': true,
                 'system': true, 'sys-user': true, 'sys-role': true, 'sys-config': true
             },
-            '操作员': {
-                'data-view': true, 'data-manage': true, 'data-input': true, 'data-export': true, 'data-delete': false,
+            '农技员': {
                 'model': true, 'model-train': true, 'model-deploy': false, 'model-eval': true,
+                'data': true, 'data-view': true, 'data-input': true, 'data-export': true, 'data-delete': false,
                 'alert': true, 'alert-view': true, 'alert-config': true, 'alert-handle': true,
+                'monitor': true, 'monitor-growth': true, 'monitor-quality': true, 'monitor-yield': true,
+                'wechat': true, 'wechat-user': false, 'wechat-orchard': true, 'wechat-news': false, 'wechat-question': true,
                 'system': false, 'sys-user': false, 'sys-role': false, 'sys-config': false
             },
-            '查看员': {
-                'data-view': true, 'data-manage': false, 'data-input': false, 'data-export': false, 'data-delete': false,
+            '数据管理员': {
                 'model': false, 'model-train': false, 'model-deploy': false, 'model-eval': false,
-                'alert': false, 'alert-view': true, 'alert-config': false, 'alert-handle': false,
+                'data': true, 'data-view': true, 'data-input': false, 'data-export': false, 'data-delete': false,
+                'alert': true, 'alert-view': true, 'alert-config': false, 'alert-handle': false,
+                'monitor': true, 'monitor-growth': true, 'monitor-quality': false, 'monitor-yield': false,
+                'wechat': false, 'wechat-user': false, 'wechat-orchard': false, 'wechat-news': false, 'wechat-question': false,
                 'system': false, 'sys-user': false, 'sys-role': false, 'sys-config': false
             }
         };
@@ -478,7 +512,7 @@
         }
 
         function downloadTemplate() {
-            const content = '角色名称,角色描述,数据查看,数据管理,模型管理,预警管理,系统管理\n管理员,系统管理员,是,是,是,是,是\n操作员,业务操作员,是,是,是,是,否\n查看员,只读查看员,是,否,否,否,否';
+            const content = '角色名称,角色描述,模型管理,数据管理,预警管理,运行监控,微信后台,系统管理\n管理员,系统管理员,是,是,是,是,是,是\n农技员,业务农技员,是,是,是,是,是,否\n数据管理员,数据查看管理员,否,是,是,是,否,否';
             const blob = new Blob(['\uFEFF' + content], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
@@ -497,7 +531,7 @@
         }
 
         function exportRoles() {
-            const content = '角色名称,角色描述,数据查看,数据管理,模型管理,预警管理,系统管理\n管理员,系统管理员,是,是,是,是,是\n操作员,业务操作员,是,是,是,是,否\n查看员,只读查看员,是,否,否,否,否';
+            const content = '角色名称,角色描述,模型管理,数据管理,预警管理,运行监控,微信后台,系统管理\n管理员,系统管理员,是,是,是,是,是,是\n农技员,业务农技员,是,是,是,是,是,否\n数据管理员,数据查看管理员,否,是,是,是,否,否';
             const blob = new Blob(['\uFEFF' + content], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);

@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>植株评价 - 南丰蜜桔模型管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = { theme: { extend: { colors: {
+        green: { DEFAULT: '#16a34a' },
+        blue: { DEFAULT: '#2563eb' },
+        red: { DEFAULT: '#dc2626' },
+        yellow: { DEFAULT: '#ca8a04' },
+        purple: { DEFAULT: '#9333ea' }
+      }}}}
+    </script>
+    <style>
+        @keyframes modalSlideIn {
+            from { opacity: 0; transform: translateY(-20px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .modal-overlay.active .modal-content { animation: modalSlideIn 0.3s ease; }
+        body { margin: 0; padding: 0; background-color: #F0F2F5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans SC', sans-serif; }
+        .content-wrapper { padding: 24px; height: 100vh; overflow-y: auto; }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.5); z-index: 1000; align-items: center; justify-content: center; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background-color: white; border-radius: 12px; width: 90%; max-width: 800px; max-height: 85vh; overflow-y: auto; }
+        .pagination-btn.active { background-color: #16A34A; color: white; border-color: #16A34A; }
+        .score-bar { height: 8px; border-radius: 4px; overflow: hidden; }
+    </style>
+</head>
+<body>
+    <div class="content-wrapper">
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h1 class="text-xl font-bold text-gray-800">评价报告</h1>
+                <p class="text-gray-500 text-sm mt-1">管理用户实时对植株的实时评价因子和报告数据</p>
+            </div>
+        </div>
+
+        <!-- 统计数据 -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">总评价数</p>
+                        <h3 class="text-2xl font-bold text-gray-800 mt-1" id="stat-total">0</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                        <svg class="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">优秀评价</p>
+                        <h3 class="text-2xl font-bold text-green-600 mt-1" id="stat-excellent">0</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                        <svg class="w-7 h-7 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">平均得分</p>
+                        <h3 class="text-2xl font-bold text-gray-800 mt-1" id="stat-avg-score">0</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
+                        <svg class="w-7 h-7 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm">本月评价</p>
+                        <h3 class="text-2xl font-bold text-blue-600 mt-1" id="stat-month">0</h3>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                        <svg class="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 搜索栏 + 数据列表 -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="p-4 border-b border-gray-100">
+                <div class="flex items-center space-x-4 flex-wrap">
+                    <div class="flex-1 max-w-md">
+                        <div class="relative">
+                            <svg class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                            <input type="text" id="search-input" placeholder="搜索评分编号、评分果园..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500" oninput="filterEvals()">
+                        </div>
+                    </div>
+                    <select id="source-filter" class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500" onchange="filterEvals()">
+                        <option value="">全部来源</option>
+                        <option value="移动端">移动端</option>
+                        <option value="PC端">PC端</option>
+                    </select>
+                    <select id="result-filter" class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500" onchange="filterEvals()">
+                        <option value="">全部结果</option>
+                        <option value="优秀">优秀</option>
+                        <option value="良好">良好</option>
+                        <option value="一般">一般</option>
+                        <option value="较差">较差</option>
+                    </select>
+                    <button onclick="resetFilter()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200">重置</button>
+                </div>
+            </div>
+
+            <!-- 数据列表 -->
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="bg-gray-50">
+                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">评分编号</th>
+                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">评分果园</th>
+                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">评分植株</th>
+                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">评分结果</th>
+                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">评分用户</th>
+                            <th class="text-center px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100" id="eval-table-body"></tbody>
+                </table>
+                <div id="empty-tip" class="hidden py-12 text-center text-gray-400 text-sm">
+                    <p>暂无匹配的评价记录</p>
+                </div>
+            </div>
+
+            <!-- 分页 -->
+            <div class="px-6 py-4 border-t border-gray-100 flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <p class="text-sm text-gray-500" id="page-info">共 0 条记录</p>
+                    <select id="page-size" onchange="changePageSize()" class="px-2 py-1 border border-gray-300 rounded text-sm text-gray-600">
+                        <option value="5">5条/页</option>
+                        <option value="10">10条/页</option>
+                        <option value="20">20条/页</option>
+                    </select>
+                </div>
+                <div class="flex items-center space-x-2" id="pagination"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 查看详情弹窗 -->
+    <div id="detail-modal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 900px;">
+            <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                    评价详情
+                </h3>
+                <button onclick="closeModal('detail-modal')" class="p-1 hover:bg-gray-100 rounded">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="p-6" id="detail-body"></div>
+            <div class="p-4 border-t border-gray-200 flex justify-end">
+                <button onclick="closeModal('detail-modal')" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 下载报告弹窗 -->
+    <div id="download-modal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                    下载评价报告
+                </h3>
+                <button onclick="closeModal('download-modal')" class="p-1 hover:bg-gray-100 rounded">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    </div>
+                    <h4 class="text-base font-semibold text-gray-800" id="download-title">评价报告</h4>
+                    <p class="text-sm text-gray-500 mt-1" id="download-desc"></p>
+                </div>
+                <div class="space-y-3">
+                    <button onclick="doDownload('pdf')" class="w-full flex items-center justify-between px-4 py-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center mr-3">
+                                <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                            </div>
+                            <div class="text-left">
+                                <p class="text-sm font-medium text-gray-800">PDF 格式报告</p>
+                                <p class="text-xs text-gray-500">含评分因子、评价结果、农事建议</p>
+                            </div>
+                        </div>
+                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                    </button>
+                    <button onclick="doDownload('excel')" class="w-full flex items-center justify-between px-4 py-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                                <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                            </div>
+                            <div class="text-left">
+                                <p class="text-sm font-medium text-gray-800">Excel 格式数据</p>
+                                <p class="text-xs text-gray-500">含因子原始数据与评分明细</p>
+                            </div>
+                        </div>
+                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                    </button>
+                </div>
+            </div>
+            <div class="p-4 border-t border-gray-200 flex justify-end">
+                <button onclick="closeModal('download-modal')" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const RESULT_STYLES = {
+            '优秀': 'bg-green-100 text-green-700',
+            '良好': 'bg-blue-100 text-blue-700',
+            '一般': 'bg-yellow-100 text-yellow-700',
+            '较差': 'bg-red-100 text-red-700'
+        };
+
+        let evals = [
+            {
+                id: 'E-20260731-001', orchard: '南丰镇示范园01', plant: '东坡A-03地块·品系A·6年生',
+                score: 85, result: '优秀', user: '张明', time: '2026-07-31 14:30', source: 'PC端',
+                factors: {
+                    '评价对象': { '果园主体': '南丰镇示范园01', '地块': '东坡A-03', '品系/株系': '品系A', '砧木': '枳砧', '树龄': '6年', '生育阶段': '果实膨大期' },
+                    '环境与土壤': { '空气温度': '32°C', '空气湿度': '65%', '土壤含水量': '42%', '光照适宜度': '85%', '土壤pH': '6.5', '土壤EC': '1.2 mS/cm', '钾营养适宜度': '80%' },
+                    '植株与果实': { '整体树势': '中上', '新梢状态': '正常', '叶片状态': '轻度褪绿', '叶片SPAD': '38', '根系活力': '良好', '挂果负载': '适中', '坐果率': '72%', '落果率': '5%', '平均果径': '52mm', '当前糖度': '9.5°Brix', '果实外观': '良好', '病虫健康度': '健康' },
+                    '近期农事记录': { '近期灌溉': '7月25日沟灌', '近期施肥': '7月20日高钾水溶肥' }
+                },
+                report: {
+                    summary: '综合得分85分，整体长势良好。叶片SPAD值略偏低，建议适当补充氮肥。果径和糖度接近目标值，预计丰收。',
+                    mainIssue: '叶片SPAD值偏低',
+                    deficiencies: [
+                        { name: '果径不足', gap: '差3.0 mm', severity: 'low' },
+                        { name: '糖度不足', gap: '差0.5 °Brix', severity: 'low' }
+                    ],
+                    suggestions: [
+                        '叶面喷施0.3%尿素溶液，补充氮素',
+                        '保持土壤含水量在40-50%区间',
+                        '继续监测果径和糖度变化趋势'
+                    ]
+                }
+            },
+            {
+                id: 'E-20260730-006', orchard: '市山镇果园02', plant: '西坡B-01地块·品系B·8年生',
+                score: 79, result: '一般', user: '李伟', time: '2026-07-30 10:15', source: '移动端',
+                factors: {
+                    '评价对象': { '果园主体': '市山镇果园02', '地块': '西坡B-01', '品系/株系': '品系B', '砧木': '红桔砧', '树龄': '8年', '生育阶段': '果实膨大期' },
+                    '环境与土壤': { '空气温度': '35°C', '空气湿度': '55%', '土壤含水量': '28%', '光照适宜度': '90%', '土壤pH': '6.2', '土壤EC': '0.8 mS/cm', '钾营养适宜度': '60%' },
+                    '植株与果实': { '整体树势': '中等', '新梢状态': '正常', '叶片状态': '褪绿明显', '叶片SPAD': '32', '根系活力': '一般', '挂果负载': '偏重', '坐果率': '65%', '落果率': '8%', '平均果径': '48mm', '当前糖度': '8.8°Brix', '果实外观': '一般', '病虫健康度': '轻度风险' },
+                    '近期农事记录': { '近期灌溉': '7月20日滴灌', '近期施肥': '7月15日复合肥' }
+                },
+                report: {
+                    summary: '综合得分79分，存在明确短板。高温干旱导致水分不足，根系吸收受阻，叶片SPAD偏低。挂果负载偏重，果径和糖度均低于目标。',
+                    mainIssue: '水分不足导致养分吸收受阻',
+                    deficiencies: [
+                        { name: '果径不足', gap: '差7.0 mm', severity: 'high' },
+                        { name: '糖度不足', gap: '差1.2 °Brix', severity: 'medium' }
+                    ],
+                    suggestions: [
+                        '立即增加灌溉频次，保持土壤含水量40%以上',
+                        '叶面喷施氨基酸+微量元素复合液肥',
+                        '疏除过密小果，减轻挂果负载',
+                        '密切关注红蜘蛛发生趋势'
+                    ]
+                }
+            },
+            {
+                id: 'E-20260729-004', orchard: '白舍镇果园03', plant: '南坡C-02地块·品系C·5年生',
+                score: 91, result: '优秀', user: '王芳', time: '2026-07-29 15:45', source: 'PC端',
+                factors: {
+                    '评价对象': { '果园主体': '白舍镇果园03', '地块': '南坡C-02', '品系/株系': '品系C', '砧木': '枳砧', '树龄': '5年', '生育阶段': '果实膨大期' },
+                    '环境与土壤': { '空气温度': '30°C', '空气湿度': '70%', '土壤含水量': '48%', '光照适宜度': '82%', '土壤pH': '6.8', '土壤EC': '1.5 mS/cm', '钾营养适宜度': '88%' },
+                    '植株与果实': { '整体树势': '强', '新梢状态': '健壮', '叶片状态': '浓绿', '叶片SPAD': '45', '根系活力': '强', '挂果负载': '适中', '坐果率': '78%', '落果率': '3%', '平均果径': '55mm', '当前糖度': '10.2°Brix', '果实外观': '优', '病虫健康度': '健康' },
+                    '近期农事记录': { '近期灌溉': '7月28日滴灌', '近期施肥': '7月22日高钾水溶肥' }
+                },
+                report: {
+                    summary: '综合得分91分，长势优秀。各项指标均处于理想区间，管理措施到位。预计产量和品质均达标。',
+                    mainIssue: '无明显短板',
+                    deficiencies: [],
+                    suggestions: [
+                        '维持当前水肥管理方案',
+                        '定期监测病虫害，做好预防工作',
+                        '适时补充微量元素，保持营养平衡'
+                    ]
+                }
+            },
+            {
+                id: 'E-20260728-008', orchard: '洽湾镇果园04', plant: '北坡D-01地块·品系A·7年生',
+                score: 62, result: '较差', user: '刘强', time: '2026-07-28 09:20', source: '移动端',
+                factors: {
+                    '评价对象': { '果园主体': '洽湾镇果园04', '地块': '北坡D-01', '品系/株系': '品系A', '砧木': '红桔砧', '树龄': '7年', '生育阶段': '果实膨大期' },
+                    '环境与土壤': { '空气温度': '36°C', '空气湿度': '48%', '土壤含水量': '22%', '光照适宜度': '95%', '土壤pH': '5.8', '土壤EC': '0.5 mS/cm', '钾营养适宜度': '40%' },
+                    '植株与果实': { '整体树势': '弱', '新梢状态': '生长受抑', '叶片状态': '严重褪绿', '叶片SPAD': '28', '根系活力': '弱', '挂果负载': '过重', '坐果率': '58%', '落果率': '12%', '平均果径': '42mm', '当前糖度': '7.5°Brix', '果实外观': '差', '病虫健康度': '高风险' },
+                    '近期农事记录': { '近期灌溉': '7月15日沟灌', '近期施肥': '7月10日复合肥' }
+                },
+                report: {
+                    summary: '综合得分62分，长势较差。严重干旱缺水，土壤偏酸，钾营养不足。叶片SPAD值过低，果径和糖度远低于目标，落果率偏高，需紧急干预。',
+                    mainIssue: '严重干旱导致全面营养吸收障碍',
+                    deficiencies: [
+                        { name: '果径不足', gap: '差13.0 mm', severity: 'high' },
+                        { name: '糖度不足', gap: '差2.5 °Brix', severity: 'high' },
+                        { name: '落果率偏高', gap: '超出7%', severity: 'medium' }
+                    ],
+                    suggestions: [
+                        '紧急灌溉，每日滴灌保持土壤含水量35%以上',
+                        '施用石灰改良土壤pH至6.5左右',
+                        '叶面喷施磷酸二氢钾+尿素复合液',
+                        '疏果减载，优先保树势',
+                        '加强病虫害防治，重点防控红蜘蛛和炭疽病'
+                    ]
+                }
+            },
+            {
+                id: 'E-20260727-003', orchard: '桑田镇果园05', plant: '东坡E-02地块·品系B·6年生',
+                score: 83, result: '良好', user: '陈刚', time: '2026-07-27 16:00', source: 'PC端',
+                factors: {
+                    '评价对象': { '果园主体': '桑田镇果园05', '地块': '东坡E-02', '品系/株系': '品系B', '砧木': '枳砧', '树龄': '6年', '生育阶段': '果实膨大期' },
+                    '环境与土壤': { '空气温度': '31°C', '空气湿度': '68%', '土壤含水量': '45%', '光照适宜度': '80%', '土壤pH': '6.6', '土壤EC': '1.3 mS/cm', '钾营养适宜度': '82%' },
+                    '植株与果实': { '整体树势': '中上', '新梢状态': '正常', '叶片状态': '正常', '叶片SPAD': '41', '根系活力': '良好', '挂果负载': '适中', '坐果率': '74%', '落果率': '4%', '平均果径': '53mm', '当前糖度': '9.8°Brix', '果实外观': '良好', '病虫健康度': '健康' },
+                    '近期农事记录': { '近期灌溉': '7月26日滴灌', '近期施肥': '7月21日高钾水溶肥' }
+                },
+                report: {
+                    summary: '综合得分83分，长势良好。各项指标基本达标，管理较为规范。果径和糖度接近目标值，预计品质达标。',
+                    mainIssue: '无明显短板',
+                    deficiencies: [
+                        { name: '果径不足', gap: '差2.0 mm', severity: 'low' }
+                    ],
+                    suggestions: [
+                        '维持当前水肥管理',
+                        '适当补充钙肥，增强果实硬度',
+                        '监测天气变化，防范高温日灼'
+                    ]
+                }
+            },
+            {
+                id: 'E-20260726-002', orchard: '紫霄镇果园06', plant: '西坡F-01地块·品系C·4年生',
+                score: 76, result: '一般', user: '赵秀', time: '2026-07-26 11:30', source: '移动端',
+                factors: {
+                    '评价对象': { '果园主体': '紫霄镇果园06', '地块': '西坡F-01', '品系/株系': '品系C', '砧木': '枳砧', '树龄': '4年', '生育阶段': '果实膨大期' },
+                    '环境与土壤': { '空气温度': '33°C', '空气湿度': '60%', '土壤含水量': '35%', '光照适宜度': '88%', '土壤pH': '6.3', '土壤EC': '1.0 mS/cm', '钾营养适宜度': '65%' },
+                    '植株与果实': { '整体树势': '中等', '新梢状态': '正常', '叶片状态': '轻度褪绿', '叶片SPAD': '35', '根系活力': '一般', '挂果负载': '偏轻', '坐果率': '68%', '落果率': '6%', '平均果径': '50mm', '当前糖度': '9.0°Brix', '果实外观': '良好', '病虫健康度': '健康' },
+                    '近期农事记录': { '近期灌溉': '7月22日沟灌', '近期施肥': '7月18日复合肥' }
+                },
+                report: {
+                    summary: '综合得分76分，长势一般。幼树期挂果偏轻，叶片SPAD值偏低。土壤含水量略低，需加强水肥管理促进树体发育。',
+                    mainIssue: '幼树营养生长不足',
+                    deficiencies: [
+                        { name: '果径不足', gap: '差5.0 mm', severity: 'medium' },
+                        { name: '糖度不足', gap: '差1.0 °Brix', severity: 'low' }
+                    ],
+                    suggestions: [
+                        '增加灌溉频次，保持土壤含水量40%以上',
+                        '追施氮磷钾平衡肥，促进树体扩大',
+                        '叶面喷施微量元素肥，提升SPAD值',
+                        '幼树适当控果，优先培养树冠'
+                    ]
+                }
+            },
+            {
+                id: 'E-20260725-005', orchard: '南丰镇示范园01', plant: '西坡A-05地块·品系A·6年生',
+                score: 88, result: '优秀', user: '张明', time: '2026-07-25 14:00', source: 'PC端',
+                factors: {
+                    '评价对象': { '果园主体': '南丰镇示范园01', '地块': '西坡A-05', '品系/株系': '品系A', '砧木': '枳砧', '树龄': '6年', '生育阶段': '果实膨大期' },
+                    '环境与土壤': { '空气温度': '30°C', '空气湿度': '72%', '土壤含水量': '50%', '光照适宜度': '78%', '土壤pH': '6.7', '土壤EC': '1.4 mS/cm', '钾营养适宜度': '85%' },
+                    '植株与果实': { '整体树势': '强', '新梢状态': '健壮', '叶片状态': '浓绿', '叶片SPAD': '43', '根系活力': '强', '挂果负载': '适中', '坐果率': '76%', '落果率': '4%', '平均果径': '54mm', '当前糖度': '10.0°Brix', '果实外观': '优', '病虫健康度': '健康' },
+                    '近期农事记录': { '近期灌溉': '7月24日滴灌', '近期施肥': '7月20日高钾水溶肥' }
+                },
+                report: {
+                    summary: '综合得分88分，长势优秀。水肥管理到位，各项指标均处于理想区间。预计产量和品质双优。',
+                    mainIssue: '无明显短板',
+                    deficiencies: [],
+                    suggestions: [
+                        '维持当前管理方案',
+                        '注意排水防涝，避免土壤过湿',
+                        '定期巡查病虫害'
+                    ]
+                }
+            },
+            {
+                id: 'E-20260724-001', orchard: '三溪乡果园07', plant: '南坡G-03地块·品系B·9年生',
+                score: 73, result: '一般', user: '孙磊', time: '2026-07-24 10:45', source: '移动端',
+                factors: {
+                    '评价对象': { '果园主体': '三溪乡果园07', '地块': '南坡G-03', '品系/株系': '品系B', '砧木': '红桔砧', '树龄': '9年', '生育阶段': '果实膨大期' },
+                    '环境与土壤': { '空气温度': '34°C', '空气湿度': '58%', '土壤含水量': '32%', '光照适宜度': '92%', '土壤pH': '6.0', '土壤EC': '0.9 mS/cm', '钾营养适宜度': '55%' },
+                    '植株与果实': { '整体树势': '中等', '新梢状态': '正常', '叶片状态': '褪绿', '叶片SPAD': '33', '根系活力': '一般', '挂果负载': '偏重', '坐果率': '62%', '落果率': '9%', '平均果径': '47mm', '当前糖度': '8.5°Brix', '果实外观': '一般', '病虫健康度': '轻度风险' },
+                    '近期农事记录': { '近期灌溉': '7月18日沟灌', '近期施肥': '7月12日复合肥' }
+                },
+                report: {
+                    summary: '综合得分73分，长势一般。老树期管理需加强，土壤偏酸、含水量不足。挂果偏重，果径和糖度低于目标，建议疏果减载。',
+                    mainIssue: '土壤酸化与挂果过重双重压力',
+                    deficiencies: [
+                        { name: '果径不足', gap: '差8.0 mm', severity: 'high' },
+                        { name: '糖度不足', gap: '差1.5 °Brix', severity: 'medium' }
+                    ],
+                    suggestions: [
+                        '施用石灰改良土壤pH',
+                        '增加灌溉保持土壤含水量40%以上',
+                        '疏除小果密果，减轻负载',
+                        '叶面喷施磷酸二氢钾促进果实膨大'
+                    ]
+                }
+            },
+            {
+                id: 'E-20260723-007', orchard: '莱溪乡果园08', plant: '东坡H-01地块·品系A·5年生',
+                score: 81, result: '良好', user: '周婷', time: '2026-07-23 15:20', source: 'PC端',
+                factors: {
+                    '评价对象': { '果园主体': '莱溪乡果园08', '地块': '东坡H-01', '品系/株系': '品系A', '砧木': '枳砧', '树龄': '5年', '生育阶段': '果实膨大期' },
+                    '环境与土壤': { '空气温度': '31°C', '空气湿度': '66%', '土壤含水量': '44%', '光照适宜度': '84%', '土壤pH': '6.5', '土壤EC': '1.2 mS/cm', '钾营养适宜度': '78%' },
+                    '植株与果实': { '整体树势': '中上', '新梢状态': '正常', '叶片状态': '正常', '叶片SPAD': '40', '根系活力': '良好', '挂果负载': '适中', '坐果率': '73%', '落果率': '5%', '平均果径': '51mm', '当前糖度': '9.6°Brix', '果实外观': '良好', '病虫健康度': '健康' },
+                    '近期农事记录': { '近期灌溉': '7月22日滴灌', '近期施肥': '7月17日高钾水溶肥' }
+                },
+                report: {
+                    summary: '综合得分81分，长势良好。管理规范，各项指标基本达标。叶片SPAD值有提升空间，适当补氮即可。',
+                    mainIssue: '叶片SPAD值略偏低',
+                    deficiencies: [
+                        { name: '果径不足', gap: '差4.0 mm', severity: 'low' }
+                    ],
+                    suggestions: [
+                        '叶面喷施0.2%尿素溶液',
+                        '维持当前灌溉频次',
+                        '监测果实膨大趋势'
+                    ]
+                }
+            },
+            {
+                id: 'E-20260722-003', orchard: '傅坊乡果园09', plant: '北坡I-02地块·品系C·7年生',
+                score: 69, result: '较差', user: '吴鹏', time: '2026-07-22 09:00', source: '移动端',
+                factors: {
+                    '评价对象': { '果园主体': '傅坊乡果园09', '地块': '北坡I-02', '品系/株系': '品系C', '砧木': '红桔砧', '树龄': '7年', '生育阶段': '果实膨大期' },
+                    '环境与土壤': { '空气温度': '35°C', '空气湿度': '52%', '土壤含水量': '25%', '光照适宜度': '93%', '土壤pH': '5.9', '土壤EC': '0.6 mS/cm', '钾营养适宜度': '45%' },
+                    '植株与果实': { '整体树势': '弱', '新梢状态': '生长受抑', '叶片状态': '褪绿明显', '叶片SPAD': '30', '根系活力': '弱', '挂果负载': '偏重', '坐果率': '60%', '落果率': '10%', '平均果径': '44mm', '当前糖度': '8.0°Brix', '果实外观': '一般', '病虫健康度': '高风险' },
+                    '近期农事记录': { '近期灌溉': '7月12日沟灌', '近期施肥': '7月8日复合肥' }
+                },
+                report: {
+                    summary: '综合得分69分，长势较差。干旱缺水严重，土壤偏酸，营养不足。需紧急加强水肥管理，疏果减负。',
+                    mainIssue: '干旱缺水导致全面营养障碍',
+                    deficiencies: [
+                        { name: '果径不足', gap: '差11.0 mm', severity: 'high' },
+                        { name: '糖度不足', gap: '差2.0 °Brix', severity: 'high' }
+                    ],
+                    suggestions: [
+                        '紧急灌溉，保持土壤含水量35%以上',
+                        '施用石灰改良土壤pH',
+                        '追施高钾水溶肥+微量元素',
+                        '疏果减载，保树势优先',
+                        '加强病虫害防治'
+                    ]
+                }
+            },
+            {
+                id: 'E-20260721-004', orchard: '太和镇果园10', plant: '西坡J-01地块·品系A·8年生',
+                score: 87, result: '优秀', user: '郑华', time: '2026-07-21 14:15', source: 'PC端',
+                factors: {
+                    '评价对象': { '果园主体': '太和镇果园10', '地块': '西坡J-01', '品系/株系': '品系A', '砧木': '枳砧', '树龄': '8年', '生育阶段': '果实膨大期' },
+                    '环境与土壤': { '空气温度': '29°C', '空气湿度': '73%', '土壤含水量': '49%', '光照适宜度': '80%', '土壤pH': '6.8', '土壤EC': '1.4 mS/cm', '钾营养适宜度': '86%' },
+                    '植株与果实': { '整体树势': '强', '新梢状态': '健壮', '叶片状态': '浓绿', '叶片SPAD': '44', '根系活力': '强', '挂果负载': '适中', '坐果率': '77%', '落果率': '3%', '平均果径': '54mm', '当前糖度': '10.1°Brix', '果实外观': '优', '病虫健康度': '健康' },
+                    '近期农事记录': { '近期灌溉': '7月20日滴灌', '近期施肥': '7月16日高钾水溶肥' }
+                },
+                report: {
+                    summary: '综合得分87分，长势优秀。水肥管理到位，树体健壮。预计品质产量双达标。',
+                    mainIssue: '无明显短板',
+                    deficiencies: [],
+                    suggestions: [
+                        '维持当前管理方案',
+                        '定期巡查，保持病虫健康度'
+                    ]
+                }
+            },
+            {
+                id: 'E-20260720-002', orchard: '东坪乡果园11', plant: '南坡K-02地块·品系B·6年生',
+                score: 78, result: '一般', user: '黄敏', time: '2026-07-20 10:30', source: '移动端',
+                factors: {
+                    '评价对象': { '果园主体': '东坪乡果园11', '地块': '南坡K-02', '品系/株系': '品系B', '砧木': '枳砧', '树龄': '6年', '生育阶段': '果实膨大期' },
+                    '环境与土壤': { '空气温度': '33°C', '空气湿度': '62%', '土壤含水量': '36%', '光照适宜度': '87%', '土壤pH': '6.4', '土壤EC': '1.1 mS/cm', '钾营养适宜度': '70%' },
+                    '植株与果实': { '整体树势': '中等', '新梢状态': '正常', '叶片状态': '轻度褪绿', '叶片SPAD': '36', '根系活力': '一般', '挂果负载': '适中', '坐果率': '70%', '落果率': '6%', '平均果径': '49mm', '当前糖度': '9.2°Brix', '果实外观': '良好', '病虫健康度': '健康' },
+                    '近期农事记录': { '近期灌溉': '7月17日沟灌', '近期施肥': '7月14日复合肥' }
+                },
+                report: {
+                    summary: '综合得分78分，长势一般。土壤含水量略低，叶片SPAD值偏低。加强水肥管理可提升至良好水平。',
+                    mainIssue: '水分管理不足导致SPAD偏低',
+                    deficiencies: [
+                        { name: '果径不足', gap: '差6.0 mm', severity: 'medium' },
+                        { name: '糖度不足', gap: '差0.8 °Brix', severity: 'low' }
+                    ],
+                    suggestions: [
+                        '增加灌溉频次',
+                        '追施高钾水溶肥',
+                        '叶面喷施尿素提升SPAD'
+                    ]
+                }
+            },
+            {
+                id: 'E-20260719-001', orchard: '白舍镇果园03', plant: '北坡C-05地块·品系C·5年生',
+                score: 84, result: '良好', user: '王芳', time: '2026-07-19 15:00', source: 'PC端',
+                factors: {
+                    '评价对象': { '果园主体': '白舍镇果园03', '地块': '北坡C-05', '品系/株系': '品系C', '砧木': '枳砧', '树龄': '5年', '生育阶段': '果实膨大期' },
+                    '环境与土壤': { '空气温度': '30°C', '空气湿度': '70%', '土壤含水量': '46%', '光照适宜度': '82%', '土壤pH': '6.7', '土壤EC': '1.3 mS/cm', '钾营养适宜度': '83%' },
+                    '植株与果实': { '整体树势': '中上', '新梢状态': '正常', '叶片状态': '正常', '叶片SPAD': '42', '根系活力': '良好', '挂果负载': '适中', '坐果率': '75%', '落果率': '4%', '平均果径': '52mm', '当前糖度': '9.7°Brix', '果实外观': '良好', '病虫健康度': '健康' },
+                    '近期农事记录': { '近期灌溉': '7月18日滴灌', '近期施肥': '7月14日高钾水溶肥' }
+                },
+                report: {
+                    summary: '综合得分84分，长势良好。管理规范，各项指标达标。预计品质达标。',
+                    mainIssue: '无明显短板',
+                    deficiencies: [
+                        { name: '果径不足', gap: '差3.0 mm', severity: 'low' }
+                    ],
+                    suggestions: [
+                        '维持当前管理',
+                        '适当补充钙肥'
+                    ]
+                }
+            },
+            {
+                id: 'E-20260718-005', orchard: '琴城镇果园12', plant: '东坡L-01地块·品系A·7年生',
+                score: 72, result: '一般', user: '林超', time: '2026-07-18 09:15', source: '移动端',
+                factors: {
+                    '评价对象': { '果园主体': '琴城镇果园12', '地块': '东坡L-01', '品系/株系': '品系A', '砧木': '红桔砧', '树龄': '7年', '生育阶段': '果实膨大期' },
+                    '环境与土壤': { '空气温度': '34°C', '空气湿度': '56%', '土壤含水量': '30%', '光照适宜度': '91%', '土壤pH': '6.1', '土壤EC': '0.8 mS/cm', '钾营养适宜度': '50%' },
+                    '植株与果实': { '整体树势': '中等', '新梢状态': '正常', '叶片状态': '褪绿', '叶片SPAD': '34', '根系活力': '一般', '挂果负载': '偏重', '坐果率': '63%', '落果率': '8%', '平均果径': '46mm', '当前糖度': '8.7°Brix', '果实外观': '一般', '病虫健康度': '轻度风险' },
+                    '近期农事记录': { '近期灌溉': '7月12日沟灌', '近期施肥': '7月8日复合肥' }
+                },
+                report: {
+                    summary: '综合得分72分，长势一般。土壤含水量偏低，挂果偏重。需加强水肥管理，适当疏果。',
+                    mainIssue: '水分不足与挂果过重',
+                    deficiencies: [
+                        { name: '果径不足', gap: '差9.0 mm', severity: 'high' },
+                        { name: '糖度不足', gap: '差1.3 °Brix', severity: 'medium' }
+                    ],
+                    suggestions: [
+                        '增加灌溉频次',
+                        '追施高钾肥',
+                        '疏果减载',
+                        '加强病虫害监测'
+                    ]
+                }
+            },
+            {
+                id: 'E-20260717-003', orchard: '南丰镇示范园01', plant: '北坡A-07地块·品系A·6年生',
+                score: 90, result: '优秀', user: '张明', time: '2026-07-17 14:45', source: 'PC端',
+                factors: {
+                    '评价对象': { '果园主体': '南丰镇示范园01', '地块': '北坡A-07', '品系/株系': '品系A', '砧木': '枳砧', '树龄': '6年', '生育阶段': '果实膨大期' },
+                    '环境与土壤': { '空气温度': '29°C', '空气湿度': '74%', '土壤含水量': '51%', '光照适宜度': '76%', '土壤pH': '6.9', '土壤EC': '1.5 mS/cm', '钾营养适宜度': '87%' },
+                    '植株与果实': { '整体树势': '强', '新梢状态': '健壮', '叶片状态': '浓绿', '叶片SPAD': '45', '根系活力': '强', '挂果负载': '适中', '坐果率': '78%', '落果率': '3%', '平均果径': '55mm', '当前糖度': '10.3°Brix', '果实外观': '优', '病虫健康度': '健康' },
+                    '近期农事记录': { '近期灌溉': '7月16日滴灌', '近期施肥': '7月12日高钾水溶肥' }
+                },
+                report: {
+                    summary: '综合得分90分，长势优秀。各项指标均处于理想区间，管理精细到位。',
+                    mainIssue: '无明显短板',
+                    deficiencies: [],
+                    suggestions: [
+                        '维持当前管理方案',
+                        '做好防台防汛准备'
+                    ]
+                }
+            }
+        ];
+
+        let currentPage = 1;
+        let pageSize = 10;
+        let filteredEvals = evals.slice();
+        let currentDownloadId = null;
+
+        function escapeHtml(str) {
+            if (str === null || str === undefined) return '';
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+
+        function updateStats() {
+            document.getElementById('stat-total').textContent = evals.length;
+            document.getElementById('stat-excellent').textContent = evals.filter(e => e.result === '优秀').length;
+            const avgScore = evals.length ? Math.round(evals.reduce((s, e) => s + e.score, 0) / evals.length) : 0;
+            document.getElementById('stat-avg-score').textContent = avgScore;
+            const now = new Date();
+            const monthCount = evals.filter(e => {
+                const d = new Date(e.time);
+                return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+            }).length;
+            document.getElementById('stat-month').textContent = monthCount;
+        }
+
+        function getScoreColor(score) {
+            if (score >= 85) return 'bg-green-500';
+            if (score >= 75) return 'bg-blue-500';
+            if (score >= 65) return 'bg-yellow-500';
+            return 'bg-red-500';
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('eval-table-body');
+            const emptyTip = document.getElementById('empty-tip');
+            const total = filteredEvals.length;
+            const totalPages = Math.max(1, Math.ceil(total / pageSize));
+            if (currentPage > totalPages) currentPage = totalPages;
+
+            const start = (currentPage - 1) * pageSize;
+            const end = Math.min(start + pageSize, total);
+            const pageData = filteredEvals.slice(start, end);
+
+            if (pageData.length === 0) {
+                tbody.innerHTML = '';
+                emptyTip.classList.remove('hidden');
+            } else {
+                emptyTip.classList.add('hidden');
+                tbody.innerHTML = pageData.map(e => {
+                    const resultStyle = RESULT_STYLES[e.result] || 'bg-gray-100 text-gray-700';
+                    return `
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 text-sm text-gray-500">${escapeHtml(e.id)}</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">${escapeHtml(e.orchard)}</td>
+                            <td class="px-6 py-4 text-sm text-gray-600">${escapeHtml(e.plant)}</td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center">
+                                    <span class="text-sm font-bold text-gray-800 mr-2">${e.score}分</span>
+                                    <span class="px-2 py-1 ${resultStyle} text-xs rounded-full">${escapeHtml(e.result)}</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-600">${escapeHtml(e.user)}</td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center justify-center space-x-3">
+                                    <button onclick="openDetailModal('${e.id}')" class="px-3 py-1 text-green hover:bg-green-50 rounded text-xs font-medium transition-colors">查看评价</button>
+                                    <button onclick="openDownloadModal('${e.id}')" class="px-3 py-1 text-purple hover:bg-purple-50 rounded text-xs font-medium transition-colors">报告下载</button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+
+            document.getElementById('page-info').textContent = total === 0 ? '共 0 条记录' : `第 ${start + 1}-${end} 条，共 ${total} 条记录`;
+            renderPagination(totalPages);
+        }
+
+        function renderPagination(totalPages) {
+            const pagination = document.getElementById('pagination');
+            let html = '';
+            html += `<button onclick="prevPage()" class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50 ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''}">上一页</button>`;
+            let start = Math.max(1, currentPage - 2);
+            let end = Math.min(totalPages, start + 4);
+            if (end - start < 4) start = Math.max(1, end - 4);
+            if (start > 1) {
+                html += `<button onclick="changePage(1)" class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50">1</button>`;
+                if (start > 2) html += `<span class="px-2 text-gray-400">...</span>`;
+            }
+            for (let i = start; i <= end; i++) {
+                html += `<button onclick="changePage(${i})" class="pagination-btn px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50 ${i === currentPage ? 'active' : ''}">${i}</button>`;
+            }
+            if (end < totalPages) {
+                if (end < totalPages - 1) html += `<span class="px-2 text-gray-400">...</span>`;
+                html += `<button onclick="changePage(${totalPages})" class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50">${totalPages}</button>`;
+            }
+            html += `<button onclick="nextPage()" class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50 ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''}">下一页</button>`;
+            pagination.innerHTML = html;
+        }
+
+        function changePage(page) {
+            const totalPages = Math.max(1, Math.ceil(filteredEvals.length / pageSize));
+            if (page < 1 || page > totalPages) return;
+            currentPage = page;
+            renderTable();
+        }
+
+        function prevPage() { if (currentPage > 1) { currentPage--; renderTable(); } }
+        function nextPage() {
+            const totalPages = Math.max(1, Math.ceil(filteredEvals.length / pageSize));
+            if (currentPage < totalPages) { currentPage++; renderTable(); }
+        }
+
+        function changePageSize() {
+            pageSize = parseInt(document.getElementById('page-size').value);
+            currentPage = 1;
+            renderTable();
+        }
+
+        function filterEvals() {
+            const keyword = document.getElementById('search-input').value.trim().toLowerCase();
+            const source = document.getElementById('source-filter').value;
+            const result = document.getElementById('result-filter').value;
+            filteredEvals = evals.filter(e => {
+                const matchKeyword = !keyword || e.id.toLowerCase().includes(keyword) || e.orchard.toLowerCase().includes(keyword) || e.plant.toLowerCase().includes(keyword);
+                const matchSource = !source || e.source === source;
+                const matchResult = !result || e.result === result;
+                return matchKeyword && matchSource && matchResult;
+            });
+            currentPage = 1;
+            renderTable();
+        }
+
+        function resetFilter() {
+            document.getElementById('search-input').value = '';
+            document.getElementById('source-filter').value = '';
+            document.getElementById('result-filter').value = '';
+            filteredEvals = evals.slice();
+            currentPage = 1;
+            renderTable();
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function openDetailModal(id) {
+            const e = evals.find(x => x.id === id);
+            if (!e) return;
+
+            let factorsHtml = '';
+            for (const [moduleName, fields] of Object.entries(e.factors)) {
+                factorsHtml += `
+                    <div class="mb-4">
+                        <h4 class="text-sm font-semibold text-gray-800 mb-2 pb-1 border-b border-gray-200">${escapeHtml(moduleName)}</h4>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+                `;
+                for (const [key, value] of Object.entries(fields)) {
+                    factorsHtml += `
+                            <div class="bg-gray-50 rounded-lg px-3 py-2">
+                                <p class="text-xs text-gray-500">${escapeHtml(key)}</p>
+                                <p class="text-sm font-medium text-gray-800 mt-0.5">${escapeHtml(value)}</p>
+                            </div>
+                    `;
+                }
+                factorsHtml += `</div></div>`;
+            }
+
+            let deficienciesHtml = '';
+            if (e.report.deficiencies.length > 0) {
+                deficienciesHtml = e.report.deficiencies.map(d => {
+                    const sevColor = d.severity === 'high' ? 'text-red-600 bg-red-50' : (d.severity === 'medium' ? 'text-yellow-600 bg-yellow-50' : 'text-gray-600 bg-gray-50');
+                    return `
+                        <div class="flex items-center justify-between px-3 py-2 ${sevColor} rounded-lg">
+                            <span class="text-sm font-medium">${escapeHtml(d.name)}</span>
+                            <span class="text-sm">${escapeHtml(d.gap)}</span>
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                deficienciesHtml = '<p class="text-sm text-gray-400 text-center py-3">无短板项</p>';
+            }
+
+            let suggestionsHtml = e.report.suggestions.map((s, i) => `
+                <div class="flex items-start mb-2">
+                    <span class="flex-shrink-0 w-5 h-5 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-xs font-bold mr-2 mt-0.5">${i + 1}</span>
+                    <p class="text-sm text-gray-700">${escapeHtml(s)}</p>
+                </div>
+            `).join('');
+
+            const scoreColor = getScoreColor(e.score);
+
+            document.getElementById('detail-body').innerHTML = `
+                <div class="flex items-center justify-between mb-6 p-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-xl">
+                    <div>
+                        <h4 class="text-lg font-semibold text-gray-800">${escapeHtml(e.id)}</h4>
+                        <p class="text-sm text-gray-500 mt-1">${escapeHtml(e.orchard)} · ${escapeHtml(e.plant)}</p>
+                        <div class="flex items-center mt-2 space-x-4">
+                            <span class="text-sm text-gray-600">用户：${escapeHtml(e.user)}</span>
+                            <span class="text-sm text-gray-600">时间：${escapeHtml(e.time)}</span>
+                            <span class="px-2 py-0.5 bg-gray-200 text-gray-600 text-xs rounded-full">${escapeHtml(e.source)}</span>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-3xl font-bold text-gray-800">${e.score}<span class="text-lg text-gray-400">分</span></p>
+                        <span class="px-3 py-1 ${RESULT_STYLES[e.result]} text-sm rounded-full mt-1">${escapeHtml(e.result)}</span>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <h4 class="text-sm font-semibold text-gray-800 mb-3 flex items-center">
+                        <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                        评分因子
+                    </h4>
+                    ${factorsHtml}
+                </div>
+
+                <div class="mb-6">
+                    <h4 class="text-sm font-semibold text-gray-800 mb-3 flex items-center">
+                        <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                        评价结果
+                    </h4>
+                    <div class="bg-gray-50 rounded-xl p-4 mb-3">
+                        <p class="text-sm text-gray-700 leading-relaxed">${escapeHtml(e.report.summary)}</p>
+                    </div>
+                    <div class="bg-orange-50 border border-orange-100 rounded-xl p-4 mb-3">
+                        <p class="text-xs text-orange-500 mb-1">主要矛盾</p>
+                        <p class="text-sm font-medium text-gray-800">${escapeHtml(e.report.mainIssue)}</p>
+                    </div>
+                    <div class="mb-3">
+                        <p class="text-xs text-gray-500 mb-2">短板分析</p>
+                        <div class="space-y-2">${deficienciesHtml}</div>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-sm font-semibold text-gray-800 mb-3 flex items-center">
+                        <svg class="w-4 h-4 mr-2 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+                        农事建议
+                    </h4>
+                    <div class="bg-green-50 rounded-xl p-4">${suggestionsHtml}</div>
+                </div>
+            `;
+
+            document.getElementById('detail-modal').classList.add('active');
+        }
+
+        function openDownloadModal(id) {
+            const e = evals.find(x => x.id === id);
+            if (!e) return;
+            currentDownloadId = id;
+            document.getElementById('download-title').textContent = `${e.id} 评价报告`;
+            document.getElementById('download-desc').textContent = `${e.orchard} · ${e.score}分 · ${e.user} · ${e.time}`;
+            document.getElementById('download-modal').classList.add('active');
+        }
+
+        function doDownload(format) {
+            const e = evals.find(x => x.id === currentDownloadId);
+            if (!e) return;
+
+            if (format === 'pdf') {
+                const content = `植株综合评价报告\n\n评分编号: ${e.id}\n评分果园: ${e.orchard}\n评分植株: ${e.plant}\n综合得分: ${e.score}分 (${e.result})\n评分用户: ${e.user}\n时间: ${e.time}\n来源: ${e.source}\n\n=== 评分因子 ===\n${Object.entries(e.factors).map(([module, fields]) => `\n【${module}】\n${Object.entries(fields).map(([k, v]) => `  ${k}: ${v}`).join('\n')}`).join('\n')}\n\n=== 评价结果 ===\n综合概述: ${e.report.summary}\n主要矛盾: ${e.report.mainIssue}\n${e.report.deficiencies.length > 0 ? '\n短板分析:\n' + e.report.deficiencies.map(d => `  - ${d.name}: ${d.gap}`).join('\n') : ''}\n\n=== 农事建议 ===\n${e.report.suggestions.map((s, i) => `${i + 1}. ${s}`).join('\n')}`;
+                const blob = new Blob(['\ufeff' + content], { type: 'text/plain;charset=utf-8;' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `评价报告_${e.id}.txt`;
+                link.click();
+            } else {
+                let csv = '评分编号,评分果园,评分植株,综合得分,评分结果,评分用户,时间,来源\n';
+                csv += `${e.id},${e.orchard},${e.plant},${e.score},${e.result},${e.user},${e.time},${e.source}\n\n`;
+                csv += '模块,因子,数值\n';
+                for (const [module, fields] of Object.entries(e.factors)) {
+                    for (const [k, v] of Object.entries(fields)) {
+                        csv += `${module},${k},${v}\n`;
+                    }
+                }
+                const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `评价数据_${e.id}.csv`;
+                link.click();
+            }
+
+            closeModal('download-modal');
+            alert('报告下载已开始，请留意浏览器下载提示');
+        }
+
+        document.addEventListener('click', (e) => {
+            const detailModal = document.getElementById('detail-modal');
+            if (detailModal && e.target === detailModal) detailModal.classList.remove('active');
+            const downloadModal = document.getElementById('download-modal');
+            if (downloadModal && e.target === downloadModal) downloadModal.classList.remove('active');
+        });
+
+        updateStats();
+        renderTable();
+    </script>
+</body>
+</html>

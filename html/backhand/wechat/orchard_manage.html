@@ -3,12 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>微信后台 - 果园管理</title>
+  <title>果园管理 - 南丰蜜桔模型管理系统</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: {
+      green: { DEFAULT: '#16a34a' },
+      blue: { DEFAULT: '#2563eb' },
+      red: { DEFAULT: '#dc2626' },
+      yellow: { DEFAULT: '#ca8a04' },
+      purple: { DEFAULT: '#9333ea' }
+    }}}}
+  </script>
   <style>
+    @keyframes modalSlideIn {
+        from { opacity: 0; transform: translateY(-20px) scale(0.98); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .modal-overlay.active .modal-content { animation: modalSlideIn 0.3s ease; }
     body { margin: 0; padding: 0; background: #f0f2f5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; }
     .page-header { padding: 20px 24px; background: #fff; border-bottom: 1px solid #e8ecf1; display: flex; justify-content: space-between; align-items: center; }
-    .page-title { font-size: 18px; font-weight: 600; color: #1b2a41; }
+    .page-title { font-size: 20px; font-weight: 600; color: #1b2a41; }
     .page-subtitle { font-size: 14px; color: #8898aa; margin-top: 4px; }
     
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
@@ -95,9 +109,8 @@
             <th>所属用户</th>
             <th>面积(亩)</th>
             <th>品种</th>
-            <th>土壤类型</th>
-            <th>PH值</th>
-            <th>有机质含量</th>
+            <th>地块地址</th>
+            <th>负责人员</th>
             <th>树龄(年)</th>
             <th>状态</th>
             <th>操作</th>
@@ -149,16 +162,8 @@
           </select>
         </div>
         <div class="form-item">
-          <label class="form-label">土壤类型</label>
-          <input type="text" class="form-input" id="add-soil" placeholder="请输入土壤类型">
-        </div>
-        <div class="form-item">
-          <label class="form-label">PH值</label>
-          <input type="text" class="form-input" id="add-ph" placeholder="请输入PH值">
-        </div>
-        <div class="form-item">
-          <label class="form-label">有机质含量(%)</label>
-          <input type="text" class="form-input" id="add-organic" placeholder="请输入有机质含量">
+          <label class="form-label">地块地址 *</label>
+          <input type="text" class="form-input" id="add-address" placeholder="请输入地块地址">
         </div>
         <div class="form-item">
           <label class="form-label">树龄(年)</label>
@@ -213,21 +218,21 @@
 
   <script>
     var orchards = [
-      { id: 'oc-001', name: '1号早熟蜜桔区', user: '张三', area: '15', variety: '南丰蜜桔早熟种', soil: '红壤', ph: '5.8', organic: '2.1%', age: '8', status: '正常' },
-      { id: 'oc-002', name: '2号中熟蜜桔区', user: '张三', area: '18', variety: '南丰蜜桔中熟种', soil: '红壤', ph: '6.0', organic: '1.8%', age: '10', status: '预警' },
-      { id: 'oc-003', name: '3号晚熟蜜桔区', user: '李四', area: '20', variety: '南丰蜜桔晚熟种', soil: '黄壤', ph: '5.5', organic: '2.3%', age: '6', status: '正常' },
-      { id: 'oc-004', name: '4号试验田', user: '李四', area: '15', variety: '新品种试验', soil: '红壤', ph: '5.9', organic: '2.0%', age: '3', status: '正常' },
-      { id: 'oc-005', name: '5号丰产园', user: '王五', area: '25', variety: '南丰蜜桔中熟种', soil: '红壤', ph: '5.7', organic: '2.2%', age: '12', status: '正常' },
-      { id: 'oc-006', name: '6号精品园', user: '王五', area: '12', variety: '南丰蜜桔早熟种', soil: '黄壤', ph: '6.2', organic: '2.5%', age: '8', status: '正常' },
-      { id: 'oc-007', name: '7号标准化基地', user: '赵六', area: '50', variety: '南丰蜜桔中熟种', soil: '红壤', ph: '5.8', organic: '2.1%', age: '10', status: '正常' },
-      { id: 'oc-008', name: '8号生态果园', user: '孙七', area: '30', variety: '南丰蜜桔晚熟种', soil: '红壤', ph: '5.6', organic: '2.4%', age: '7', status: '预警' },
-      { id: 'oc-009', name: '9号密植园', user: '周八', area: '18', variety: '南丰蜜桔早熟种', soil: '黄壤', ph: '6.1', organic: '1.9%', age: '9', status: '正常' },
-      { id: 'oc-010', name: '10号观光园', user: '吴九', area: '40', variety: '南丰蜜桔中熟种', soil: '红壤', ph: '5.8', organic: '2.2%', age: '15', status: '正常' },
-      { id: 'oc-011', name: '11号育苗基地', user: '郑十', area: '22', variety: '南丰蜜桔早熟种', soil: '红壤', ph: '6.0', organic: '2.6%', age: '2', status: '正常' },
-      { id: 'oc-012', name: '12号老树园', user: '陈十一', area: '35', variety: '南丰蜜桔晚熟种', soil: '红壤', ph: '5.5', organic: '1.7%', age: '20', status: '预警' },
-      { id: 'oc-013', name: '13号新开发', user: '林十二', area: '10', variety: '南丰蜜桔中熟种', soil: '红壤', ph: '5.9', organic: '2.0%', age: '4', status: '正常' },
-      { id: 'oc-014', name: '14号高产园', user: '黄十三', area: '28', variety: '南丰蜜桔早熟种', soil: '黄壤', ph: '6.3', organic: '2.3%', age: '8', status: '正常' },
-      { id: 'oc-015', name: '15号示范园', user: '周十四', area: '32', variety: '南丰蜜桔中熟种', soil: '红壤', ph: '5.7', organic: '2.1%', age: '11', status: '正常' }
+      { id: 'oc-001', name: '1号早熟蜜桔区', user: '张三', area: '15', variety: '南丰蜜桔早熟种', address: '南丰县南丰镇瑶浦村', manager: '张三', age: '8', status: '正常' },
+      { id: 'oc-002', name: '2号中熟蜜桔区', user: '张三', area: '18', variety: '南丰蜜桔中熟种', address: '南丰县南丰镇茅埠村', manager: '张三', age: '10', status: '预警' },
+      { id: 'oc-003', name: '3号晚熟蜜桔区', user: '李四', area: '20', variety: '南丰蜜桔晚熟种', address: '南丰县市山镇翠云村', manager: '李四', age: '6', status: '正常' },
+      { id: 'oc-004', name: '4号试验田', user: '李四', area: '15', variety: '新品种试验', address: '南丰县市山镇梓和村', manager: '李四', age: '3', status: '正常' },
+      { id: 'oc-005', name: '5号丰产园', user: '王五', area: '25', variety: '南丰蜜桔中熟种', address: '南丰县白舍镇鄱阳村', manager: '王五', age: '12', status: '正常' },
+      { id: 'oc-006', name: '6号精品园', user: '王五', area: '12', variety: '南丰蜜桔早熟种', address: '南丰县白舍镇望天村', manager: '王五', age: '8', status: '正常' },
+      { id: 'oc-007', name: '7号标准化基地', user: '赵六', area: '50', variety: '南丰蜜桔中熟种', address: '南丰县洽湾镇洽湾村', manager: '赵六', age: '10', status: '正常' },
+      { id: 'oc-008', name: '8号生态果园', user: '孙七', area: '30', variety: '南丰蜜桔晚熟种', address: '南丰县桑田镇桑田村', manager: '孙七', age: '7', status: '预警' },
+      { id: 'oc-009', name: '9号密植园', user: '周八', area: '18', variety: '南丰蜜桔早熟种', address: '南丰县紫霄镇紫霄村', manager: '周八', age: '9', status: '正常' },
+      { id: 'oc-010', name: '10号观光园', user: '吴九', area: '40', variety: '南丰蜜桔中熟种', address: '南丰县莱溪乡莱溪村', manager: '吴九', age: '15', status: '正常' },
+      { id: 'oc-011', name: '11号育苗基地', user: '郑十', area: '22', variety: '南丰蜜桔早熟种', address: '南丰县东坪乡东坪村', manager: '郑十', age: '2', status: '正常' },
+      { id: 'oc-012', name: '12号老树园', user: '陈十一', area: '35', variety: '南丰蜜桔晚熟种', address: '南丰县傅坊乡傅坊村', manager: '陈十一', age: '20', status: '预警' },
+      { id: 'oc-013', name: '13号新开发', user: '林十二', area: '10', variety: '南丰蜜桔中熟种', address: '南丰县太和镇太和村', manager: '林十二', age: '4', status: '正常' },
+      { id: 'oc-014', name: '14号高产园', user: '黄十三', area: '28', variety: '南丰蜜桔早熟种', address: '南丰县三溪乡三溪村', manager: '黄十三', age: '8', status: '正常' },
+      { id: 'oc-015', name: '15号示范园', user: '周十四', area: '32', variety: '南丰蜜桔中熟种', address: '南丰县琴城镇瑶浦村', manager: '周十四', age: '11', status: '正常' }
     ];
 
     var originalOrchards = JSON.parse(JSON.stringify(orchards));
@@ -309,15 +314,14 @@
             <td>${o.user}</td>
             <td>${o.area}</td>
             <td>${o.variety}</td>
-            <td>${o.soil}</td>
-            <td>${o.ph}</td>
-            <td>${o.organic}</td>
+            <td>${o.address}</td>
+            <td>${o.manager}</td>
             <td>${o.age}</td>
             <td><span class="status-badge ${statusClass}">${o.status}</span></td>
             <td>
-              <button class="btn btn-secondary" onclick="openDetailModal('${o.id}')">查看</button>
-              <button class="btn btn-secondary" onclick="openEditModal('${o.id}')">编辑</button>
-              <button class="btn btn-secondary" onclick="openDeleteModal('${o.id}', '${o.name}')">删除</button>
+              <button onclick="openDetailModal('${o.id}')" class="px-3 py-1 text-green hover:bg-green-50 rounded text-xs font-medium transition-colors">查看</button>
+              <button onclick="openEditModal('${o.id}')" class="px-3 py-1 text-blue hover:bg-blue-50 rounded text-xs font-medium transition-colors">编辑</button>
+              <button onclick="openDeleteModal('${o.id}', '${o.name}')" class="px-3 py-1 text-red hover:bg-red-50 rounded text-xs font-medium transition-colors">删除</button>
             </td>
           </tr>
         `;
@@ -366,9 +370,7 @@
       document.getElementById('add-user').value = '张三';
       document.getElementById('add-area').value = '';
       document.getElementById('add-variety').value = '南丰蜜桔早熟种';
-      document.getElementById('add-soil').value = '';
-      document.getElementById('add-ph').value = '';
-      document.getElementById('add-organic').value = '';
+      document.getElementById('add-address').value = '';
       document.getElementById('add-age').value = '';
       document.getElementById('add-status').value = '正常';
       document.getElementById('add-modal').classList.add('active');
@@ -383,9 +385,7 @@
       document.getElementById('add-user').value = o.user;
       document.getElementById('add-area').value = o.area;
       document.getElementById('add-variety').value = o.variety;
-      document.getElementById('add-soil').value = o.soil;
-      document.getElementById('add-ph').value = o.ph;
-      document.getElementById('add-organic').value = o.organic;
+      document.getElementById('add-address').value = o.address;
       document.getElementById('add-age').value = o.age;
       document.getElementById('add-status').value = o.status;
       document.getElementById('add-modal').classList.add('active');
@@ -397,25 +397,23 @@
       var user = document.getElementById('add-user').value;
       var area = document.getElementById('add-area').value.trim();
       var variety = document.getElementById('add-variety').value;
-      var soil = document.getElementById('add-soil').value.trim();
-      var ph = document.getElementById('add-ph').value.trim();
-      var organic = document.getElementById('add-organic').value.trim();
+      var address = document.getElementById('add-address').value.trim();
       var age = document.getElementById('add-age').value.trim();
       var status = document.getElementById('add-status').value;
-      
+
       if (!name || !area) {
         alert('请填写必填项');
         return;
       }
-      
+
       if (id) {
         var index = originalOrchards.findIndex(function(item) { return item.id === id; });
         if (index > -1) {
-          originalOrchards[index] = { ...originalOrchards[index], name, user, area, variety, soil, ph, organic, age, status };
+          originalOrchards[index] = { ...originalOrchards[index], name, user, area, variety, address, age, status };
         }
       } else {
         var newId = 'oc-' + String(originalOrchards.length + 1).padStart(3, '0');
-        originalOrchards.unshift({ id: newId, name, user, area, variety, soil, ph, organic, age, status });
+        originalOrchards.unshift({ id: newId, name, user, area, variety, address, manager: user, age, status });
       }
       
       closeModal('add-modal');
@@ -435,9 +433,7 @@
           <div class="detail-item"><div class="detail-label">所属用户</div><div class="detail-value">${o.user}</div></div>
           <div class="detail-item"><div class="detail-label">面积</div><div class="detail-value">${o.area} 亩</div></div>
           <div class="detail-item"><div class="detail-label">品种</div><div class="detail-value">${o.variety}</div></div>
-          <div class="detail-item"><div class="detail-label">土壤类型</div><div class="detail-value">${o.soil}</div></div>
-          <div class="detail-item"><div class="detail-label">PH值</div><div class="detail-value">${o.ph}</div></div>
-          <div class="detail-item"><div class="detail-label">有机质含量</div><div class="detail-value">${o.organic}</div></div>
+          <div class="detail-item"><div class="detail-label">地块地址</div><div class="detail-value">${o.address}</div></div>
           <div class="detail-item"><div class="detail-label">树龄</div><div class="detail-value">${o.age} 年</div></div>
           <div class="detail-item"><div class="detail-label">状态</div><div class="detail-value"><span class="status-badge ${o.status === '正常' ? 'status-normal' : 'status-warning'}">${o.status}</span></div></div>
         </div>

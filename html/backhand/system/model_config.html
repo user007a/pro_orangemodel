@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>模型配置 - 南丰蜜桔模型管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = { theme: { extend: { colors: {
+        green: { DEFAULT: '#16a34a' },
+        blue: { DEFAULT: '#2563eb' },
+        red: { DEFAULT: '#dc2626' },
+        yellow: { DEFAULT: '#ca8a04' },
+        purple: { DEFAULT: '#9333ea' }
+      }}}}
+    </script>
+
+    <style>
+        @keyframes modalSlideIn {
+            from { opacity: 0; transform: translateY(-20px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .modal-overlay.active .modal-content { animation: modalSlideIn 0.3s ease; }
+        body { margin: 0; padding: 0; background-color: #F0F2F5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans SC', sans-serif; }
+        .content-wrapper { padding: 24px; height: 100vh; overflow-y: auto; }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.5); z-index: 1000; align-items: center; justify-content: center; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background-color: white; border-radius: 12px; width: 90%; max-width: 640px; max-height: 85vh; overflow: hidden; display: flex; flex-direction: column; }
+        .modal-body { padding: 24px; overflow-y: auto; flex: 1; }
+        .switch { position: relative; display: inline-block; width: 40px; height: 22px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #d1d5db; transition: 0.3s ease; border-radius: 22px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 2px; bottom: 2px; background-color: white; transition: 0.3s ease; border-radius: 50%; }
+        input:checked + .slider { background-color: #16a34a; }
+        input:checked + .slider:before { transform: translateX(18px); }
+    </style>
+</head>
+<body>
+    <div class="content-wrapper">
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h1 class="text-xl font-bold text-gray-800">模型配置</h1>
+                <p class="text-gray-500 text-sm mt-1">管理大语言模型对接配置，用于植株生长评价生成评价报告</p>
+            </div>
+            <div class="flex items-center space-x-3">
+                <button onclick="openAddModal()" class="px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition flex items-center">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    新增模型
+                </button>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 mb-6">
+            <div class="p-4 border-b border-gray-100">
+                <div class="flex items-center space-x-4 flex-wrap">
+                    <div class="flex-1 min-w-[240px] max-w-md">
+                        <div class="relative">
+                            <svg class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                            <input type="text" id="search-input" placeholder="搜索模型名称或供应商..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500" oninput="filterModels()">
+                        </div>
+                    </div>
+                    <select id="provider-filter" class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500" onchange="filterModels()">
+                        <option value="">全部供应商</option>
+                        <option value="DeepSeek">DeepSeek</option>
+                        <option value="智谱AI">智谱AI</option>
+                        <option value="Moonshot">Moonshot</option>
+                        <option value="OpenAI">OpenAI</option>
+                        <option value="Anthropic">Anthropic</option>
+                        <option value="私有部署">私有部署</option>
+                    </select>
+                    <select id="deploy-filter" class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500" onchange="filterModels()">
+                        <option value="">全部部署方式</option>
+                        <option value="商用API">商用API</option>
+                        <option value="私有部署">私有部署</option>
+                    </select>
+                    <select id="status-filter" class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500" onchange="filterModels()">
+                        <option value="">全部状态</option>
+                        <option value="启用">启用</option>
+                        <option value="停用">停用</option>
+                    </select>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="bg-gray-50 border-b border-gray-200">
+                            <th class="text-left py-3 px-4 font-semibold text-gray-600">模型名称</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-600">供应商</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-600">部署方式</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-600">模型标识</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-600">默认模型</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-600">状态</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-600">创建时间</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-600">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="model-table-body">
+                        <tr class="border-b border-gray-100 hover:bg-gray-50" data-id="M-001" data-name="DeepSeek-V3" data-provider="DeepSeek" data-deploy="商用API" data-model-id="deepseek-chat" data-endpoint="https://api.deepseek.com/v1/chat/completions" data-apikey="sk-deepseek-xxxxxxxxxxxxxxxx" data-temperature="0.7" data-max-tokens="4096" data-context="64K" data-default="是" data-status="启用" data-remark="用于生成生长评价报告主模型，性价比较高" data-created="2026-07-15 10:30">
+                            <td class="py-3 px-4 font-medium text-gray-800">DeepSeek-V3</td>
+                            <td class="py-3 px-4"><span class="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded">DeepSeek</span></td>
+                            <td class="py-3 px-4"><span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded">商用API</span></td>
+                            <td class="py-3 px-4 text-gray-600">deepseek-chat</td>
+                            <td class="py-3 px-4"><span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded">默认</span></td>
+                            <td class="py-3 px-4">
+                                <label class="switch">
+                                    <input type="checkbox" checked onchange="toggleStatus('M-001', this.checked)">
+                                    <span class="slider"></span>
+                                </label>
+                            </td>
+                            <td class="py-3 px-4 text-gray-600">2026-07-15 10:30</td>
+                            <td class="py-3 px-4 whitespace-nowrap">
+                                <button onclick="openDetailModal('M-001')" class="px-3 py-1 text-green hover:bg-green-50 rounded text-xs font-medium transition-colors mr-3">查看</button>
+                                <button onclick="testConnection('M-001')" class="text-purple-600 hover:text-purple-700 mr-3">测试</button>
+                                <button onclick="openEditModal('M-001')" class="px-3 py-1 text-blue hover:bg-blue-50 rounded text-xs font-medium transition-colors mr-3">编辑</button>
+                                <button onclick="openDeleteModal('M-001')" class="px-3 py-1 text-red hover:bg-red-50 rounded text-xs font-medium transition-colors">删除</button>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-100 hover:bg-gray-50" data-id="M-002" data-name="GLM-5.2" data-provider="智谱AI" data-deploy="商用API" data-model-id="glm-5.2" data-endpoint="https://open.bigmodel.cn/api/paas/v4/chat/completions" data-apikey="zhipu-glm-xxxxxxxxxxxxxxxx" data-temperature="0.6" data-max-tokens="4096" data-context="128K" data-default="否" data-status="启用" data-remark="智谱AI新一代模型，中文理解能力强" data-created="2026-07-12 14:20">
+                            <td class="py-3 px-4 font-medium text-gray-800">GLM-5.2</td>
+                            <td class="py-3 px-4"><span class="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded">智谱AI</span></td>
+                            <td class="py-3 px-4"><span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded">商用API</span></td>
+                            <td class="py-3 px-4 text-gray-600">glm-5.2</td>
+                            <td class="py-3 px-4"><span class="px-2 py-1 bg-gray-100 text-gray-500 text-xs rounded">-</span></td>
+                            <td class="py-3 px-4">
+                                <label class="switch">
+                                    <input type="checkbox" checked onchange="toggleStatus('M-002', this.checked)">
+                                    <span class="slider"></span>
+                                </label>
+                            </td>
+                            <td class="py-3 px-4 text-gray-600">2026-07-12 14:20</td>
+                            <td class="py-3 px-4 whitespace-nowrap">
+                                <button onclick="openDetailModal('M-002')" class="px-3 py-1 text-green hover:bg-green-50 rounded text-xs font-medium transition-colors mr-3">查看</button>
+                                <button onclick="testConnection('M-002')" class="text-purple-600 hover:text-purple-700 mr-3">测试</button>
+                                <button onclick="openEditModal('M-002')" class="px-3 py-1 text-blue hover:bg-blue-50 rounded text-xs font-medium transition-colors mr-3">编辑</button>
+                                <button onclick="openDeleteModal('M-002')" class="px-3 py-1 text-red hover:bg-red-50 rounded text-xs font-medium transition-colors">删除</button>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-100 hover:bg-gray-50" data-id="M-003" data-name="Kimi K3" data-provider="Moonshot" data-deploy="商用API" data-model-id="moonshot-v1-auto" data-endpoint="https://api.moonshot.cn/v1/chat/completions" data-apikey="sk-kimi-xxxxxxxxxxxxxxxx" data-temperature="0.7" data-max-tokens="8192" data-context="200K" data-default="否" data-status="启用" data-remark="长上下文模型，适合长文本分析评价" data-created="2026-07-10 09:15">
+                            <td class="py-3 px-4 font-medium text-gray-800">Kimi K3</td>
+                            <td class="py-3 px-4"><span class="px-2 py-1 bg-orange-100 text-orange-700 text-xs rounded">Moonshot</span></td>
+                            <td class="py-3 px-4"><span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded">商用API</span></td>
+                            <td class="py-3 px-4 text-gray-600">moonshot-v1-auto</td>
+                            <td class="py-3 px-4"><span class="px-2 py-1 bg-gray-100 text-gray-500 text-xs rounded">-</span></td>
+                            <td class="py-3 px-4">
+                                <label class="switch">
+                                    <input type="checkbox" checked onchange="toggleStatus('M-003', this.checked)">
+                                    <span class="slider"></span>
+                                </label>
+                            </td>
+                            <td class="py-3 px-4 text-gray-600">2026-07-10 09:15</td>
+                            <td class="py-3 px-4 whitespace-nowrap">
+                                <button onclick="openDetailModal('M-003')" class="px-3 py-1 text-green hover:bg-green-50 rounded text-xs font-medium transition-colors mr-3">查看</button>
+                                <button onclick="testConnection('M-003')" class="text-purple-600 hover:text-purple-700 mr-3">测试</button>
+                                <button onclick="openEditModal('M-003')" class="px-3 py-1 text-blue hover:bg-blue-50 rounded text-xs font-medium transition-colors mr-3">编辑</button>
+                                <button onclick="openDeleteModal('M-003')" class="px-3 py-1 text-red hover:bg-red-50 rounded text-xs font-medium transition-colors">删除</button>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-100 hover:bg-gray-50" data-id="M-004" data-name="GPT-5.5" data-provider="OpenAI" data-deploy="商用API" data-model-id="gpt-5.5" data-endpoint="https://api.openai.com/v1/chat/completions" data-apikey="sk-openai-xxxxxxxxxxxxxxxx" data-temperature="0.5" data-max-tokens="4096" data-context="128K" data-default="否" data-status="停用" data-remark="OpenAI最新模型，推理能力强，成本较高" data-created="2026-07-08 16:45">
+                            <td class="py-3 px-4 font-medium text-gray-800">GPT-5.5</td>
+                            <td class="py-3 px-4"><span class="px-2 py-1 bg-emerald-100 text-emerald-700 text-xs rounded">OpenAI</span></td>
+                            <td class="py-3 px-4"><span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded">商用API</span></td>
+                            <td class="py-3 px-4 text-gray-600">gpt-5.5</td>
+                            <td class="py-3 px-4"><span class="px-2 py-1 bg-gray-100 text-gray-500 text-xs rounded">-</span></td>
+                            <td class="py-3 px-4">
+                                <label class="switch">
+                                    <input type="checkbox" onchange="toggleStatus('M-004', this.checked)">
+                                    <span class="slider"></span>
+                                </label>
+                            </td>
+                            <td class="py-3 px-4 text-gray-600">2026-07-08 16:45</td>
+                            <td class="py-3 px-4 whitespace-nowrap">
+                                <button onclick="openDetailModal('M-004')" class="px-3 py-1 text-green hover:bg-green-50 rounded text-xs font-medium transition-colors mr-3">查看</button>
+                                <button onclick="testConnection('M-004')" class="text-purple-600 hover:text-purple-700 mr-3">测试</button>
+                                <button onclick="openEditModal('M-004')" class="px-3 py-1 text-blue hover:bg-blue-50 rounded text-xs font-medium transition-colors mr-3">编辑</button>
+                                <button onclick="openDeleteModal('M-004')" class="px-3 py-1 text-red hover:bg-red-50 rounded text-xs font-medium transition-colors">删除</button>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-100 hover:bg-gray-50" data-id="M-005" data-name="Opus4.8" data-provider="Anthropic" data-deploy="商用API" data-model-id="claude-opus-4-8" data-endpoint="https://api.anthropic.com/v1/messages" data-apikey="sk-ant-xxxxxxxxxxxxxxxx" data-temperature="0.6" data-max-tokens="4096" data-context="200K" data-default="否" data-status="停用" data-remark="Anthropic旗舰模型，擅长复杂推理与长文本生成" data-created="2026-07-05 11:00">
+                            <td class="py-3 px-4 font-medium text-gray-800">Opus4.8</td>
+                            <td class="py-3 px-4"><span class="px-2 py-1 bg-amber-100 text-amber-700 text-xs rounded">Anthropic</span></td>
+                            <td class="py-3 px-4"><span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded">商用API</span></td>
+                            <td class="py-3 px-4 text-gray-600">claude-opus-4-8</td>
+                            <td class="py-3 px-4"><span class="px-2 py-1 bg-gray-100 text-gray-500 text-xs rounded">-</span></td>
+                            <td class="py-3 px-4">
+                                <label class="switch">
+                                    <input type="checkbox" onchange="toggleStatus('M-005', this.checked)">
+                                    <span class="slider"></span>
+                                </label>
+                            </td>
+                            <td class="py-3 px-4 text-gray-600">2026-07-05 11:00</td>
+                            <td class="py-3 px-4 whitespace-nowrap">
+                                <button onclick="openDetailModal('M-005')" class="px-3 py-1 text-green hover:bg-green-50 rounded text-xs font-medium transition-colors mr-3">查看</button>
+                                <button onclick="testConnection('M-005')" class="text-purple-600 hover:text-purple-700 mr-3">测试</button>
+                                <button onclick="openEditModal('M-005')" class="px-3 py-1 text-blue hover:bg-blue-50 rounded text-xs font-medium transition-colors mr-3">编辑</button>
+                                <button onclick="openDeleteModal('M-005')" class="px-3 py-1 text-red hover:bg-red-50 rounded text-xs font-medium transition-colors">删除</button>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-100 hover:bg-gray-50" data-id="M-006" data-name="本地Qwen模型" data-provider="私有部署" data-deploy="私有部署" data-model-id="qwen2-72b-instruct" data-endpoint="http://192.168.1.100:8000/v1/chat/completions" data-apikey="local-token-xxxxxxxxxxxxxxxx" data-temperature="0.7" data-max-tokens="2048" data-context="32K" data-default="否" data-status="启用" data-remark="内网私有部署的Qwen2-72B模型，数据不出园区" data-created="2026-07-02 08:30">
+                            <td class="py-3 px-4 font-medium text-gray-800">本地Qwen模型</td>
+                            <td class="py-3 px-4"><span class="px-2 py-1 bg-gray-200 text-gray-700 text-xs rounded">私有部署</span></td>
+                            <td class="py-3 px-4"><span class="px-2 py-1 bg-indigo-100 text-indigo-700 text-xs rounded">私有部署</span></td>
+                            <td class="py-3 px-4 text-gray-600">qwen2-72b-instruct</td>
+                            <td class="py-3 px-4"><span class="px-2 py-1 bg-gray-100 text-gray-500 text-xs rounded">-</span></td>
+                            <td class="py-3 px-4">
+                                <label class="switch">
+                                    <input type="checkbox" checked onchange="toggleStatus('M-006', this.checked)">
+                                    <span class="slider"></span>
+                                </label>
+                            </td>
+                            <td class="py-3 px-4 text-gray-600">2026-07-02 08:30</td>
+                            <td class="py-3 px-4 whitespace-nowrap">
+                                <button onclick="openDetailModal('M-006')" class="px-3 py-1 text-green hover:bg-green-50 rounded text-xs font-medium transition-colors mr-3">查看</button>
+                                <button onclick="testConnection('M-006')" class="text-purple-600 hover:text-purple-700 mr-3">测试</button>
+                                <button onclick="openEditModal('M-006')" class="px-3 py-1 text-blue hover:bg-blue-50 rounded text-xs font-medium transition-colors mr-3">编辑</button>
+                                <button onclick="openDeleteModal('M-006')" class="px-3 py-1 text-red hover:bg-red-50 rounded text-xs font-medium transition-colors">删除</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="px-4 py-3 bg-gray-50 border-t border-gray-200 flex items-center justify-between">
+                <p class="text-sm text-gray-500">共 <span id="total-count">6</span> 条配置</p>
+                <div class="text-sm text-gray-500">
+                    <span class="text-green-600 font-medium">启用: <span id="enabled-count">4</span></span>
+                    <span class="mx-3 text-gray-300">|</span>
+                    <span class="text-gray-500">停用: <span id="disabled-count">2</span></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-blue-50 border border-blue-200 rounded-xl p-4">
+            <div class="flex items-start gap-3">
+                <svg class="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <div class="text-sm text-blue-700">
+                    <p class="font-medium mb-1">使用说明</p>
+                    <p>本系统在生成植株生长评价报告时将调用配置的大语言模型。系统支持私有部署模型和外部商用模型两种接入方式，可根据数据安全性和成本要求选择合适的模型。带"默认"标记的模型将作为评价报告生成的首选模型。</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新增/编辑 弹窗 -->
+    <div id="form-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+                <h3 id="form-title" class="text-lg font-semibold text-gray-800 flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                    新增模型
+                </h3>
+                <button onclick="closeModal('form-modal')" class="p-1 hover:bg-gray-100 rounded">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="form-id">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">模型名称 <span class="text-red-500">*</span></label>
+                        <input type="text" id="form-name" class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="如 DeepSeek-V3、GLM-5.2、本地Qwen模型">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">供应商 <span class="text-red-500">*</span></label>
+                        <select id="form-provider" class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+                            <option value="DeepSeek">DeepSeek</option>
+                            <option value="智谱AI">智谱AI</option>
+                            <option value="Moonshot">Moonshot</option>
+                            <option value="OpenAI">OpenAI</option>
+                            <option value="Anthropic">Anthropic</option>
+                            <option value="私有部署">私有部署</option>
+                            <option value="其他">其他</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">部署方式 <span class="text-red-500">*</span></label>
+                        <select id="form-deploy" class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+                            <option value="商用API">商用API</option>
+                            <option value="私有部署">私有部署</option>
+                        </select>
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">API接口地址 <span class="text-red-500">*</span></label>
+                        <input type="text" id="form-endpoint" class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="如 https://api.deepseek.com/v1/chat/completions">
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">API密钥 (API Key) <span class="text-red-500">*</span></label>
+                        <div class="relative">
+                            <input type="password" id="form-apikey" class="w-full px-4 py-2 pr-20 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="请输入API密钥">
+                            <button type="button" onclick="toggleApiKeyVisibility()" class="absolute right-2 top-1/2 transform -translate-y-1/2 text-xs text-gray-500 hover:text-gray-700 px-2 py-1">显示</button>
+                        </div>
+                        <p class="text-xs text-gray-400 mt-1">密钥将加密存储，仅用于调用模型时验证身份</p>
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">模型标识 (Model ID) <span class="text-red-500">*</span></label>
+                        <input type="text" id="form-model-id" class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="如 deepseek-chat、glm-5.2、gpt-5.5">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">上下文长度</label>
+                        <select id="form-context" class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+                            <option value="8K">8K</option>
+                            <option value="16K">16K</option>
+                            <option value="32K">32K</option>
+                            <option value="64K">64K</option>
+                            <option value="128K">128K</option>
+                            <option value="200K">200K</option>
+                            <option value="自定义">自定义</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">最大输出Token</label>
+                        <input type="number" id="form-max-tokens" class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="如 4096" value="4096">
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">温度参数 (Temperature, 0-2)</label>
+                        <div class="flex items-center gap-3">
+                            <input type="range" id="form-temperature-range" min="0" max="2" step="0.1" value="0.7" class="flex-1" oninput="document.getElementById('form-temperature').value=this.value">
+                            <input type="number" id="form-temperature" min="0" max="2" step="0.1" value="0.7" class="w-20 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500" oninput="document.getElementById('form-temperature-range').value=this.value">
+                        </div>
+                        <p class="text-xs text-gray-400 mt-1">数值越低输出越稳定，越高越有创造性</p>
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">备注</label>
+                        <textarea id="form-remark" rows="2" class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="请输入备注信息，如模型用途、成本等"></textarea>
+                    </div>
+                    <div class="col-span-2 flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">设为默认模型</label>
+                            <p class="text-xs text-gray-400 mt-0.5">默认模型将作为评价报告生成的首选模型</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="form-default">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="p-4 border-t border-gray-200 flex justify-end space-x-3">
+                <button onclick="closeModal('form-modal')" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm">取消</button>
+                <button id="form-submit-btn" onclick="submitForm()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">确认添加</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 查看详情弹窗 -->
+    <div id="detail-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                    模型详情
+                </h3>
+                <button onclick="closeModal('detail-modal')" class="p-1 hover:bg-gray-100 rounded">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="modal-body" id="detail-body"></div>
+            <div class="p-4 border-t border-gray-200 flex justify-end">
+                <button onclick="closeModal('detail-modal')" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 删除确认弹窗 -->
+    <div id="delete-modal" class="modal-overlay">
+        <div class="bg-white rounded-xl shadow-xl w-90 max-w-md p-6" style="width:90%;max-width:400px">
+            <div class="flex flex-col items-center text-center">
+                <div class="w-14 h-14 bg-red-100 rounded-full flex items-center justify-center mb-4">
+                    <svg class="w-7 h-7 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">确认删除</h3>
+                <p class="text-sm text-gray-600 mb-6">确定要删除模型配置「<span id="delete-name" class="font-medium text-gray-800"></span>」吗？此操作不可撤销。</p>
+                <div class="flex w-full gap-3">
+                    <button onclick="closeModal('delete-modal')" class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm">取消</button>
+                    <button onclick="confirmDelete()" class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm">确认删除</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 测试连接结果弹窗 -->
+    <div id="test-modal" class="modal-overlay">
+        <div class="bg-white rounded-xl shadow-xl w-90 max-w-md p-6" style="width:90%;max-width:400px">
+            <div class="flex flex-col items-center text-center">
+                <div id="test-icon-wrap" class="w-14 h-14 rounded-full flex items-center justify-center mb-4">
+                    <svg id="test-icon" class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                </div>
+                <h3 id="test-title" class="text-lg font-semibold text-gray-800 mb-2">连接测试</h3>
+                <p id="test-desc" class="text-sm text-gray-600 mb-4"></p>
+                <div id="test-detail" class="w-full text-left bg-gray-50 rounded-lg p-3 mb-4 text-xs text-gray-600 hidden"></div>
+                <button onclick="closeModal('test-modal')" class="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var editId = null;
+        var deleteId = null;
+
+        function showModal(id) { document.getElementById(id).classList.add('active'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+        function toggleApiKeyVisibility() {
+            var input = document.getElementById('form-apikey');
+            var btn = event.target;
+            if (input.type === 'password') { input.type = 'text'; btn.textContent = '隐藏'; }
+            else { input.type = 'password'; btn.textContent = '显示'; }
+        }
+
+        function openAddModal() {
+            editId = null;
+            document.getElementById('form-title').innerHTML = '<svg class="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>新增模型';
+            document.getElementById('form-submit-btn').textContent = '确认添加';
+            document.getElementById('form-submit-btn').onclick = submitForm;
+            document.getElementById('form-id').value = '';
+            document.getElementById('form-name').value = '';
+            document.getElementById('form-provider').value = 'DeepSeek';
+            document.getElementById('form-deploy').value = '商用API';
+            document.getElementById('form-endpoint').value = '';
+            document.getElementById('form-apikey').value = '';
+            document.getElementById('form-model-id').value = '';
+            document.getElementById('form-context').value = '64K';
+            document.getElementById('form-max-tokens').value = '4096';
+            document.getElementById('form-temperature').value = '0.7';
+            document.getElementById('form-temperature-range').value = '0.7';
+            document.getElementById('form-remark').value = '';
+            document.getElementById('form-default').checked = false;
+            showModal('form-modal');
+        }
+
+        function openEditModal(id) {
+            var row = document.querySelector('tr[data-id="' + id + '"]');
+            if (!row) return;
+            editId = id;
+            document.getElementById('form-title').innerHTML = '<svg class="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>编辑模型';
+            document.getElementById('form-submit-btn').textContent = '保存修改';
+            document.getElementById('form-id').value = id;
+            document.getElementById('form-name').value = row.getAttribute('data-name') || '';
+            document.getElementById('form-provider').value = row.getAttribute('data-provider') || 'DeepSeek';
+            document.getElementById('form-deploy').value = row.getAttribute('data-deploy') || '商用API';
+            document.getElementById('form-endpoint').value = row.getAttribute('data-endpoint') || '';
+            document.getElementById('form-apikey').value = row.getAttribute('data-apikey') || '';
+            document.getElementById('form-model-id').value = row.getAttribute('data-model-id') || '';
+            document.getElementById('form-context').value = row.getAttribute('data-context') || '64K';
+            document.getElementById('form-max-tokens').value = row.getAttribute('data-max-tokens') || '4096';
+            var temp = row.getAttribute('data-temperature') || '0.7';
+            document.getElementById('form-temperature').value = temp;
+            document.getElementById('form-temperature-range').value = temp;
+            document.getElementById('form-remark').value = row.getAttribute('data-remark') || '';
+            document.getElementById('form-default').checked = row.getAttribute('data-default') === '是';
+            showModal('form-modal');
+        }
+
+        function submitForm() {
+            var name = document.getElementById('form-name').value.trim();
+            var provider = document.getElementById('form-provider').value;
+            var deploy = document.getElementById('form-deploy').value;
+            var endpoint = document.getElementById('form-endpoint').value.trim();
+            var apikey = document.getElementById('form-apikey').value.trim();
+            var modelId = document.getElementById('form-model-id').value.trim();
+
+            if (!name || !endpoint || !apikey || !modelId) {
+                alert('请填写必填项：模型名称、API接口地址、API密钥、模型标识');
+                return;
+            }
+
+            if (editId) {
+                var row = document.querySelector('tr[data-id="' + editId + '"]');
+                if (row) {
+                    row.setAttribute('data-name', name);
+                    row.setAttribute('data-provider', provider);
+                    row.setAttribute('data-deploy', deploy);
+                    row.setAttribute('data-endpoint', endpoint);
+                    row.setAttribute('data-apikey', apikey);
+                    row.setAttribute('data-model-id', modelId);
+                    row.setAttribute('data-context', document.getElementById('form-context').value);
+                    row.setAttribute('data-max-tokens', document.getElementById('form-max-tokens').value);
+                    row.setAttribute('data-temperature', document.getElementById('form-temperature').value);
+                    row.setAttribute('data-remark', document.getElementById('form-remark').value);
+                    var isDefault = document.getElementById('form-default').checked;
+                    if (isDefault) { clearDefaultExcept(editId); }
+                    row.setAttribute('data-default', isDefault ? '是' : '否');
+                    updateRowDisplay(row);
+                }
+                alert('模型配置修改成功！');
+            } else {
+                alert('模型配置添加成功！');
+                location.reload();
+            }
+            closeModal('form-modal');
+        }
+
+        function clearDefaultExcept(id) {
+            document.querySelectorAll('tr[data-id]').forEach(function(r) {
+                if (r.getAttribute('data-id') !== id) {
+                    r.setAttribute('data-default', '否');
+                    updateRowDisplay(r);
+                }
+            });
+        }
+
+        function updateRowDisplay(row) {
+            var provider = row.getAttribute('data-provider');
+            var deploy = row.getAttribute('data-deploy');
+            var isDefault = row.getAttribute('data-default') === '是';
+            var cells = row.querySelectorAll('td');
+            var providerColors = {'DeepSeek':'bg-blue-100 text-blue-700','智谱AI':'bg-purple-100 text-purple-700','Moonshot':'bg-orange-100 text-orange-700','OpenAI':'bg-emerald-100 text-emerald-700','Anthropic':'bg-amber-100 text-amber-700','私有部署':'bg-gray-200 text-gray-700'};
+            var pc = providerColors[provider] || 'bg-gray-100 text-gray-700';
+            var dc = deploy === '私有部署' ? 'bg-indigo-100 text-indigo-700' : 'bg-green-100 text-green-700';
+            cells[0].textContent = row.getAttribute('data-name');
+            cells[1].innerHTML = '<span class="px-2 py-1 ' + pc + ' text-xs rounded">' + provider + '</span>';
+            cells[2].innerHTML = '<span class="px-2 py-1 ' + dc + ' text-xs rounded">' + deploy + '</span>';
+            cells[3].textContent = row.getAttribute('data-model-id');
+            cells[4].innerHTML = isDefault ? '<span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded">默认</span>' : '<span class="px-2 py-1 bg-gray-100 text-gray-500 text-xs rounded">-</span>';
+        }
+
+        function openDetailModal(id) {
+            var row = document.querySelector('tr[data-id="' + id + '"]');
+            if (!row) return;
+            var name = row.getAttribute('data-name');
+            var provider = row.getAttribute('data-provider');
+            var deploy = row.getAttribute('data-deploy');
+            var modelId = row.getAttribute('data-model-id');
+            var endpoint = row.getAttribute('data-endpoint');
+            var apikey = row.getAttribute('data-apikey');
+            var temp = row.getAttribute('data-temperature');
+            var maxTokens = row.getAttribute('data-max-tokens');
+            var context = row.getAttribute('data-context');
+            var isDefault = row.getAttribute('data-default');
+            var status = row.getAttribute('data-status');
+            var remark = row.getAttribute('data-remark');
+            var created = row.getAttribute('data-created');
+
+            var maskedKey = apikey ? apikey.substring(0, Math.min(8, apikey.length)) + '****' + apikey.substring(apikey.length - 4) : '-';
+            var statusColors = {'启用':{bg:'#dcfce7',text:'#16a34a'},'停用':{bg:'#fee2e2',text:'#dc2626'}};
+            var sc = statusColors[status] || {bg:'#f3f4f6',text:'#6b7280'};
+
+            var fields = [
+                ['模型名称', name],
+                ['供应商', provider],
+                ['部署方式', deploy],
+                ['模型标识', modelId],
+                ['API接口地址', endpoint],
+                ['API密钥', maskedKey],
+                ['上下文长度', context],
+                ['最大输出Token', maxTokens],
+                ['温度参数', temp],
+                ['创建时间', created]
+            ];
+
+            var html = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap">';
+            html += '<span style="display:inline-block;padding:4px 12px;background:'+sc.bg+';color:'+sc.text+';font-size:12px;font-weight:600;border-radius:20px">'+status+'</span>';
+            if (isDefault === '是') {
+                html += '<span style="display:inline-block;padding:4px 12px;background:#dcfce7;color:#16a34a;font-size:12px;font-weight:600;border-radius:20px">默认模型</span>';
+            }
+            html += '</div>';
+
+            html += '<div style="border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;margin-bottom:12px">';
+            html += '<div style="background:#f9fafb;padding:10px 16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;gap:8px"><div style="width:4px;height:16px;background:#16a34a;border-radius:2px"></div><span style="font-size:14px;font-weight:600;color:#1f2937">基本信息</span></div>';
+            html += '<div style="padding:8px 16px">';
+            fields.forEach(function(f, idx) {
+                var isLast = idx === fields.length - 1;
+                html += '<div style="display:flex;align-items:flex-start;justify-content:space-between;padding:'+(isLast?'8px 0':'8px 0')+';'+(isLast?'':'border-bottom:1px dashed #f3f4f6')+'">';
+                html += '<span style="font-size:13px;color:#6b7280;flex-shrink:0;margin-right:12px;min-width:110px">'+f[0]+'</span>';
+                html += '<span style="font-size:13px;font-weight:500;color:#1f2937;text-align:right;word-break:break-all">'+f[1]+'</span>';
+                html += '</div>';
+            });
+            html += '</div></div>';
+
+            if (remark && remark !== '-') {
+                html += '<div style="border:1px solid #e5e7eb;border-radius:12px;overflow:hidden">';
+                html += '<div style="background:#f9fafb;padding:10px 16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;gap:8px"><div style="width:4px;height:16px;background:#6b7280;border-radius:2px"></div><span style="font-size:14px;font-weight:600;color:#1f2937">备注</span></div>';
+                html += '<div style="padding:12px 16px"><p style="font-size:13px;color:#374151;margin:0;line-height:1.6">'+remark+'</p></div>';
+                html += '</div>';
+            }
+
+            document.getElementById('detail-body').innerHTML = html;
+            showModal('detail-modal');
+        }
+
+        function testConnection(id) {
+            var row = document.querySelector('tr[data-id="' + id + '"]');
+            if (!row) return;
+            var name = row.getAttribute('data-name');
+            var provider = row.getAttribute('data-provider');
+            var endpoint = row.getAttribute('data-endpoint');
+            var modelId = row.getAttribute('data-model-id');
+
+            var iconWrap = document.getElementById('test-icon-wrap');
+            var icon = document.getElementById('test-icon');
+            var title = document.getElementById('test-title');
+            var desc = document.getElementById('test-desc');
+            var detail = document.getElementById('test-detail');
+
+            title.textContent = '测试中...';
+            desc.textContent = '正在连接 ' + name + ' 模型，请稍候';
+            iconWrap.style.background = '#fef3c7';
+            icon.style.color = '#d97706';
+            icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>';
+            detail.classList.add('hidden');
+            showModal('test-modal');
+
+            setTimeout(function() {
+                var isSuccess = Math.random() > 0.15;
+                if (isSuccess) {
+                    title.textContent = '连接成功';
+                    desc.textContent = '模型「' + name + '」连接测试通过，可正常调用';
+                    iconWrap.style.background = '#dcfce7';
+                    icon.style.color = '#16a34a';
+                    icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>';
+                    detail.classList.remove('hidden');
+                    detail.innerHTML = '<div style="margin-bottom:4px"><span style="color:#9ca3af">供应商：</span>' + provider + '</div><div style="margin-bottom:4px"><span style="color:#9ca3af">模型标识：</span>' + modelId + '</div><div style="margin-bottom:4px"><span style="color:#9ca3af">接口地址：</span><span style="word-break:break-all">' + endpoint + '</span></div><div><span style="color:#9ca3af">响应耗时：</span>' + (Math.floor(Math.random() * 800) + 200) + 'ms</div>';
+                } else {
+                    title.textContent = '连接失败';
+                    desc.textContent = '模型「' + name + '」连接失败，请检查配置';
+                    iconWrap.style.background = '#fee2e2';
+                    icon.style.color = '#dc2626';
+                    icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>';
+                    detail.classList.remove('hidden');
+                    detail.innerHTML = '<div style="color:#dc2626;margin-bottom:4px">错误信息：连接超时或鉴权失败</div><div><span style="color:#9ca3af">请检查：</span>API地址、API密钥、模型标识是否正确</div>';
+                }
+            }, 1500);
+        }
+
+        function toggleStatus(id, enabled) {
+            var row = document.querySelector('tr[data-id="' + id + '"]');
+            if (row) {
+                row.setAttribute('data-status', enabled ? '启用' : '停用');
+            }
+            updateCounts();
+            var name = row ? row.getAttribute('data-name') : '';
+            alert('模型「' + name + '」已' + (enabled ? '启用' : '停用'));
+        }
+
+        function updateCounts() {
+            var rows = document.querySelectorAll('#model-table-body tr');
+            var visible = 0, enabled = 0, disabled = 0;
+            rows.forEach(function(r) {
+                if (r.style.display !== 'none') {
+                    visible++;
+                    if (r.getAttribute('data-status') === '启用') enabled++;
+                    else disabled++;
+                }
+            });
+            document.getElementById('total-count').textContent = visible;
+            document.getElementById('enabled-count').textContent = enabled;
+            document.getElementById('disabled-count').textContent = disabled;
+        }
+
+        function openDeleteModal(id) {
+            deleteId = id;
+            var row = document.querySelector('tr[data-id="' + id + '"]');
+            document.getElementById('delete-name').textContent = row ? row.getAttribute('data-name') : id;
+            showModal('delete-modal');
+        }
+
+        function confirmDelete() {
+            if (deleteId) {
+                var row = document.querySelector('tr[data-id="' + deleteId + '"]');
+                if (row) {
+                    var name = row.getAttribute('data-name');
+                    row.remove();
+                    updateCounts();
+                    alert('模型「' + name + '」已删除');
+                }
+            }
+            closeModal('delete-modal');
+        }
+
+        function filterModels() {
+            var searchTerm = document.getElementById('search-input').value.toLowerCase();
+            var providerFilter = document.getElementById('provider-filter').value;
+            var deployFilter = document.getElementById('deploy-filter').value;
+            var statusFilter = document.getElementById('status-filter').value;
+
+            var rows = document.querySelectorAll('#model-table-body tr');
+            rows.forEach(function(row) {
+                var name = (row.getAttribute('data-name') || '').toLowerCase();
+                var provider = row.getAttribute('data-provider');
+                var deploy = row.getAttribute('data-deploy');
+                var status = row.getAttribute('data-status');
+                var modelId = (row.getAttribute('data-model-id') || '').toLowerCase();
+
+                var matchesSearch = name.includes(searchTerm) || modelId.includes(searchTerm) || provider.toLowerCase().includes(searchTerm);
+                var matchesProvider = !providerFilter || provider === providerFilter;
+                var matchesDeploy = !deployFilter || deploy === deployFilter;
+                var matchesStatus = !statusFilter || status === statusFilter;
+
+                row.style.display = (matchesSearch && matchesProvider && matchesDeploy && matchesStatus) ? '' : 'none';
+            });
+            updateCounts();
+        }
+
+        document.addEventListener('click', function(e) {
+            var overlays = ['form-modal', 'detail-modal', 'delete-modal', 'test-modal'];
+            overlays.forEach(function(id) {
+                var m = document.getElementById(id);
+                if (m && m.classList.contains('active') && e.target === m) {
+                    m.classList.remove('active');
+                }
+            });
+        });
+
+        window.onload = function() {
+            updateCounts();
+        };
+    </script>
+</body>
+</html>

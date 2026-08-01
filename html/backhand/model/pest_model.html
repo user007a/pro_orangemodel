@@ -7,6 +7,11 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        @keyframes modalSlideIn {
+            from { opacity: 0; transform: translateY(-20px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .modal-overlay.active .modal-content { animation: modalSlideIn 0.3s ease; }
         body { margin: 0; padding: 0; background-color: #F0F2F5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans SC', sans-serif; }
         .content-wrapper { padding: 24px; height: 100vh; overflow-y: auto; }
         .modal-overlay { display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center }
@@ -17,17 +22,13 @@
     <div class="content-wrapper">
         <div class="flex items-center justify-between mb-6">
             <div>
-                <h1 class="text-2xl font-bold text-gray-800">病虫害防控模型</h1>
-                <p class="text-gray-500 mt-1">管理病虫害防控模型参数与算法配置</p>
+                <h1 class="text-xl font-bold text-gray-800">病虫害防控模型</h1>
+                <p class="text-gray-500 text-sm mt-1">管理病虫害防控模型与预警监测</p>
             </div>
             <div class="flex items-center space-x-3">
                 <button onclick="openTrainModal()" class="px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50 flex items-center">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-                    重新训练
-                </button>
-                <button onclick="openExportModal()" class="px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50 flex items-center">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                    导出模型
+                    刷新状态
                 </button>
                 <button onclick="openModelMemo()" class="px-4 py-2 border border-blue-300 bg-blue-50 rounded-lg text-sm text-blue-600 hover:bg-blue-100 flex items-center">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
@@ -40,35 +41,36 @@
             <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-gray-500 text-sm">运行状态</p>
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700 mt-2">运行中</span>
+                        <p class="text-gray-500 text-sm">监测区域</p>
+                        <h3 class="text-2xl font-bold text-gray-800 mt-1">南丰县域</h3>
+                        <p class="text-gray-400 text-xs mt-1">覆盖 12 个乡镇</p>
                     </div>
                     <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                     </div>
                 </div>
             </div>
             <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-gray-500 text-sm">训练数据总量</p>
-                        <h3 class="text-2xl font-bold text-gray-800 mt-1">42,650</h3>
-                        <p class="text-gray-400 text-xs mt-1">张图片</p>
+                        <p class="text-gray-500 text-sm">病虫模型个数</p>
+                        <h3 class="text-2xl font-bold text-gray-800 mt-1">10</h3>
+                        <p class="text-gray-400 text-xs mt-1">虫害 4 / 病害 6</p>
                     </div>
                     <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/></svg>
+                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
                     </div>
                 </div>
             </div>
             <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-gray-500 text-sm">模型准确率</p>
-                        <h3 class="text-2xl font-bold text-gray-800 mt-1">87.8%</h3>
-                        <p class="text-green-500 text-xs mt-1">较上次提升 2.1%</p>
+                        <p class="text-gray-500 text-sm">产生预警数</p>
+                        <h3 class="text-2xl font-bold text-gray-800 mt-1">128</h3>
+                        <p class="text-red-500 text-xs mt-1">近30天累计</p>
                     </div>
                     <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-                        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4"/></svg>
+                        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
                     </div>
                 </div>
             </div>
@@ -82,7 +84,7 @@
                 </div>
             </div>
             <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-                <h2 class="text-lg font-semibold text-gray-800 mb-4">训练历史趋势</h2>
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">病虫预警产生趋势</h2>
                 <div class="h-64">
                     <canvas id="trainingTrendChart"></canvas>
                 </div>
@@ -178,85 +180,40 @@
     <div id="pest-edit-modal" class="modal-overlay">
         <div class="modal-content">
             <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
-                <h3 style="font-size:18px;font-weight:600;color:#1f2937">编辑模型配置</h3>
+                <h3 style="font-size:18px;font-weight:600;color:#1f2937">编辑模型</h3>
                 <button onclick="closeModal('pest-edit-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
-            </div>
-            <div style="padding:24px;display:flex;flex-direction:column;gap:16px">
-                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">模型名称 <span style="color:#ef4444">*</span></label><input type="text" id="edit-model-name" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"></div>
-                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">模型类型 <span style="color:#ef4444">*</span></label><select id="edit-model-type" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"><option value="虫害">虫害</option><option value="病害">病害</option></select></div>
-                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">模型介绍</label><textarea id="edit-model-desc" rows="4" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"></textarea></div>
-                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">识别精度</label><input type="text" id="edit-model-accuracy" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"></div>
-                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">应用场景</label><input type="text" id="edit-model-scene" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"></div>
-                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">状态</label><select id="edit-model-status" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"><option value="启用">启用</option><option value="禁用">禁用</option></select></div>
-            </div>
-            <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:12px">
-                <button onclick="closeModal('pest-edit-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
-                <button onclick="submitPestEdit()" style="padding:8px 16px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">保存修改</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 参数配置弹窗 -->
-    <div id="pest-params-modal" class="modal-overlay">
-        <div class="modal-content">
-            <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
-                <h3 style="font-size:18px;font-weight:600;color:#1f2937">参数配置</h3>
-                <button onclick="closeModal('pest-params-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
             </div>
             <div style="padding:24px">
                 <div style="display:flex;flex-direction:column;gap:20px">
                     <div>
-                        <h4 style="font-size:14px;font-weight:600;color:#374151;margin-bottom:12px">基础参数</h4>
-                        <div style="display:flex;flex-direction:column;gap:12px">
-                            <div style="display:flex;justify-content:space-between;padding:10px;background:#f9fafb;border-radius:8px">
-                                <span style="font-size:13px;color:#6b7280">置信度阈值</span>
-                                <span style="font-size:13px;font-weight:500;color:#1f2937" id="params-confidence">-</span>
-                            </div>
-                            <div style="display:flex;justify-content:space-between;padding:10px;background:#f9fafb;border-radius:8px">
-                                <span style="font-size:13px;color:#6b7280">图像尺寸</span>
-                                <span style="font-size:13px;font-weight:500;color:#1f2937" id="params-image-size">-</span>
-                            </div>
-                            <div style="display:flex;justify-content:space-between;padding:10px;background:#f9fafb;border-radius:8px">
-                                <span style="font-size:13px;color:#6b7280">批量处理数</span>
-                                <span style="font-size:13px;font-weight:500;color:#1f2937" id="params-batch-size">-</span>
-                            </div>
-                        </div>
+                        <h4 style="font-size:14px;font-weight:600;color:#374151;margin-bottom:8px">模型名称 <span style="color:#ef4444">*</span></h4>
+                        <input type="text" id="edit-model-name" style="width:100%;padding:12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box">
                     </div>
                     <div>
-                        <h4 style="font-size:14px;font-weight:600;color:#374151;margin-bottom:12px">算法参数</h4>
-                        <div style="display:flex;flex-direction:column;gap:12px">
-                            <div style="display:flex;justify-content:space-between;padding:10px;background:#f9fafb;border-radius:8px">
-                                <span style="font-size:13px;color:#6b7280">学习率</span>
-                                <span style="font-size:13px;font-weight:500;color:#1f2937" id="params-learning-rate">-</span>
-                            </div>
-                            <div style="display:flex;justify-content:space-between;padding:10px;background:#f9fafb;border-radius:8px">
-                                <span style="font-size:13px;color:#6b7280">迭代次数</span>
-                                <span style="font-size:13px;font-weight:500;color:#1f2937" id="params-iterations">-</span>
-                            </div>
-                            <div style="display:flex;justify-content:space-between;padding:10px;background:#f9fafb;border-radius:8px">
-                                <span style="font-size:13px;color:#6b7280">模型深度</span>
-                                <span style="font-size:13px;font-weight:500;color:#1f2937" id="params-depth">-</span>
-                            </div>
-                        </div>
+                        <h4 style="font-size:14px;font-weight:600;color:#374151;margin-bottom:8px">模型介绍</h4>
+                        <textarea id="edit-model-desc" rows="4" style="width:100%;padding:12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;color:#4b5563;line-height:1.6;box-sizing:border-box;resize:vertical"></textarea>
                     </div>
                     <div>
-                        <h4 style="font-size:14px;font-weight:600;color:#374151;margin-bottom:12px">检测参数</h4>
-                        <div style="display:flex;flex-direction:column;gap:12px">
-                            <div style="display:flex;justify-content:space-between;padding:10px;background:#f9fafb;border-radius:8px">
-                                <span style="font-size:13px;color:#6b7280">IoU阈值</span>
-                                <span style="font-size:13px;font-weight:500;color:#1f2937" id="params-iou">-</span>
-                            </div>
-                            <div style="display:flex;justify-content:space-between;padding:10px;background:#f9fafb;border-radius:8px">
-                                <span style="font-size:13px;color:#6b7280">NMS阈值</span>
-                                <span style="font-size:13px;font-weight:500;color:#1f2937" id="params-nms">-</span>
-                            </div>
-                        </div>
+                        <h4 style="font-size:14px;font-weight:600;color:#374151;margin-bottom:8px">模型公式</h4>
+                        <textarea id="edit-model-formula" rows="4" style="width:100%;padding:12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;color:#4b5563;font-family:monospace;line-height:1.6;box-sizing:border-box;resize:vertical;white-space:pre-wrap"></textarea>
+                    </div>
+                    <div>
+                        <h4 style="font-size:14px;font-weight:600;color:#374151;margin-bottom:8px">参数解读</h4>
+                        <textarea id="edit-model-params" rows="6" style="width:100%;padding:12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;color:#4b5563;line-height:1.6;box-sizing:border-box;resize:vertical"></textarea>
+                    </div>
+                    <div>
+                        <h4 style="font-size:14px;font-weight:600;color:#374151;margin-bottom:8px">揭示规律</h4>
+                        <textarea id="edit-model-rules" rows="5" style="width:100%;padding:12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;color:#4b5563;line-height:1.6;box-sizing:border-box;resize:vertical"></textarea>
+                    </div>
+                    <div>
+                        <h4 style="font-size:14px;font-weight:600;color:#374151;margin-bottom:8px">所需数据</h4>
+                        <textarea id="edit-model-data" rows="6" style="width:100%;padding:12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;color:#4b5563;line-height:1.6;box-sizing:border-box;resize:vertical"></textarea>
                     </div>
                 </div>
             </div>
             <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:12px">
-                <button onclick="closeModal('pest-params-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
-                <button onclick="saveParamsConfig()" style="padding:8px 16px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">保存配置</button>
+                <button onclick="closeModal('pest-edit-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
+                <button onclick="submitPestEdit()" style="padding:8px 16px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">保存修改</button>
             </div>
         </div>
     </div>
@@ -293,47 +250,6 @@
         </div>
     </div>
 
-    <!-- 模型信息弹窗 -->
-    <div id="pest-info-modal" class="modal-overlay">
-        <div class="modal-content">
-            <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
-                <h3 style="font-size:18px;font-weight:600;color:#1f2937">模型信息</h3>
-                <button onclick="closeModal('pest-info-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
-            </div>
-            <div style="padding:24px">
-                <div style="display:flex;flex-direction:column;gap:12px">
-                    <div style="display:flex;justify-content:space-between;padding:12px;background:#f9fafb;border-radius:8px">
-                        <span style="font-size:14px;color:#6b7280">模型版本</span>
-                        <span style="font-size:14px;font-weight:500;color:#1f2937">v2.1.0</span>
-                    </div>
-                    <div style="display:flex;justify-content:space-between;padding:12px;background:#f9fafb;border-radius:8px">
-                        <span style="font-size:14px;color:#6b7280">训练时间</span>
-                        <span style="font-size:14px;font-weight:500;color:#1f2937">2026-07-15 14:30</span>
-                    </div>
-                    <div style="display:flex;justify-content:space-between;padding:12px;background:#f9fafb;border-radius:8px">
-                        <span style="font-size:14px;color:#6b7280">数据集大小</span>
-                        <span style="font-size:14px;font-weight:500;color:#1f2937">42,650 张</span>
-                    </div>
-                    <div style="display:flex;justify-content:space-between;padding:12px;background:#f9fafb;border-radius:8px">
-                        <span style="font-size:14px;color:#6b7280">模型大小</span>
-                        <span style="font-size:14px;font-weight:500;color:#1f2937">156 MB</span>
-                    </div>
-                    <div style="display:flex;justify-content:space-between;padding:12px;background:#f9fafb;border-radius:8px">
-                        <span style="font-size:14px;color:#6b7280">平均准确率</span>
-                        <span style="font-size:14px;font-bold text-green-600">87.8%</span>
-                    </div>
-                    <div style="display:flex;justify-content:space-between;padding:12px;background:#f9fafb;border-radius:8px">
-                        <span style="font-size:14px;color:#6b7280">推理延迟</span>
-                        <span style="font-size:14px;font-weight:500;color:#1f2937">28ms</span>
-                    </div>
-                </div>
-            </div>
-            <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end">
-                <button onclick="closeModal('pest-info-modal')" style="padding:8px 16px;background:#f3f4f6;color:#374151;border:none;border-radius:8px;font-size:14px;cursor:pointer">关闭</button>
-            </div>
-        </div>
-    </div>
-
     <!-- 删除确认弹窗 -->
     <div id="pest-delete-modal" class="modal-overlay">
         <div style="background:#fff;border-radius:12px;width:90%;max-width:400px">
@@ -363,9 +279,6 @@
             <div style="padding:24px;display:flex;flex-direction:column;gap:16px">
                 <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">模型名称 <span style="color:#ef4444">*</span></label><input type="text" id="add-model-name" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box" placeholder="如：红蜘蛛检测模型"></div>
                 <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">模型类型 <span style="color:#ef4444">*</span></label><select id="add-model-type" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"><option value="虫害">虫害</option><option value="病害">病害</option></select></div>
-                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">模型介绍</label><textarea id="add-model-desc" rows="4" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box" placeholder="请输入模型介绍"></textarea></div>
-                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">识别精度</label><input type="text" id="add-model-accuracy" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box" placeholder="如：90%"></div>
-                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">应用场景</label><input type="text" id="add-model-scene" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box" placeholder="如：叶片背面检测、果园巡检"></div>
                 <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">状态</label><select id="add-model-status" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"><option value="启用">启用</option><option value="禁用">禁用</option></select></div>
             </div>
             <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:12px">
@@ -375,49 +288,40 @@
         </div>
     </div>
 
-    <!-- 重新训练弹窗 -->
+    <!-- 刷新状态弹窗 -->
     <div id="train-modal" class="modal-overlay">
         <div class="modal-content">
             <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
-                <h3 style="font-size:18px;font-weight:600;color:#1f2937">重新训练模型</h3>
+                <h3 style="font-size:18px;font-weight:600;color:#1f2937">刷新状态</h3>
                 <button onclick="closeModal('train-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
             </div>
             <div style="padding:24px">
-                <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:12px;margin-bottom:16px">
-                    <p style="font-size:14px;font-weight:500;color:#c2410c">确认重新训练模型？</p>
-                    <p style="font-size:12px;color:#9a3412;margin-top:4px">训练期间模型服务将暂停，预计耗时较长，请确保服务器资源充足。</p>
+                <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px;margin-bottom:16px">
+                    <p style="font-size:14px;font-weight:500;color:#1d4ed8">确认刷新模型运行状态？</p>
+                    <p style="font-size:12px;color:#1e40af;margin-top:4px">系统将重新获取所有病虫害模型的最新运行状态、预警数据及监测结果。</p>
                 </div>
-                <div style="display:flex;flex-direction:column;gap:16px">
-                    <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">训练轮数</label><select id="train-epochs" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"><option value="5">5 轮</option><option value="10">10 轮</option><option value="20" selected>20 轮</option><option value="50">50 轮</option></select></div>
-                    <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">数据集选择</label><select id="train-dataset" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"><option value="full">全量数据集（42,650张）</option><option value="recent">近期数据集（15,000张）</option><option value="augmented">增强数据集（85,300张）</option></select></div>
+                <div style="display:flex;flex-direction:column;gap:12px">
+                    <div style="display:flex;justify-content:space-between;padding:10px;background:#f9fafb;border-radius:8px">
+                        <span style="font-size:13px;color:#6b7280">模型总数</span>
+                        <span style="font-size:13px;font-weight:500;color:#1f2937">10 个</span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;padding:10px;background:#f9fafb;border-radius:8px">
+                        <span style="font-size:13px;color:#6b7280">运行中</span>
+                        <span style="font-size:13px;font-weight:500;color:#16a34a">9 个</span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;padding:10px;background:#f9fafb;border-radius:8px">
+                        <span style="font-size:13px;color:#6b7280">已禁用</span>
+                        <span style="font-size:13px;font-weight:500;color:#9ca3af">1 个</span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;padding:10px;background:#f9fafb;border-radius:8px">
+                        <span style="font-size:13px;color:#6b7280">最近刷新时间</span>
+                        <span style="font-size:13px;font-weight:500;color:#1f2937">2026-08-01 09:30</span>
+                    </div>
                 </div>
             </div>
             <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:12px">
                 <button onclick="closeModal('train-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
-                <button onclick="startTraining()" style="padding:8px 16px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">确认训练</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 导出模型弹窗 -->
-    <div id="export-modal" class="modal-overlay">
-        <div class="modal-content">
-            <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
-                <h3 style="font-size:18px;font-weight:600;color:#1f2937">导出模型</h3>
-                <button onclick="closeModal('export-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
-            </div>
-            <div style="padding:24px">
-                <div style="display:flex;flex-direction:column;gap:16px">
-                    <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:8px">导出格式</label><div style="display:flex;flex-direction:column;gap:8px">
-                        <label style="display:flex;align-items:center;padding:12px;border:1px solid #d1d5db;border-radius:8px;cursor:pointer"><input type="radio" name="export-format" value="ONNX" checked style="width:16px;height:16px;margin-right:12px"><div><span style="font-size:14px;font-weight:500;color:#1f2937">ONNX</span><span style="font-size:12px;color:#6b7280;margin-left:8px">跨平台通用格式</span></div></label>
-                        <label style="display:flex;align-items:center;padding:12px;border:1px solid #d1d5db;border-radius:8px;cursor:pointer"><input type="radio" name="export-format" value="TensorFlow" style="width:16px;height:16px;margin-right:12px"><div><span style="font-size:14px;font-weight:500;color:#1f2937">TensorFlow</span><span style="font-size:12px;color:#6b7280;margin-left:8px">SavedModel / H5 格式</span></div></label>
-                        <label style="display:flex;align-items:center;padding:12px;border:1px solid #d1d5db;border-radius:8px;cursor:pointer"><input type="radio" name="export-format" value="PyTorch" style="width:16px;height:16px;margin-right:12px"><div><span style="font-size:14px;font-weight:500;color:#1f2937">PyTorch</span><span style="font-size:12px;color:#6b7280;margin-left:8px">.pt / .pth 格式</span></div></label>
-                    </div></div>
-                </div>
-            </div>
-            <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:12px">
-                <button onclick="closeModal('export-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
-                <button onclick="exportModel()" style="padding:8px 16px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">确认导出</button>
+                <button onclick="startTraining()" style="padding:8px 16px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">确认刷新</button>
             </div>
         </div>
     </div>
@@ -512,6 +416,15 @@
         var pestDeleteId = null;
         var pestCurrentId = null;
 
+        // 统一模型说明内容（与 pest_model_memo.html 保持一致）
+        var unifiedModelContent = {
+            desc: '南丰蜜桔病虫害多因子耦合时序风险预测模型，面向县域尺度，根据近期气象、区域物候、县域病情、虫情和历史发生数据，预测县域内不同病虫害未来3天、7天的发生概率、风险等级和重点风险区域。模型先判断温度、湿度、降雨等单项条件是否适宜，再计算多个条件同时出现时的耦合作用，然后累积最近14～30天的影响，最后加入县域虫源、历史发生和乡镇之间的空间传播压力。',
+            formula: 'Pd(t+h) = Cald,h{ θ1·Στ=0…L-1 ad,τ·Cd(t-τ) + θ2·Σu=1…h qd,u·C̃d(t+u) + θ3·Id(t) + θ4·Hd(t) + θ5·Spreadd(t,h) }\n\nCd(v) = σ[ bd + Σk wd,k·Sd,k(v) + Σi<j βd,ij·Sd,i(v)·Sd,j(v) + Σi<j<k γd,ijk·Sd,i(v)·Sd,j(v)·Sd,k(v) ]',
+            params: '• Pd(t+h)：病虫害d在t+h时刻的发生概率，输出结果，经过概率校准\n• Cd(v)：病虫害d在时刻v的耦合风险，单因子+双因子+三因子耦合\n• Sd,k：因子k对病虫害d的适宜度，0～1之间的数值\n• wd,k：因子k对病虫害d的权重，单因子重要程度\n• βd,ij：因子i和j对病虫害d的耦合系数，双因子相互作用强度\n• γd,ijk：因子i,j,k对病虫害d的耦合系数，三因子相互作用强度\n• L：历史回看天数，通常14～30天\n• h：预测周期，通常3或7天\n• ad,τ：历史日期τ的时间权重，过去数据的衰减系数\n• qd,u：未来日期u的时间权重，未来预报的可信度\n• Id(t)：时刻t的虫源基数，病原、虫卵、虫口数量\n• Hd(t)：时刻t的历史发生水平，同期历史数据\n• Spreadd(t,h)：空间传播压力，乡镇间传播风险\n• θ1～θ5：各部分权重系数，校准参数\n• Cald,h：概率校准函数，将风险指数转为概率\n• σ：Sigmoid函数，将输出限制在0～1',
+            rules: '1. 温度、湿度、降雨、叶面湿润、物候等单因子适宜度计算\n2. 两个因子共同出现时的耦合作用（如温度×湿度、降雨×风速）\n3. 三个关键因子同时出现时的耦合作用（如高温+高湿+降雨）\n4. 最近14～30天已观测耦合结果的时间累积\n5. 未来3～7天天气预报形成的新增耦合风险\n6. 当前病原、虫卵或虫口基数修正\n7. 县域历史发生水平和乡镇间空间传播压力修正\n8. 由综合风险到未来3天、7天发生概率的校准',
+            data: '模型输入向量：Xt = [Wt, Pt, Dt, It, Ht]\n\n• Wt 气象数据：温度、湿度、降雨、光照、风速等\n• Pt 物候数据：生育阶段、嫩梢比例、开花坐果等\n• Dt 病情虫情：当前病斑率、虫口密度、卵量等\n• It 虫源基数：越冬虫源、病原菌数量等\n• Ht 历史数据：同期发生水平、历史趋势等\n\n数据时间窗口：读取最近14～30天的连续数据，同时使用未来3～7天的天气预报数据。'
+        };
+
         function showModal(id) { var m = document.getElementById(id); if(m) m.style.display = 'flex'; }
         function hideModal(id) { var m = document.getElementById(id); if(m) m.style.display = 'none'; }
         function closeModal(id) { hideModal(id); }
@@ -547,9 +460,7 @@
                 html += '<td class="px-2 py-3"><div style="display:flex;justify-content:center;gap:2px;flex-wrap:nowrap;min-width:0">';
                 html += '<button onclick="viewPestItem(\'' + item.id + '\')" style="background:none;border:none;cursor:pointer;color:#6b7280;padding:2px 5px;border-radius:3px;font-size:11px;border:1px solid #d1d5db;white-space:nowrap" title="查看">查看</button>';
                 html += '<button onclick="editPestItem(\'' + item.id + '\')" style="background:none;border:none;cursor:pointer;color:#3b82f6;padding:2px 5px;border-radius:3px;font-size:11px;border:1px solid #93c5fd;white-space:nowrap" title="编辑">编辑</button>';
-                html += '<button onclick="openParamsModal(\'' + item.id + '\')" style="background:none;border:none;cursor:pointer;color:#16a34a;padding:2px 5px;border-radius:3px;font-size:11px;border:1px solid #86efac;white-space:nowrap" title="参数配置">参数配置</button>';
                 html += '<button onclick="openDataModal(\'' + item.id + '\')" style="background:none;border:none;cursor:pointer;color:#f59e0b;padding:2px 5px;border-radius:3px;font-size:11px;border:1px solid #fcd34d;white-space:nowrap" title="数据关联">数据关联</button>';
-                html += '<button onclick="openInfoModal()" style="background:none;border:none;cursor:pointer;color:#8b5cf6;padding:2px 5px;border-radius:3px;font-size:11px;border:1px solid #c4b5fd;white-space:nowrap" title="模型信息">模型信息</button>';
                 html += '<button onclick="deletePestItem(\'' + item.id + '\')" style="background:none;border:none;cursor:pointer;color:#dc2626;padding:2px 5px;border-radius:3px;font-size:11px;border:1px solid #fca5a5;white-space:nowrap" title="删除">删除</button>';
                 html += '</div></td></tr>';
             }
@@ -569,11 +480,11 @@
                 if (pestData[i].id === id) {
                     var item = pestData[i];
                     document.getElementById('view-model-name').textContent = item.name;
-                    document.getElementById('view-model-desc').textContent = item.desc;
-                    document.getElementById('view-model-formula').textContent = item.formula;
-                    document.getElementById('view-model-params').innerHTML = item.params.replace(/\n/g, '<br>');
-                    document.getElementById('view-model-rules').innerHTML = item.rules.replace(/\n/g, '<br>');
-                    document.getElementById('view-model-data').innerHTML = item.data.replace(/\n/g, '<br>');
+                    document.getElementById('view-model-desc').textContent = item.desc || unifiedModelContent.desc;
+                    document.getElementById('view-model-formula').textContent = item.formula || unifiedModelContent.formula;
+                    document.getElementById('view-model-params').innerHTML = (item.params || unifiedModelContent.params).replace(/\n/g, '<br>');
+                    document.getElementById('view-model-rules').innerHTML = (item.rules || unifiedModelContent.rules).replace(/\n/g, '<br>');
+                    document.getElementById('view-model-data').innerHTML = (item.data || unifiedModelContent.data).replace(/\n/g, '<br>');
                     showModal('pest-view-modal');
                     break;
                 }
@@ -586,11 +497,11 @@
                 if (pestData[i].id === id) {
                     var item = pestData[i];
                     document.getElementById('edit-model-name').value = item.name;
-                    document.getElementById('edit-model-type').value = item.type;
-                    document.getElementById('edit-model-desc').value = item.desc || '';
-                    document.getElementById('edit-model-accuracy').value = item.accuracy;
-                    document.getElementById('edit-model-scene').value = item.scene;
-                    document.getElementById('edit-model-status').value = item.status;
+                    document.getElementById('edit-model-desc').value = item.desc || unifiedModelContent.desc;
+                    document.getElementById('edit-model-formula').value = item.formula || unifiedModelContent.formula;
+                    document.getElementById('edit-model-params').value = item.params || unifiedModelContent.params;
+                    document.getElementById('edit-model-rules').value = item.rules || unifiedModelContent.rules;
+                    document.getElementById('edit-model-data').value = item.data || unifiedModelContent.data;
                     showModal('pest-edit-modal');
                     break;
                 }
@@ -599,20 +510,15 @@
 
         function submitPestEdit() {
             var name = document.getElementById('edit-model-name').value.trim();
-            var type = document.getElementById('edit-model-type').value;
-            var desc = document.getElementById('edit-model-desc').value.trim();
-            var accuracy = document.getElementById('edit-model-accuracy').value.trim();
-            var scene = document.getElementById('edit-model-scene').value.trim();
-            var status = document.getElementById('edit-model-status').value;
             if (!name) { alert('请填写模型名称'); return; }
             for (var i = 0; i < pestData.length; i++) {
                 if (pestData[i].id === pestEditId) {
                     pestData[i].name = name;
-                    pestData[i].type = type;
-                    pestData[i].desc = desc;
-                    pestData[i].accuracy = accuracy;
-                    pestData[i].scene = scene;
-                    pestData[i].status = status;
+                    pestData[i].desc = document.getElementById('edit-model-desc').value;
+                    pestData[i].formula = document.getElementById('edit-model-formula').value;
+                    pestData[i].params = document.getElementById('edit-model-params').value;
+                    pestData[i].rules = document.getElementById('edit-model-rules').value;
+                    pestData[i].data = document.getElementById('edit-model-data').value;
                     break;
                 }
             }
@@ -645,9 +551,6 @@
         function openPestAddModal() {
             document.getElementById('add-model-name').value = '';
             document.getElementById('add-model-type').value = '虫害';
-            document.getElementById('add-model-desc').value = '';
-            document.getElementById('add-model-accuracy').value = '';
-            document.getElementById('add-model-scene').value = '';
             document.getElementById('add-model-status').value = '启用';
             showModal('pest-add-modal');
         }
@@ -655,50 +558,17 @@
         function submitPestAdd() {
             var name = document.getElementById('add-model-name').value.trim();
             var type = document.getElementById('add-model-type').value;
-            var desc = document.getElementById('add-model-desc').value.trim();
-            var accuracy = document.getElementById('add-model-accuracy').value.trim();
-            var scene = document.getElementById('add-model-scene').value.trim();
             var status = document.getElementById('add-model-status').value;
             if (!name) { alert('请填写模型名称'); return; }
             var newId = 'p-' + (pestData.length + 1);
             pestData.push({
-                id: newId, name: name, type: type, target: '', accuracy: accuracy || '--', 
-                scene: scene, status: status, samples: '0',
-                desc: desc || '暂无介绍',
-                formula: '暂无公式',
-                params: '暂无参数解读',
-                rules: '暂无规律描述',
-                data: '暂无数据要求',
-                config: {confidence:'0.80', imageSize:'640x640', batchSize:'32', learningRate:'0.001', iterations:'5000', depth:'5', iou:'0.5', nms:'0.45'}
+                id: newId, name: name, type: type, target: '', accuracy: '--',
+                scene: '', status: status, samples: '0', datasets: []
             });
             hideModal('pest-add-modal');
             pestCurrentPage = Math.ceil(pestData.length / pestPageSize);
             renderPestTable();
             alert('模型添加成功！');
-        }
-
-        function openParamsModal(id) {
-            pestCurrentId = id;
-            for (var i = 0; i < pestData.length; i++) {
-                if (pestData[i].id === id) {
-                    var cfg = pestData[i].config;
-                    document.getElementById('params-confidence').textContent = cfg.confidence;
-                    document.getElementById('params-image-size').textContent = cfg.imageSize;
-                    document.getElementById('params-batch-size').textContent = cfg.batchSize;
-                    document.getElementById('params-learning-rate').textContent = cfg.learningRate;
-                    document.getElementById('params-iterations').textContent = cfg.iterations;
-                    document.getElementById('params-depth').textContent = cfg.depth;
-                    document.getElementById('params-iou').textContent = cfg.iou;
-                    document.getElementById('params-nms').textContent = cfg.nms;
-                    showModal('pest-params-modal');
-                    break;
-                }
-            }
-        }
-
-        function saveParamsConfig() {
-            alert('参数配置保存成功！');
-            hideModal('pest-params-modal');
         }
 
         var modelDataRelations = {
@@ -775,31 +645,16 @@
             showModal('pest-data-modal');
         }
 
-        function openInfoModal() {
-            showModal('pest-info-modal');
-        }
-
         function openTrainModal() { showModal('train-modal'); }
-        function openExportModal() { showModal('export-modal'); }
         function openModelMemo() { window.open('pest_model_memo.html', '_blank'); }
 
         function startTraining() {
-            var epochs = document.getElementById('train-epochs').value;
-            var dataset = document.getElementById('train-dataset').value;
-            var dsMap = {full: '全量数据集', recent: '近期数据集', augmented: '增强数据集'};
-            alert('训练已启动！\n训练轮数: ' + epochs + ' 轮\n数据集: ' + dsMap[dataset] + '\n训练完成后将自动更新模型版本。');
+            alert('状态刷新成功！\n已重新获取全部 10 个模型的最新运行状态与预警数据。');
             closeModal('train-modal');
         }
 
-        function exportModel() {
-            var formatEl = document.querySelector('input[name="export-format"]:checked');
-            var format = formatEl ? formatEl.value : 'ONNX';
-            alert('导出成功！\n格式: ' + format);
-            closeModal('export-modal');
-        }
-
         document.addEventListener('click', function(e) {
-            var ids = ['pest-view-modal', 'pest-edit-modal', 'pest-delete-modal', 'pest-add-modal', 'train-modal', 'export-modal', 'pest-params-modal', 'pest-data-modal', 'pest-info-modal'];
+            var ids = ['pest-view-modal', 'pest-edit-modal', 'pest-delete-modal', 'pest-add-modal', 'train-modal', 'pest-data-modal'];
             for (var i = 0; i < ids.length; i++) {
                 var m = document.getElementById(ids[i]);
                 if (m && m.style.display === 'flex') {
@@ -827,13 +682,13 @@
             new Chart(ctx2, {
                 type: 'line',
                 data: {
-                    labels: ['v1.0', 'v1.2', 'v1.5', 'v2.0', 'v2.1'],
+                    labels: ['7/22', '7/24', '7/26', '7/28', '7/30', '8/01'],
                     datasets: [
-                        {label: '训练准确率', data: [78, 82, 85, 87, 89], borderColor: '#16A34A', backgroundColor: 'rgba(22, 163, 74, 0.1)', borderWidth: 2, fill: true, tension: 0.3, pointBackgroundColor: '#16A34A', pointBorderColor: '#ffffff', pointBorderWidth: 2, pointRadius: 4},
-                        {label: '验证准确率', data: [76, 80, 83, 86, 88], borderColor: '#3B82F6', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderWidth: 2, fill: true, tension: 0.3, pointBackgroundColor: '#3B82F6', pointBorderColor: '#ffffff', pointBorderWidth: 2, pointRadius: 4}
+                        {label: '虫害预警', data: [8, 12, 6, 15, 10, 9], borderColor: '#DC2626', backgroundColor: 'rgba(220, 38, 38, 0.1)', borderWidth: 2, fill: true, tension: 0.3, pointBackgroundColor: '#DC2626', pointBorderColor: '#ffffff', pointBorderWidth: 2, pointRadius: 4},
+                        {label: '病害预警', data: [5, 7, 9, 6, 11, 8], borderColor: '#3B82F6', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderWidth: 2, fill: true, tension: 0.3, pointBackgroundColor: '#3B82F6', pointBorderColor: '#ffffff', pointBorderWidth: 2, pointRadius: 4}
                     ]
                 },
-                options: {responsive: true, maintainAspectRatio: false, plugins: {legend: {position: 'bottom', labels: {font: {size: 11}}}}, scales: {y: {beginAtZero: false, min: 70, max: 100, ticks: {callback: function(v) {return v + '%';}}}}}
+                options: {responsive: true, maintainAspectRatio: false, plugins: {legend: {position: 'bottom', labels: {font: {size: 11}}}}, scales: {y: {beginAtZero: true, min: 0, max: 20, ticks: {callback: function(v) {return v + '次';}}}}}
             });
         });
     </script>

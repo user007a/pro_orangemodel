@@ -8,6 +8,11 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
     <style>
+        @keyframes modalSlideIn {
+            from { opacity: 0; transform: translateY(-20px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .modal-overlay.active .modal-content { animation: modalSlideIn 0.3s ease; }
         body { margin: 0; padding: 0; background-color: #F0F2F5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans SC', sans-serif; overflow: visible !important; }
         .content-wrapper { padding: 24px; min-height: 100%; overflow: visible !important; }
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.5); z-index: 9999; align-items: center; justify-content: center; overflow: auto; }
@@ -19,111 +24,30 @@
     <div class="content-wrapper">
         <div class="flex items-center justify-between mb-6">
             <div>
-                <h1 class="text-2xl font-bold text-gray-800">墒情数据库</h1>
-                <p class="text-gray-500 mt-1">土壤墒情监测数据管理</p>
-            </div>
-            <div class="flex items-center space-x-3">
-                <input type="text" id="search-input" placeholder="搜索站点名称..." class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 w-48" oninput="filterStations()">
-                <select id="status-filter" class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500" onchange="filterStations()">
-                    <option value="">全部状态</option>
-                    <option value="正常">正常</option>
-                    <option value="偏干">偏干</option>
-                    <option value="干旱">干旱</option>
-                    <option value="偏湿">偏湿</option>
-                </select>
-                <button onclick="refreshData()" class="px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition flex items-center">
-                    <iconify-icon icon="material-symbols:refresh" class="w-4 h-4 mr-1"></iconify-icon>
-                    刷新数据
-                </button>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-500 text-sm">监测站点</p>
-                        <h3 class="text-2xl font-bold text-gray-800 mt-1">12</h3>
-                    </div>
-                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                        <iconify-icon icon="material-symbols:location-on" class="w-6 h-6 text-blue-500"></iconify-icon>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-500 text-sm">平均墒情</p>
-                        <h3 class="text-2xl font-bold text-green-600 mt-1">45.5%</h3>
-                    </div>
-                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                        <iconify-icon icon="material-symbols:water" class="w-6 h-6 text-green-500"></iconify-icon>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-500 text-sm">正常站点</p>
-                        <h3 class="text-2xl font-bold text-blue-600 mt-1">8</h3>
-                    </div>
-                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                        <iconify-icon icon="material-symbols:check-circle" class="w-6 h-6 text-blue-500"></iconify-icon>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-500 text-sm">预警站点</p>
-                        <h3 class="text-2xl font-bold text-orange-600 mt-1">4</h3>
-                    </div>
-                    <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
-                        <iconify-icon icon="material-symbols:alert-triangle" class="w-6 h-6 text-orange-500"></iconify-icon>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                    <iconify-icon icon="material-symbols:line-chart" class="w-5 h-5 mr-2 text-green-600"></iconify-icon>
-                    墒情变化趋势
-                </h3>
-                <div class="h-80">
-                    <canvas id="moistureTrendChart"></canvas>
-                </div>
-            </div>
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                    <iconify-icon icon="material-symbols:pie-chart" class="w-5 h-5 mr-2 text-purple-600"></iconify-icon>
-                    墒情分布统计
-                </h3>
-                <div class="h-80">
-                    <canvas id="moisturePieChart"></canvas>
-                </div>
+                <h1 class="text-xl font-bold text-gray-800">墒情数据库</h1>
+                <p class="text-gray-500 text-sm mt-1">土壤墒情监测数据管理</p>
             </div>
         </div>
 
         <div class="bg-white rounded-xl shadow-sm border border-gray-100">
-            <div class="px-6 py-4 border-b border-gray-100">
+            <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
                 <h3 class="text-lg font-semibold text-gray-800">墒情监测站点列表</h3>
+                <button onclick="openAddModal()" class="px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition flex items-center">
+                    <iconify-icon icon="material-symbols:add" class="w-4 h-4 mr-1"></iconify-icon>
+                    新增监测点
+                </button>
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full">
                     <thead>
                         <tr class="bg-gray-50">
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">站点名称</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">位置</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">墒情值</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">墒情等级</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">pH值</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">有机质</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">氮含量</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">磷含量</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">钾含量</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">采样时间</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">站点位置</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">设备编号</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">设备类型</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">负责人员</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">联系电话</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">当前状态</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
                         </tr>
                     </thead>
@@ -143,132 +67,101 @@
     </div>
 
     <div class="modal-overlay" id="detail-modal">
-        <div class="modal-content">
-            <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-                <h3 class="text-lg font-semibold text-gray-800" id="modal-title">站点详情</h3>
-                <button onclick="closeDetailModal()" class="text-gray-400 hover:text-gray-600">
-                    <iconify-icon icon="material-symbols:close" class="w-6 h-6"></iconify-icon>
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="bg-gradient-to-r from-blue-500 to-blue-600 p-4 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-white flex items-center">
+                    <iconify-icon icon="material-symbols:visibility" class="w-6 h-6 mr-2"></iconify-icon>
+                    <span>站点详情</span>
+                </h3>
+                <button onclick="closeDetailModal()" class="p-1.5 hover:bg-white/20 rounded-lg transition-colors">
+                    <iconify-icon icon="material-symbols:close" class="w-5 h-5 text-white"></iconify-icon>
                 </button>
             </div>
-            <div class="p-6">
-                <div class="flex items-center justify-between mb-6 p-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-xl">
-                    <div>
-                        <h4 class="text-lg font-semibold text-gray-800" id="detail-name">-</h4>
-                        <p class="text-gray-500 text-sm mt-1 flex items-center">
-                            <iconify-icon icon="material-symbols:location-on" class="w-4 h-4 mr-1"></iconify-icon>
-                            <span id="detail-location">-</span>
-                        </p>
+            <div class="p-6 bg-white">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <label class="block text-sm font-medium text-gray-600 mb-2 flex items-center">
+                            <iconify-icon icon="material-symbols:location-on" class="w-4 h-4 mr-2 text-blue-500"></iconify-icon>
+                            站点名称
+                        </label>
+                        <div class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm text-gray-800" id="detail-name">-</div>
                     </div>
-                    <div class="text-right">
-                        <p class="text-gray-500 text-xs">采样时间</p>
-                        <p class="text-gray-700 font-medium text-sm" id="detail-sample-time">-</p>
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <label class="block text-sm font-medium text-gray-600 mb-2 flex items-center">
+                            <iconify-icon icon="material-symbols:explore" class="w-4 h-4 mr-2 text-blue-500"></iconify-icon>
+                            站点位置
+                        </label>
+                        <div class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm text-gray-800" id="detail-location">-</div>
+                    </div>
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <label class="block text-sm font-medium text-gray-600 mb-2 flex items-center">
+                            <iconify-icon icon="material-symbols:sensors" class="w-4 h-4 mr-2 text-cyan-500"></iconify-icon>
+                            设备编号
+                        </label>
+                        <div class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm text-gray-800" id="detail-device-id">-</div>
+                    </div>
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <label class="block text-sm font-medium text-gray-600 mb-2 flex items-center">
+                            <iconify-icon icon="material-symbols:circle" class="w-4 h-4 mr-2 text-blue-500"></iconify-icon>
+                            在线状态
+                        </label>
+                        <div class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm font-semibold" id="detail-status">-</div>
+                    </div>
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <label class="block text-sm font-medium text-gray-600 mb-2 flex items-center">
+                            <iconify-icon icon="material-symbols:person" class="w-4 h-4 mr-2 text-purple-500"></iconify-icon>
+                            负责人员
+                        </label>
+                        <div class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm text-gray-800" id="detail-manager">-</div>
+                    </div>
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <label class="block text-sm font-medium text-gray-600 mb-2 flex items-center">
+                            <iconify-icon icon="material-symbols:call" class="w-4 h-4 mr-2 text-amber-500"></iconify-icon>
+                            联系电话
+                        </label>
+                        <div class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm text-gray-800" id="detail-phone">-</div>
                     </div>
                 </div>
+            </div>
+            <div class="p-4 bg-gray-50 border-t border-gray-200 flex justify-end">
+                <button onclick="closeDetailModal()" class="px-5 py-2.5 bg-white text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-100 text-sm font-medium transition-colors">关闭</button>
+            </div>
+        </div>
+    </div>
 
-                <div class="mb-6">
-                    <h4 class="text-sm font-semibold text-gray-800 mb-3 flex items-center">
-                        <iconify-icon icon="material-symbols:info" class="w-4 h-4 mr-2 text-cyan-500"></iconify-icon>
-                        设备与联系信息
-                    </h4>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="bg-cyan-50 rounded-xl p-4 flex items-center">
-                            <div class="w-10 h-10 bg-cyan-100 rounded-full flex items-center justify-center mr-3">
-                                <iconify-icon icon="material-symbols:sensors" class="w-5 h-5 text-cyan-600"></iconify-icon>
-                            </div>
-                            <div>
-                                <p class="text-gray-500 text-xs">设备编号</p>
-                                <p class="text-sm font-semibold text-gray-800 mt-1" id="detail-device-id">-</p>
-                            </div>
-                        </div>
-                        <div class="rounded-xl p-4 flex items-center" id="detail-status-card">
-                            <div class="w-10 h-10 rounded-full flex items-center justify-center mr-3" id="detail-status-icon-bg">
-                                <iconify-icon icon="material-symbols:circle" class="w-5 h-5" id="detail-status-icon"></iconify-icon>
-                            </div>
-                            <div>
-                                <p class="text-gray-500 text-xs">在线状态</p>
-                                <p class="text-sm font-semibold mt-1" id="detail-status">-</p>
-                            </div>
-                        </div>
-                        <div class="bg-purple-50 rounded-xl p-4 flex items-center">
-                            <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center mr-3">
-                                <iconify-icon icon="material-symbols:person" class="w-5 h-5 text-purple-600"></iconify-icon>
-                            </div>
-                            <div>
-                                <p class="text-gray-500 text-xs">负责人员</p>
-                                <p class="text-sm font-semibold text-gray-800 mt-1" id="detail-manager">-</p>
-                            </div>
-                        </div>
-                        <div class="bg-amber-50 rounded-xl p-4 flex items-center">
-                            <div class="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center mr-3">
-                                <iconify-icon icon="material-symbols:call" class="w-5 h-5 text-amber-600"></iconify-icon>
-                            </div>
-                            <div>
-                                <p class="text-gray-500 text-xs">联系电话</p>
-                                <p class="text-sm font-semibold text-gray-800 mt-1" id="detail-phone">-</p>
-                            </div>
-                        </div>
-                    </div>
+    <div class="modal-overlay" id="data-modal">
+        <div class="modal-content" style="max-width: 1000px;">
+            <div class="bg-gradient-to-r from-cyan-500 to-cyan-600 p-4 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-white flex items-center">
+                    <iconify-icon icon="material-symbols:monitoring" class="w-6 h-6 mr-2"></iconify-icon>
+                    <span>数据查看 - <span id="data-station-name"></span></span>
+                </h3>
+                <button onclick="closeDataModal()" class="p-1.5 hover:bg-white/20 rounded-lg transition-colors">
+                    <iconify-icon icon="material-symbols:close" class="w-5 h-5 text-white"></iconify-icon>
+                </button>
+            </div>
+            <div class="p-6 bg-white">
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="bg-gray-50">
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">采样时间</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">墒情值</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">墒情等级</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">pH值</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">有机质</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">氮含量</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">磷含量</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">钾含量</th>
+                            </tr>
+                        </thead>
+                        <tbody id="data-table-body" class="divide-y divide-gray-100">
+                        </tbody>
+                    </table>
                 </div>
-
-                <div class="mb-6">
-                    <h4 class="text-sm font-semibold text-gray-800 mb-3 flex items-center">
-                        <iconify-icon icon="material-symbols:droplet" class="w-4 h-4 mr-2 text-blue-500"></iconify-icon>
-                        墒情状态
-                    </h4>
-                    <div class="grid grid-cols-3 gap-4">
-                        <div class="bg-blue-50 rounded-xl p-4 text-center">
-                            <p class="text-blue-500 text-xs mb-1">当前墒情</p>
-                            <p class="text-2xl font-bold text-blue-600" id="detail-moisture">-</p>
-                        </div>
-                        <div class="rounded-xl p-4 text-center" id="detail-level-card">
-                            <p class="text-gray-500 text-xs mb-1">墒情等级</p>
-                            <p class="text-xl font-bold" id="detail-level">-</p>
-                        </div>
-                        <div class="bg-orange-50 rounded-xl p-4 text-center">
-                            <p class="text-orange-500 text-xs mb-1">土壤类型</p>
-                            <p class="text-lg font-semibold text-orange-700" id="detail-soil-type">-</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mb-6">
-                    <h4 class="text-sm font-semibold text-gray-800 mb-3 flex items-center">
-                        <iconify-icon icon="material-symbols:flask" class="w-4 h-4 mr-2 text-purple-500"></iconify-icon>
-                        土壤养分
-                    </h4>
-                    <div class="grid grid-cols-5 gap-3">
-                        <div class="bg-gray-50 rounded-lg p-3 text-center">
-                            <p class="text-gray-400 text-xs">pH值</p>
-                            <p class="text-lg font-semibold text-gray-800 mt-1" id="detail-ph">-</p>
-                        </div>
-                        <div class="bg-gray-50 rounded-lg p-3 text-center">
-                            <p class="text-gray-400 text-xs">有机质</p>
-                            <p class="text-lg font-semibold text-gray-800 mt-1" id="detail-organic">-</p>
-                        </div>
-                        <div class="bg-gray-50 rounded-lg p-3 text-center">
-                            <p class="text-gray-400 text-xs">氮含量</p>
-                            <p class="text-lg font-semibold text-gray-800 mt-1" id="detail-nitrogen">-</p>
-                        </div>
-                        <div class="bg-gray-50 rounded-lg p-3 text-center">
-                            <p class="text-gray-400 text-xs">磷含量</p>
-                            <p class="text-lg font-semibold text-gray-800 mt-1" id="detail-phosphorus">-</p>
-                        </div>
-                        <div class="bg-gray-50 rounded-lg p-3 text-center">
-                            <p class="text-gray-400 text-xs">钾含量</p>
-                            <p class="text-lg font-semibold text-gray-800 mt-1" id="detail-potassium">-</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-5 border border-gray-100">
-                    <h4 class="text-sm font-semibold text-gray-800 mb-4 flex items-center">
-                        <iconify-icon icon="material-symbols:trending-up" class="w-4 h-4 mr-2 text-green-500"></iconify-icon>
-                        墒情趋势图
-                    </h4>
-                    <div class="bg-white rounded-lg p-2 h-64 shadow-sm">
-                        <canvas id="detail-chart"></canvas>
-                    </div>
-                </div>
+            </div>
+            <div class="p-4 bg-gray-50 border-t border-gray-200 flex justify-end">
+                <button onclick="closeDataModal()" class="px-5 py-2.5 bg-white text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-100 text-sm font-medium transition-colors">关闭</button>
             </div>
         </div>
     </div>
@@ -299,72 +192,6 @@
                             站点位置
                         </label>
                         <input type="text" id="edit-location" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all" placeholder="请输入站点位置">
-                    </div>
-                    <div class="bg-gray-50 rounded-xl p-4">
-                        <label class="block text-sm font-medium text-gray-600 mb-2 flex items-center">
-                            <iconify-icon icon="material-symbols:terrain" class="w-4 h-4 mr-2 text-orange-500"></iconify-icon>
-                            土壤类型
-                        </label>
-                        <select id="edit-soil-type" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all">
-                            <option value="壤土">壤土</option>
-                            <option value="砂壤土">砂壤土</option>
-                            <option value="黏土">黏土</option>
-                            <option value="砂土">砂土</option>
-                        </select>
-                    </div>
-                    <div class="bg-gray-50 rounded-xl p-4">
-                        <label class="block text-sm font-medium text-gray-600 mb-2 flex items-center">
-                            <iconify-icon icon="material-symbols:water" class="w-4 h-4 mr-2 text-blue-500"></iconify-icon>
-                            墒情值(%)
-                        </label>
-                        <input type="number" id="edit-moisture" min="0" max="100" step="0.1" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all" placeholder="请输入墒情值">
-                    </div>
-                    <div class="bg-gray-50 rounded-xl p-4">
-                        <label class="block text-sm font-medium text-gray-600 mb-2 flex items-center">
-                            <iconify-icon icon="material-symbols:warning" class="w-4 h-4 mr-2 text-yellow-500"></iconify-icon>
-                            墒情等级
-                        </label>
-                        <select id="edit-level" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all">
-                            <option value="正常">正常</option>
-                            <option value="偏干">偏干</option>
-                            <option value="干旱">干旱</option>
-                            <option value="偏湿">偏湿</option>
-                        </select>
-                    </div>
-                    <div class="bg-gray-50 rounded-xl p-4">
-                        <label class="block text-sm font-medium text-gray-600 mb-2 flex items-center">
-                            <iconify-icon icon="material-symbols:science" class="w-4 h-4 mr-2 text-purple-500"></iconify-icon>
-                            pH值
-                        </label>
-                        <input type="number" id="edit-ph" min="0" max="14" step="0.1" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all" placeholder="请输入pH值">
-                    </div>
-                    <div class="bg-gray-50 rounded-xl p-4">
-                        <label class="block text-sm font-medium text-gray-600 mb-2 flex items-center">
-                            <iconify-icon icon="material-symbols:eco" class="w-4 h-4 mr-2 text-green-600"></iconify-icon>
-                            有机质(%)
-                        </label>
-                        <input type="number" id="edit-organic" min="0" step="0.1" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all" placeholder="请输入有机质含量">
-                    </div>
-                    <div class="bg-gray-50 rounded-xl p-4">
-                        <label class="block text-sm font-medium text-gray-600 mb-2 flex items-center">
-                            <iconify-icon icon="material-symbols:grass" class="w-4 h-4 mr-2 text-green-500"></iconify-icon>
-                            氮含量(g/kg)
-                        </label>
-                        <input type="number" id="edit-nitrogen" min="0" step="0.1" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all" placeholder="请输入氮含量">
-                    </div>
-                    <div class="bg-gray-50 rounded-xl p-4">
-                        <label class="block text-sm font-medium text-gray-600 mb-2 flex items-center">
-                            <iconify-icon icon="material-symbols:compost" class="w-4 h-4 mr-2 text-amber-600"></iconify-icon>
-                            磷含量(g/kg)
-                        </label>
-                        <input type="number" id="edit-phosphorus" min="0" step="0.1" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all" placeholder="请输入磷含量">
-                    </div>
-                    <div class="bg-gray-50 rounded-xl p-4">
-                        <label class="block text-sm font-medium text-gray-600 mb-2 flex items-center">
-                            <iconify-icon icon="material-symbols:potassium" class="w-4 h-4 mr-2 text-pink-500"></iconify-icon>
-                            钾含量(mg/kg)
-                        </label>
-                        <input type="number" id="edit-potassium" min="0" step="1" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all" placeholder="请输入钾含量">
                     </div>
                     <div class="bg-gray-50 rounded-xl p-4">
                         <label class="block text-sm font-medium text-gray-600 mb-2 flex items-center">
@@ -406,6 +233,73 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="add-modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="bg-gradient-to-r from-green-500 to-green-600 p-4 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-white flex items-center">
+                    <iconify-icon icon="material-symbols:add-circle" class="w-6 h-6 mr-2"></iconify-icon>
+                    <span>新增监测点</span>
+                </h3>
+                <button onclick="closeAddModal()" class="p-1.5 hover:bg-white/20 rounded-lg transition-colors">
+                    <iconify-icon icon="material-symbols:close" class="w-5 h-5 text-white"></iconify-icon>
+                </button>
+            </div>
+            <div class="p-6 bg-white">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <label class="block text-sm font-medium text-gray-600 mb-2 flex items-center">
+                            <iconify-icon icon="material-symbols:location-on" class="w-4 h-4 mr-2 text-green-500"></iconify-icon>
+                            站点名称
+                        </label>
+                        <input type="text" id="add-name" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all" placeholder="请输入站点名称">
+                    </div>
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <label class="block text-sm font-medium text-gray-600 mb-2 flex items-center">
+                            <iconify-icon icon="material-symbols:explore" class="w-4 h-4 mr-2 text-green-500"></iconify-icon>
+                            站点位置
+                        </label>
+                        <input type="text" id="add-location" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all" placeholder="请输入站点位置">
+                    </div>
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <label class="block text-sm font-medium text-gray-600 mb-2 flex items-center">
+                            <iconify-icon icon="material-symbols:sensors" class="w-4 h-4 mr-2 text-cyan-500"></iconify-icon>
+                            设备编号
+                        </label>
+                        <input type="text" id="add-device-id" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all" placeholder="请输入设备编号">
+                    </div>
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <label class="block text-sm font-medium text-gray-600 mb-2 flex items-center">
+                            <iconify-icon icon="material-symbols:circle" class="w-4 h-4 mr-2 text-green-500"></iconify-icon>
+                            在线状态
+                        </label>
+                        <select id="add-status" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all">
+                            <option value="在线">在线</option>
+                            <option value="离线">离线</option>
+                        </select>
+                    </div>
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <label class="block text-sm font-medium text-gray-600 mb-2 flex items-center">
+                            <iconify-icon icon="material-symbols:person" class="w-4 h-4 mr-2 text-purple-500"></iconify-icon>
+                            负责人员
+                        </label>
+                        <input type="text" id="add-manager" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all" placeholder="请输入负责人员姓名">
+                    </div>
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <label class="block text-sm font-medium text-gray-600 mb-2 flex items-center">
+                            <iconify-icon icon="material-symbols:call" class="w-4 h-4 mr-2 text-amber-500"></iconify-icon>
+                            联系电话
+                        </label>
+                        <input type="text" id="add-phone" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all" placeholder="请输入联系电话">
+                    </div>
+                </div>
+            </div>
+            <div class="p-4 bg-gray-50 border-t border-gray-200 flex justify-end space-x-3">
+                <button onclick="closeAddModal()" class="px-5 py-2.5 bg-white text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-100 text-sm font-medium transition-colors">取消</button>
+                <button onclick="saveAddModal()" class="px-5 py-2.5 bg-green-500 text-white rounded-lg hover:bg-green-600 text-sm font-medium transition-colors shadow-md hover:shadow-lg">保存</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const mockStations = [
             { id: 1, name: '太和镇监测站', location: '太和镇太和村', moisture: 35, level: '偏干', soilType: '壤土', ph: 6.5, organic: 2.1, nitrogen: 1.2, phosphorus: 0.8, potassium: 150, sampleTime: '2026-07-25 14:30:00', deviceId: 'SM-NF-001', status: '在线', manager: '李建国', phone: '13879421001' },
@@ -425,7 +319,6 @@
         let currentPage = 1;
         const pageSize = 10;
         let filteredStations = [...mockStations];
-        let detailChartInstance = null;
 
         function getLevelClass(level) {
             switch(level) {
@@ -452,32 +345,25 @@
                         <div class="text-sm text-gray-500">${station.location}</div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm text-gray-900">${station.moisture}%</div>
+                        <div class="text-sm text-gray-900">${station.deviceId}</div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="px-2 py-1 rounded-full text-xs font-medium ${getLevelClass(station.level)}">${station.level}</span>
+                        <div class="text-sm text-gray-900">自动墒情站 SM-200</div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm text-gray-900">${station.ph}</div>
+                        <div class="text-sm text-gray-900">${station.manager}</div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm text-gray-900">${station.organic}%</div>
+                        <div class="text-sm text-gray-900">${station.phone}</div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm text-gray-900">${station.nitrogen}g/kg</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm text-gray-900">${station.phosphorus}g/kg</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm text-gray-900">${station.potassium}mg/kg</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm text-gray-500">${station.sampleTime}</div>
+                        <span class="px-2 py-1 rounded-full text-xs font-medium ${station.status === '在线' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">${station.status}</span>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm">
                         <button onclick="viewStation(${station.id})" class="text-blue-600 hover:text-blue-900 mr-3">查看</button>
-                        <button onclick="openEditModal(${station.id})" class="text-blue-600 hover:text-blue-900">编辑</button>
+                        <button onclick="openEditModal(${station.id})" class="text-blue-600 hover:text-blue-900 mr-3">编辑</button>
+                        <button onclick="openDataModal(${station.id})" class="text-cyan-600 hover:text-cyan-900 mr-3">数据查看</button>
+                        <button onclick="deleteStation(${station.id})" class="text-red-600 hover:text-red-900">删除</button>
                     </td>
                 </tr>
             `).join('');
@@ -509,22 +395,12 @@
         }
 
         function filterStations() {
-            const search = document.getElementById('search-input').value.toLowerCase();
-            const status = document.getElementById('status-filter').value;
-            
-            filteredStations = mockStations.filter(s => {
-                const matchSearch = s.name.toLowerCase().includes(search) || s.location.toLowerCase().includes(search);
-                const matchStatus = !status || s.level === status;
-                return matchSearch && matchStatus;
-            });
-            
+            filteredStations = [...mockStations];
             currentPage = 1;
             renderTable();
         }
 
         function refreshData() {
-            document.getElementById('search-input').value = '';
-            document.getElementById('status-filter').value = '';
             filteredStations = [...mockStations];
             currentPage = 1;
             renderTable();
@@ -534,78 +410,98 @@
             const station = mockStations.find(s => s.id === id);
             if (!station) return;
 
-            document.getElementById('modal-title').textContent = station.name + ' - 详情';
             document.getElementById('detail-name').textContent = station.name;
             document.getElementById('detail-location').textContent = station.location;
-            document.getElementById('detail-moisture').textContent = station.moisture + '%';
-            document.getElementById('detail-soil-type').textContent = station.soilType;
-            document.getElementById('detail-ph').textContent = station.ph;
-            document.getElementById('detail-organic').textContent = station.organic + '%';
-            document.getElementById('detail-nitrogen').textContent = station.nitrogen + 'g/kg';
-            document.getElementById('detail-phosphorus').textContent = station.phosphorus + 'g/kg';
-            document.getElementById('detail-potassium').textContent = station.potassium + 'mg/kg';
-            document.getElementById('detail-sample-time').textContent = station.sampleTime;
             document.getElementById('detail-device-id').textContent = station.deviceId;
             document.getElementById('detail-manager').textContent = station.manager;
             document.getElementById('detail-phone').textContent = station.phone;
 
-            const statusCard = document.getElementById('detail-status-card');
-            const statusIconBg = document.getElementById('detail-status-icon-bg');
-            const statusIcon = document.getElementById('detail-status-icon');
-            const statusText = document.getElementById('detail-status');
-            statusText.textContent = station.status;
-
-            statusCard.className = 'rounded-xl p-4 flex items-center';
-            statusIconBg.className = 'w-10 h-10 rounded-full flex items-center justify-center mr-3';
-            statusText.className = 'text-sm font-semibold mt-1';
-
-            if (station.status === '在线') {
-                statusCard.classList.add('bg-green-50');
-                statusIconBg.classList.add('bg-green-100');
-                statusIcon.classList.add('text-green-600');
-                statusText.classList.add('text-green-600');
-            } else {
-                statusCard.classList.add('bg-red-50');
-                statusIconBg.classList.add('bg-red-100');
-                statusIcon.classList.add('text-red-600');
-                statusText.classList.add('text-red-600');
-            }
-
-            const levelCard = document.getElementById('detail-level-card');
-            const levelText = document.getElementById('detail-level');
-            levelText.textContent = station.level;
-            
-            levelCard.className = 'rounded-xl p-4 text-center';
-            levelText.className = 'text-xl font-bold';
-            
-            switch(station.level) {
-                case '正常':
-                    levelCard.classList.add('bg-green-50');
-                    levelText.classList.add('text-green-600');
-                    break;
-                case '偏干':
-                    levelCard.classList.add('bg-yellow-50');
-                    levelText.classList.add('text-yellow-600');
-                    break;
-                case '干旱':
-                    levelCard.classList.add('bg-red-50');
-                    levelText.classList.add('text-red-600');
-                    break;
-                case '偏湿':
-                    levelCard.classList.add('bg-blue-50');
-                    levelText.classList.add('text-blue-600');
-                    break;
-                default:
-                    levelCard.classList.add('bg-gray-50');
-                    levelText.classList.add('text-gray-600');
-            }
+            const statusEl = document.getElementById('detail-status');
+            statusEl.textContent = station.status;
+            statusEl.className = 'w-full px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm font-semibold ' +
+                (station.status === '在线' ? 'text-green-600' : 'text-red-600');
 
             document.getElementById('detail-modal').classList.add('active');
-            renderDetailChart(station);
         }
 
         function closeDetailModal() {
             document.getElementById('detail-modal').classList.remove('active');
+        }
+
+        function openDataModal(id) {
+            const station = mockStations.find(s => s.id === id);
+            if (!station) return;
+
+            document.getElementById('data-station-name').textContent = station.name;
+
+            const baseDate = new Date(station.sampleTime.replace(/-/g, '/'));
+            const records = [];
+            for (let i = 0; i < 20; i++) {
+                const recordDate = new Date(baseDate.getTime() - i * 2 * 60 * 60 * 1000);
+                const pad = n => String(n).padStart(2, '0');
+                const sampleTime = `${recordDate.getFullYear()}-${pad(recordDate.getMonth() + 1)}-${pad(recordDate.getDate())} ${pad(recordDate.getHours())}:${pad(recordDate.getMinutes())}:${pad(recordDate.getSeconds())}`;
+
+                const vary = (val, percent) => {
+                    const factor = 1 + (Math.random() * 2 - 1) * percent / 100;
+                    return val * factor;
+                };
+
+                const moisture = Math.round(vary(station.moisture, 20));
+                const ph = parseFloat(vary(station.ph, 10).toFixed(2));
+                const organic = parseFloat(vary(station.organic, 15).toFixed(2));
+                const nitrogen = parseFloat(vary(station.nitrogen, 15).toFixed(2));
+                const phosphorus = parseFloat(vary(station.phosphorus, 15).toFixed(2));
+                const potassium = Math.round(vary(station.potassium, 15));
+
+                let level = '正常';
+                if (moisture < 30) level = '干旱';
+                else if (moisture < 40) level = '偏干';
+                else if (moisture > 65) level = '偏湿';
+
+                records.push({ sampleTime, moisture, level, ph, organic, nitrogen, phosphorus, potassium });
+            }
+
+            const tbody = document.getElementById('data-table-body');
+            tbody.innerHTML = records.map(r => `
+                <tr class="hover:bg-gray-50 transition">
+                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">${r.sampleTime}</td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">${r.moisture}%</td>
+                    <td class="px-4 py-3 whitespace-nowrap">
+                        <span class="px-2 py-1 rounded-full text-xs font-medium ${getLevelClass(r.level)}">${r.level}</span>
+                    </td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">${r.ph}</td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">${r.organic}%</td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">${r.nitrogen}g/kg</td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">${r.phosphorus}g/kg</td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">${r.potassium}mg/kg</td>
+                </tr>
+            `).join('');
+
+            document.getElementById('data-modal').classList.add('active');
+        }
+
+        function closeDataModal() {
+            document.getElementById('data-modal').classList.remove('active');
+        }
+
+        function deleteStation(id) {
+            if (!confirm('确定要删除该监测站点吗？')) return;
+
+            const index = mockStations.findIndex(s => s.id === id);
+            if (index === -1) return;
+
+            mockStations.splice(index, 1);
+            filteredStations = filteredStations.filter(s => s.id !== id);
+
+            const totalPages = Math.ceil(filteredStations.length / pageSize);
+            if (currentPage > totalPages && totalPages > 0) {
+                currentPage = totalPages;
+            } else if (totalPages === 0) {
+                currentPage = 1;
+            }
+
+            renderTable();
+            alert('监测站点已删除');
         }
 
         let currentEditStationId = null;
@@ -617,14 +513,6 @@
             currentEditStationId = id;
             document.getElementById('edit-name').value = station.name;
             document.getElementById('edit-location').value = station.location;
-            document.getElementById('edit-soil-type').value = station.soilType;
-            document.getElementById('edit-moisture').value = station.moisture;
-            document.getElementById('edit-level').value = station.level;
-            document.getElementById('edit-ph').value = station.ph;
-            document.getElementById('edit-organic').value = station.organic;
-            document.getElementById('edit-nitrogen').value = station.nitrogen;
-            document.getElementById('edit-phosphorus').value = station.phosphorus;
-            document.getElementById('edit-potassium').value = station.potassium;
             document.getElementById('edit-device-id').value = station.deviceId;
             document.getElementById('edit-status').value = station.status;
             document.getElementById('edit-manager').value = station.manager;
@@ -635,6 +523,59 @@
 
         function closeEditModal() {
             document.getElementById('edit-modal').classList.remove('active');
+        }
+
+        function openAddModal() {
+            document.getElementById('add-name').value = '';
+            document.getElementById('add-location').value = '';
+            document.getElementById('add-device-id').value = '';
+            document.getElementById('add-status').value = '在线';
+            document.getElementById('add-manager').value = '';
+            document.getElementById('add-phone').value = '';
+            document.getElementById('add-modal').classList.add('active');
+        }
+
+        function closeAddModal() {
+            document.getElementById('add-modal').classList.remove('active');
+        }
+
+        function saveAddModal() {
+            const name = document.getElementById('add-name').value.trim();
+            if (!name) {
+                alert('请输入站点名称');
+                return;
+            }
+
+            const newId = mockStations.length > 0 ? Math.max(...mockStations.map(s => s.id)) + 1 : 1;
+            const now = new Date();
+            const pad = n => String(n).padStart(2, '0');
+            const sampleTime = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+
+            const newStation = {
+                id: newId,
+                name: name,
+                location: document.getElementById('add-location').value.trim(),
+                soilType: '壤土',
+                moisture: 45,
+                level: '正常',
+                ph: 6.5,
+                organic: 2.0,
+                nitrogen: 1.2,
+                phosphorus: 0.8,
+                potassium: 150,
+                deviceId: document.getElementById('add-device-id').value.trim(),
+                status: document.getElementById('add-status').value,
+                manager: document.getElementById('add-manager').value.trim(),
+                phone: document.getElementById('add-phone').value.trim(),
+                sampleTime: sampleTime
+            };
+
+            mockStations.push(newStation);
+            filteredStations = [...mockStations];
+            currentPage = 1;
+            closeAddModal();
+            renderTable();
+            alert('监测点已新增');
         }
 
         function saveEditModal() {
@@ -649,14 +590,6 @@
 
             station.name = name;
             station.location = document.getElementById('edit-location').value.trim();
-            station.soilType = document.getElementById('edit-soil-type').value;
-            station.moisture = parseFloat(document.getElementById('edit-moisture').value) || 0;
-            station.level = document.getElementById('edit-level').value;
-            station.ph = parseFloat(document.getElementById('edit-ph').value) || 0;
-            station.organic = parseFloat(document.getElementById('edit-organic').value) || 0;
-            station.nitrogen = parseFloat(document.getElementById('edit-nitrogen').value) || 0;
-            station.phosphorus = parseFloat(document.getElementById('edit-phosphorus').value) || 0;
-            station.potassium = parseFloat(document.getElementById('edit-potassium').value) || 0;
             station.deviceId = document.getElementById('edit-device-id').value.trim();
             station.status = document.getElementById('edit-status').value;
             station.manager = document.getElementById('edit-manager').value.trim();
@@ -667,98 +600,8 @@
             alert('站点信息已保存');
         }
 
-        function renderDetailChart(station) {
-            const ctx = document.getElementById('detail-chart').getContext('2d');
-            const hours = ['08:00', '10:00', '12:00', '14:00', '16:00', '18:00'];
-            const moistureData = [station.moisture - 5, station.moisture - 3, station.moisture, station.moisture + 2, station.moisture, station.moisture - 1];
-
-            if (detailChartInstance) {
-                detailChartInstance.destroy();
-            }
-
-            detailChartInstance = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: hours,
-                    datasets: [{
-                        label: '墒情(%)',
-                        data: moistureData,
-                        borderColor: '#10B981',
-                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                        fill: true,
-                        tension: 0.4,
-                        pointRadius: 4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: { beginAtZero: false, min: 20, max: 80 }
-                    }
-                }
-            });
-        }
-
-        function initCharts() {
-            const trendCtx = document.getElementById('moistureTrendChart').getContext('2d');
-            new Chart(trendCtx, {
-                type: 'line',
-                data: {
-                    labels: ['7/19', '7/20', '7/21', '7/22', '7/23', '7/24', '7/25'],
-                    datasets: [{
-                        label: '平均墒情',
-                        data: [52, 50, 48, 46, 45, 45.5, 45.5],
-                        borderColor: '#10B981',
-                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                        fill: true,
-                        tension: 0.4
-                    }, {
-                        label: '最低墒情',
-                        data: [38, 35, 32, 28, 26, 25, 25],
-                        borderColor: '#EF4444',
-                        backgroundColor: 'rgba(239, 68, 68, 0.05)',
-                        fill: true,
-                        tension: 0.4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'top' }
-                    },
-                    scales: {
-                        y: { beginAtZero: false, min: 20, max: 70 }
-                    }
-                }
-            });
-
-            const pieCtx = document.getElementById('moisturePieChart').getContext('2d');
-            new Chart(pieCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['正常', '偏干', '干旱', '偏湿'],
-                    datasets: [{
-                        data: [8, 2, 2, 2],
-                        backgroundColor: ['#10B981', '#F59E0B', '#EF4444', '#3B82F6'],
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'right' }
-                    }
-                }
-            });
-        }
-
         window.addEventListener('load', () => {
             renderTable();
-            initCharts();
         });
 
         document.addEventListener('click', (e) => {
@@ -766,6 +609,11 @@
             const editBtn = e.target.closest('[onclick*="openEditModal"]');
             if (!editModal.contains(e.target) && !editBtn) {
                 editModal.classList.remove('active');
+            }
+            const addModal = document.getElementById('add-modal');
+            const addBtn = e.target.closest('[onclick*="openAddModal"]');
+            if (!addModal.contains(e.target) && !addBtn) {
+                addModal.classList.remove('active');
             }
         });
     </script>

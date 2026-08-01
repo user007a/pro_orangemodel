@@ -7,6 +7,11 @@
     <script src="https://cdn.tailwindcss.com"></script>
 
     <style>
+        @keyframes modalSlideIn {
+            from { opacity: 0; transform: translateY(-20px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .modal-overlay.active .modal-content { animation: modalSlideIn 0.3s ease; }
         body { margin: 0; padding: 0; background-color: #F0F2F5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans SC', sans-serif; }
         .content-wrapper { padding: 24px; height: 100vh; overflow-y: auto; }
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.5); z-index: 1000; align-items: center; justify-content: center; }
@@ -19,8 +24,8 @@
     <div class="content-wrapper">
         <div class="flex items-center justify-between mb-6">
             <div>
-                <h1 class="text-2xl font-bold text-gray-800">预警管理</h1>
-                <p class="text-gray-500 mt-1">管理预警产生、审核、发布及用户阅读状态</p>
+                <h1 class="text-xl font-bold text-gray-800">预警管理</h1>
+                <p class="text-gray-500 text-sm mt-1">管理预警产生、审核、发布及用户阅读状态</p>
             </div>
             <div class="flex items-center space-x-3">
                 <button onclick="openAddAlertModal()" class="px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50 flex items-center transition">
@@ -434,7 +439,7 @@
                         <option value="all-users">全部用户</option>
                         <option value="role-admin">管理员</option>
                         <option value="role-operator">操作员</option>
-                        <option value="role-viewer">查看员</option>
+                        <option value="role-viewer">数据管理员</option>
                     </select>
                 </div>
                 

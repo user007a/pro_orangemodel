@@ -3,10 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>南丰蜜桔外部数据抓取 - 数据管理</title>
+    <title>外部抓取 - 南丰蜜桔模型管理系统</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = { theme: { extend: { colors: {
+        green: { DEFAULT: '#16a34a' },
+        blue: { DEFAULT: '#2563eb' },
+        red: { DEFAULT: '#dc2626' },
+        yellow: { DEFAULT: '#ca8a04' },
+        purple: { DEFAULT: '#9333ea' }
+      }}}}
+    </script>
     
     <style>
+        @keyframes modalSlideIn {
+            from { opacity: 0; transform: translateY(-20px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .modal-overlay.active .modal-content { animation: modalSlideIn 0.3s ease; }
         body { margin: 0; padding: 0; background-color: #F0F2F5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans SC', sans-serif; }
         .content-wrapper { padding: 24px; height: 100vh; overflow-y: auto; }
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.5); z-index: 1000; align-items: center; justify-content: center; }
@@ -22,10 +36,6 @@
                 <p class="text-gray-500 text-sm mt-1">管理从外部数据源抓取的数据</p>
             </div>
             <div class="flex items-center space-x-3">
-                <button onclick="exportSources()" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 text-sm flex items-center">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                    导出数据
-                </button>
                 <button onclick="openAddModal()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm flex items-center">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                     添加数据源
@@ -50,7 +60,6 @@
                         <option value="植保数据">植保数据</option>
                     </select>
                     <button onclick="filterSources()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200">查询</button>
-                    <button onclick="resetFilter()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200">重置</button>
                 </div>
             </div>
             <div class="overflow-x-auto">
@@ -77,8 +86,9 @@
                             <td class="py-3 px-4"><span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded">运行中</span></td>
                             <td class="py-3 px-4">2026-07-22 10:30</td>
                             <td class="py-3 px-4">
-                                <button onclick="openConfigModal('江西省气象局API')" class="text-blue-600 hover:text-blue-700 mr-3">配置</button>
-                                <button onclick="openDeleteModal('江西省气象局API')" class="text-red-600 hover:text-red-700">删除</button>
+                                <button onclick="openConfigModal('江西省气象局API')" class="px-3 py-1 text-purple hover:bg-purple-50 rounded text-xs font-medium transition-colors mr-3">配置</button>
+                                <button onclick="openDataModal('江西省气象局API')" class="px-3 py-1 text-green hover:bg-green-50 rounded text-xs font-medium transition-colors mr-3">查看数据</button>
+                                <button onclick="openDeleteModal('江西省气象局API')" class="px-3 py-1 text-red hover:bg-red-50 rounded text-xs font-medium transition-colors">删除</button>
                             </td>
                         </tr>
                         <tr class="border-b border-gray-100 hover:bg-gray-50" data-name="国家农业大数据平台" data-type="农业数据" data-status="运行中">
@@ -90,8 +100,9 @@
                             <td class="py-3 px-4"><span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded">运行中</span></td>
                             <td class="py-3 px-4">2026-07-22 10:00</td>
                             <td class="py-3 px-4">
-                                <button onclick="openConfigModal('国家农业大数据平台')" class="text-blue-600 hover:text-blue-700 mr-3">配置</button>
-                                <button onclick="openDeleteModal('国家农业大数据平台')" class="text-red-600 hover:text-red-700">删除</button>
+                                <button onclick="openConfigModal('国家农业大数据平台')" class="px-3 py-1 text-purple hover:bg-purple-50 rounded text-xs font-medium transition-colors mr-3">配置</button>
+                                <button onclick="openDataModal('国家农业大数据平台')" class="px-3 py-1 text-green hover:bg-green-50 rounded text-xs font-medium transition-colors mr-3">查看数据</button>
+                                <button onclick="openDeleteModal('国家农业大数据平台')" class="px-3 py-1 text-red hover:bg-red-50 rounded text-xs font-medium transition-colors">删除</button>
                             </td>
                         </tr>
                         <tr class="border-b border-gray-100 hover:bg-gray-50" data-name="农产品价格行情" data-type="市场数据" data-status="待启动">
@@ -103,9 +114,9 @@
                             <td class="py-3 px-4"><span class="px-2 py-1 bg-yellow-100 text-yellow-700 text-xs rounded">待启动</span></td>
                             <td class="py-3 px-4">2026-07-21 08:00</td>
                             <td class="py-3 px-4">
-                                <button onclick="openConfigModal('农产品价格行情')" class="text-blue-600 hover:text-blue-700 mr-3">配置</button>
-                                <button onclick="startFetch('农产品价格行情')" class="text-green-600 hover:text-green-700 mr-3">启动</button>
-                                <button onclick="openDeleteModal('农产品价格行情')" class="text-red-600 hover:text-red-700">删除</button>
+                                <button onclick="openConfigModal('农产品价格行情')" class="px-3 py-1 text-purple hover:bg-purple-50 rounded text-xs font-medium transition-colors mr-3">配置</button>
+                                <button onclick="startFetch('农产品价格行情')" class="px-3 py-1 text-green hover:bg-green-50 rounded text-xs font-medium transition-colors mr-3">启动</button>
+                                <button onclick="openDeleteModal('农产品价格行情')" class="px-3 py-1 text-red hover:bg-red-50 rounded text-xs font-medium transition-colors">删除</button>
                             </td>
                         </tr>
                         <tr class="border-b border-gray-100 hover:bg-gray-50" data-name="病虫害测报系统" data-type="植保数据" data-status="运行中">
@@ -117,8 +128,9 @@
                             <td class="py-3 px-4"><span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded">运行中</span></td>
                             <td class="py-3 px-4">2026-07-22 06:00</td>
                             <td class="py-3 px-4">
-                                <button onclick="openConfigModal('病虫害测报系统')" class="text-blue-600 hover:text-blue-700 mr-3">配置</button>
-                                <button onclick="openDeleteModal('病虫害测报系统')" class="text-red-600 hover:text-red-700">删除</button>
+                                <button onclick="openConfigModal('病虫害测报系统')" class="px-3 py-1 text-purple hover:bg-purple-50 rounded text-xs font-medium transition-colors mr-3">配置</button>
+                                <button onclick="openDataModal('病虫害测报系统')" class="px-3 py-1 text-green hover:bg-green-50 rounded text-xs font-medium transition-colors mr-3">查看数据</button>
+                                <button onclick="openDeleteModal('病虫害测报系统')" class="px-3 py-1 text-red hover:bg-red-50 rounded text-xs font-medium transition-colors">删除</button>
                             </td>
                         </tr>
                         <tr class="border-b border-gray-100 hover:bg-gray-50" data-name="江西省环境监测站" data-type="气象数据" data-status="运行中">
@@ -130,8 +142,9 @@
                             <td class="py-3 px-4"><span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded">运行中</span></td>
                             <td class="py-3 px-4">2026-07-22 10:25</td>
                             <td class="py-3 px-4">
-                                <button onclick="openConfigModal('江西省环境监测站')" class="text-blue-600 hover:text-blue-700 mr-3">配置</button>
-                                <button onclick="openDeleteModal('江西省环境监测站')" class="text-red-600 hover:text-red-700">删除</button>
+                                <button onclick="openConfigModal('江西省环境监测站')" class="px-3 py-1 text-purple hover:bg-purple-50 rounded text-xs font-medium transition-colors mr-3">配置</button>
+                                <button onclick="openDataModal('江西省环境监测站')" class="px-3 py-1 text-green hover:bg-green-50 rounded text-xs font-medium transition-colors mr-3">查看数据</button>
+                                <button onclick="openDeleteModal('江西省环境监测站')" class="px-3 py-1 text-red hover:bg-red-50 rounded text-xs font-medium transition-colors">删除</button>
                             </td>
                         </tr>
                         <tr class="border-b border-gray-100 hover:bg-gray-50" data-name="南丰蜜桔交易中心" data-type="市场数据" data-status="运行中">
@@ -143,8 +156,9 @@
                             <td class="py-3 px-4"><span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded">运行中</span></td>
                             <td class="py-3 px-4">2026-07-22 10:30</td>
                             <td class="py-3 px-4">
-                                <button onclick="openConfigModal('南丰蜜桔交易中心')" class="text-blue-600 hover:text-blue-700 mr-3">配置</button>
-                                <button onclick="openDeleteModal('南丰蜜桔交易中心')" class="text-red-600 hover:text-red-700">删除</button>
+                                <button onclick="openConfigModal('南丰蜜桔交易中心')" class="px-3 py-1 text-purple hover:bg-purple-50 rounded text-xs font-medium transition-colors mr-3">配置</button>
+                                <button onclick="openDataModal('南丰蜜桔交易中心')" class="px-3 py-1 text-green hover:bg-green-50 rounded text-xs font-medium transition-colors mr-3">查看数据</button>
+                                <button onclick="openDeleteModal('南丰蜜桔交易中心')" class="px-3 py-1 text-red hover:bg-red-50 rounded text-xs font-medium transition-colors">删除</button>
                             </td>
                         </tr>
                         <tr class="border-b border-gray-100 hover:bg-gray-50" data-name="农业农村部信息中心" data-type="农业数据" data-status="待启动">
@@ -156,9 +170,9 @@
                             <td class="py-3 px-4"><span class="px-2 py-1 bg-yellow-100 text-yellow-700 text-xs rounded">待启动</span></td>
                             <td class="py-3 px-4">2026-07-21 00:00</td>
                             <td class="py-3 px-4">
-                                <button onclick="openConfigModal('农业农村部信息中心')" class="text-blue-600 hover:text-blue-700 mr-3">配置</button>
-                                <button onclick="startFetch('农业农村部信息中心')" class="text-green-600 hover:text-green-700 mr-3">启动</button>
-                                <button onclick="openDeleteModal('农业农村部信息中心')" class="text-red-600 hover:text-red-700">删除</button>
+                                <button onclick="openConfigModal('农业农村部信息中心')" class="px-3 py-1 text-purple hover:bg-purple-50 rounded text-xs font-medium transition-colors mr-3">配置</button>
+                                <button onclick="startFetch('农业农村部信息中心')" class="px-3 py-1 text-green hover:bg-green-50 rounded text-xs font-medium transition-colors mr-3">启动</button>
+                                <button onclick="openDeleteModal('农业农村部信息中心')" class="px-3 py-1 text-red hover:bg-red-50 rounded text-xs font-medium transition-colors">删除</button>
                             </td>
                         </tr>
                         <tr class="border-b border-gray-100 hover:bg-gray-50" data-name="中国植保信息网" data-type="植保数据" data-status="运行中">
@@ -170,8 +184,9 @@
                             <td class="py-3 px-4"><span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded">运行中</span></td>
                             <td class="py-3 px-4">2026-07-22 06:00</td>
                             <td class="py-3 px-4">
-                                <button onclick="openConfigModal('中国植保信息网')" class="text-blue-600 hover:text-blue-700 mr-3">配置</button>
-                                <button onclick="openDeleteModal('中国植保信息网')" class="text-red-600 hover:text-red-700">删除</button>
+                                <button onclick="openConfigModal('中国植保信息网')" class="px-3 py-1 text-purple hover:bg-purple-50 rounded text-xs font-medium transition-colors mr-3">配置</button>
+                                <button onclick="openDataModal('中国植保信息网')" class="px-3 py-1 text-green hover:bg-green-50 rounded text-xs font-medium transition-colors mr-3">查看数据</button>
+                                <button onclick="openDeleteModal('中国植保信息网')" class="px-3 py-1 text-red hover:bg-red-50 rounded text-xs font-medium transition-colors">删除</button>
                             </td>
                         </tr>
                         <tr class="border-b border-gray-100 hover:bg-gray-50" data-name="南丰县气象站" data-type="气象数据" data-status="运行中">
@@ -183,8 +198,9 @@
                             <td class="py-3 px-4"><span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded">运行中</span></td>
                             <td class="py-3 px-4">2026-07-22 10:30</td>
                             <td class="py-3 px-4">
-                                <button onclick="openConfigModal('南丰县气象站')" class="text-blue-600 hover:text-blue-700 mr-3">配置</button>
-                                <button onclick="openDeleteModal('南丰县气象站')" class="text-red-600 hover:text-red-700">删除</button>
+                                <button onclick="openConfigModal('南丰县气象站')" class="px-3 py-1 text-purple hover:bg-purple-50 rounded text-xs font-medium transition-colors mr-3">配置</button>
+                                <button onclick="openDataModal('南丰县气象站')" class="px-3 py-1 text-green hover:bg-green-50 rounded text-xs font-medium transition-colors mr-3">查看数据</button>
+                                <button onclick="openDeleteModal('南丰县气象站')" class="px-3 py-1 text-red hover:bg-red-50 rounded text-xs font-medium transition-colors">删除</button>
                             </td>
                         </tr>
                         <tr class="border-b border-gray-100 hover:bg-gray-50" data-name="江西省农业科学院" data-type="农业数据" data-status="待启动">
@@ -196,9 +212,9 @@
                             <td class="py-3 px-4"><span class="px-2 py-1 bg-yellow-100 text-yellow-700 text-xs rounded">待启动</span></td>
                             <td class="py-3 px-4">2026-07-20 00:00</td>
                             <td class="py-3 px-4">
-                                <button onclick="openConfigModal('江西省农业科学院')" class="text-blue-600 hover:text-blue-700 mr-3">配置</button>
-                                <button onclick="startFetch('江西省农业科学院')" class="text-green-600 hover:text-green-700 mr-3">启动</button>
-                                <button onclick="openDeleteModal('江西省农业科学院')" class="text-red-600 hover:text-red-700">删除</button>
+                                <button onclick="openConfigModal('江西省农业科学院')" class="px-3 py-1 text-purple hover:bg-purple-50 rounded text-xs font-medium transition-colors mr-3">配置</button>
+                                <button onclick="startFetch('江西省农业科学院')" class="px-3 py-1 text-green hover:bg-green-50 rounded text-xs font-medium transition-colors mr-3">启动</button>
+                                <button onclick="openDeleteModal('江西省农业科学院')" class="px-3 py-1 text-red hover:bg-red-50 rounded text-xs font-medium transition-colors">删除</button>
                             </td>
                         </tr>
                         <tr class="border-b border-gray-100 hover:bg-gray-50" data-name="农产品质量安全监管系统" data-type="植保数据" data-status="运行中">
@@ -210,8 +226,9 @@
                             <td class="py-3 px-4"><span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded">运行中</span></td>
                             <td class="py-3 px-4">2026-07-22 10:00</td>
                             <td class="py-3 px-4">
-                                <button onclick="openConfigModal('农产品质量安全监管系统')" class="text-blue-600 hover:text-blue-700 mr-3">配置</button>
-                                <button onclick="openDeleteModal('农产品质量安全监管系统')" class="text-red-600 hover:text-red-700">删除</button>
+                                <button onclick="openConfigModal('农产品质量安全监管系统')" class="px-3 py-1 text-purple hover:bg-purple-50 rounded text-xs font-medium transition-colors mr-3">配置</button>
+                                <button onclick="openDataModal('农产品质量安全监管系统')" class="px-3 py-1 text-green hover:bg-green-50 rounded text-xs font-medium transition-colors mr-3">查看数据</button>
+                                <button onclick="openDeleteModal('农产品质量安全监管系统')" class="px-3 py-1 text-red hover:bg-red-50 rounded text-xs font-medium transition-colors">删除</button>
                             </td>
                         </tr>
                         <tr class="border-b border-gray-100 hover:bg-gray-50" data-name="全国农产品批发市场" data-type="市场数据" data-status="运行中">
@@ -223,8 +240,9 @@
                             <td class="py-3 px-4"><span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded">运行中</span></td>
                             <td class="py-3 px-4">2026-07-22 10:30</td>
                             <td class="py-3 px-4">
-                                <button onclick="openConfigModal('全国农产品批发市场')" class="text-blue-600 hover:text-blue-700 mr-3">配置</button>
-                                <button onclick="openDeleteModal('全国农产品批发市场')" class="text-red-600 hover:text-red-700">删除</button>
+                                <button onclick="openConfigModal('全国农产品批发市场')" class="px-3 py-1 text-purple hover:bg-purple-50 rounded text-xs font-medium transition-colors mr-3">配置</button>
+                                <button onclick="openDataModal('全国农产品批发市场')" class="px-3 py-1 text-green hover:bg-green-50 rounded text-xs font-medium transition-colors mr-3">查看数据</button>
+                                <button onclick="openDeleteModal('全国农产品批发市场')" class="px-3 py-1 text-red hover:bg-red-50 rounded text-xs font-medium transition-colors">删除</button>
                             </td>
                         </tr>
                         <tr class="border-b border-gray-100 hover:bg-gray-50" data-name="江西省水文监测中心" data-type="气象数据" data-status="待启动">
@@ -236,9 +254,9 @@
                             <td class="py-3 px-4"><span class="px-2 py-1 bg-yellow-100 text-yellow-700 text-xs rounded">待启动</span></td>
                             <td class="py-3 px-4">2026-07-19 00:00</td>
                             <td class="py-3 px-4">
-                                <button onclick="openConfigModal('江西省水文监测中心')" class="text-blue-600 hover:text-blue-700 mr-3">配置</button>
-                                <button onclick="startFetch('江西省水文监测中心')" class="text-green-600 hover:text-green-700 mr-3">启动</button>
-                                <button onclick="openDeleteModal('江西省水文监测中心')" class="text-red-600 hover:text-red-700">删除</button>
+                                <button onclick="openConfigModal('江西省水文监测中心')" class="px-3 py-1 text-purple hover:bg-purple-50 rounded text-xs font-medium transition-colors mr-3">配置</button>
+                                <button onclick="startFetch('江西省水文监测中心')" class="px-3 py-1 text-green hover:bg-green-50 rounded text-xs font-medium transition-colors mr-3">启动</button>
+                                <button onclick="openDeleteModal('江西省水文监测中心')" class="px-3 py-1 text-red hover:bg-red-50 rounded text-xs font-medium transition-colors">删除</button>
                             </td>
                         </tr>
                         <tr class="border-b border-gray-100 hover:bg-gray-50" data-name="农业技术推广平台" data-type="农业数据" data-status="运行中">
@@ -250,8 +268,9 @@
                             <td class="py-3 px-4"><span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded">运行中</span></td>
                             <td class="py-3 px-4">2026-07-22 08:00</td>
                             <td class="py-3 px-4">
-                                <button onclick="openConfigModal('农业技术推广平台')" class="text-blue-600 hover:text-blue-700 mr-3">配置</button>
-                                <button onclick="openDeleteModal('农业技术推广平台')" class="text-red-600 hover:text-red-700">删除</button>
+                                <button onclick="openConfigModal('农业技术推广平台')" class="px-3 py-1 text-purple hover:bg-purple-50 rounded text-xs font-medium transition-colors mr-3">配置</button>
+                                <button onclick="openDataModal('农业技术推广平台')" class="px-3 py-1 text-green hover:bg-green-50 rounded text-xs font-medium transition-colors mr-3">查看数据</button>
+                                <button onclick="openDeleteModal('农业技术推广平台')" class="px-3 py-1 text-red hover:bg-red-50 rounded text-xs font-medium transition-colors">删除</button>
                             </td>
                         </tr>
                         <tr class="border-b border-gray-100 hover:bg-gray-50" data-name="农资监管信息系统" data-type="植保数据" data-status="运行中">
@@ -263,8 +282,9 @@
                             <td class="py-3 px-4"><span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded">运行中</span></td>
                             <td class="py-3 px-4">2026-07-22 10:00</td>
                             <td class="py-3 px-4">
-                                <button onclick="openConfigModal('农资监管信息系统')" class="text-blue-600 hover:text-blue-700 mr-3">配置</button>
-                                <button onclick="openDeleteModal('农资监管信息系统')" class="text-red-600 hover:text-red-700">删除</button>
+                                <button onclick="openConfigModal('农资监管信息系统')" class="px-3 py-1 text-purple hover:bg-purple-50 rounded text-xs font-medium transition-colors mr-3">配置</button>
+                                <button onclick="openDataModal('农资监管信息系统')" class="px-3 py-1 text-green hover:bg-green-50 rounded text-xs font-medium transition-colors mr-3">查看数据</button>
+                                <button onclick="openDeleteModal('农资监管信息系统')" class="px-3 py-1 text-red hover:bg-red-50 rounded text-xs font-medium transition-colors">删除</button>
                             </td>
                         </tr>
                         <tr class="border-b border-gray-100 hover:bg-gray-50" data-name="中国农产品信息网" data-type="市场数据" data-status="待启动">
@@ -276,9 +296,9 @@
                             <td class="py-3 px-4"><span class="px-2 py-1 bg-yellow-100 text-yellow-700 text-xs rounded">待启动</span></td>
                             <td class="py-3 px-4">2026-07-18 00:00</td>
                             <td class="py-3 px-4">
-                                <button onclick="openConfigModal('中国农产品信息网')" class="text-blue-600 hover:text-blue-700 mr-3">配置</button>
-                                <button onclick="startFetch('中国农产品信息网')" class="text-green-600 hover:text-green-700 mr-3">启动</button>
-                                <button onclick="openDeleteModal('中国农产品信息网')" class="text-red-600 hover:text-red-700">删除</button>
+                                <button onclick="openConfigModal('中国农产品信息网')" class="px-3 py-1 text-purple hover:bg-purple-50 rounded text-xs font-medium transition-colors mr-3">配置</button>
+                                <button onclick="startFetch('中国农产品信息网')" class="px-3 py-1 text-green hover:bg-green-50 rounded text-xs font-medium transition-colors mr-3">启动</button>
+                                <button onclick="openDeleteModal('中国农产品信息网')" class="px-3 py-1 text-red hover:bg-red-50 rounded text-xs font-medium transition-colors">删除</button>
                             </td>
                         </tr>
                         <tr class="border-b border-gray-100 hover:bg-gray-50" data-name="抚州市气象局" data-type="气象数据" data-status="运行中">
@@ -290,8 +310,9 @@
                             <td class="py-3 px-4"><span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded">运行中</span></td>
                             <td class="py-3 px-4">2026-07-22 10:30</td>
                             <td class="py-3 px-4">
-                                <button onclick="openConfigModal('抚州市气象局')" class="text-blue-600 hover:text-blue-700 mr-3">配置</button>
-                                <button onclick="openDeleteModal('抚州市气象局')" class="text-red-600 hover:text-red-700">删除</button>
+                                <button onclick="openConfigModal('抚州市气象局')" class="px-3 py-1 text-purple hover:bg-purple-50 rounded text-xs font-medium transition-colors mr-3">配置</button>
+                                <button onclick="openDataModal('抚州市气象局')" class="px-3 py-1 text-green hover:bg-green-50 rounded text-xs font-medium transition-colors mr-3">查看数据</button>
+                                <button onclick="openDeleteModal('抚州市气象局')" class="px-3 py-1 text-red hover:bg-red-50 rounded text-xs font-medium transition-colors">删除</button>
                             </td>
                         </tr>
                         <tr class="border-b border-gray-100 hover:bg-gray-50" data-name="江西省农机管理信息系统" data-type="农业数据" data-status="运行中">
@@ -303,8 +324,9 @@
                             <td class="py-3 px-4"><span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded">运行中</span></td>
                             <td class="py-3 px-4">2026-07-22 08:00</td>
                             <td class="py-3 px-4">
-                                <button onclick="openConfigModal('江西省农机管理信息系统')" class="text-blue-600 hover:text-blue-700 mr-3">配置</button>
-                                <button onclick="openDeleteModal('江西省农机管理信息系统')" class="text-red-600 hover:text-red-700">删除</button>
+                                <button onclick="openConfigModal('江西省农机管理信息系统')" class="px-3 py-1 text-purple hover:bg-purple-50 rounded text-xs font-medium transition-colors mr-3">配置</button>
+                                <button onclick="openDataModal('江西省农机管理信息系统')" class="px-3 py-1 text-green hover:bg-green-50 rounded text-xs font-medium transition-colors mr-3">查看数据</button>
+                                <button onclick="openDeleteModal('江西省农机管理信息系统')" class="px-3 py-1 text-red hover:bg-red-50 rounded text-xs font-medium transition-colors">删除</button>
                             </td>
                         </tr>
                         <tr class="border-b border-gray-100 hover:bg-gray-50" data-name="农药信息查询系统" data-type="植保数据" data-status="待启动">
@@ -316,9 +338,9 @@
                             <td class="py-3 px-4"><span class="px-2 py-1 bg-yellow-100 text-yellow-700 text-xs rounded">待启动</span></td>
                             <td class="py-3 px-4">2026-07-17 00:00</td>
                             <td class="py-3 px-4">
-                                <button onclick="openConfigModal('农药信息查询系统')" class="text-blue-600 hover:text-blue-700 mr-3">配置</button>
-                                <button onclick="startFetch('农药信息查询系统')" class="text-green-600 hover:text-green-700 mr-3">启动</button>
-                                <button onclick="openDeleteModal('农药信息查询系统')" class="text-red-600 hover:text-red-700">删除</button>
+                                <button onclick="openConfigModal('农药信息查询系统')" class="px-3 py-1 text-purple hover:bg-purple-50 rounded text-xs font-medium transition-colors mr-3">配置</button>
+                                <button onclick="startFetch('农药信息查询系统')" class="px-3 py-1 text-green hover:bg-green-50 rounded text-xs font-medium transition-colors mr-3">启动</button>
+                                <button onclick="openDeleteModal('农药信息查询系统')" class="px-3 py-1 text-red hover:bg-red-50 rounded text-xs font-medium transition-colors">删除</button>
                             </td>
                         </tr>
                         <tr class="border-b border-gray-100 hover:bg-gray-50" data-name="全国农技推广服务平台" data-type="市场数据" data-status="运行中">
@@ -330,8 +352,9 @@
                             <td class="py-3 px-4"><span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded">运行中</span></td>
                             <td class="py-3 px-4">2026-07-22 08:00</td>
                             <td class="py-3 px-4">
-                                <button onclick="openConfigModal('全国农技推广服务平台')" class="text-blue-600 hover:text-blue-700 mr-3">配置</button>
-                                <button onclick="openDeleteModal('全国农技推广服务平台')" class="text-red-600 hover:text-red-700">删除</button>
+                                <button onclick="openConfigModal('全国农技推广服务平台')" class="px-3 py-1 text-purple hover:bg-purple-50 rounded text-xs font-medium transition-colors mr-3">配置</button>
+                                <button onclick="openDataModal('全国农技推广服务平台')" class="px-3 py-1 text-green hover:bg-green-50 rounded text-xs font-medium transition-colors mr-3">查看数据</button>
+                                <button onclick="openDeleteModal('全国农技推广服务平台')" class="px-3 py-1 text-red hover:bg-red-50 rounded text-xs font-medium transition-colors">删除</button>
                             </td>
                         </tr>
                         <tr class="border-b border-gray-100 hover:bg-gray-50" data-name="南丰县农业农村局" data-type="气象数据" data-status="运行中">
@@ -343,8 +366,9 @@
                             <td class="py-3 px-4"><span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded">运行中</span></td>
                             <td class="py-3 px-4">2026-07-22 10:00</td>
                             <td class="py-3 px-4">
-                                <button onclick="openConfigModal('南丰县农业农村局')" class="text-blue-600 hover:text-blue-700 mr-3">配置</button>
-                                <button onclick="openDeleteModal('南丰县农业农村局')" class="text-red-600 hover:text-red-700">删除</button>
+                                <button onclick="openConfigModal('南丰县农业农村局')" class="px-3 py-1 text-purple hover:bg-purple-50 rounded text-xs font-medium transition-colors mr-3">配置</button>
+                                <button onclick="openDataModal('南丰县农业农村局')" class="px-3 py-1 text-green hover:bg-green-50 rounded text-xs font-medium transition-colors mr-3">查看数据</button>
+                                <button onclick="openDeleteModal('南丰县农业农村局')" class="px-3 py-1 text-red hover:bg-red-50 rounded text-xs font-medium transition-colors">删除</button>
                             </td>
                         </tr>
                         <tr class="border-b border-gray-100 hover:bg-gray-50" data-name="江西省农产品检测中心" data-type="农业数据" data-status="待启动">
@@ -356,9 +380,9 @@
                             <td class="py-3 px-4"><span class="px-2 py-1 bg-yellow-100 text-yellow-700 text-xs rounded">待启动</span></td>
                             <td class="py-3 px-4">2026-07-16 00:00</td>
                             <td class="py-3 px-4">
-                                <button onclick="openConfigModal('江西省农产品检测中心')" class="text-blue-600 hover:text-blue-700 mr-3">配置</button>
-                                <button onclick="startFetch('江西省农产品检测中心')" class="text-green-600 hover:text-green-700 mr-3">启动</button>
-                                <button onclick="openDeleteModal('江西省农产品检测中心')" class="text-red-600 hover:text-red-700">删除</button>
+                                <button onclick="openConfigModal('江西省农产品检测中心')" class="px-3 py-1 text-purple hover:bg-purple-50 rounded text-xs font-medium transition-colors mr-3">配置</button>
+                                <button onclick="startFetch('江西省农产品检测中心')" class="px-3 py-1 text-green hover:bg-green-50 rounded text-xs font-medium transition-colors mr-3">启动</button>
+                                <button onclick="openDeleteModal('江西省农产品检测中心')" class="px-3 py-1 text-red hover:bg-red-50 rounded text-xs font-medium transition-colors">删除</button>
                             </td>
                         </tr>
                         <tr class="border-b border-gray-100 hover:bg-gray-50" data-name="绿色食品认证系统" data-type="植保数据" data-status="运行中">
@@ -370,8 +394,9 @@
                             <td class="py-3 px-4"><span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded">运行中</span></td>
                             <td class="py-3 px-4">2026-07-22 00:00</td>
                             <td class="py-3 px-4">
-                                <button onclick="openConfigModal('绿色食品认证系统')" class="text-blue-600 hover:text-blue-700 mr-3">配置</button>
-                                <button onclick="openDeleteModal('绿色食品认证系统')" class="text-red-600 hover:text-red-700">删除</button>
+                                <button onclick="openConfigModal('绿色食品认证系统')" class="px-3 py-1 text-purple hover:bg-purple-50 rounded text-xs font-medium transition-colors mr-3">配置</button>
+                                <button onclick="openDataModal('绿色食品认证系统')" class="px-3 py-1 text-green hover:bg-green-50 rounded text-xs font-medium transition-colors mr-3">查看数据</button>
+                                <button onclick="openDeleteModal('绿色食品认证系统')" class="px-3 py-1 text-red hover:bg-red-50 rounded text-xs font-medium transition-colors">删除</button>
                             </td>
                         </tr>
                         <tr class="border-b border-gray-100 hover:bg-gray-50" data-name="农产品电子商务平台" data-type="市场数据" data-status="运行中">
@@ -383,8 +408,9 @@
                             <td class="py-3 px-4"><span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded">运行中</span></td>
                             <td class="py-3 px-4">2026-07-22 10:30</td>
                             <td class="py-3 px-4">
-                                <button onclick="openConfigModal('农产品电子商务平台')" class="text-blue-600 hover:text-blue-700 mr-3">配置</button>
-                                <button onclick="openDeleteModal('农产品电子商务平台')" class="text-red-600 hover:text-red-700">删除</button>
+                                <button onclick="openConfigModal('农产品电子商务平台')" class="px-3 py-1 text-purple hover:bg-purple-50 rounded text-xs font-medium transition-colors mr-3">配置</button>
+                                <button onclick="openDataModal('农产品电子商务平台')" class="px-3 py-1 text-green hover:bg-green-50 rounded text-xs font-medium transition-colors mr-3">查看数据</button>
+                                <button onclick="openDeleteModal('农产品电子商务平台')" class="px-3 py-1 text-red hover:bg-red-50 rounded text-xs font-medium transition-colors">删除</button>
                             </td>
                         </tr>
                         <tr class="hover:bg-gray-50" data-name="农业气象灾害预警系统" data-type="气象数据" data-status="待启动">
@@ -396,9 +422,9 @@
                             <td class="py-3 px-4"><span class="px-2 py-1 bg-yellow-100 text-yellow-700 text-xs rounded">待启动</span></td>
                             <td class="py-3 px-4">2026-07-15 00:00</td>
                             <td class="py-3 px-4">
-                                <button onclick="openConfigModal('农业气象灾害预警系统')" class="text-blue-600 hover:text-blue-700 mr-3">配置</button>
-                                <button onclick="startFetch('农业气象灾害预警系统')" class="text-green-600 hover:text-green-700 mr-3">启动</button>
-                                <button onclick="openDeleteModal('农业气象灾害预警系统')" class="text-red-600 hover:text-red-700">删除</button>
+                                <button onclick="openConfigModal('农业气象灾害预警系统')" class="px-3 py-1 text-purple hover:bg-purple-50 rounded text-xs font-medium transition-colors mr-3">配置</button>
+                                <button onclick="startFetch('农业气象灾害预警系统')" class="px-3 py-1 text-green hover:bg-green-50 rounded text-xs font-medium transition-colors mr-3">启动</button>
+                                <button onclick="openDeleteModal('农业气象灾害预警系统')" class="px-3 py-1 text-red hover:bg-red-50 rounded text-xs font-medium transition-colors">删除</button>
                             </td>
                         </tr>
                     </tbody>
@@ -526,6 +552,50 @@
             <div class="p-4 border-t border-gray-200 flex justify-end space-x-3">
                 <button onclick="closeModal('config-modal')" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm">取消</button>
                 <button onclick="updateConfig()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="data-modal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 900px;">
+            <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    <span id="data-modal-title">数据查看</span>
+                </h3>
+                <button onclick="closeModal('data-modal')" class="p-1 hover:bg-gray-100 rounded">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <p class="text-sm text-gray-500">数据源名称</p>
+                        <p class="text-base font-medium text-gray-800" id="data-source-name">-</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm text-gray-500">数据总量</p>
+                        <p class="text-base font-medium text-green-600" id="data-source-count">-</p>
+                    </div>
+                </div>
+                <div class="overflow-x-auto border border-gray-200 rounded-lg">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="bg-gray-50 border-b border-gray-200">
+                                <th class="text-left py-3 px-4 font-semibold text-gray-600">序号</th>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-600" id="data-field-1">字段1</th>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-600" id="data-field-2">字段2</th>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-600" id="data-field-3">字段3</th>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-600" id="data-field-4">字段4</th>
+                                <th class="text-left py-3 px-4 font-semibold text-gray-600" id="data-field-5">采集时间</th>
+                            </tr>
+                        </thead>
+                        <tbody id="data-modal-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="p-4 border-t border-gray-200 flex justify-end">
+                <button onclick="closeModal('data-modal')" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm">关闭</button>
             </div>
         </div>
     </div>
@@ -695,15 +765,6 @@
             document.getElementById(modalId).classList.remove('active');
         }
 
-        function exportSources() {
-            const content = '数据源名称,数据类型,数据格式,抓取频率,状态,最后更新,数据源描述\n南丰县气象局,气象数据,JSON,每小时,正常,2026-07-22 10:30,气象数据\n国家农业大数据平台,农业数据,JSON,每小时,正常,2026-07-22 10:00,农业数据';
-            const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = '外部数据源_' + new Date().toISOString().split('T')[0] + '.csv';
-            link.click();
-        }
-
         function startFetch(name) {
             currentName = name;
             document.getElementById('start-name').textContent = name;
@@ -739,7 +800,7 @@
             const search = document.getElementById('search-input').value.toLowerCase();
             const type = document.getElementById('type-filter').value;
             const rows = document.querySelectorAll('#data-table-body tr');
-            
+
             rows.forEach(row => {
                 const name = row.dataset.name.toLowerCase();
                 const rowType = row.dataset.type;
@@ -752,10 +813,126 @@
             showPage(1, Math.max(1, Math.ceil(Array.from(rows).filter(r => r.dataset.filtered !== 'false').length / pageSize)));
         }
 
-        function resetFilter() {
-            document.getElementById('search-input').value = '';
-            document.getElementById('type-filter').value = '';
-            filterSources();
+        // 数据源数据配置：根据数据源名称返回字段和数据
+        function getSourceData(name) {
+            const dataMap = {
+                '江西省气象局API': {
+                    fields: ['温度(℃)', '湿度(%)', '降雨量(mm)', '风速(m/s)', '采集时间'],
+                    data: [
+                        ['28.5', '75.2', '0.0', '2.3', '2026-07-22 10:30'],
+                        ['27.8', '78.5', '0.5', '3.1', '2026-07-22 09:30'],
+                        ['26.5', '82.0', '1.2', '2.8', '2026-07-22 08:30'],
+                        ['25.2', '85.3', '0.8', '1.9', '2026-07-22 07:30'],
+                        ['24.8', '87.6', '0.0', '1.5', '2026-07-22 06:30'],
+                        ['23.5', '89.2', '0.0', '1.2', '2026-07-22 05:30'],
+                        ['22.8', '91.5', '0.0', '1.0', '2026-07-22 04:30'],
+                        ['22.5', '92.8', '0.0', '0.8', '2026-07-22 03:30'],
+                        ['23.0', '90.5', '0.0', '1.1', '2026-07-22 02:30'],
+                        ['24.2', '88.3', '0.0', '1.4', '2026-07-22 01:30']
+                    ],
+                    total: '2,856,000'
+                },
+                '国家农业大数据平台': {
+                    fields: ['作物类型', '种植面积(亩)', '产量(吨)', '品质等级', '采集时间'],
+                    data: [
+                        ['南丰蜜桔', '12000', '18500', '一级', '2026-07-22 10:00'],
+                        ['水稻', '8500', '6200', '优质', '2026-07-22 09:00'],
+                        ['蔬菜', '3200', '4500', 'A级', '2026-07-22 08:00'],
+                        ['茶叶', '1500', '280', '特级', '2026-07-22 07:00'],
+                        ['棉花', '2800', '850', '一级', '2026-07-21 10:00'],
+                        ['油菜', '5600', '2100', '二级', '2026-07-21 09:00'],
+                        ['玉米', '7800', '5400', '优质', '2026-07-21 08:00'],
+                        ['小麦', '9500', '7200', '一级', '2026-07-21 07:00'],
+                        ['大豆', '4200', '1850', 'A级', '2026-07-20 10:00'],
+                        ['花生', '3600', '1600', '二级', '2026-07-20 09:00']
+                    ],
+                    total: '1,234,500'
+                },
+                '农产品价格行情': {
+                    fields: ['产品名称', '最低价(元/kg)', '最高价(元/kg)', '均价(元/kg)', '采集时间'],
+                    data: [
+                        ['南丰蜜桔', '3.5', '5.8', '4.6', '2026-07-21 08:00'],
+                        ['苹果', '4.2', '8.5', '6.3', '2026-07-21 08:00'],
+                        ['香蕉', '2.8', '4.5', '3.6', '2026-07-21 08:00'],
+                        ['葡萄', '5.5', '12.0', '8.5', '2026-07-21 08:00'],
+                        ['西瓜', '1.2', '3.5', '2.3', '2026-07-21 08:00'],
+                        ['梨', '3.0', '6.5', '4.7', '2026-07-21 08:00'],
+                        ['桃子', '2.5', '5.8', '4.1', '2026-07-21 08:00'],
+                        ['芒果', '6.5', '15.0', '10.5', '2026-07-21 08:00'],
+                        ['荔枝', '8.0', '20.0', '14.0', '2026-07-21 08:00'],
+                        ['草莓', '12.0', '35.0', '23.5', '2026-07-21 08:00']
+                    ],
+                    total: '456,800'
+                },
+                '病虫害测报系统': {
+                    fields: ['病害类型', '发生程度', '影响面积(亩)', '防治建议', '采集时间'],
+                    data: [
+                        ['红蜘蛛', '轻度', '120', '喷施阿维菌素', '2026-07-22 06:00'],
+                        ['炭疽病', '中度', '350', '喷施苯醚甲环唑', '2026-07-22 06:00'],
+                        ['溃疡病', '轻度', '85', '喷施铜制剂', '2026-07-22 06:00'],
+                        ['黄龙病', '疑似', '15', '砍除病树', '2026-07-22 06:00'],
+                        ['潜叶蛾', '中度', '220', '喷施氯虫苯甲酰胺', '2026-07-22 06:00'],
+                        ['介壳虫', '轻度', '95', '喷施噻嗪酮', '2026-07-22 06:00'],
+                        ['粉虱', '中度', '180', '喷施吡虫啉', '2026-07-22 06:00'],
+                        ['锈壁虱', '轻度', '75', '喷施丁硫克百威', '2026-07-22 06:00'],
+                        ['蚜虫', '中度', '260', '喷施吡虫啉', '2026-07-22 06:00'],
+                        ['木虱', '轻度', '45', '喷施啶虫脒', '2026-07-22 06:00']
+                    ],
+                    total: '892,300'
+                }
+            };
+            return dataMap[name] || null;
+        }
+
+        function openDataModal(name) {
+            const sourceData = getSourceData(name);
+            if (!sourceData) {
+                // 通用数据：为未配置的数据源生成示例数据
+                const genericFields = ['数据项', '数值', '单位', '状态', '采集时间'];
+                const genericData = [];
+                for (let i = 1; i <= 10; i++) {
+                    genericData.push([
+                        '数据项' + i,
+                        (Math.random() * 100).toFixed(2),
+                        '单位',
+                        '正常',
+                        '2026-07-22 10:' + (30 - i) + ''
+                    ]);
+                }
+                document.getElementById('data-source-name').textContent = name;
+                document.getElementById('data-source-count').textContent = '1,000+';
+                document.getElementById('data-modal-title').textContent = '数据查看 - ' + name;
+
+                for (let i = 1; i <= 5; i++) {
+                    const th = document.getElementById('data-field-' + i);
+                    if (th) th.textContent = genericFields[i - 1];
+                }
+                renderDataModalTable(genericData);
+                document.getElementById('data-modal').classList.add('active');
+                return;
+            }
+            document.getElementById('data-source-name').textContent = name;
+            document.getElementById('data-source-count').textContent = sourceData.total;
+            document.getElementById('data-modal-title').textContent = '数据查看 - ' + name;
+
+            for (let i = 1; i <= 5; i++) {
+                const th = document.getElementById('data-field-' + i);
+                if (th) th.textContent = sourceData.fields[i - 1];
+            }
+            renderDataModalTable(sourceData.data);
+            document.getElementById('data-modal').classList.add('active');
+        }
+
+        function renderDataModalTable(dataRows) {
+            const tbody = document.getElementById('data-modal-table-body');
+            tbody.innerHTML = '';
+            dataRows.forEach((row, idx) => {
+                const tr = document.createElement('tr');
+                tr.className = 'border-b border-gray-100 hover:bg-gray-50';
+                tr.innerHTML = '<td class="py-3 px-4 text-gray-500">' + (idx + 1) + '</td>' +
+                    row.map((v, i) => '<td class="py-3 px-4 ' + (i === 0 ? 'font-medium text-gray-800' : 'text-gray-600') + '">' + v + '</td>').join('');
+                tbody.appendChild(tr);
+            });
         }
 
         window.onload = function() {

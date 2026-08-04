@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>诊断分析 - 南丰蜜桔生长模型系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body{margin:0;padding:0;background-color:#F0F2F5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,'Noto Sans SC',sans-serif}
+        .content-wrapper{padding:24px;min-height:100vh}
+        .score-ring{position:relative;width:200px;height:200px}
+        .score-ring svg{transform:rotate(-90deg)}
+        .chain-arrow{display:inline-flex;align-items:center;color:#f97316;font-size:18px;margin:0 6px}
+        .badge-red{background:#fef2f2;color:#dc2626;border:1px solid #fecaca}
+        .badge-orange{background:#fff7ed;color:#ea580c;border:1px solid #fed7aa}
+        .badge-gray{background:#f3f4f6;color:#6b7280;border:1px solid #e5e7eb}
+        .priority-urgent{background:#fef2f2;color:#dc2626}
+        .priority-important{background:#fff7ed;color:#ea580c}
+        .priority-normal{background:#ecfdf5;color:#059669}
+        .priority-low{background:#eff6ff;color:#2563eb}
+        .deviation-bar{height:6px;border-radius:3px;overflow:hidden;background:#e5e7eb}
+        .deviation-fill{height:100%;border-radius:3px;transition:width 0.6s ease}
+        .deviation-mild{background:#22c55e}
+        .deviation-moderate{background:#eab308}
+        .deviation-severe{background:#ef4444}
+        .card-hover{transition:all 0.2s ease}
+        .card-hover:hover{transform:translateY(-2px);box-shadow:0 10px 25px -5px rgba(0,0,0,0.1)}
+        @keyframes pulse-ring{0%{transform:scale(0.95);opacity:1}50%{transform:scale(1.05);opacity:0.7}100%{transform:scale(0.95);opacity:1}}
+        .pulse-dot{animation:pulse-ring 2s infinite}
+        .scrollbar-thin::-webkit-scrollbar{width:6px;height:6px}
+        .scrollbar-thin::-webkit-scrollbar-track{background:#f1f1f1;border-radius:3px}
+        .scrollbar-thin::-webkit-scrollbar-thumb{background:#c1c1c1;border-radius:3px}
+    </style>
+</head>
+<body>
+<div class="content-wrapper">
+
+    <!-- 顶部操作栏 -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                    <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/></svg>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-gray-800">诊断分析</h1>
+                    <p class="text-xs text-gray-500">南丰蜜桔生长模型 · 智能诊断系统</p>
+                </div>
+            </div>
+            <div class="flex flex-wrap items-center gap-3">
+                <div class="flex items-center space-x-2">
+                    <label class="text-sm text-gray-600">地块：</label>
+                    <select id="plotSelect" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 bg-white min-w-[180px]">
+                        <option value="NF-001">NF-001 · 东坡A-03地块</option>
+                        <option value="NF-003">NF-003 · 南坡B-01地块</option>
+                        <option value="NF-006">NF-006 · 东坡A-05地块</option>
+                        <option value="NF-008">NF-008 · 南坡B-04地块</option>
+                        <option value="NF-009" selected>NF-009 · 东坡A-02地块</option>
+                        <option value="NF-015">NF-015 · 南坡B-06地块</option>
+                    </select>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <label class="text-sm text-gray-600">日期：</label>
+                    <input type="date" id="dateSelect" value="2026-08-04" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+                </div>
+                <button onclick="runDiagnosis()" class="px-5 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium flex items-center space-x-2 transition shadow-sm hover:shadow-md">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    <span>执行诊断</span>
+                </button>
+                <button onclick="exportReport()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm flex items-center space-x-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                    <span>导出报告</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 综合评分面板 -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        <!-- 左侧：综合评分 -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-base font-semibold text-gray-800">综合健康评分</h2>
+                <span class="text-xs text-gray-400">诊断时间：2026-08-04 10:30</span>
+            </div>
+            <div class="flex flex-col items-center justify-center py-4">
+                <div class="score-ring mb-4">
+                    <svg width="200" height="200">
+                        <circle cx="100" cy="100" r="85" fill="none" stroke="#f3f4f6" stroke-width="12"/>
+                        <circle cx="100" cy="100" r="85" fill="none" stroke="url(#scoreGradient)" stroke-width="12" stroke-linecap="round" stroke-dasharray="534" stroke-dashoffset="117" id="scoreRing"/>
+                        <defs>
+                            <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#22c55e"/>
+                                <stop offset="50%" stop-color="#16a34a"/>
+                                <stop offset="100%" stop-color="#15803d"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                    <div class="absolute inset-0 flex flex-col items-center justify-center">
+                        <div class="text-5xl font-bold text-green-600" id="scoreNumber">78</div>
+                        <div class="text-sm text-gray-400 mt-1">综合评分</div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3 mb-3">
+                    <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium flex items-center gap-1">
+                        <span class="w-2 h-2 bg-green-500 rounded-full pulse-dot"></span>
+                        良好
+                    </span>
+                    <span class="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm">果实膨大期</span>
+                </div>
+                <div class="flex items-center gap-2 text-sm">
+                    <span class="text-gray-500">较昨日</span>
+                    <span class="text-orange-500 font-medium flex items-center gap-1">
+                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M7 14l5-5 5 5H7z" transform="rotate(180 12 12)"/></svg>
+                        ↓ 3分
+                    </span>
+                </div>
+                <p class="text-sm text-gray-500 text-center mt-4 leading-relaxed">
+                    植株整体生长状态良好，树势健壮，叶片光合效率高。<br>部分环境因子（空气湿度）偏离适宜范围，<br>建议及时采取调控措施。
+                </p>
+            </div>
+        </div>
+
+        <!-- 中间+右侧：雷达图 -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 lg:col-span-2">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h2 class="text-base font-semibold text-gray-800">六维度健康诊断雷达</h2>
+                    <p class="text-xs text-gray-500 mt-1">PB·树势 / PL·叶片 / PR·根系 / PF·花果 / PE·环境 / PM·病虫</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="switchRadarMode('score')" class="px-3 py-1.5 text-xs bg-green-600 text-white rounded-md" id="btnScoreMode">得分模式</button>
+                    <button onclick="switchRadarMode('deviation')" class="px-3 py-1.5 text-xs bg-gray-100 text-gray-600 rounded-md" id="btnDeviationMode">偏离模式</button>
+                </div>
+            </div>
+            <div class="flex items-center justify-center" style="height:320px">
+                <canvas id="radarChart"></canvas>
+            </div>
+            <!-- 维度图例 -->
+            <div class="grid grid-cols-3 gap-3 mt-4">
+                <div class="flex items-center justify-between bg-green-50 rounded-lg px-3 py-2">
+                    <span class="text-xs text-gray-600">PB 树势</span>
+                    <span class="text-sm font-bold text-green-700">85</span>
+                </div>
+                <div class="flex items-center justify-between bg-green-50 rounded-lg px-3 py-2">
+                    <span class="text-xs text-gray-600">PL 叶片</span>
+                    <span class="text-sm font-bold text-green-700">78</span>
+                </div>
+                <div class="flex items-center justify-between bg-green-50 rounded-lg px-3 py-2">
+                    <span class="text-xs text-gray-600">PR 根系</span>
+                    <span class="text-sm font-bold text-green-700">90</span>
+                </div>
+                <div class="flex items-center justify-between bg-green-50 rounded-lg px-3 py-2">
+                    <span class="text-xs text-gray-600">PF 花果</span>
+                    <span class="text-sm font-bold text-green-700">82</span>
+                </div>
+                <div class="flex items-center justify-between bg-orange-50 rounded-lg px-3 py-2">
+                    <span class="text-xs text-gray-600">PE 环境</span>
+                    <span class="text-sm font-bold text-orange-600">72</span>
+                </div>
+                <div class="flex items-center justify-between bg-green-50 rounded-lg px-3 py-2">
+                    <span class="text-xs text-gray-600">PM 病虫</span>
+                    <span class="text-sm font-bold text-green-700">95</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 扣分明细 + 因果原因链 -->
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
+        <!-- 扣分明细表 -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="p-4 border-b border-gray-100 flex items-center justify-between">
+                <h2 class="text-base font-semibold text-gray-800">扣分明细</h2>
+                <span class="text-xs text-gray-500">共 <span class="font-semibold text-red-500">6</span> 项扣分，合计 <span class="font-semibold text-red-500">22</span> 分</span>
+            </div>
+            <div class="overflow-x-auto scrollbar-thin">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="bg-gray-50">
+                            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">因子</th>
+                            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">实测值</th>
+                            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">适宜区间</th>
+                            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">扣分</th>
+                            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">偏离程度</th>
+                        </tr>
+                    </thead>
+                    <tbody id="deductionTbody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 因果原因链 -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="p-4 border-b border-gray-100 flex items-center justify-between">
+                <h2 class="text-base font-semibold text-gray-800">因果原因链分析</h2>
+                <span class="text-xs text-gray-500">问题追溯 · 深层诱因定位</span>
+            </div>
+            <div class="p-4 overflow-y-auto scrollbar-thin" style="max-height:480px" id="chainContainer"></div>
+        </div>
+    </div>
+
+    <!-- 农事建议清单 -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 mb-6 overflow-hidden">
+        <div class="p-4 border-b border-gray-100 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <h2 class="text-base font-semibold text-gray-800">农事建议清单</h2>
+                <span class="text-xs px-2 py-0.5 bg-blue-50 text-blue-600 rounded-full">基于当前诊断自动生成</span>
+            </div>
+            <div class="flex items-center gap-2 text-xs">
+                <span class="flex items-center gap-1"><span class="w-2 h-2 bg-red-500 rounded-full"></span>紧急</span>
+                <span class="flex items-center gap-1"><span class="w-2 h-2 bg-orange-500 rounded-full"></span>重要</span>
+                <span class="flex items-center gap-1"><span class="w-2 h-2 bg-yellow-500 rounded-full"></span>常规</span>
+                <span class="flex items-center gap-1"><span class="w-2 h-2 bg-blue-500 rounded-full"></span>可选</span>
+            </div>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="bg-gray-50">
+                        <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">优先级</th>
+                        <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">农事措施</th>
+                        <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">复查周期</th>
+                        <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">复查监测指标</th>
+                        <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">预计调节效果</th>
+                    </tr>
+                </thead>
+                <tbody id="suggestionTbody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 品质预测卡片 -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 mb-6">
+        <div class="p-4 border-b border-gray-100 flex items-center justify-between">
+            <div>
+                <h2 class="text-base font-semibold text-gray-800">品质预测（基于当前长势外推）</h2>
+                <p class="text-xs text-gray-500 mt-1">预测目标：2026年南丰蜜桔采收期 · 模型置信度 <span class="text-green-600 font-semibold">85%</span></p>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="flex items-center gap-1 text-xs text-gray-500">
+                    <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    预测可信度：较高
+                </span>
+            </div>
+        </div>
+        <div class="p-6">
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4" id="qualityCards"></div>
+            <div class="mt-4 p-3 bg-blue-50 border border-blue-100 rounded-lg">
+                <div class="flex items-start gap-2">
+                    <svg class="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <p class="text-xs text-blue-700 leading-relaxed">
+                        预测基于当前生长状态、气象数据和历史产量模型综合计算。实际品质受后期农事管理（如肥水调控、病虫防治）影响，建议每 <strong>7 天</strong> 重新评估一次。今年该地块果实膨大良好，糖度积累进度优于去年同期 <span class="font-semibold">+3.2%</span>，建议在成熟期重点关注糖分积累与着色进度。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部信息 -->
+    <div class="text-center text-xs text-gray-400 py-4">
+        <p>本诊断报告由「南丰蜜桔生长模型 v2.1」自动生成 · 数据来源：传感器实时监测 + 人工巡园记录</p>
+    </div>
+
+</div>
+
+<script>
+// 诊断数据
+var plotData = {
+    'NF-009': {
+        name: '东坡A-02地块',
+        area: '南丰镇',
+        orchard: '南丰镇示范果园',
+        treeAge: '6年',
+        variety: '南丰蜜桔',
+        stage: '果实膨大期',
+        score: 78,
+        scoreChange: -3,
+        healthLevel: '良好',
+        todayDate: '2026-08-04',
+        radarScores: [85, 78, 90, 82, 72, 95],
+        deductions: [
+            { factor: '空气湿度', actual: '82%', range: '60%-75%', deduction: 5, severity: 'severe', deviation: 28, phenomenon: '空气湿度偏高', directCause: '连续8小时湿度超80%', rootCause: '冠层枝叶过密 / 傍晚灌溉 / 通风不畅' },
+            { factor: '叶片叶绿素', actual: '3.8 mg/g', range: '4.0-5.0 mg/g', deduction: 4, severity: 'moderate', deviation: 15, phenomenon: '叶片叶绿素含量偏低', directCause: '新梢停长过早，光合作用减弱', rootCause: '氮肥不足 / 挂果量过大 / 根系活力下降' },
+            { factor: '土壤pH值', actual: '5.2', range: '5.5-6.5', deduction: 4, severity: 'moderate', deviation: 12, phenomenon: '土壤偏酸性', directCause: '长期施用酸性肥料，盐基离子流失', rootCause: '有机肥投入不足 / 土壤缓冲能力差 / 雨水淋溶' },
+            { factor: '果实可溶性固形物', actual: '9.8°Brix', range: '10-12°Brix', deduction: 4, severity: 'moderate', deviation: 10, phenomenon: '果实糖度积累偏低', directCause: '果实膨大期氮素偏多，碳氮比失调', rootCause: '施肥比例不当 / 光照不足 / 昼夜温差小' },
+            { factor: '冠层光照', actual: '28 klx', range: '35-50 klx', deduction: 3, severity: 'mild', deviation: 20, phenomenon: '冠层光照不足', directCause: '树冠过密，内膛光照不良', rootCause: '修剪不及时 / 种植密度过大 / 枝量大' },
+            { factor: '土壤水分', actual: '52%', range: '60-75%', deduction: 2, severity: 'mild', deviation: 13, phenomenon: '土壤含水量偏低', directCause: '连续5天无有效降雨，蒸发量大', rootCause: '灌溉频率不足 / 土壤保水性差 / 地表覆盖不够' }
+        ],
+        suggestions: [
+            { priority: 'urgent', priorityText: '一级·紧急', measure: '立即开启通风设施，或人工辅助扇风降湿；树冠喷施代森锰锌 800 倍液预防炭疽病', cycle: '24小时内复查', indicator: '空气湿度、叶片病害指数', effect: '预计 48 小时内湿度降至适宜区间' },
+            { priority: 'important', priorityText: '二级·重要', measure: '叶面追施 0.3% 尿素 + 0.2% 磷酸二氢钾，配合芸苔素内酯促进新梢生长', cycle: '3天后复查', indicator: '叶绿素含量、新梢长度、叶面积指数', effect: '预计 7 天后叶绿素提升至 4.2 mg/g' },
+            { priority: 'important', priorityText: '二级·重要', measure: '全园撒施石灰粉 50kg/亩，结合中耕培土改良酸性土壤', cycle: '7天后复查', indicator: '土壤pH值、土壤养分有效性', effect: '预计 30 天内 pH 回升至 5.6 以上' },
+            { priority: 'normal', priorityText: '三级·常规', measure: '修剪徒长枝、交叉枝，打开内膛光照；保留 3-4 个健壮主枝', cycle: '14天后复查', indicator: '冠层光照强度、叶面积系数', effect: '预计冠层透光率提升 15-20%' },
+            { priority: 'normal', priorityText: '三级·常规', measure: '调整施肥方案，增加钾肥比例至 N:P:K = 1:0.5:1.5，减少氮肥用量', cycle: '7天后复查', indicator: '土壤养分含量、果实糖度变化', effect: '预计成熟期糖度可达 14°Brix 以上' }
+        ],
+        quality: [
+            { label: '果径', value: '78', unit: 'mm', icon: '📏', color: '#16a34a', sub: '同期 +3mm' },
+            { label: '果重', value: '235', unit: 'g', icon: '⚖️', color: '#22c55e', sub: '同期 +12g' },
+            { label: '糖度', value: '14.2', unit: '°Brix', icon: '🍯', color: '#ea580c', sub: '达标' },
+            { label: '糖酸比', value: '8.5', unit: ':1', icon: '⚗️', color: '#d97706', sub: '酸甜适中' },
+            { label: '预估亩产', value: '2800', unit: 'kg', icon: '🌾', color: '#16a34a', sub: '同期 +8%' },
+            { label: '商品果率', value: '92', unit: '%', icon: '⭐', color: '#2563eb', sub: '优质' },
+            { label: '置信度', value: '85', unit: '%', icon: '🎯', color: '#8b5cf6', sub: '较高' }
+        ]
+    }
+};
+
+// ============ 农事建议数据库（对应 t_farm_scheme 表）============
+var farmSchemeDB = [
+    { id: 'S001', factorType: '空气湿度', deviation: '偏高', stages: ['膨大期', '成熟期', '生长期'], priority: 'urgent', priorityText: '一级·紧急', measures: ['立即开启通风设施降湿', '树冠喷施代森锰锌 800 倍液预防炭疽病', '暂停叶面灌水，避免增加冠层湿度'], cycle: '24小时内复查', indicators: '空气湿度、叶片病害指数', effect: '预计 48 小时内湿度降至适宜区间' },
+    { id: 'S002', factorType: '空气湿度', deviation: '偏低', stages: ['膨大期', '成熟期'], priority: 'normal', priorityText: '三级·常规', measures: ['早晚进行叶面喷水增湿', '树冠覆盖遮阳网减少蒸发', '检查灌溉系统是否正常'], cycle: '3天后复查', indicators: '空气湿度、土壤含水量', effect: '预计 3 天内湿度回升至适宜区间' },
+    { id: 'S003', factorType: '叶片叶绿素', deviation: '偏低', stages: ['膨大期', '成熟期', '生长期'], priority: 'important', priorityText: '二级·重要', measures: ['叶面追施 0.3% 尿素 + 0.2% 磷酸二氢钾', '配合芸苔素内酯促进新梢生长', '检查根系活力，必要时进行根部追肥'], cycle: '3天后复查', indicators: '叶绿素含量、新梢长度、叶面积指数', effect: '预计 7 天后叶绿素提升至 4.2 mg/g' },
+    { id: 'S004', factorType: '叶片叶绿素', deviation: '偏高', stages: ['膨大期'], priority: 'low', priorityText: '四级·可选', measures: ['适当增加钾肥比例', '控制氮肥施用量', '观察叶片状态变化'], cycle: '7天后复查', indicators: '叶绿素含量、叶片厚度', effect: '叶绿素偏高通常为健康状态，定期监测即可' },
+    { id: 'S005', factorType: '土壤pH值', deviation: '偏低', stages: ['膨大期', '成熟期', '生长期', '开花期'], priority: 'important', priorityText: '二级·重要', measures: ['全园撒施石灰粉 50kg/亩', '结合中耕培土改良酸性土壤', '增施有机肥提高土壤缓冲能力'], cycle: '7天后复查', indicators: '土壤pH值、土壤养分有效性', effect: '预计 30 天内 pH 回升至 5.6 以上' },
+    { id: 'S006', factorType: '土壤pH值', deviation: '偏高', stages: ['膨大期', '成熟期'], priority: 'normal', priorityText: '三级·常规', measures: ['施用石膏或硫磺粉调节碱性', '增施酸性有机肥', '检测灌溉水PH值'], cycle: '14天后复查', indicators: '土壤PH值、微量元素有效性', effect: '预计 30 天内 pH 降至 7.0 以下' },
+    { id: 'S007', factorType: '果实可溶性固形物', deviation: '偏低', stages: ['膨大期', '成熟期'], priority: 'important', priorityText: '二级·重要', measures: ['调整施肥方案，增加钾肥比例', '控制氮肥用量，避免营养生长过旺', '增加光照，促进糖分积累'], cycle: '7天后复查', indicators: '果实糖度、可溶性固形物含量', effect: '预计成熟期糖度可达 14°Brix 以上' },
+    { id: 'S008', factorType: '果实可溶性固形物', deviation: '偏高', stages: ['成熟期'], priority: 'low', priorityText: '四级·可选', measures: ['适当提前采收', '增加灌溉量稀释糖度', '注意防治裂果'], cycle: '3天后复查', indicators: '果实糖度、裂果率', effect: '糖度偏高为优质表现，注意防控裂果' },
+    { id: 'S009', factorType: '冠层光照', deviation: '偏低', stages: ['膨大期', '成熟期', '生长期'], priority: 'normal', priorityText: '三级·常规', measures: ['修剪徒长枝、交叉枝，打开内膛光照', '保留 3-4 个健壮主枝', '必要时进行疏枝增加透光'], cycle: '14天后复查', indicators: '冠层光照强度、叶面积系数', effect: '预计冠层透光率提升 15-20%' },
+    { id: 'S010', factorType: '冠层光照', deviation: '偏高', stages: ['成熟期'], priority: 'normal', priorityText: '三级·常规', measures: ['适当增加叶面积指数', '树冠外围保留更多结果枝', '注意防止日灼病'], cycle: '7天后复查', indicators: '冠层光照、果实日灼率', effect: '光照充足利于品质形成，注意防晒' },
+    { id: 'S011', factorType: '土壤水分', deviation: '偏低', stages: ['膨大期', '成熟期', '开花期'], priority: 'urgent', priorityText: '一级·紧急', measures: ['立即进行滴灌或喷灌补水', '地表覆盖秸秆或地膜减少蒸发', '检查灌溉系统运行状态'], cycle: '24小时内复查', indicators: '土壤含水量、叶片萎蔫指数', effect: '预计 24 小时内土壤水分回升' },
+    { id: 'S012', factorType: '土壤水分', deviation: '偏高', stages: ['膨大期', '成熟期'], priority: 'important', priorityText: '二级·重要', measures: ['清理排水沟，保证排水通畅', '检查果园积水情况', '减少灌溉频率和用量'], cycle: '48小时内复查', indicators: '土壤含水量、根系活力', effect: '预计 48 小时内土壤水分下降' },
+    { id: 'S013', factorType: '温度', deviation: '偏高', stages: ['膨大期', '成熟期', '生长期'], priority: 'urgent', priorityText: '一级·紧急', measures: ['树冠喷水降温', '搭建遮阳网（遮光率 30-50%）', '增加灌溉频率'], cycle: '24小时内复查', indicators: '冠层温度、叶片温度、日灼率', effect: '预计 24 小时内冠层温度降低 3-5℃' },
+    { id: 'S014', factorType: '温度', deviation: '偏低', stages: ['膨大期', '成熟期'], priority: 'important', priorityText: '二级·重要', measures: ['夜间进行熏烟或覆盖保温', '检查是否有冻害风险', '增施磷钾肥提高抗寒能力'], cycle: '48小时内复查', indicators: '最低温度、叶片受冻指数', effect: '预计 48 小时内温度回升' },
+    { id: 'S015', factorType: '氮含量', deviation: '偏高', stages: ['膨大期', '成熟期'], priority: 'important', priorityText: '二级·重要', measures: ['减少氮肥施用量', '增加钾肥比例调整 N:P:K', '促进果实成熟和糖分积累'], cycle: '7天后复查', indicators: '氮含量、碳氮比、果实糖度', effect: '预计 7 天后碳氮比趋于合理' },
+    { id: 'S016', factorType: '氮含量', deviation: '偏低', stages: ['膨大期', '生长期'], priority: 'normal', priorityText: '三级·常规', measures: ['追施速效氮肥（尿素）', '叶面喷施 0.2-0.3% 尿素溶液', '促进新梢生长'], cycle: '7天后复查', indicators: '氮含量、新梢生长量', effect: '预计 7 天后氮水平回升' },
+    { id: 'S017', factorType: '钾含量', deviation: '偏低', stages: ['膨大期', '成熟期'], priority: 'important', priorityText: '二级·重要', measures: ['叶面追施 0.3% 磷酸二氢钾', '土壤追施钾肥（硫酸钾）', '促进果实膨大、糖分积累和着色'], cycle: '7天后复查', indicators: '钾含量、果实糖度、着色率', effect: '预计 7 天后钾水平提升' },
+    { id: 'S018', factorType: '磷含量', deviation: '偏低', stages: ['开花期', '落果期'], priority: 'normal', priorityText: '三级·常规', measures: ['追施磷肥（过磷酸钙）', '叶面喷施 0.2% 磷酸二氢钾', '促进花芽分化和根系发育'], cycle: '14天后复查', indicators: '磷含量、花芽数量', effect: '预计 14 天后磷水平回升' },
+    { id: 'S019', factorType: '病虫害', deviation: '偏高', stages: ['膨大期', '成熟期', '生长期'], priority: 'urgent', priorityText: '一级·紧急', measures: ['立即进行田间巡查', '识别病虫害类型，对症用药', '喷施广谱杀菌剂或杀虫剂'], cycle: '72小时内复查', indicators: '病虫指数、叶片受害率', effect: '预计 72 小时内控制病情' },
+    { id: 'S020', factorType: '氮磷钾比例', deviation: '失调', stages: ['膨大期', '成熟期'], priority: 'important', priorityText: '二级·重要', measures: ['进行土壤养分检测', '根据检测结果调整施肥方案', '使用复合肥或配方肥'], cycle: '14天后复查', indicators: '氮磷钾比例、果实品质', effect: '预计 14 天后养分比例趋于平衡' }
+];
+
+// 因子名称映射（扣分项 factor → 农事建议 factorType）
+var factorMapping = {
+    '空气湿度': '空气湿度',
+    '叶片叶绿素': '叶片叶绿素',
+    '土壤pH值': '土壤pH值',
+    '果实可溶性固形物': '果实可溶性固形物',
+    '冠层光照': '冠层光照',
+    '土壤水分': '土壤水分',
+    '空气温度': '温度',
+    '叶片温度': '温度',
+    '土壤温度': '温度',
+    '氮含量': '氮含量',
+    '氮': '氮含量',
+    '磷含量': '磷含量',
+    '磷': '磷含量',
+    '钾含量': '钾含量',
+    '钾': '钾含量',
+    '病虫害指数': '病虫害',
+    '病斑率': '病虫害',
+    '虫口密度': '病虫害'
+};
+
+// ============ 从 localStorage 加载配置数据 ============
+(function loadFromStorage() {
+    try {
+        var savedDB = localStorage.getItem('farmSchemeDB');
+        if (savedDB) {
+            var parsed = JSON.parse(savedDB);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+                farmSchemeDB = parsed;
+            }
+        }
+        var savedMapping = localStorage.getItem('factorMapping');
+        if (savedMapping) {
+            var parsedMapping = JSON.parse(savedMapping);
+            if (typeof parsedMapping === 'object' && Object.keys(parsedMapping).length > 0) {
+                factorMapping = parsedMapping;
+            }
+        }
+    } catch (e) {
+        console.warn('加载本地配置失败，使用默认数据:', e);
+    }
+})();
+
+// ============ 匹配引擎 ============
+function inferDeviation(deduction) {
+    var phe = deduction.phenomenon || '';
+    if (phe.indexOf('偏高') >= 0 || phe.indexOf('过高') >= 0 || phe.indexOf('过多') >= 0) return '偏高';
+    if (phe.indexOf('偏低') >= 0 || phe.indexOf('过低') >= 0 || phe.indexOf('不足') >= 0 || phe.indexOf('偏少') >= 0) return '偏低';
+    if (phe.indexOf('失调') >= 0) return '失调';
+    // 根据实测值与适宜区间推断
+    var actual = parseFloat(deduction.actual);
+    var range = deduction.range;
+    if (actual && range) {
+        var parts = range.replace(/[^\d\-.,]/g, '').split(/[-,]/);
+        if (parts.length >= 2) {
+            var low = parseFloat(parts[0]);
+            var high = parseFloat(parts[1]);
+            if (!isNaN(actual) && !isNaN(low) && !isNaN(high)) {
+                if (actual > high) return '偏高';
+                if (actual < low) return '偏低';
+            }
+        }
+    }
+    return '未知';
+}
+
+function matchFarmScheme(deduction, stage) {
+    var factorType = factorMapping[deduction.factor] || deduction.factor;
+    var deviation = inferDeviation(deduction);
+    var stageMap = { '果实膨大期': '膨大期', '成熟期': '成熟期', '生长期': '生长期', '开花期': '开花期', '落果期': '落果期', '幼苗期': '幼苗期' };
+    var stageKey = stageMap[stage] || stage;
+
+    var matched = farmSchemeDB.filter(function(scheme) {
+        if (scheme.factorType !== factorType) return false;
+        if (scheme.deviation !== deviation && scheme.deviation !== '失调') return false;
+        if (scheme.stages.indexOf(stageKey) < 0 && scheme.stages.indexOf('全阶段') < 0) return false;
+        return true;
+    });
+
+    // 如果没匹配到，尝试宽松匹配
+    if (matched.length === 0) {
+        matched = farmSchemeDB.filter(function(scheme) {
+            return scheme.factorType === factorType;
+        });
+    }
+
+    return matched;
+}
+
+// 反向匹配：从农事方案找到触发的扣分项
+function findTriggerDeductions(scheme, deductions) {
+    var triggers = [];
+    deductions.forEach(function(d) {
+        var factorType = factorMapping[d.factor] || d.factor;
+        var deviation = inferDeviation(d);
+        if (scheme.factorType === factorType && (scheme.deviation === deviation || scheme.deviation === '失调')) {
+            triggers.push(d);
+        }
+    });
+    return triggers;
+}
+
+var currentPlot = 'NF-009';
+var radarChart = null;
+var radarMode = 'score';
+var currentSuggestions = [];  // 存储当前匹配的建议
+var highlightDeductionId = null;  // 当前高亮的扣分项
+var highlightSuggestionId = null;  // 当前高亮的建议
+
+// 初始化
+window.onload = function() {
+    initDeductionTable();
+    initChains();
+    initSuggestions();
+    initQualityCards();
+    initRadarChart();
+    // 更新扣分项数等信息
+    updateSummaryInfo();
+};
+
+function updateSummaryInfo() {
+    var data = plotData[currentPlot];
+    // 更新扣分明细表格底部信息等
+}
+
+// 扣分明细表（增强版：增加关联建议列和高亮交互）
+function initDeductionTable() {
+    var data = plotData[currentPlot];
+    var tbody = document.getElementById('deductionTbody');
+    var html = '';
+    data.deductions.forEach(function(item, idx) {
+        var devClass = item.severity === 'severe' ? 'deviation-severe' : (item.severity === 'moderate' ? 'deviation-moderate' : 'deviation-mild');
+        var devText = item.severity === 'severe' ? '严重偏离' : (item.severity === 'moderate' ? '中度偏离' : '轻度偏离');
+        var textColor = item.severity === 'severe' ? 'text-red-600' : (item.severity === 'moderate' ? 'text-orange-600' : 'text-yellow-600');
+        var bgColor = item.severity === 'severe' ? 'bg-red-50' : (item.severity === 'moderate' ? 'bg-orange-50' : 'bg-yellow-50');
+        
+        // 查找关联的农事建议
+        var matchedSchemes = matchFarmScheme(item, data.stage);
+        var suggestionBadge = '';
+        if (matchedSchemes.length > 0) {
+            suggestionBadge = '<span class="ml-1 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700 cursor-pointer hover:bg-blue-200" onclick="highlightByDeduction(' + idx + ')">' +
+                '<svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>' +
+                matchedSchemes.length + ' 条建议' +
+                '</span>';
+        } else {
+            suggestionBadge = '<span class="ml-1 text-xs text-gray-400">暂无建议</span>';
+        }
+        
+        html += '<tr id="deduction-row-' + idx + '" class="border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-all" onclick="highlightByDeduction(' + idx + ')">' +
+            '<td class="px-4 py-3 font-medium text-gray-800">' + item.factor + suggestionBadge + '</td>' +
+            '<td class="px-4 py-3 text-gray-700 font-mono text-xs">' + item.actual + '</td>' +
+            '<td class="px-4 py-3 text-gray-500 font-mono text-xs">' + item.range + '</td>' +
+            '<td class="px-4 py-3 ' + textColor + ' font-semibold">-' + item.deduction + '</td>' +
+            '<td class="px-4 py-3">' +
+                '<div class="flex items-center gap-2">' +
+                    '<div class="deviation-bar w-20"><div class="deviation-fill ' + devClass + '" style="width:' + item.deviation + '%"></div></div>' +
+                    '<span class="text-xs ' + textColor + '">' + devText + '</span>' +
+                '</div>' +
+            '</td>' +
+        '</tr>';
+    });
+    tbody.innerHTML = html;
+}
+
+// 因果原因链
+function initChains() {
+    var data = plotData[currentPlot];
+    var container = document.getElementById('chainContainer');
+    var html = '';
+    data.deductions.forEach(function(item, idx) {
+        var pheBg = 'badge-red';
+        var dirBg = 'badge-orange';
+        html += '<div class="mb-4 pb-4 border-b border-gray-100 last:border-0 last:mb-0">' +
+            '<div class="flex items-center gap-2 mb-2">' +
+                '<span class="w-6 h-6 bg-red-100 text-red-600 rounded-full flex items-center justify-center text-xs font-bold">' + (idx + 1) + '</span>' +
+                '<span class="text-sm font-semibold text-gray-700">' + item.factor + '（扣 ' + item.deduction + ' 分）</span>' +
+            '</div>' +
+            '<div class="flex flex-wrap items-center gap-y-2 gap-x-1 pl-8">' +
+                '<span class="px-2.5 py-1 ' + pheBg + ' text-xs rounded-md font-medium">' + item.phenomenon + '</span>' +
+                '<span class="chain-arrow">→</span>' +
+                '<span class="px-2.5 py-1 ' + dirBg + ' text-xs rounded-md font-medium">' + item.directCause + '</span>' +
+                '<span class="chain-arrow">→</span>' +
+                '<span class="px-2.5 py-1 badge-gray text-xs rounded-md font-medium">' + item.rootCause + '</span>' +
+            '</div>' +
+        '</div>';
+    });
+    container.innerHTML = html;
+}
+
+// 农事建议（增强版：从数据库匹配，增加触发因子标签和双向联动）
+function initSuggestions() {
+    var data = plotData[currentPlot];
+    var tbody = document.getElementById('suggestionTbody');
+    var priorityMap = {
+        urgent: { cls: 'priority-urgent', label: '一级·紧急' },
+        important: { cls: 'priority-important', label: '二级·重要' },
+        normal: { cls: 'priority-normal', label: '三级·常规' },
+        low: { cls: 'priority-low', label: '四级·可选' }
+    };
+    
+    // 从数据库自动匹配农事建议
+    var matchedAll = [];
+    data.deductions.forEach(function(d, idx) {
+        var schemes = matchFarmScheme(d, data.stage);
+        schemes.forEach(function(scheme) {
+            matchedAll.push({
+                scheme: scheme,
+                triggerDeductionIdx: idx,
+                triggerFactor: d.factor,
+                triggerSeverity: d.severity
+            });
+        });
+    });
+    
+    // 按优先级排序
+    var priorityOrder = { urgent: 1, important: 2, normal: 3, low: 4 };
+    matchedAll.sort(function(a, b) {
+        return (priorityOrder[a.scheme.priority] || 99) - (priorityOrder[b.scheme.priority] || 99);
+    });
+    
+    // 去重（相同方案只显示一次）
+    var seen = {};
+    currentSuggestions = matchedAll.filter(function(item) {
+        var key = item.scheme.id;
+        if (seen[key]) return false;
+        seen[key] = true;
+        return true;
+    });
+    
+    var html = '';
+    if (currentSuggestions.length === 0) {
+        html = '<tr><td colspan="6" class="px-4 py-8 text-center text-gray-400">暂无匹配的农事建议</td></tr>';
+    } else {
+        currentSuggestions.forEach(function(s, idx) {
+            var pm = priorityMap[s.scheme.priority];
+            var factorColor = s.triggerSeverity === 'severe' ? 'text-red-600 bg-red-50' : 
+                             (s.triggerSeverity === 'moderate' ? 'text-orange-600 bg-orange-50' : 'text-yellow-600 bg-yellow-50');
+            
+            // 格式化措施文本
+            var measuresText = '';
+            if (s.scheme.measures && s.scheme.measures.length > 0) {
+                measuresText = s.scheme.measures.map(function(m, i) {
+                    return (i + 1) + '. ' + m;
+                }).join('<br>');
+            } else {
+                measuresText = s.scheme.measure || '暂无详细措施';
+            }
+            
+            html += '<tr id="suggestion-row-' + idx + '" class="border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-all" onclick="highlightBySuggestion(' + idx + ')">' +
+                '<td class="px-4 py-3"><span class="px-2.5 py-1 rounded-md text-xs font-medium ' + pm.cls + '">' + pm.label + '</span></td>' +
+                '<td class="px-4 py-3">' +
+                    '<div class="text-gray-800 text-sm leading-relaxed">' + measuresText + '</div>' +
+                    '<div class="mt-1 flex items-center gap-1">' +
+                        '<span class="text-xs text-gray-400">触发因子:</span>' +
+                        '<span class="px-1.5 py-0.5 rounded text-xs ' + factorColor + '">' + s.triggerFactor + '</span>' +
+                    '</div>' +
+                '</td>' +
+                '<td class="px-4 py-3 text-gray-600 text-xs">' + s.scheme.cycle + '</td>' +
+                '<td class="px-4 py-3 text-gray-500 text-xs">' + s.scheme.indicators + '</td>' +
+                '<td class="px-4 py-3 text-green-700 text-xs">' + s.scheme.effect + '</td>' +
+            '</tr>';
+        });
+    }
+    
+    tbody.innerHTML = html;
+    
+    // 更新建议统计
+    updateSuggestionStats();
+}
+
+// 更新建议统计信息
+function updateSuggestionStats() {
+    var total = currentSuggestions.length;
+    var urgentCount = 0, importantCount = 0, normalCount = 0, lowCount = 0;
+    var seen = {};
+    currentSuggestions.forEach(function(s) {
+        var key = s.scheme.id;
+        if (!seen[key]) {
+            seen[key] = true;
+            switch (s.scheme.priority) {
+                case 'urgent': urgentCount++; break;
+                case 'important': importantCount++; break;
+                case 'normal': normalCount++; break;
+                case 'low': lowCount++; break;
+            }
+        }
+    });
+    
+    // 更新页面上的统计信息
+    var container = document.getElementById('suggestionTbody').closest('.bg-white');
+    if (container) {
+        var header = container.querySelector('.p-4.border-b');
+        if (header && !header.querySelector('.suggestion-stats')) {
+            var statsDiv = document.createElement('div');
+            statsDiv.className = 'suggestion-stats flex items-center gap-3 text-xs ml-auto';
+            statsDiv.innerHTML = '<span class="text-gray-500">匹配建议 <span class="font-bold text-blue-600">' + total + '</span> 条</span>' +
+                (urgentCount > 0 ? '<span class="px-2 py-0.5 bg-red-100 text-red-600 rounded">紧急 ' + urgentCount + '</span>' : '') +
+                (importantCount > 0 ? '<span class="px-2 py-0.5 bg-orange-100 text-orange-600 rounded">重要 ' + importantCount + '</span>' : '') +
+                (normalCount > 0 ? '<span class="px-2 py-0.5 bg-green-100 text-green-600 rounded">常规 ' + normalCount + '</span>' : '');
+            header.appendChild(statsDiv);
+        }
+    }
+}
+
+// 高亮联动：点击扣分项，高亮对应建议
+function highlightByDeduction(idx) {
+    var data = plotData[currentPlot];
+    var deduction = data.deductions[idx];
+    var matchedSchemes = matchFarmScheme(deduction, data.stage);
+    
+    // 移除之前的高亮
+    document.querySelectorAll('.suggestion-row-highlight').forEach(function(el) {
+        el.classList.remove('suggestion-row-highlight');
+        el.style.backgroundColor = '';
+    });
+    document.querySelectorAll('.deduction-row-highlight').forEach(function(el) {
+        el.classList.remove('deduction-row-highlight');
+        el.style.backgroundColor = '';
+    });
+    
+    // 高亮当前扣分项
+    var row = document.getElementById('deduction-row-' + idx);
+    if (row) {
+        row.classList.add('deduction-row-highlight');
+        row.style.backgroundColor = '#fef3c7';
+    }
+    
+    // 高亮关联的建议
+    currentSuggestions.forEach(function(s, sIdx) {
+        if (matchedSchemes.some(function(m) { return m.id === s.scheme.id; })) {
+            var sRow = document.getElementById('suggestion-row-' + sIdx);
+            if (sRow) {
+                sRow.classList.add('suggestion-row-highlight');
+                sRow.style.backgroundColor = '#dbeafe';
+            }
+        }
+    });
+    
+    // 滚动到建议区域
+    if (matchedSchemes.length > 0) {
+        var suggestionSection = document.getElementById('suggestionTbody').closest('.bg-white');
+        if (suggestionSection) {
+            suggestionSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
+}
+
+// 高亮联动：点击建议，高亮对应扣分项
+function highlightBySuggestion(idx) {
+    var s = currentSuggestions[idx];
+    if (!s) return;
+    
+    // 移除之前的高亮
+    document.querySelectorAll('.suggestion-row-highlight').forEach(function(el) {
+        el.classList.remove('suggestion-row-highlight');
+        el.style.backgroundColor = '';
+    });
+    document.querySelectorAll('.deduction-row-highlight').forEach(function(el) {
+        el.classList.remove('deduction-row-highlight');
+        el.style.backgroundColor = '';
+    });
+    
+    // 高亮当前建议
+    var row = document.getElementById('suggestion-row-' + idx);
+    if (row) {
+        row.classList.add('suggestion-row-highlight');
+        row.style.backgroundColor = '#dbeafe';
+    }
+    
+    // 高亮关联的扣分项
+    var dRow = document.getElementById('deduction-row-' + s.triggerDeductionIdx);
+    if (dRow) {
+        dRow.classList.add('deduction-row-highlight');
+        dRow.style.backgroundColor = '#fef3c7';
+        dRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+}
+
+// 品质预测卡片
+function initQualityCards() {
+    var data = plotData[currentPlot];
+    var container = document.getElementById('qualityCards');
+    var html = '';
+    data.quality.forEach(function(q) {
+        html += '<div class="card-hover bg-gradient-to-br from-gray-50 to-white rounded-xl border border-gray-100 p-4 cursor-default">' +
+            '<div class="flex items-center justify-between mb-2">' +
+                '<span class="text-xs text-gray-500">' + q.label + '</span>' +
+                '<span class="text-lg">' + q.icon + '</span>' +
+            '</div>' +
+            '<div class="flex items-baseline gap-1 mb-1">' +
+                '<span class="text-2xl font-bold" style="color:' + q.color + '">' + q.value + '</span>' +
+                '<span class="text-xs text-gray-400">' + q.unit + '</span>' +
+            '</div>' +
+            '<div class="text-xs text-gray-500">' + q.sub + '</div>' +
+        '</div>';
+    });
+    container.innerHTML = html;
+}
+
+// 雷达图
+function initRadarChart() {
+    var data = plotData[currentPlot];
+    var ctx = document.getElementById('radarChart').getContext('2d');
+
+    if (radarChart) radarChart.destroy();
+
+    radarChart = new Chart(ctx, {
+        type: 'radar',
+        data: {
+            labels: ['PB 树势', 'PL 叶片', 'PR 根系', 'PF 花果', 'PE 环境', 'PM 病虫'],
+            datasets: [{
+                label: '当前诊断',
+                data: data.radarScores,
+                backgroundColor: 'rgba(34, 197, 94, 0.2)',
+                borderColor: 'rgba(34, 197, 94, 0.9)',
+                borderWidth: 2,
+                pointBackgroundColor: '#22c55e',
+                pointBorderColor: '#fff',
+                pointRadius: 5,
+                pointHoverRadius: 7
+            }, {
+                label: '健康基线',
+                data: [90, 90, 85, 85, 85, 90],
+                backgroundColor: 'rgba(203, 213, 225, 0.15)',
+                borderColor: 'rgba(156, 163, 175, 0.5)',
+                borderWidth: 1,
+                borderDash: [4, 4],
+                pointBackgroundColor: '#9ca3af',
+                pointRadius: 3
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        font: { size: 12 },
+                        padding: 16,
+                        usePointStyle: true
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        afterLabel: function(context) {
+                            var baseline = [90, 90, 85, 85, 85, 90];
+                            var diff = context.parsed.r - baseline[context.dataIndex];
+                            if (diff < 0) {
+                                return '与基线差距: ' + diff.toFixed(0) + ' 分';
+                            } else if (diff === 0) {
+                                return '处于健康基线';
+                            } else {
+                                return '优于基线: +' + diff.toFixed(0) + ' 分';
+                            }
+                        }
+                    }
+                }
+            },
+            scales: {
+                r: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: {
+                        stepSize: 20,
+                        font: { size: 10 },
+                        backdropColor: 'transparent',
+                        color: '#9ca3af'
+                    },
+                    grid: {
+                        color: '#e5e7eb'
+                    },
+                    angleLines: {
+                        color: '#e5e7eb'
+                    },
+                    pointLabels: {
+                        font: { size: 12, weight: '500' },
+                        color: '#374151'
+                    }
+                }
+            }
+        }
+    });
+}
+
+// 切换雷达图模式
+function switchRadarMode(mode) {
+    radarMode = mode;
+    document.getElementById('btnScoreMode').className = mode === 'score' ? 'px-3 py-1.5 text-xs bg-green-600 text-white rounded-md' : 'px-3 py-1.5 text-xs bg-gray-100 text-gray-600 rounded-md';
+    document.getElementById('btnDeviationMode').className = mode === 'deviation' ? 'px-3 py-1.5 text-xs bg-green-600 text-white rounded-md' : 'px-3 py-1.5 text-xs bg-gray-100 text-gray-600 rounded-md';
+
+    var data = plotData[currentPlot];
+    if (mode === 'deviation') {
+        radarChart.data.datasets[0].data = data.radarScores.map(function(v) { return 100 - v; });
+        radarChart.data.datasets[0].label = '偏离程度（反向）';
+        radarChart.data.datasets[0].backgroundColor = 'rgba(249, 115, 22, 0.15)';
+        radarChart.data.datasets[0].borderColor = 'rgba(249, 115, 22, 0.9)';
+        radarChart.update();
+    } else {
+        radarChart.data.datasets[0].data = data.radarScores.slice();
+        radarChart.data.datasets[0].label = '当前诊断';
+        radarChart.data.datasets[0].backgroundColor = 'rgba(34, 197, 94, 0.2)';
+        radarChart.data.datasets[0].borderColor = 'rgba(34, 197, 94, 0.9)';
+        radarChart.update();
+    }
+}
+
+// 执行诊断
+function runDiagnosis() {
+    var plot = document.getElementById('plotSelect').value;
+    var date = document.getElementById('dateSelect').value;
+
+    // 模拟加载状态
+    var btn = event.target.closest('button');
+    var originalHtml = btn.innerHTML;
+    btn.innerHTML = '<svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span>诊断中...</span>';
+    btn.disabled = true;
+
+    setTimeout(function() {
+        btn.innerHTML = originalHtml;
+        btn.disabled = false;
+
+        // 加载当前地块数据
+        if (plotData[plot]) {
+            currentPlot = plot;
+            var data = plotData[plot];
+            // 更新页面信息
+            document.getElementById('scoreNumber').textContent = data.score;
+            initDeductionTable();
+            initChains();
+            initSuggestions();
+            initQualityCards();
+            initRadarChart();
+
+            alert('诊断完成！\n地块：' + data.name + '\n综合评分：' + data.score + '分\n状态：' + data.healthLevel);
+        } else {
+            alert('该地块暂无诊断数据，请选择其他地块。');
+        }
+    }, 1200);
+}
+
+// 导出报告
+function exportReport() {
+    var data = plotData[currentPlot];
+    var reportText = '南丰蜜桔生长诊断报告\n';
+    reportText += '========================================\n';
+    reportText += '地块：' + data.name + ' (' + currentPlot + ')\n';
+    reportText += '日期：' + data.todayDate + '\n';
+    reportText += '品种：' + data.variety + '\n';
+    reportText += '树龄：' + data.treeAge + '\n';
+    reportText += '生育阶段：' + data.stage + '\n';
+    reportText += '综合评分：' + data.score + '分（' + data.healthLevel + '）\n';
+    reportText += '较昨日变化：' + (data.scoreChange >= 0 ? '+' : '') + data.scoreChange + '分\n\n';
+    reportText += '【六维度评分】\n';
+    reportText += 'PB(树势)=' + data.radarScores[0] + '  PL(叶片)=' + data.radarScores[1] + '  PR(根系)=' + data.radarScores[2] + '\n';
+    reportText += 'PF(花果)=' + data.radarScores[3] + '  PE(环境)=' + data.radarScores[4] + '  PM(病虫)=' + data.radarScores[5] + '\n\n';
+    reportText += '【扣分明细】\n';
+    data.deductions.forEach(function(d, i) {
+        reportText += (i + 1) + '. ' + d.factor + ': 实测' + d.actual + '（适宜' + d.range + '）扣' + d.deduction + '分\n';
+        reportText += '   因果链：' + d.phenomenon + ' → ' + d.directCause + ' → ' + d.rootCause + '\n';
+    });
+    reportText += '\n【农事建议】\n';
+    currentSuggestions.forEach(function(s, i) {
+        reportText += (i + 1) + '. [' + s.scheme.priorityText + '] 触发因子: ' + s.triggerFactor + '\n';
+        if (s.scheme.measures && s.scheme.measures.length > 0) {
+            s.scheme.measures.forEach(function(m, j) {
+                reportText += '   ' + (j + 1) + '. ' + m + '\n';
+            });
+        }
+        reportText += '   复查：' + s.scheme.cycle + ' | 指标：' + s.scheme.indicators + ' | 预期效果：' + s.scheme.effect + '\n';
+    });
+    reportText += '\n【品质预测】\n';
+    data.quality.forEach(function(q) {
+        reportText += q.label + ': ' + q.value + q.unit + ' (' + q.sub + ')\n';
+    });
+
+    var blob = new Blob([reportText], {type: 'text/plain;charset=utf-8'});
+    var link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = '诊断报告_' + currentPlot + '_' + data.todayDate + '.txt';
+    link.click();
+}
+</script>
+
+</body>
+</html>

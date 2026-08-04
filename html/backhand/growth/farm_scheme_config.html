@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>农事建议 - 南丰蜜桔模型管理系统</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+body{margin:0;padding:0;background-color:#F0F2F5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,'Noto Sans SC',sans-serif}
+.content-wrapper{padding:24px;min-height:100vh}
+.priority-urgent{background:#fef2f2;color:#dc2626}
+.priority-important{background:#fff7ed;color:#ea580c}
+.priority-normal{background:#ecfdf5;color:#059669}
+.priority-low{background:#eff6ff;color:#2563eb}
+.priority-dot-urgent{background:#ef4444}
+.priority-dot-important{background:#f97316}
+.priority-dot-normal{background:#16a34a}
+.priority-dot-low{background:#3b82f6}
+.tab-active{color:#16a34a;border-bottom:2px solid #16a34a}
+.tab-inactive{color:#6b7280;border-bottom:2px solid transparent}
+.tab-inactive:hover{color:#374151}
+.modal-backdrop{background:rgba(0,0,0,0.4);backdrop-filter:blur(2px)}
+.modal-panel{max-height:85vh}
+.toast-container{position:fixed;top:60px;right:20px;z-index:10000;display:flex;flex-direction:column;gap:8px}
+.toast-item{padding:10px 20px;border-radius:8px;color:#fff;font-size:14px;box-shadow:0 4px 16px rgba(0,0,0,0.15);animation:toastIn 0.3s ease;display:flex;align-items:center;gap:8px}
+.toast-success{background:#16a34a}
+.toast-warning{background:#e6a23c}
+.toast-error{background:#f56c6c}
+.toast-info{background:#409eff}
+@keyframes toastIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
+@keyframes modalSlideIn{from{opacity:0;transform:translateY(-20px) scale(0.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+.animate-modal{animation:modalSlideIn .25s cubic-bezier(.4,0,.2,1)}
+.scrollbar-thin::-webkit-scrollbar{width:6px;height:6px}
+.scrollbar-thin::-webkit-scrollbar-track{background:#f1f1f1;border-radius:3px}
+.scrollbar-thin::-webkit-scrollbar-thumb{background:#c1c1c1;border-radius:3px}
+.sticky-header{position:sticky;top:0;z-index:10}
+.row-hover:hover{background:#f9fafb}
+.row-striped:nth-child(even){background:#fafbfc}
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:9999px;font-size:12px;font-weight:500}
+.chip{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;background:#ecfdf5;color:#16a34a;border:1px solid #bbf7d0;border-radius:6px;font-size:12px;margin:2px}
+.chip button{margin-left:4px;color:#16a34a;cursor:pointer;font-weight:bold}
+.chip button:hover{color:#15803d}
+.chip.urgent{background:#fef2f2;color:#dc2626;border-color:#fecaca}
+.chip.important{background:#fff7ed;color:#ea580c;border-color:#fed7aa}
+.chip.normal{background:#ecfdf5;color:#059669;border-color:#a7f3d0}
+.chip.low{background:#eff6ff;color:#2563eb;border-color:#bfdbfe}
+input[type=text],input[type=number],select,textarea{outline:none}
+input[type=text]:focus,input[type=number]:focus,select:focus,textarea:focus{border-color:#16a34a;box-shadow:0 0 0 3px rgba(22,163,74,0.1)}
+</style>
+</head>
+<body>
+<div class="content-wrapper">
+
+<div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6">
+  <div class="flex items-center justify-between">
+    <div class="flex items-center space-x-3">
+      <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+        <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+      </div>
+      <div>
+        <h1 class="text-lg font-bold text-gray-800">农事建议</h1>
+        <p class="text-xs text-gray-500">配置农事方案、因子映射关系，为智能诊断提供建议决策支持</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="bg-white rounded-xl shadow-sm border border-gray-100">
+  <div class="flex border-b border-gray-100 px-4">
+    <button class="tab-btn px-5 py-3 text-sm font-medium tab-active" data-tab="list" onclick="switchTab('list')">方案列表</button>
+    <button class="tab-btn px-5 py-3 text-sm font-medium tab-inactive" data-tab="test" onclick="switchTab('test')">方案测试</button>
+    <button class="tab-btn px-5 py-3 text-sm font-medium tab-inactive" data-tab="mapping" onclick="switchTab('mapping')">因子映射</button>
+  </div>
+
+  <!-- ============ 方案列表 Tab ============ -->
+  <div id="tab-list" class="tab-panel p-4">
+
+    <div class="flex flex-wrap items-center gap-3 mb-4 p-3 bg-gray-50 rounded-lg">
+      <div class="relative">
+        <input type="text" id="searchInput" placeholder="搜索方案ID、因子类型或措施..." class="w-64 pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-lg" oninput="renderTable()">
+        <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+      </div>
+      <select id="filterFactor" class="px-3 py-2 text-sm border border-gray-200 rounded-lg bg-white" onchange="renderTable()">
+        <option value="">全部因子类型</option>
+      </select>
+      <select id="filterPriority" class="px-3 py-2 text-sm border border-gray-200 rounded-lg bg-white" onchange="renderTable()">
+        <option value="">全部优先级</option>
+        <option value="urgent">紧急 urgent</option>
+        <option value="important">重要 important</option>
+        <option value="normal">常规 normal</option>
+        <option value="low">可选 low</option>
+      </select>
+      <select id="filterStage" class="px-3 py-2 text-sm border border-gray-200 rounded-lg bg-white" onchange="renderTable()">
+        <option value="">全部生育阶段</option>
+        <option value="幼苗期">幼苗期</option>
+        <option value="生长期">生长期</option>
+        <option value="开花期">开花期</option>
+        <option value="落果期">落果期</option>
+        <option value="膨大期">膨大期</option>
+        <option value="成熟期">成熟期</option>
+      </select>
+      <div class="flex-1"></div>
+      <button onclick="openEditModal(null)" class="px-4 py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 flex items-center gap-1">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        新增方案
+      </button>
+      <button onclick="resetToDefault()" class="px-4 py-2 bg-gray-100 text-gray-700 text-sm rounded-lg hover:bg-gray-200 flex items-center gap-1">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+        恢复默认数据
+      </button>
+      <button onclick="exportConfig()" class="px-4 py-2 bg-gray-100 text-gray-700 text-sm rounded-lg hover:bg-gray-200 flex items-center gap-1">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+        导出配置
+      </button>
+    </div>
+
+    <div class="overflow-x-auto border border-gray-100 rounded-lg">
+      <table class="w-full text-sm">
+        <thead class="sticky-header bg-gray-50">
+          <tr>
+            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">方案ID</th>
+            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">因子类型</th>
+            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">偏离方向</th>
+            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">适用阶段</th>
+            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">优先级</th>
+            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">措施摘要</th>
+            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider w-32">操作</th>
+          </tr>
+        </thead>
+        <tbody id="schemeTableBody"></tbody>
+      </table>
+      <div id="emptyState" class="hidden py-16 text-center text-gray-400">
+        <svg class="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/></svg>
+        <div>暂无匹配的方案数据</div>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-between mt-4 text-sm text-gray-500">
+      <span id="tableInfo">共 0 条</span>
+      <div class="flex items-center gap-2">
+        <button onclick="prevPage()" id="prevPage" class="px-3 py-1 border border-gray-200 rounded hover:bg-gray-50 disabled:opacity-50">上一页</button>
+        <span id="pageInfo">1 / 1</span>
+        <button onclick="nextPage()" id="nextPage" class="px-3 py-1 border border-gray-200 rounded hover:bg-gray-50 disabled:opacity-50">下一页</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 方案测试 Tab ============ -->
+  <div id="tab-test" class="tab-panel p-4 hidden">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="bg-gray-50 rounded-xl p-5 border border-gray-100">
+        <h3 class="text-base font-semibold text-gray-800 mb-4 flex items-center gap-2">
+          <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+          模拟扣分项输入
+        </h3>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-600 mb-1">因子名称</label>
+            <select id="testFactor" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm"></select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-600 mb-1">实测值</label>
+            <input type="number" id="testActual" placeholder="例如：82" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-600 mb-1">适宜区间</label>
+            <input type="text" id="testRange" placeholder="例如：60-75" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-600 mb-1">生育阶段</label>
+            <select id="testStage" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
+              <option value="幼苗期">幼苗期</option>
+              <option value="生长期">生长期</option>
+              <option value="开花期">开花期</option>
+              <option value="落果期">落果期</option>
+              <option value="膨大期" selected>膨大期</option>
+              <option value="成熟期">成熟期</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-600 mb-1">现象描述（可选）</label>
+            <input type="text" id="testPhenomenon" placeholder="例如：空气湿度偏高" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
+          </div>
+          <button onclick="runTest()" class="w-full py-2.5 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 font-medium flex items-center justify-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+            测试匹配
+          </button>
+        </div>
+      </div>
+
+      <div class="bg-gray-50 rounded-xl p-5 border border-gray-100">
+        <h3 class="text-base font-semibold text-gray-800 mb-4 flex items-center gap-2">
+          <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+          匹配结果
+        </h3>
+        <div id="testResult" class="text-sm text-gray-500 text-center py-12">
+          <svg class="w-10 h-10 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+          请输入参数后点击"测试匹配"按钮
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 因子映射 Tab ============ -->
+  <div id="tab-mapping" class="tab-panel p-4 hidden">
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <h3 class="text-base font-semibold text-gray-800">因子映射管理</h3>
+        <p class="text-xs text-gray-500 mt-1">将扣分项的因子名映射到农事建议的因子类型，支持一对多映射</p>
+      </div>
+      <button onclick="openMappingModal(null)" class="px-4 py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 flex items-center gap-1">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        新增映射
+      </button>
+    </div>
+
+    <div class="overflow-x-auto border border-gray-100 rounded-lg">
+      <table class="w-full text-sm">
+        <thead class="bg-gray-50 sticky-header">
+          <tr>
+            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">因子名（扣分项）</th>
+            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">建议类型（农事方案）</th>
+            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider w-32">操作</th>
+          </tr>
+        </thead>
+        <tbody id="mappingTableBody"></tbody>
+      </table>
+    </div>
+    <div id="mappingPagination" class="hidden flex items-center justify-between mt-3 px-2">
+      <span id="mappingTotal" class="text-sm text-gray-500"></span>
+      <div class="flex items-center gap-2">
+        <button id="mappingPrevBtn" onclick="prevMappingPage()" class="px-3 py-1 text-sm border border-gray-200 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">上一页</button>
+        <span id="mappingPageInfo" class="text-sm text-gray-600"></span>
+        <button id="mappingNextBtn" onclick="nextMappingPage()" class="px-3 py-1 text-sm border border-gray-200 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">下一页</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ============ 新增/编辑方案弹窗 ============ -->
+<div id="editModal" class="hidden fixed inset-0 z-[9999] flex items-center justify-center">
+  <div class="absolute inset-0 modal-backdrop" onclick="closeEditModal()"></div>
+  <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-4 overflow-hidden animate-modal modal-panel flex flex-col">
+    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+      <h3 class="text-lg font-semibold text-gray-800" id="editModalTitle">新增方案</h3>
+      <button onclick="closeEditModal()" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 text-xl">&times;</button>
+    </div>
+    <div class="px-6 py-5 overflow-y-auto scrollbar-thin flex-1">
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-600 mb-1">因子类型 <span class="text-red-500">*</span></label>
+          <select id="editFactor" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm"></select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-600 mb-1">偏离方向 <span class="text-red-500">*</span></label>
+          <select id="editDeviation" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
+            <option value="偏高">偏高</option>
+            <option value="偏低">偏低</option>
+            <option value="失调">失调</option>
+          </select>
+        </div>
+        <div class="col-span-2">
+          <label class="block text-sm font-medium text-gray-600 mb-1">适用生育阶段 <span class="text-red-500">*</span> <span class="text-xs text-gray-400">(至少选一个)</span></label>
+          <div id="editStages" class="flex flex-wrap gap-2 mt-1"></div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-600 mb-1">优先级</label>
+          <select id="editPriority" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
+            <option value="urgent">urgent · 一级紧急</option>
+            <option value="important">important · 二级重要</option>
+            <option value="normal" selected>normal · 三级常规</option>
+            <option value="low">low · 四级可选</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-600 mb-1">方案ID</label>
+          <input type="text" id="editId" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50" readonly>
+        </div>
+        <div class="col-span-2">
+          <label class="block text-sm font-medium text-gray-600 mb-1">详细措施 <span class="text-xs text-gray-400">(动态列表)</span></label>
+          <div id="editMeasures" class="space-y-2"></div>
+          <button onclick="addMeasureRow()" class="mt-2 px-3 py-1 text-xs border border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-green-400 hover:text-green-600">+ 添加措施</button>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-600 mb-1">复查周期</label>
+          <input type="text" id="editCycle" placeholder="如：24小时内复查" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-600 mb-1">复查监测指标</label>
+          <input type="text" id="editIndicators" placeholder="如：空气湿度、叶片病害指数" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
+        </div>
+        <div class="col-span-2">
+          <label class="block text-sm font-medium text-gray-600 mb-1">预期调节效果</label>
+          <input type="text" id="editEffect" placeholder="如：预计 48 小时内湿度降至适宜区间" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
+        </div>
+      </div>
+    </div>
+    <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-100 bg-gray-50/50">
+      <button onclick="closeEditModal()" class="px-5 py-2 text-sm rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-100">取消</button>
+      <button onclick="saveScheme()" class="px-5 py-2 text-sm rounded-lg bg-green-600 text-white hover:bg-green-700 font-medium">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 删除确认弹窗 ============ -->
+<div id="deleteModal" class="hidden fixed inset-0 z-[9999] flex items-center justify-center">
+  <div class="absolute inset-0 modal-backdrop" onclick="closeDeleteModal()"></div>
+  <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden animate-modal">
+    <div class="px-6 py-6 text-center">
+      <div class="w-14 h-14 mx-auto mb-4 rounded-full bg-red-50 flex items-center justify-center">
+        <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+      </div>
+      <h3 class="text-lg font-semibold text-gray-800 mb-2" id="deleteModalTitle">确认删除</h3>
+      <p class="text-sm text-gray-500" id="deleteModalText">删除后数据不可恢复，是否继续？</p>
+    </div>
+    <div class="flex justify-center gap-3 px-6 py-4 border-t border-gray-100 bg-gray-50/50">
+      <button onclick="closeDeleteModal()" class="px-5 py-2 text-sm rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-100">取消</button>
+      <button id="confirmDeleteBtn" class="px-5 py-2 text-sm rounded-lg bg-red-600 text-white hover:bg-red-700 font-medium">确认删除</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 因子映射弹窗 ============ -->
+<div id="mappingModal" class="hidden fixed inset-0 z-[9999] flex items-center justify-center">
+  <div class="absolute inset-0 modal-backdrop" onclick="closeMappingModal()"></div>
+  <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden animate-modal">
+    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+      <h3 class="text-lg font-semibold text-gray-800" id="mappingModalTitle">新增映射</h3>
+      <button onclick="closeMappingModal()" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 text-xl">&times;</button>
+    </div>
+    <div class="px-6 py-5 space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-600 mb-1">因子名（扣分项）</label>
+        <input type="text" id="mappingFrom" placeholder="如：空气温度" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-600 mb-1">建议类型（农事方案）</label>
+        <select id="mappingTo" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm"></select>
+      </div>
+    </div>
+    <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-100 bg-gray-50/50">
+      <button onclick="closeMappingModal()" class="px-5 py-2 text-sm rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-100">取消</button>
+      <button onclick="saveMapping()" class="px-5 py-2 text-sm rounded-lg bg-green-600 text-white hover:bg-green-700 font-medium">保存</button>
+    </div>
+  </div>
+</div>
+
+<div id="toastContainer" class="toast-container"></div>
+
+<script>
+// ============ 默认数据 ============
+var defaultFarmSchemeDB = [
+  { id:'S001', factorType:'空气湿度', deviation:'偏高', stages:['膨大期','成熟期','生长期'], priority:'urgent', priorityText:'一级·紧急', measures:['立即开启通风设施降湿','树冠喷施代森锰锌 800 倍液预防炭疽病','暂停叶面灌水，避免增加冠层湿度'], cycle:'24小时内复查', indicators:'空气湿度、叶片病害指数', effect:'预计 48 小时内湿度降至适宜区间' },
+  { id:'S002', factorType:'空气湿度', deviation:'偏低', stages:['膨大期','成熟期'], priority:'normal', priorityText:'三级·常规', measures:['早晚进行叶面喷水增湿','树冠覆盖遮阳网减少蒸发','检查灌溉系统是否正常'], cycle:'3天后复查', indicators:'空气湿度、土壤含水量', effect:'预计 3 天内湿度回升至适宜区间' },
+  { id:'S003', factorType:'叶片叶绿素', deviation:'偏低', stages:['膨大期','成熟期','生长期'], priority:'important', priorityText:'二级·重要', measures:['叶面追施 0.3% 尿素 + 0.2% 磷酸二氢钾','配合芸苔素内酯促进新梢生长','检查根系活力，必要时进行根部追肥'], cycle:'3天后复查', indicators:'叶绿素含量、新梢长度、叶面积指数', effect:'预计 7 天后叶绿素提升至 4.2 mg/g' },
+  { id:'S004', factorType:'叶片叶绿素', deviation:'偏高', stages:['膨大期'], priority:'low', priorityText:'四级·可选', measures:['适当增加钾肥比例','控制氮肥施用量','观察叶片状态变化'], cycle:'7天后复查', indicators:'叶绿素含量、叶片厚度', effect:'叶绿素偏高通常为健康状态，定期监测即可' },
+  { id:'S005', factorType:'土壤pH值', deviation:'偏低', stages:['膨大期','成熟期','生长期','开花期'], priority:'important', priorityText:'二级·重要', measures:['全园撒施石灰粉 50kg/亩','结合中耕培土改良酸性土壤','增施有机肥提高土壤缓冲能力'], cycle:'7天后复查', indicators:'土壤pH值、土壤养分有效性', effect:'预计 30 天内 pH 回升至 5.6 以上' },
+  { id:'S006', factorType:'土壤pH值', deviation:'偏高', stages:['膨大期','成熟期'], priority:'normal', priorityText:'三级·常规', measures:['施用石膏或硫磺粉调节碱性','增施酸性有机肥','检测灌溉水PH值'], cycle:'14天后复查', indicators:'土壤PH值、微量元素有效性', effect:'预计 30 天内 pH 降至 7.0 以下' },
+  { id:'S007', factorType:'果实可溶性固形物', deviation:'偏低', stages:['膨大期','成熟期'], priority:'important', priorityText:'二级·重要', measures:['调整施肥方案，增加钾肥比例','控制氮肥用量，避免营养生长过旺','增加光照，促进糖分积累'], cycle:'7天后复查', indicators:'果实糖度、可溶性固形物含量', effect:'预计成熟期糖度可达 14°Brix 以上' },
+  { id:'S008', factorType:'果实可溶性固形物', deviation:'偏高', stages:['成熟期'], priority:'low', priorityText:'四级·可选', measures:['适当提前采收','增加灌溉量稀释糖度','注意防治裂果'], cycle:'3天后复查', indicators:'果实糖度、裂果率', effect:'糖度偏高为优质表现，注意防控裂果' },
+  { id:'S009', factorType:'冠层光照', deviation:'偏低', stages:['膨大期','成熟期','生长期'], priority:'normal', priorityText:'三级·常规', measures:['修剪徒长枝、交叉枝，打开内膛光照','保留 3-4 个健壮主枝','必要时进行疏枝增加透光'], cycle:'14天后复查', indicators:'冠层光照强度、叶面积系数', effect:'预计冠层透光率提升 15-20%' },
+  { id:'S010', factorType:'冠层光照', deviation:'偏高', stages:['成熟期'], priority:'normal', priorityText:'三级·常规', measures:['适当增加叶面积指数','树冠外围保留更多结果枝','注意防止日灼病'], cycle:'7天后复查', indicators:'冠层光照、果实日灼率', effect:'光照充足利于品质形成，注意防晒' },
+  { id:'S011', factorType:'土壤水分', deviation:'偏低', stages:['膨大期','成熟期','开花期'], priority:'urgent', priorityText:'一级·紧急', measures:['立即进行滴灌或喷灌补水','地表覆盖秸秆或地膜减少蒸发','检查灌溉系统运行状态'], cycle:'24小时内复查', indicators:'土壤含水量、叶片萎蔫指数', effect:'预计 24 小时内土壤水分回升' },
+  { id:'S012', factorType:'土壤水分', deviation:'偏高', stages:['膨大期','成熟期'], priority:'important', priorityText:'二级·重要', measures:['清理排水沟，保证排水通畅','检查果园积水情况','减少灌溉频率和用量'], cycle:'48小时内复查', indicators:'土壤含水量、根系活力', effect:'预计 48 小时内土壤水分下降' },
+  { id:'S013', factorType:'温度', deviation:'偏高', stages:['膨大期','成熟期','生长期'], priority:'urgent', priorityText:'一级·紧急', measures:['树冠喷水降温','搭建遮阳网（遮光率 30-50%）','增加灌溉频率'], cycle:'24小时内复查', indicators:'冠层温度、叶片温度、日灼率', effect:'预计 24 小时内冠层温度降低 3-5℃' },
+  { id:'S014', factorType:'温度', deviation:'偏低', stages:['膨大期','成熟期'], priority:'important', priorityText:'二级·重要', measures:['夜间进行熏烟或覆盖保温','检查是否有冻害风险','增施磷钾肥提高抗寒能力'], cycle:'48小时内复查', indicators:'最低温度、叶片受冻指数', effect:'预计 48 小时内温度回升' },
+  { id:'S015', factorType:'氮含量', deviation:'偏高', stages:['膨大期','成熟期'], priority:'important', priorityText:'二级·重要', measures:['减少氮肥施用量','增加钾肥比例调整 N:P:K','促进果实成熟和糖分积累'], cycle:'7天后复查', indicators:'氮含量、碳氮比、果实糖度', effect:'预计 7 天后碳氮比趋于合理' },
+  { id:'S016', factorType:'氮含量', deviation:'偏低', stages:['膨大期','生长期'], priority:'normal', priorityText:'三级·常规', measures:['追施速效氮肥（尿素）','叶面喷施 0.2-0.3% 尿素溶液','促进新梢生长'], cycle:'7天后复查', indicators:'氮含量、新梢生长量', effect:'预计 7 天后氮水平回升' },
+  { id:'S017', factorType:'钾含量', deviation:'偏低', stages:['膨大期','成熟期'], priority:'important', priorityText:'二级·重要', measures:['叶面追施 0.3% 磷酸二氢钾','土壤追施钾肥（硫酸钾）','促进果实膨大、糖分积累和着色'], cycle:'7天后复查', indicators:'钾含量、果实糖度、着色率', effect:'预计 7 天后钾水平提升' },
+  { id:'S018', factorType:'磷含量', deviation:'偏低', stages:['开花期','落果期'], priority:'normal', priorityText:'三级·常规', measures:['追施磷肥（过磷酸钙）','叶面喷施 0.2% 磷酸二氢钾','促进花芽分化和根系发育'], cycle:'14天后复查', indicators:'磷含量、花芽数量', effect:'预计 14 天后磷水平回升' },
+  { id:'S019', factorType:'病虫害', deviation:'偏高', stages:['膨大期','成熟期','生长期'], priority:'urgent', priorityText:'一级·紧急', measures:['立即进行田间巡查','识别病虫害类型，对症用药','喷施广谱杀菌剂或杀虫剂'], cycle:'72小时内复查', indicators:'病虫指数、叶片受害率', effect:'预计 72 小时内控制病情' },
+  { id:'S020', factorType:'氮磷钾比例', deviation:'失调', stages:['膨大期','成熟期'], priority:'important', priorityText:'二级·重要', measures:['进行土壤养分检测','根据检测结果调整施肥方案','使用复合肥或配方肥'], cycle:'14天后复查', indicators:'氮磷钾比例、果实品质', effect:'预计 14 天后养分比例趋于平衡' }
+];
+
+var defaultFactorMapping = {
+  '空气湿度':'空气湿度','叶片叶绿素':'叶片叶绿素','土壤pH值':'土壤pH值',
+  '果实可溶性固形物':'果实可溶性固形物','冠层光照':'冠层光照','土壤水分':'土壤水分',
+  '空气温度':'温度','叶片温度':'温度','土壤温度':'温度',
+  '氮含量':'氮含量','氮':'氮含量','磷含量':'磷含量','磷':'磷含量',
+  '钾含量':'钾含量','钾':'钾含量','病虫害指数':'病虫害','病斑率':'病虫害','虫口密度':'病虫害'
+};
+
+var FACTOR_TYPES = ['空气湿度','叶片叶绿素','土壤pH值','果实可溶性固形物','冠层光照','土壤水分','温度','氮含量','磷含量','钾含量','病虫害','氮磷钾比例'];
+var STAGES = ['幼苗期','生长期','开花期','落果期','膨大期','成熟期'];
+var PRIORITY_MAP = { urgent:{text:'一级·紧急',cls:'priority-urgent'}, important:{text:'二级·重要',cls:'priority-important'}, normal:{text:'三级·常规',cls:'priority-normal'}, low:{text:'四级·可选',cls:'priority-low'} };
+
+var farmSchemeDB = [];
+var factorMapping = {};
+var currentEditId = null;
+var currentDeleteId = null;
+var currentMappingFrom = null;
+var currentMappingOldKey = null;
+var pageSize = 8;
+var currentPage = 1;
+var mappingPageSize = 10;
+var currentMappingPage = 1;
+
+// ============ 存储 ============
+function saveToStorage(){
+  try{
+    localStorage.setItem('farmSchemeDB', JSON.stringify(farmSchemeDB));
+    localStorage.setItem('factorMapping', JSON.stringify(factorMapping));
+  }catch(e){ console.error('saveToStorage error:',e); }
+}
+function loadFromStorage(){
+  try{
+    var s = localStorage.getItem('farmSchemeDB');
+    farmSchemeDB = s ? JSON.parse(s) : JSON.parse(JSON.stringify(defaultFarmSchemeDB));
+    var m = localStorage.getItem('factorMapping');
+    factorMapping = m ? JSON.parse(m) : JSON.parse(JSON.stringify(defaultFactorMapping));
+  }catch(e){
+    farmSchemeDB = JSON.parse(JSON.stringify(defaultFarmSchemeDB));
+    factorMapping = JSON.parse(JSON.stringify(defaultFactorMapping));
+  }
+}
+function resetToDefault(){
+  if(!confirm('确认恢复默认数据？当前所有自定义配置将被覆盖。')) return;
+  farmSchemeDB = JSON.parse(JSON.stringify(defaultFarmSchemeDB));
+  factorMapping = JSON.parse(JSON.stringify(defaultFactorMapping));
+  saveToStorage();
+  renderAll();
+  showToast('已恢复默认数据','success');
+}
+
+// ============ 匹配引擎 ============
+function inferDeviation(deduction){
+  var phe = deduction.phenomenon || '';
+  if(phe.indexOf('偏高')>=0||phe.indexOf('过高')>=0||phe.indexOf('过多')>=0) return '偏高';
+  if(phe.indexOf('偏低')>=0||phe.indexOf('过低')>=0||phe.indexOf('不足')>=0||phe.indexOf('偏少')>=0) return '偏低';
+  if(phe.indexOf('失调')>=0) return '失调';
+  var actual = parseFloat(deduction.actual);
+  var range = deduction.range;
+  if(actual && range){
+    var parts = range.replace(/[^\d\-.,]/g,'').split(/[-,]/);
+    if(parts.length>=2){
+      var low = parseFloat(parts[0]), high = parseFloat(parts[1]);
+      if(!isNaN(actual)&&!isNaN(low)&&!isNaN(high)){
+        if(actual>high) return '偏高';
+        if(actual<low) return '偏低';
+      }
+    }
+  }
+  return '未知';
+}
+
+function matchFarmScheme(deduction, stage){
+  var factorType = factorMapping[deduction.factor] || deduction.factor;
+  var deviation = inferDeviation(deduction);
+  var stageMap = {'果实膨大期':'膨大期','成熟期':'成熟期','生长期':'生长期','开花期':'开花期','落果期':'落果期','幼苗期':'幼苗期'};
+  var stageKey = stageMap[stage] || stage;
+  var matched = farmSchemeDB.filter(function(s){
+    if(s.factorType !== factorType) return false;
+    if(s.deviation !== deviation && s.deviation !== '失调') return false;
+    if(s.stages.indexOf(stageKey)<0 && s.stages.indexOf('全阶段')<0) return false;
+    return true;
+  });
+  if(matched.length===0){
+    matched = farmSchemeDB.filter(function(s){ return s.factorType === factorType; });
+  }
+  return matched;
+}
+
+// ============ Toast ============
+function showToast(msg,type){
+  type = type || 'info';
+  var el = document.createElement('div');
+  el.className = 'toast-item toast-' + type;
+  el.innerHTML = (type==='success'?'✓':type==='error'?'✕':type==='warning'?'⚠':'ℹ') + ' ' + msg;
+  document.getElementById('toastContainer').appendChild(el);
+  setTimeout(function(){
+    el.style.opacity='0';
+    el.style.transform='translateX(40px)';
+    el.style.transition='all 0.3s';
+    setTimeout(function(){ el.remove(); },300);
+  }, 2500);
+}
+
+// ============ Tab 切换 ============
+function switchTab(tab){
+  currentPage = 1;
+  document.querySelectorAll('.tab-btn').forEach(function(b){
+    b.className = 'tab-btn px-5 py-3 text-sm font-medium ' + (b.dataset.tab===tab ? 'tab-active' : 'tab-inactive');
+  });
+  document.querySelectorAll('.tab-panel').forEach(function(p){ p.classList.add('hidden'); });
+  document.getElementById('tab-'+tab).classList.remove('hidden');
+}
+
+// ============ 筛选器 ============
+function initFilters(){
+  var sel = document.getElementById('filterFactor');
+  FACTOR_TYPES.forEach(function(f){
+    var o = document.createElement('option'); o.value=f; o.textContent=f; sel.appendChild(o);
+  });
+  var tsel = document.getElementById('testFactor');
+  FACTOR_TYPES.forEach(function(f){
+    var o = document.createElement('option'); o.value=f; o.textContent=f; tsel.appendChild(o);
+  });
+  var mto = document.getElementById('mappingTo');
+  FACTOR_TYPES.forEach(function(f){
+    var o = document.createElement('option'); o.value=f; o.textContent=f; mto.appendChild(o);
+  });
+  var efa = document.getElementById('editFactor');
+  FACTOR_TYPES.forEach(function(f){
+    var o = document.createElement('option'); o.value=f; o.textContent=f; efa.appendChild(o);
+  });
+}
+
+// ============ 表格渲染 ============
+function getFilteredData(){
+  var kw = (document.getElementById('searchInput').value||'').toLowerCase();
+  var ff = document.getElementById('filterFactor').value;
+  var fp = document.getElementById('filterPriority').value;
+  var fs = document.getElementById('filterStage').value;
+  return farmSchemeDB.filter(function(s){
+    if(kw){
+      var blob = (s.id+' '+s.factorType+' '+(s.measures?s.measures.join(' '):'')).toLowerCase();
+      if(blob.indexOf(kw)<0) return false;
+    }
+    if(ff && s.factorType!==ff) return false;
+    if(fp && s.priority!==fp) return false;
+    if(fs && s.stages.indexOf(fs)<0) return false;
+    return true;
+  });
+}
+
+function renderTable(){
+  var data = getFilteredData();
+  var total = data.length;
+  var totalPages = Math.max(1, Math.ceil(total/pageSize));
+  if(currentPage>totalPages) currentPage = totalPages;
+  var start = (currentPage-1)*pageSize;
+  var pageData = data.slice(start, start+pageSize);
+
+  var tbody = document.getElementById('schemeTableBody');
+  var empty = document.getElementById('emptyState');
+  if(total===0){
+    tbody.innerHTML = '';
+    empty.classList.remove('hidden');
+  } else {
+    empty.classList.add('hidden');
+    tbody.innerHTML = pageData.map(function(s){
+      var pm = PRIORITY_MAP[s.priority] || PRIORITY_MAP.normal;
+      var measuresText = (s.measures||[]).slice(0,2).map(function(m){return m.length>20?m.substring(0,20)+'...':m;}).join('；');
+      if((s.measures||[]).length>2) measuresText += ' 等'+s.measures.length+'条';
+      var stagesHtml = (s.stages||[]).map(function(st){ return '<span class="inline-block px-1.5 py-0.5 text-xs bg-gray-100 text-gray-600 rounded mr-1">'+st+'</span>'; }).join('');
+      return '<tr class="border-b border-gray-100 row-hover row-striped">' +
+        '<td class="px-4 py-3 font-mono text-xs text-gray-600">'+s.id+'</td>' +
+        '<td class="px-4 py-3 text-gray-800">'+s.factorType+'</td>' +
+        '<td class="px-4 py-3"><span class="badge '+(s.deviation==='偏高'?'bg-red-50 text-red-600':s.deviation==='偏低'?'bg-blue-50 text-blue-600':'bg-yellow-50 text-yellow-700')+'">'+s.deviation+'</span></td>' +
+        '<td class="px-4 py-3">'+stagesHtml+'</td>' +
+        '<td class="px-4 py-3"><span class="badge '+pm.cls+'">'+pm.text+'</span></td>' +
+        '<td class="px-4 py-3 text-xs text-gray-600 max-w-xs">'+measuresText+'</td>' +
+        '<td class="px-4 py-3 whitespace-nowrap">' +
+          '<button onclick="openEditModal(\''+s.id+'\')" class="px-3 py-1 text-xs text-blue-600 hover:bg-blue-50 rounded mr-1">编辑</button>' +
+          '<button onclick="openDeleteModal(\''+s.id+'\')" class="px-3 py-1 text-xs text-red-600 hover:bg-red-50 rounded">删除</button>' +
+        '</td>' +
+      '</tr>';
+    }).join('');
+  }
+  document.getElementById('tableInfo').textContent = '共 '+total+' 条，当前显示 '+pageData.length+' 条';
+  document.getElementById('pageInfo').textContent = currentPage+' / '+totalPages;
+  document.getElementById('prevPage').disabled = currentPage<=1;
+  document.getElementById('nextPage').disabled = currentPage>=totalPages;
+}
+
+function prevPage(){ if(currentPage>1){ currentPage--; renderTable(); } }
+function nextPage(){
+  var total = getFilteredData().length;
+  var totalPages = Math.max(1, Math.ceil(total/pageSize));
+  if(currentPage<totalPages){ currentPage++; renderTable(); }
+}
+
+// ============ 编辑弹窗 ============
+function openEditModal(id){
+  currentEditId = id;
+  var title = id ? '编辑方案' : '新增方案';
+  document.getElementById('editModalTitle').textContent = title;
+
+  if(id){
+    var s = farmSchemeDB.find(function(x){ return x.id===id; });
+    if(!s){ showToast('方案不存在','error'); return; }
+    document.getElementById('editId').value = s.id;
+    document.getElementById('editFactor').value = s.factorType;
+    document.getElementById('editDeviation').value = s.deviation;
+    document.getElementById('editPriority').value = s.priority;
+    document.getElementById('editCycle').value = s.cycle || '';
+    document.getElementById('editIndicators').value = s.indicators || '';
+    document.getElementById('editEffect').value = s.effect || '';
+    renderStages(s.stages || []);
+    renderMeasures(s.measures || ['']);
+  } else {
+    var maxNum = 0;
+    farmSchemeDB.forEach(function(x){ var n = parseInt(x.id.substring(1)); if(!isNaN(n)&&n>maxNum) maxNum=n; });
+    var newId = 'S'+String(maxNum+1).padStart(3,'0');
+    document.getElementById('editId').value = newId;
+    document.getElementById('editFactor').value = FACTOR_TYPES[0];
+    document.getElementById('editDeviation').value = '偏高';
+    document.getElementById('editPriority').value = 'normal';
+    document.getElementById('editCycle').value = '';
+    document.getElementById('editIndicators').value = '';
+    document.getElementById('editEffect').value = '';
+    renderStages([]);
+    renderMeasures(['']);
+  }
+  document.getElementById('editModal').classList.remove('hidden');
+}
+
+function closeEditModal(){
+  document.getElementById('editModal').classList.add('hidden');
+  currentEditId = null;
+}
+
+function renderStages(selected){
+  var c = document.getElementById('editStages');
+  c.innerHTML = '';
+  STAGES.forEach(function(st){
+    var checked = selected.indexOf(st)>=0;
+    var div = document.createElement('label');
+    div.className = 'inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border text-sm cursor-pointer transition ' + (checked ? 'border-green-400 bg-green-50 text-green-700' : 'border-gray-200 text-gray-600 hover:border-gray-300');
+    div.innerHTML = '<input type="checkbox" class="w-3.5 h-3.5 accent-green-600" value="'+st+'" '+(checked?'checked':'')+'> '+st;
+    c.appendChild(div);
+  });
+}
+
+function renderMeasures(list){
+  var c = document.getElementById('editMeasures');
+  c.innerHTML = '';
+  list.forEach(function(m, idx){
+    var row = document.createElement('div');
+    row.className = 'flex items-center gap-2';
+    row.innerHTML = '<span class="text-xs text-gray-400 w-6">'+(idx+1)+'.</span>' +
+      '<input type="text" value="'+(m||'').replace(/"/g,'&quot;')+'" placeholder="请输入措施内容" class="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm measure-input">' +
+      '<button onclick="removeMeasureRow(this)" class="w-8 h-8 flex items-center justify-center text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg" title="删除">×</button>';
+    c.appendChild(row);
+  });
+}
+
+function addMeasureRow(){
+  var inputs = document.querySelectorAll('#editMeasures .measure-input');
+  var list = [];
+  inputs.forEach(function(i){ list.push(i.value); });
+  list.push('');
+  renderMeasures(list);
+}
+
+function removeMeasureRow(btn){
+  var rows = document.querySelectorAll('#editMeasures > div');
+  if(rows.length<=1){ showToast('至少保留一条措施','warning'); return; }
+  btn.closest('div').remove();
+  var inputs = document.querySelectorAll('#editMeasures .measure-input');
+  var list = [];
+  inputs.forEach(function(i){ list.push(i.value); });
+  renderMeasures(list);
+}
+
+function saveScheme(){
+  var id = document.getElementById('editId').value.trim();
+  var factorType = document.getElementById('editFactor').value;
+  var deviation = document.getElementById('editDeviation').value;
+  var priority = document.getElementById('editPriority').value;
+  var cycle = document.getElementById('editCycle').value.trim();
+  var indicators = document.getElementById('editIndicators').value.trim();
+  var effect = document.getElementById('editEffect').value.trim();
+
+  var stageInputs = document.querySelectorAll('#editStages input:checked');
+  var stages = [];
+  stageInputs.forEach(function(i){ stages.push(i.value); });
+
+  var measureInputs = document.querySelectorAll('#editMeasures .measure-input');
+  var measures = [];
+  measureInputs.forEach(function(i){ if(i.value.trim()) measures.push(i.value.trim()); });
+
+  if(!factorType){ showToast('因子类型必填','error'); return; }
+  if(stages.length===0){ showToast('请至少选择一个生育阶段','error'); return; }
+  if(measures.length===0){ showToast('请至少添加一条措施','error'); return; }
+
+  var pm = PRIORITY_MAP[priority];
+  var record = { id:id, factorType:factorType, deviation:deviation, stages:stages, priority:priority, priorityText:pm?pm.text:'三级·常规', measures:measures, cycle:cycle, indicators:indicators, effect:effect };
+
+  var idx = farmSchemeDB.findIndex(function(s){ return s.id===id; });
+  if(idx>=0){
+    farmSchemeDB[idx] = record;
+    showToast('方案已更新','success');
+  } else {
+    farmSchemeDB.push(record);
+    showToast('方案已新增','success');
+  }
+  saveToStorage();
+  closeEditModal();
+  renderAll();
+}
+
+// ============ 删除 ============
+function openDeleteModal(id){
+  currentDeleteId = id;
+  var s = farmSchemeDB.find(function(x){ return x.id===id; });
+  document.getElementById('deleteModalTitle').textContent = '确认删除方案 '+id+'？';
+  document.getElementById('deleteModalText').textContent = s ? ('将删除因子类型为"'+s.factorType+'"的方案，删除后不可恢复。') : '删除后数据不可恢复。';
+  document.getElementById('deleteModal').classList.remove('hidden');
+}
+function closeDeleteModal(){
+  document.getElementById('deleteModal').classList.add('hidden');
+  currentDeleteId = null;
+}
+document.addEventListener('click', function(e){
+  if(e.target && e.target.id==='confirmDeleteBtn' && currentDeleteId){
+    farmSchemeDB = farmSchemeDB.filter(function(s){ return s.id!==currentDeleteId; });
+    saveToStorage();
+    closeDeleteModal();
+    renderAll();
+    showToast('方案已删除','success');
+  }
+});
+
+// ============ 方案测试 ============
+function runTest(){
+  var factor = document.getElementById('testFactor').value;
+  var actual = document.getElementById('testActual').value;
+  var range = document.getElementById('testRange').value;
+  var stage = document.getElementById('testStage').value;
+  var phe = document.getElementById('testPhenomenon').value;
+
+  if(!actual){ showToast('请输入实测值','warning'); return; }
+
+  var deduction = { factor:factor, actual:actual, range:range, phenomenon:phe };
+  var deviation = inferDeviation(deduction);
+  var matched = matchFarmScheme(deduction, stage);
+
+  var resultDiv = document.getElementById('testResult');
+  if(matched.length===0){
+    resultDiv.innerHTML = '<div class="text-center py-12">' +
+      '<svg class="w-10 h-10 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>' +
+      '<div class="text-gray-500">未匹配到农事方案</div>' +
+      '<div class="text-xs text-gray-400 mt-2">偏离方向：'+deviation+'，建议检查是否存在对应因子类型的方案配置</div>' +
+    '</div>';
+  } else {
+    var html = '<div class="mb-3 p-3 bg-green-50 rounded-lg border border-green-100 text-sm">' +
+      '<span class="font-medium text-green-700">匹配成功</span> · 偏离方向：<span class="font-semibold text-gray-800">'+deviation+'</span> · 共找到 <span class="font-bold text-green-700">'+matched.length+'</span> 条方案' +
+    '</div>';
+    html += '<div class="space-y-3">';
+    matched.forEach(function(s){
+      var pm = PRIORITY_MAP[s.priority] || PRIORITY_MAP.normal;
+      html += '<div class="p-3 bg-white rounded-lg border border-gray-200 hover:border-green-300 transition">' +
+        '<div class="flex items-center justify-between mb-2">' +
+          '<div class="flex items-center gap-2">' +
+            '<span class="font-mono text-xs text-gray-400">'+s.id+'</span>' +
+            '<span class="font-semibold text-gray-800">'+s.factorType+'</span>' +
+            '<span class="badge '+pm.cls+'">'+pm.text+'</span>' +
+          '</div>' +
+          '<span class="text-xs text-gray-500">'+s.deviation+' · '+(s.stages||[]).join('/')+'</span>' +
+        '</div>' +
+        '<div class="text-sm text-gray-700 mb-1"><strong>措施：</strong>'+(s.measures?s.measures.join('；'):'无')+'</div>' +
+        '<div class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">' +
+          '<span>复查：'+(s.cycle||'-')+'</span>' +
+          '<span>监测：'+(s.indicators||'-')+'</span>' +
+        '</div>' +
+        '<div class="mt-1 text-xs text-green-600">预期效果：'+(s.effect||'-')+'</div>' +
+      '</div>';
+    });
+    html += '</div>';
+    resultDiv.innerHTML = html;
+    showToast('匹配完成，找到 '+matched.length+' 条方案','success');
+  }
+}
+
+function renderMapping(){
+  var tbody = document.getElementById('mappingTableBody');
+  var keys = Object.keys(factorMapping);
+  if(keys.length===0){
+    tbody.innerHTML = '<tr><td colspan="3" class="px-4 py-8 text-center text-gray-400">暂无映射数据</td></tr>';
+    document.getElementById('mappingPagination').classList.add('hidden');
+    return;
+  }
+  var totalPages = Math.max(1, Math.ceil(keys.length/mappingPageSize));
+  if(currentMappingPage > totalPages) currentMappingPage = totalPages;
+  var start = (currentMappingPage-1) * mappingPageSize;
+  var pageKeys = keys.slice(start, start+mappingPageSize);
+  tbody.innerHTML = pageKeys.map(function(k){
+    return '<tr class="border-b border-gray-100 row-hover row-striped">' +
+      '<td class="px-4 py-3 text-gray-800">'+k+'</td>' +
+      '<td class="px-4 py-3"><span class="inline-block px-2 py-0.5 bg-green-50 text-green-700 rounded text-xs">'+factorMapping[k]+'</span></td>' +
+      '<td class="px-4 py-3 whitespace-nowrap">' +
+        '<button onclick="openMappingModal(\''+k+'\')" class="px-3 py-1 text-xs text-blue-600 hover:bg-blue-50 rounded mr-1">编辑</button>' +
+        '<button onclick="deleteMapping(\''+k+'\')" class="px-3 py-1 text-xs text-red-600 hover:bg-red-50 rounded">删除</button>' +
+      '</td>' +
+    '</tr>';
+  }).join('');
+  document.getElementById('mappingPagination').classList.remove('hidden');
+  document.getElementById('mappingTotal').textContent = '共 '+keys.length+' 条';
+  document.getElementById('mappingPageInfo').textContent = currentMappingPage+' / '+totalPages;
+  document.getElementById('mappingPrevBtn').disabled = currentMappingPage<=1;
+  document.getElementById('mappingNextBtn').disabled = currentMappingPage>=totalPages;
+}
+function prevMappingPage(){ if(currentMappingPage>1){ currentMappingPage--; renderMapping(); } }
+function nextMappingPage(){
+  var total = Object.keys(factorMapping).length;
+  var totalPages = Math.max(1, Math.ceil(total/mappingPageSize));
+  if(currentMappingPage<totalPages){ currentMappingPage++; renderMapping(); }
+}
+
+function openMappingModal(key){
+  currentMappingFrom = key;
+  currentMappingOldKey = key;
+  document.getElementById('mappingModalTitle').textContent = key ? '编辑映射' : '新增映射';
+  document.getElementById('mappingFrom').value = key || '';
+  document.getElementById('mappingTo').value = key ? factorMapping[key] : FACTOR_TYPES[0];
+  document.getElementById('mappingModal').classList.remove('hidden');
+}
+function closeMappingModal(){
+  document.getElementById('mappingModal').classList.add('hidden');
+  currentMappingFrom = null;
+  currentMappingOldKey = null;
+}
+function saveMapping(){
+  var from = document.getElementById('mappingFrom').value.trim();
+  var to = document.getElementById('mappingTo').value;
+  if(!from){ showToast('请输入因子名','error'); return; }
+  if(currentMappingOldKey && currentMappingOldKey !== from){
+    delete factorMapping[currentMappingOldKey];
+  }
+  factorMapping[from] = to;
+  saveToStorage();
+  closeMappingModal();
+  renderMapping();
+  showToast('映射已保存','success');
+}
+function deleteMapping(key){
+  if(!confirm('确认删除映射 "'+key+'" → "'+factorMapping[key]+'"？')) return;
+  delete factorMapping[key];
+  saveToStorage();
+  renderMapping();
+  showToast('映射已删除','success');
+}
+
+function exportConfig(){
+  var data = { farmSchemeDB: farmSchemeDB, factorMapping: factorMapping, exportTime: new Date().toISOString() };
+  var blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'farm_scheme_config_'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('配置已导出','success');
+}
+
+function renderAll(){
+  renderTable();
+  renderMapping();
+}
+
+window.onload = function(){
+  loadFromStorage();
+  initFilters();
+  renderAll();
+};
+</script>
+</body>
+</html>

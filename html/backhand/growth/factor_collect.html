@@ -1,0 +1,1342 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>因子数据采集 - 南丰蜜桔模型管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body{margin:0;padding:0;background-color:#F0F2F5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,'Noto Sans SC',sans-serif}
+        .content-wrapper{padding:24px;height:100vh;overflow-y:auto}
+        .tab-active{color:#16a34a;border-bottom:2px solid #16a34a;font-weight:600}
+        .tab-inactive{color:#6b7280;border-bottom:2px solid transparent}
+        .tab-inactive:hover{color:#374151}
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .spin-animation{animation:spin 1s linear infinite}
+        .form-input{width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box;outline:none}
+        .form-input:focus{border-color:#16a34a;box-shadow:0 0 0 2px rgba(22,163,74,0.1)}
+        .form-input:read-only{background-color:#f9fafb;color:#6b7280}
+        .form-label{font-size:13px;font-weight:500;color:#374151;display:block;margin-bottom:4px}
+        .required-star{color:#ef4444}
+        .status-dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:6px}
+        .form-group-title{font-size:13px;font-weight:600;color:#16a34a;margin-bottom:10px;padding-bottom:6px;border-bottom:1px dashed #d1d5db;display:flex;align-items:center}
+        .form-group-title::before{content:'';width:3px;height:14px;background:#16a34a;border-radius:2px;margin-right:8px}
+        .val-ok{color:#16a34a}
+        .val-warn{color:#f59e0b}
+        .val-error{color:#ef4444}
+        .modal-mask{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center}
+        .modal-mask.active{display:flex}
+        .toast{position:fixed;top:24px;right:24px;padding:12px 24px;border-radius:8px;color:#fff;font-size:14px;z-index:100000;box-shadow:0 4px 12px rgba(0,0,0,0.15);opacity:0;transform:translateY(-20px);transition:all 0.3s}
+        .toast.show{opacity:1;transform:translateY(0)}
+        .toast-success{background:#16a34a}
+        .toast-error{background:#ef4444}
+        .toast-info{background:#3b82f6}
+        .toast-warning{background:#f59e0b}
+        .badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:500}
+        .row-hover:hover{background-color:#f9fafb}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+        .modal-content{animation:fadeIn 0.3s ease}
+    </style>
+</head>
+<body>
+<div class="content-wrapper">
+
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h1 class="text-xl font-bold text-gray-800">因子数据采集</h1>
+            <p class="text-gray-500 text-sm mt-1">采集南丰蜜桔生长相关的气象、土壤、农艺等关键因子数据</p>
+        </div>
+        <div class="flex items-center space-x-3">
+            <span class="text-sm text-gray-500">当前季节: <span class="font-semibold text-green-600">果实膨大期 (7-8月)</span></span>
+            <span class="text-sm text-gray-500">最后更新: <span id="last-update-time" class="font-medium text-gray-700"></span></span>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+        <div class="border-b border-gray-100 flex items-center px-6">
+            <div class="tab-item px-4 py-4 cursor-pointer text-sm mr-6 tab-active" data-tab="iot" onclick="switchTab('iot')">
+                <span class="flex items-center">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"/></svg>
+                    物联网实时数据
+                </span>
+            </div>
+            <div class="tab-item px-4 py-4 cursor-pointer text-sm mr-6 tab-inactive" data-tab="manual" onclick="switchTab('manual')">
+                <span class="flex items-center">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                    人工采样录入
+                </span>
+            </div>
+            <div class="tab-item px-4 py-4 cursor-pointer text-sm mr-6 tab-inactive" data-tab="farm" onclick="switchTab('farm')">
+                <span class="flex items-center">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                    农事记录录入
+                </span>
+            </div>
+        </div>
+
+        <!-- 物联网实时数据 Tab -->
+        <div id="tab-iot" class="tab-content p-6">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center space-x-4">
+                    <span class="flex items-center text-sm text-gray-600">
+                        <span class="status-dot bg-green-500"></span>
+                        自动刷新: 每5秒
+                    </span>
+                    <span class="text-sm text-gray-400">|</span>
+                    <span class="text-sm text-gray-600">
+                        共 <span id="iot-total-count" class="font-semibold text-gray-800">0</span> 条数据
+                    </span>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <select id="iot-plot-filter" class="px-3 py-2 border border-gray-300 rounded-lg text-sm" onchange="iotCurrentPage=1;renderIotTable()">
+                        <option value="">全部地块</option>
+                        <option value="NF-001">东坡A-03地块</option>
+                        <option value="NF-005">西坡C-02地块</option>
+                        <option value="NF-008">南坡B-04地块</option>
+                    </select>
+                    <button onclick="toggleAutoRefresh()" id="auto-refresh-btn" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm flex items-center">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                        <span id="auto-refresh-text">暂停自动刷新</span>
+                    </button>
+                    <button onclick="refreshIotData()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm flex items-center">
+                        <svg id="refresh-icon" class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                        立即刷新
+                    </button>
+                </div>
+            </div>
+
+            <!-- 数据列表区块 -->
+            <div class="mb-6">
+                <h3 class="text-sm font-semibold text-gray-700 mb-3 flex items-center">
+                    <svg class="w-4 h-4 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+                    数据列表
+                </h3>
+                <div class="overflow-x-auto border border-gray-100 rounded-lg">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="bg-gray-50">
+                                <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">地块</th>
+                                <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">设备编号</th>
+                                <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">采集时间</th>
+                                <th class="text-center px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">温度℃</th>
+                                <th class="text-center px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">湿度%</th>
+                                <th class="text-center px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">土壤含水量%</th>
+                                <th class="text-center px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">光照lux</th>
+                                <th class="text-center px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">降雨mm</th>
+                                <th class="text-center px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">灌溉状态</th>
+                                <th class="text-center px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="iot-tbody" class="divide-y divide-gray-100"></tbody>
+                    </table>
+                </div>
+                <div id="iot-pagination" class="mt-4 flex items-center justify-between flex-wrap gap-2"></div>
+            </div>
+
+            <!-- 实时数据区块 -->
+            <div>
+                <h3 class="text-sm font-semibold text-gray-700 mb-3 flex items-center">
+                    <svg class="w-4 h-4 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    实时数据（最新采集均值）
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-green-50 rounded-lg p-4 border border-green-100">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-green-700">当前温度</span>
+                            <span class="text-2xl font-bold text-green-800" id="stat-temp">-</span>
+                        </div>
+                        <div class="text-xs text-green-600 mt-1">南丰蜜桔适宜: 20-35℃</div>
+                    </div>
+                    <div class="bg-blue-50 rounded-lg p-4 border border-blue-100">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-blue-700">土壤含水量</span>
+                            <span class="text-2xl font-bold text-blue-800" id="stat-soil">-</span>
+                        </div>
+                        <div class="text-xs text-blue-600 mt-1">适宜范围: 60-85%</div>
+                    </div>
+                    <div class="bg-yellow-50 rounded-lg p-4 border border-yellow-100">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-yellow-700">光照强度</span>
+                            <span class="text-2xl font-bold text-yellow-800" id="stat-light">-</span>
+                        </div>
+                        <div class="text-xs text-yellow-600 mt-1">适宜范围: 25000-80000 lux</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 人工采样录入 Tab -->
+        <div id="tab-manual" class="tab-content p-6" style="display:none">
+            <div class="flex items-center justify-between mb-4 flex-wrap gap-3">
+                <div class="flex items-center space-x-3 flex-wrap">
+                    <input type="text" id="manual-search" placeholder="搜索地块/日期..." class="px-4 py-2 border border-gray-300 rounded-lg text-sm w-48" oninput="manualCurrentPage=1;renderManualTable()">
+                    <select id="manual-plot-filter" class="px-4 py-2 border border-gray-300 rounded-lg text-sm" onchange="manualCurrentPage=1;renderManualTable()">
+                        <option value="">全部地块</option>
+                        <option value="NF-001">东坡A-03地块</option>
+                        <option value="NF-005">西坡C-02地块</option>
+                        <option value="NF-008">南坡B-04地块</option>
+                    </select>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <button onclick="showBatchImport()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm flex items-center transition-colors">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                        批量导入
+                    </button>
+                    <button onclick="openManualAddModal()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm flex items-center transition-colors">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        添加采样
+                    </button>
+                </div>
+            </div>
+            <div class="overflow-x-auto border border-gray-100 rounded-lg">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="bg-gray-50">
+                            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">地块</th>
+                            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">采样日期</th>
+                            <th class="text-center px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">果径(mm)</th>
+                            <th class="text-center px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">糖度(°Brix)</th>
+                            <th class="text-center px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">SPAD</th>
+                            <th class="text-center px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">PH</th>
+                            <th class="text-center px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">氮N</th>
+                            <th class="text-center px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">磷P</th>
+                            <th class="text-center px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">钾K</th>
+                            <th class="text-center px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">挂果量</th>
+                            <th class="text-center px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="manual-tbody" class="divide-y divide-gray-100"></tbody>
+                </table>
+            </div>
+            <div id="manual-pagination" class="mt-4 flex items-center justify-between flex-wrap gap-2"></div>
+        </div>
+
+        <!-- 农事操作记录 Tab -->
+        <div id="tab-farm" class="tab-content p-6" style="display:none">
+            <!-- 类型统计 -->
+            <div class="grid grid-cols-2 md:grid-cols-7 gap-3 mb-5">
+                <div class="bg-blue-50 rounded-lg p-3 border border-blue-100 text-center">
+                    <div class="text-lg font-bold text-blue-700" id="type-irrigation">0</div>
+                    <div class="text-xs text-blue-600">💧 灌溉</div>
+                </div>
+                <div class="bg-green-50 rounded-lg p-3 border border-green-100 text-center">
+                    <div class="text-lg font-bold text-green-700" id="type-fertilize">0</div>
+                    <div class="text-xs text-green-600">🌱 施肥</div>
+                </div>
+                <div class="bg-yellow-50 rounded-lg p-3 border border-yellow-100 text-center">
+                    <div class="text-lg font-bold text-yellow-700" id="type-thin">0</div>
+                    <div class="text-xs text-yellow-600">✂️ 疏果</div>
+                </div>
+                <div class="bg-orange-50 rounded-lg p-3 border border-orange-100 text-center">
+                    <div class="text-lg font-bold text-orange-700" id="type-prune">0</div>
+                    <div class="text-xs text-orange-600">🌿 修剪</div>
+                </div>
+                <div class="bg-purple-50 rounded-lg p-3 border border-purple-100 text-center">
+                    <div class="text-lg font-bold text-purple-700" id="type-shade">0</div>
+                    <div class="text-xs text-purple-600">⛱️ 遮阳</div>
+                </div>
+                <div class="bg-red-50 rounded-lg p-3 border border-red-100 text-center">
+                    <div class="text-lg font-bold text-red-700" id="type-spray">0</div>
+                    <div class="text-xs text-red-600">💊 打药</div>
+                </div>
+                <div class="bg-cyan-50 rounded-lg p-3 border border-cyan-100 text-center">
+                    <div class="text-lg font-bold text-cyan-700" id="type-drain">0</div>
+                    <div class="text-xs text-cyan-600">🌊 排水</div>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between mb-4 flex-wrap gap-3">
+                <div class="flex items-center space-x-3 flex-wrap">
+                    <input type="text" id="farm-search" placeholder="搜索详情/操作人..." class="px-3 py-2 border border-gray-300 rounded-lg text-sm w-48" oninput="farmCurrentPage=1;renderFarmTable()">
+                    <select id="farm-plot-filter" class="px-3 py-2 border border-gray-300 rounded-lg text-sm" onchange="farmCurrentPage=1;renderFarmTable()">
+                        <option value="">全部地块</option>
+                        <option value="NF-001">东坡A-03地块</option>
+                        <option value="NF-005">西坡C-02地块</option>
+                        <option value="NF-008">南坡B-04地块</option>
+                    </select>
+                    <select id="farm-type-filter" class="px-3 py-2 border border-gray-300 rounded-lg text-sm" onchange="farmCurrentPage=1;renderFarmTable()">
+                        <option value="">全部类型</option>
+                        <option value="灌溉">💧 灌溉</option>
+                        <option value="施肥">🌱 施肥</option>
+                        <option value="疏果">✂️ 疏果</option>
+                        <option value="修剪">🌿 修剪</option>
+                        <option value="遮阳">⛱️ 遮阳</option>
+                        <option value="打药">💊 打药</option>
+                        <option value="排水">🌊 排水</option>
+                    </select>
+                </div>
+                <button onclick="openFarmAddModal()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm flex items-center transition-colors">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    新增农事记录
+                </button>
+            </div>
+            <div class="overflow-x-auto border border-gray-100 rounded-lg">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="bg-gray-50">
+                            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">地块</th>
+                            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">操作日期</th>
+                            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">农事类型</th>
+                            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">操作详情</th>
+                            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">操作人</th>
+                            <th class="text-center px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="farm-tbody" class="divide-y divide-gray-100"></tbody>
+                </table>
+            </div>
+            <div id="farm-pagination" class="mt-4 flex items-center justify-between flex-wrap gap-2"></div>
+        </div>
+    </div>
+</div>
+
+<!-- 物联网数据详情弹窗 -->
+<div id="iot-detail-modal" class="modal-mask">
+    <div style="background:#fff;border-radius:12px;width:90%;max-width:560px;max-height:85vh;overflow-y:auto" class="modal-content">
+        <div style="padding:16px 20px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:10">
+            <h3 style="font-size:17px;font-weight:600;color:#1f2937">采集数据详情</h3>
+            <button onclick="closeModal('iot-detail-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:22px;color:#9ca3af">&times;</button>
+        </div>
+        <div style="padding:20px" id="iot-detail-content"></div>
+        <div style="padding:14px 20px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:10px">
+            <button onclick="closeModal('iot-detail-modal')" style="padding:8px 16px;background:#f3f4f6;color:#374151;border:none;border-radius:8px;font-size:14px;cursor:pointer">关闭</button>
+        </div>
+    </div>
+</div>
+
+<!-- 人工采样详情弹窗 -->
+<div id="manual-detail-modal" class="modal-mask">
+    <div style="background:#fff;border-radius:12px;width:90%;max-width:600px;max-height:85vh;overflow-y:auto" class="modal-content">
+        <div style="padding:16px 20px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:10">
+            <h3 style="font-size:17px;font-weight:600;color:#1f2937">采样记录详情</h3>
+            <button onclick="closeModal('manual-detail-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:22px;color:#9ca3af">&times;</button>
+        </div>
+        <div style="padding:20px" id="manual-detail-content"></div>
+        <div style="padding:14px 20px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:10px">
+            <button onclick="closeModal('manual-detail-modal')" style="padding:8px 16px;background:#f3f4f6;color:#374151;border:none;border-radius:8px;font-size:14px;cursor:pointer">关闭</button>
+        </div>
+    </div>
+</div>
+
+<!-- 人工采样新增/编辑弹窗 -->
+<div id="manual-edit-modal" class="modal-mask">
+    <div style="background:#fff;border-radius:12px;width:90%;max-width:600px;max-height:85vh;overflow-y:auto" class="modal-content">
+        <div style="padding:16px 20px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:10">
+            <h3 id="manual-edit-title" style="font-size:17px;font-weight:600;color:#1f2937">新增采样数据</h3>
+            <button onclick="closeModal('manual-edit-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:22px;color:#9ca3af">&times;</button>
+        </div>
+        <div style="padding:20px">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+                <div>
+                    <label class="form-label">地块选择 <span class="required-star">*</span></label>
+                    <select id="m-plot" class="form-input">
+                        <option value="">请选择地块</option>
+                        <option value="NF-001|东坡A-03地块">NF-001 东坡A-03地块</option>
+                        <option value="NF-005|西坡C-02地块">NF-005 西坡C-02地块</option>
+                        <option value="NF-008|南坡B-04地块">NF-008 南坡B-04地块</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="form-label">采样日期 <span class="required-star">*</span></label>
+                    <input type="date" id="m-date" class="form-input" value="2026-08-04" min="2026-07-01" max="2026-08-31">
+                </div>
+            </div>
+            <div class="form-group-title">果实生长指标</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+                <div>
+                    <label class="form-label">果径 (mm)</label>
+                    <input type="number" id="m-diameter" class="form-input" placeholder="20-120" step="0.1" min="20" max="120">
+                    <div class="text-xs text-gray-400 mt-1">适宜: 60-85mm</div>
+                </div>
+                <div>
+                    <label class="form-label">糖度 (°Brix)</label>
+                    <input type="number" id="m-sugar" class="form-input" placeholder="5-20" step="0.1" min="5" max="20">
+                    <div class="text-xs text-gray-400 mt-1">适宜: 10-16°Brix</div>
+                </div>
+                <div>
+                    <label class="form-label">SPAD (叶绿素)</label>
+                    <input type="number" id="m-spad" class="form-input" placeholder="20-80" step="0.1" min="20" max="80">
+                    <div class="text-xs text-gray-400 mt-1">适宜: 40-60</div>
+                </div>
+                <div>
+                    <label class="form-label">挂果量 (个/株)</label>
+                    <input type="number" id="m-yield" class="form-input" placeholder="50-200" min="50" max="200">
+                    <div class="text-xs text-gray-400 mt-1">适宜: 80-150</div>
+                </div>
+            </div>
+            <div class="form-group-title">土壤环境指标</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+                <div>
+                    <label class="form-label">土壤PH</label>
+                    <input type="number" id="m-ph" class="form-input" placeholder="4-9" step="0.1" min="4" max="9">
+                    <div class="text-xs text-gray-400 mt-1">适宜: 5.5-7.0</div>
+                </div>
+                <div>
+                    <label class="form-label">土壤EC (mS/cm)</label>
+                    <input type="number" id="m-ec" class="form-input" placeholder="0.5-3.0" step="0.01" min="0.5" max="3">
+                    <div class="text-xs text-gray-400 mt-1">适宜: 1.0-2.0</div>
+                </div>
+            </div>
+            <div class="form-group-title">营养元素指标</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px">
+                <div>
+                    <label class="form-label">氮N (g/kg)</label>
+                    <input type="number" id="m-n" class="form-input" placeholder="0.5-3" step="0.1" min="0.5" max="3">
+                </div>
+                <div>
+                    <label class="form-label">磷P (g/kg)</label>
+                    <input type="number" id="m-p" class="form-input" placeholder="0.1-1" step="0.01" min="0.1" max="1">
+                </div>
+                <div>
+                    <label class="form-label">钾K (g/kg)</label>
+                    <input type="number" id="m-k" class="form-input" placeholder="0.5-3" step="0.1" min="0.5" max="3">
+                </div>
+            </div>
+            <div>
+                <label class="form-label">病虫害描述</label>
+                <textarea id="m-pest" class="form-input" rows="2" placeholder="请描述当前病虫害发生情况，如无则填'无'..."></textarea>
+            </div>
+        </div>
+        <div style="padding:14px 20px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:10px">
+            <button onclick="closeModal('manual-edit-modal')" style="padding:8px 16px;background:#f3f4f6;color:#374151;border:none;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
+            <button onclick="submitManualForm()" style="padding:8px 16px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">确认</button>
+        </div>
+    </div>
+</div>
+
+<!-- 农事详情弹窗 -->
+<div id="farm-detail-modal" class="modal-mask">
+    <div style="background:#fff;border-radius:12px;width:90%;max-width:500px;max-height:85vh;overflow-y:auto" class="modal-content">
+        <div style="padding:16px 20px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+            <h3 style="font-size:17px;font-weight:600;color:#1f2937">农事记录详情</h3>
+            <button onclick="closeModal('farm-detail-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:22px;color:#9ca3af">&times;</button>
+        </div>
+        <div style="padding:20px" id="farm-detail-content"></div>
+        <div style="padding:14px 20px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:10px">
+            <button onclick="closeModal('farm-detail-modal')" style="padding:8px 16px;background:#f3f4f6;color:#374151;border:none;border-radius:8px;font-size:14px;cursor:pointer">关闭</button>
+            <button onclick="editFarmFromDetail()" style="padding:8px 16px;background:#3b82f6;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">编辑</button>
+        </div>
+    </div>
+</div>
+
+<!-- 农事操作新增/编辑弹窗 -->
+<div id="farm-edit-modal" class="modal-mask">
+    <div style="background:#fff;border-radius:12px;width:90%;max-width:550px;max-height:85vh;overflow-y:auto" class="modal-content">
+        <div style="padding:16px 20px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+            <h3 id="farm-edit-title" style="font-size:17px;font-weight:600;color:#1f2937">新增农事记录</h3>
+            <button onclick="closeModal('farm-edit-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:22px;color:#9ca3af">&times;</button>
+        </div>
+        <div style="padding:20px">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+                <div>
+                    <label class="form-label">地块选择 <span class="required-star">*</span></label>
+                    <select id="f-plot" class="form-input">
+                        <option value="">请选择地块</option>
+                        <option value="NF-001|东坡A-03地块">NF-001 东坡A-03地块</option>
+                        <option value="NF-005|西坡C-02地块">NF-005 西坡C-02地块</option>
+                        <option value="NF-008|南坡B-04地块">NF-008 南坡B-04地块</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="form-label">操作日期 <span class="required-star">*</span></label>
+                    <input type="date" id="f-date" class="form-input" value="2026-08-04" min="2026-07-01" max="2026-08-31">
+                </div>
+                <div>
+                    <label class="form-label">农事类型 <span class="required-star">*</span></label>
+                    <select id="f-type" class="form-input">
+                        <option value="">请选择类型</option>
+                        <option value="灌溉">💧 灌溉</option>
+                        <option value="施肥">🌱 施肥</option>
+                        <option value="疏果">✂️ 疏果</option>
+                        <option value="修剪">🌿 修剪</option>
+                        <option value="遮阳">⛱️ 遮阳</option>
+                        <option value="打药">💊 打药</option>
+                        <option value="排水">🌊 排水</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="form-label">操作人 <span class="required-star">*</span></label>
+                    <input type="text" id="f-operator" class="form-input" placeholder="如: 张明">
+                </div>
+            </div>
+            <div>
+                <label class="form-label">操作详情 <span class="required-star">*</span></label>
+                <textarea id="f-detail" class="form-input" rows="3" placeholder="请描述操作详情，如灌溉量、施肥种类和用量等..."></textarea>
+            </div>
+        </div>
+        <div style="padding:14px 20px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:10px">
+            <button onclick="closeModal('farm-edit-modal')" style="padding:8px 16px;background:#f3f4f6;color:#374151;border:none;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
+            <button onclick="submitFarmForm()" style="padding:8px 16px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">确认</button>
+        </div>
+    </div>
+</div>
+
+<!-- 批量导入弹窗 -->
+<div id="batch-import-modal" class="modal-mask">
+    <div style="background:#fff;border-radius:12px;width:90%;max-width:500px" class="modal-content">
+        <div style="padding:16px 20px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+            <h3 style="font-size:17px;font-weight:600;color:#1f2937">批量导入数据</h3>
+            <button onclick="closeModal('batch-import-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:22px;color:#9ca3af">&times;</button>
+        </div>
+        <div style="padding:24px">
+            <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px;margin-bottom:16px">
+                <p style="font-size:14px;font-weight:500;color:#1e40af">导入说明</p>
+                <p style="font-size:12px;color:#2563eb;margin-top:4px">支持 Excel/CSV 格式文件导入，文件需包含地块编号、采样日期、果径、糖度、SPAD、PH、氮磷钾、挂果量等字段。</p>
+            </div>
+            <div style="border:2px dashed #d1d5db;border-radius:8px;padding:32px;text-align:center;cursor:pointer" onclick="document.getElementById('file-input').click()">
+                <svg style="width:48px;height:48px;color:#9ca3af;margin:0 auto 12px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                <p style="font-size:14px;color:#6b7280">点击上传文件</p>
+                <p style="font-size:12px;color:#9ca3af;margin-top:4px">支持 .xlsx, .xls, .csv 格式，最大 10MB</p>
+                <input type="file" id="file-input" style="display:none" accept=".xlsx,.xls,.csv" onchange="handleFileUpload(this)">
+            </div>
+            <button onclick="downloadTemplate()" style="margin-top:12px;font-size:13px;color:#2563eb;background:none;border:none;cursor:pointer;text-decoration:underline">下载导入模板</button>
+        </div>
+        <div style="padding:14px 20px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end">
+            <button onclick="closeModal('batch-import-modal')" style="padding:8px 16px;background:#f3f4f6;color:#374151;border:none;border-radius:8px;font-size:14px;cursor:pointer">关闭</button>
+        </div>
+    </div>
+</div>
+
+<!-- 删除确认弹窗 -->
+<div id="delete-modal" class="modal-mask">
+    <div style="background:#fff;border-radius:12px;width:90%;max-width:400px" class="modal-content">
+        <div style="padding:24px;text-align:center">
+            <div style="width:60px;height:60px;background:#fee2e2;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
+                <span style="font-size:28px;color:#dc2626">!</span>
+            </div>
+            <h3 style="font-size:18px;font-weight:600;color:#1f2937;margin-bottom:8px">确认删除</h3>
+            <p style="font-size:14px;color:#6b7280;margin-bottom:24px" id="delete-msg">确定要删除这条记录吗？此操作不可恢复。</p>
+            <div style="display:flex;justify-content:center;gap:12px">
+                <button onclick="closeModal('delete-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
+                <button onclick="confirmDelete()" style="padding:8px 16px;background:#dc2626;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">确认删除</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast提示 -->
+<div id="toast" class="toast"></div>
+
+<script>
+// ============ 数据存储 ============
+var iotData = [
+    { id: 1, plot: 'NF-001', plotName: '东坡A-03地块', device: 'IoT-NF001-01', temp: 32.5, humidity: 78, soil: 68, light: 45200, rain: 0, irrigation: '已开启', time: '2026-08-04 14:30' },
+    { id: 2, plot: 'NF-001', plotName: '东坡A-03地块', device: 'IoT-NF001-02', temp: 33.1, humidity: 75, soil: 72, light: 48500, rain: 0, irrigation: '已关闭', time: '2026-08-04 14:30' },
+    { id: 3, plot: 'NF-005', plotName: '西坡C-02地块', device: 'IoT-NF005-01', temp: 31.8, humidity: 82, soil: 85, light: 38200, rain: 2.5, irrigation: '已关闭', time: '2026-08-04 14:30' },
+    { id: 4, plot: 'NF-005', plotName: '西坡C-02地块', device: 'IoT-NF005-02', temp: 32.2, humidity: 80, soil: 83, light: 41000, rain: 2.5, irrigation: '已关闭', time: '2026-08-04 14:30' },
+    { id: 5, plot: 'NF-008', plotName: '南坡B-04地块', device: 'IoT-NF008-01', temp: 33.6, humidity: 72, soil: 62, light: 52800, rain: 0, irrigation: '已开启', time: '2026-08-04 14:30' },
+    { id: 6, plot: 'NF-008', plotName: '南坡B-04地块', device: 'IoT-NF008-02', temp: 34.0, humidity: 70, soil: 60, light: 55200, rain: 0, irrigation: '已开启', time: '2026-08-04 14:30' },
+    { id: 7, plot: 'NF-001', plotName: '东坡A-03地块', device: 'IoT-NF001-01', temp: 31.8, humidity: 76, soil: 70, light: 43800, rain: 0, irrigation: '已开启', time: '2026-08-04 10:30' },
+    { id: 8, plot: 'NF-001', plotName: '东坡A-03地块', device: 'IoT-NF001-02', temp: 32.4, humidity: 73, soil: 74, light: 47200, rain: 0, irrigation: '已关闭', time: '2026-08-04 10:30' },
+    { id: 9, plot: 'NF-005', plotName: '西坡C-02地块', device: 'IoT-NF005-01', temp: 31.0, humidity: 84, soil: 86, light: 36800, rain: 1.8, irrigation: '已关闭', time: '2026-08-04 10:30' },
+    { id: 10, plot: 'NF-008', plotName: '南坡B-04地块', device: 'IoT-NF008-01', temp: 33.2, humidity: 74, soil: 64, light: 51500, rain: 0, irrigation: '已开启', time: '2026-08-04 10:30' },
+    { id: 11, plot: 'NF-001', plotName: '东坡A-03地块', device: 'IoT-NF001-01', temp: 30.5, humidity: 80, soil: 72, light: 39500, rain: 0, irrigation: '已关闭', time: '2026-08-04 06:30' },
+    { id: 12, plot: 'NF-005', plotName: '西坡C-02地块', device: 'IoT-NF005-01', temp: 29.8, humidity: 86, soil: 88, light: 32100, rain: 3.2, irrigation: '已关闭', time: '2026-08-04 06:30' },
+    { id: 13, plot: 'NF-008', plotName: '南坡B-04地块', device: 'IoT-NF008-02', temp: 31.0, humidity: 78, soil: 66, light: 42800, rain: 0, irrigation: '已关闭', time: '2026-08-04 06:30' },
+    { id: 14, plot: 'NF-001', plotName: '东坡A-03地块', device: 'IoT-NF001-01', temp: 28.6, humidity: 82, soil: 75, light: 28500, rain: 0, irrigation: '已关闭', time: '2026-08-03 18:30' },
+    { id: 15, plot: 'NF-005', plotName: '西坡C-02地块', device: 'IoT-NF005-02', temp: 28.0, humidity: 88, soil: 90, light: 25400, rain: 5.6, irrigation: '已关闭', time: '2026-08-03 18:30' },
+    { id: 16, plot: 'NF-008', plotName: '南坡B-04地块', device: 'IoT-NF008-01', temp: 29.5, humidity: 80, soil: 68, light: 31200, rain: 0, irrigation: '已开启', time: '2026-08-03 18:30' },
+    { id: 17, plot: 'NF-001', plotName: '东坡A-03地块', device: 'IoT-NF001-02', temp: 34.2, humidity: 68, soil: 65, light: 52800, rain: 0, irrigation: '已开启', time: '2026-08-03 14:30' },
+    { id: 18, plot: 'NF-005', plotName: '西坡C-02地块', device: 'IoT-NF005-01', temp: 33.0, humidity: 78, soil: 82, light: 42500, rain: 0, irrigation: '已关闭', time: '2026-08-03 14:30' },
+    { id: 19, plot: 'NF-008', plotName: '南坡B-04地块', device: 'IoT-NF008-02', temp: 35.1, humidity: 66, soil: 58, light: 58600, rain: 0, irrigation: '已开启', time: '2026-08-03 14:30' },
+    { id: 20, plot: 'NF-001', plotName: '东坡A-03地块', device: 'IoT-NF001-01', temp: 33.8, humidity: 71, soil: 67, light: 50200, rain: 0, irrigation: '已开启', time: '2026-08-03 10:30' },
+    { id: 21, plot: 'NF-005', plotName: '西坡C-02地块', device: 'IoT-NF005-02', temp: 32.5, humidity: 81, soil: 84, light: 39800, rain: 1.2, irrigation: '已关闭', time: '2026-08-03 10:30' },
+    { id: 22, plot: 'NF-008', plotName: '南坡B-04地块', device: 'IoT-NF008-01', temp: 34.5, humidity: 69, soil: 61, light: 54200, rain: 0, irrigation: '已开启', time: '2026-08-03 10:30' },
+    { id: 23, plot: 'NF-001', plotName: '东坡A-03地块', device: 'IoT-NF001-02', temp: 30.2, humidity: 79, soil: 73, light: 36800, rain: 0, irrigation: '已关闭', time: '2026-08-02 14:30' },
+    { id: 24, plot: 'NF-005', plotName: '西坡C-02地块', device: 'IoT-NF005-01', temp: 29.5, humidity: 85, soil: 87, light: 33500, rain: 2.8, irrigation: '已关闭', time: '2026-08-02 14:30' },
+    { id: 25, plot: 'NF-008', plotName: '南坡B-04地块', device: 'IoT-NF008-02', temp: 31.8, humidity: 74, soil: 63, light: 48600, rain: 0, irrigation: '已开启', time: '2026-08-02 14:30' },
+    { id: 26, plot: 'NF-001', plotName: '东坡A-03地块', device: 'IoT-NF001-01', temp: 29.6, humidity: 83, soil: 76, light: 30200, rain: 0, irrigation: '已关闭', time: '2026-08-02 06:30' },
+    { id: 27, plot: 'NF-008', plotName: '南坡B-04地块', device: 'IoT-NF008-01', temp: 30.8, humidity: 77, soil: 65, light: 38500, rain: 0, irrigation: '已关闭', time: '2026-08-02 06:30' }
+];
+
+var manualData = [
+    { id: 1, plot: 'NF-001|东坡A-03地块', date: '2026-08-01', diameter: 68.5, sugar: 8.2, spad: 44.5, ph: 6.3, ec: 1.4, n: 1.8, p: 0.35, k: 1.2, yield: 120, pest: '少量红蜘蛛，已喷药防治' },
+    { id: 2, plot: 'NF-001|东坡A-03地块', date: '2026-07-28', diameter: 62.5, sugar: 7.2, spad: 42.5, ph: 6.3, ec: 1.4, n: 1.8, p: 0.35, k: 1.2, yield: 115, pest: '少量红蜘蛛，已喷药防治' },
+    { id: 3, plot: 'NF-001|东坡A-03地块', date: '2026-07-21', diameter: 58.2, sugar: 6.8, spad: 40.1, ph: 6.2, ec: 1.3, n: 1.7, p: 0.32, k: 1.1, yield: 108, pest: '无明显病虫害' },
+    { id: 4, plot: 'NF-005|西坡C-02地块', date: '2026-08-01', diameter: 65.2, sugar: 8.5, spad: 46.2, ph: 6.5, ec: 1.6, n: 2.0, p: 0.38, k: 1.3, yield: 128, pest: '轻微炭疽病，已处理' },
+    { id: 5, plot: 'NF-005|西坡C-02地块', date: '2026-07-28', diameter: 60.1, sugar: 7.5, spad: 44.2, ph: 6.5, ec: 1.6, n: 2.0, p: 0.38, k: 1.3, yield: 122, pest: '轻微炭疽病，已处理' },
+    { id: 6, plot: 'NF-005|西坡C-02地块', date: '2026-07-21', diameter: 56.8, sugar: 7.0, spad: 41.8, ph: 6.4, ec: 1.5, n: 1.9, p: 0.36, k: 1.2, yield: 118, pest: '无明显病虫害' },
+    { id: 7, plot: 'NF-008|南坡B-04地块', date: '2026-08-01', diameter: 70.3, sugar: 9.1, spad: 48.5, ph: 6.1, ec: 1.2, n: 1.6, p: 0.30, k: 1.4, yield: 135, pest: '无病虫害，长势良好' },
+    { id: 8, plot: 'NF-008|南坡B-04地块', date: '2026-07-28', diameter: 65.3, sugar: 8.1, spad: 46.5, ph: 6.1, ec: 1.2, n: 1.6, p: 0.30, k: 1.4, yield: 128, pest: '无病虫害，长势良好' },
+    { id: 9, plot: 'NF-008|南坡B-04地块', date: '2026-07-21', diameter: 61.5, sugar: 7.6, spad: 44.8, ph: 6.0, ec: 1.1, n: 1.5, p: 0.28, k: 1.3, yield: 120, pest: '少量潜叶蛾，已喷药' },
+    { id: 10, plot: 'NF-001|东坡A-03地块', date: '2026-07-14', diameter: 54.8, sugar: 6.5, spad: 38.5, ph: 6.2, ec: 1.3, n: 1.6, p: 0.30, k: 1.0, yield: 105, pest: '无病虫害' },
+    { id: 11, plot: 'NF-005|西坡C-02地块', date: '2026-07-14', diameter: 52.1, sugar: 6.8, spad: 39.2, ph: 6.4, ec: 1.4, n: 1.8, p: 0.33, k: 1.1, yield: 110, pest: '无病虫害' },
+    { id: 12, plot: 'NF-008|南坡B-04地块', date: '2026-07-14', diameter: 57.6, sugar: 7.2, spad: 42.0, ph: 6.0, ec: 1.0, n: 1.4, p: 0.26, k: 1.2, yield: 112, pest: '无病虫害' }
+];
+
+var farmData = [
+    { id: 1, plot: 'NF-001|东坡A-03地块', date: '2026-08-02', type: '灌溉', detail: '滴灌2小时，灌溉量约80mm，土壤含水量降至65%以下时进行', operator: '张明' },
+    { id: 2, plot: 'NF-005|西坡C-02地块', date: '2026-08-01', type: '施肥', detail: '追施复合肥(15-15-15)每亩25kg，配合灌溉施入', operator: '李伟' },
+    { id: 3, plot: 'NF-008|南坡B-04地块', date: '2026-07-31', type: '疏果', detail: '疏去畸形果、小果和过密果，每株保留约120个果实', operator: '陈强' },
+    { id: 4, plot: 'NF-001|东坡A-03地块', date: '2026-07-30', type: '打药', detail: '喷施吡虫啉1500倍液防治红蜘蛛，叶面喷湿为止', operator: '张明' },
+    { id: 5, plot: 'NF-005|西坡C-02地块', date: '2026-07-29', type: '灌溉', detail: '滴灌1.5小时，配合肥料施用', operator: '李伟' },
+    { id: 6, plot: 'NF-008|南坡B-04地块', date: '2026-07-28', type: '遮阳', detail: '搭建遮阳网，遮光率50%，防止日灼', operator: '陈强' },
+    { id: 7, plot: 'NF-001|东坡A-03地块', date: '2026-07-27', type: '修剪', detail: '修剪徒长枝和交叉枝，保持树冠通风透光', operator: '张明' },
+    { id: 8, plot: 'NF-005|西坡C-02地块', date: '2026-07-26', type: '灌溉', detail: '滴灌2小时，土壤含水量保持75%', operator: '李伟' },
+    { id: 9, plot: 'NF-008|南坡B-04地块', date: '2026-07-25', type: '施肥', detail: '叶面喷施钾肥(K2O 0.3%)，促进果实膨大', operator: '陈强' },
+    { id: 10, plot: 'NF-001|东坡A-03地块', date: '2026-07-24', type: '打药', detail: '喷施多菌灵800倍液预防炭疽病', operator: '张明' },
+    { id: 11, plot: 'NF-005|西坡C-02地块', date: '2026-07-23', type: '排水', detail: '清理排水沟，确保雨季排水通畅', operator: '李伟' },
+    { id: 12, plot: 'NF-008|南坡B-04地块', date: '2026-07-22', type: '灌溉', detail: '滴灌1.5小时，保持土壤含水量70%', operator: '陈强' },
+    { id: 13, plot: 'NF-001|东坡A-03地块', date: '2026-07-21', type: '施肥', detail: '追施钾肥每亩10kg，促进果实糖分积累', operator: '张明' },
+    { id: 14, plot: 'NF-005|西坡C-02地块', date: '2026-07-20', type: '打药', detail: '喷施阿维菌素2000倍液防治潜叶蛾', operator: '李伟' },
+    { id: 15, plot: 'NF-008|南坡B-04地块', date: '2026-07-19', type: '灌溉', detail: '滴灌2小时，土壤含水量68%', operator: '陈强' },
+    { id: 16, plot: 'NF-001|东坡A-03地块', date: '2026-07-18', type: '遮阳', detail: '检查遮阳网完好性，修补破损处', operator: '张明' },
+    { id: 17, plot: 'NF-005|西坡C-02地块', date: '2026-07-17', type: '施肥', detail: '施有机肥每亩200kg，改善土壤结构', operator: '李伟' },
+    { id: 18, plot: 'NF-008|南坡B-04地块', date: '2026-07-16', type: '修剪', detail: '剪除病枝弱枝，保持树形美观', operator: '陈强' },
+    { id: 19, plot: 'NF-001|东坡A-03地块', date: '2026-07-15', type: '灌溉', detail: '滴灌1.5小时，配合施肥', operator: '张明' },
+    { id: 20, plot: 'NF-005|西坡C-02地块', date: '2026-07-14', type: '疏果', detail: '第二次疏果，调整结果量', operator: '李伟' }
+];
+
+// ============ 状态变量 ============
+var autoRefreshTimer = null;
+var autoRefreshInterval = 5000;
+var isAutoRefresh = true;
+var currentTab = 'iot';
+var deleteTargetId = null;
+var deleteTargetType = null;
+var currentDetailId = null;
+var isEditing = false;
+var farmEditId = null;
+var manualEditId = null;
+
+// ============ 工具函数 ============
+function showToast(msg, type) {
+    var toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.className = 'toast toast-' + (type || 'success');
+    toast.classList.add('show');
+    setTimeout(function () { toast.classList.remove('show'); }, 2500);
+}
+
+function showModal(id) { document.getElementById(id).classList.add('active'); }
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+function updateLastUpdateTime() {
+    var now = new Date();
+    var t = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0') + ' ' + String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0') + ':' + String(now.getSeconds()).padStart(2, '0');
+    document.getElementById('last-update-time').textContent = t;
+}
+
+function getTodayStr() {
+    var d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+
+// ============ Tab切换 ============
+function switchTab(tab) {
+    currentTab = tab;
+    document.querySelectorAll('.tab-item').forEach(function (el) {
+        el.classList.remove('tab-active');
+        el.classList.add('tab-inactive');
+    });
+    var activeTab = document.querySelector('[data-tab="' + tab + '"]');
+    if (activeTab) {
+        activeTab.classList.remove('tab-inactive');
+        activeTab.classList.add('tab-active');
+    }
+    document.querySelectorAll('.tab-content').forEach(function (el) { el.style.display = 'none'; });
+    var target = document.getElementById('tab-' + tab);
+    if (target) target.style.display = '';
+    if (tab === 'manual') { renderManualTable(); }
+    if (tab === 'farm') { renderFarmTable(); updateFarmStats(); }
+}
+
+// ============ IoT实时数据 ============
+var iotCurrentPage = 1;
+var iotPageSize = 10;
+
+function getFilteredIotData() {
+    var filter = document.getElementById('iot-plot-filter').value;
+    var data = iotData.slice().sort(function (a, b) { return b.time.localeCompare(a.time); });
+    if (filter) data = data.filter(function (d) { return d.plot === filter; });
+    return data;
+}
+
+function renderIotTable() {
+    var data = getFilteredIotData();
+    var total = data.length;
+    var totalPages = Math.max(1, Math.ceil(total / iotPageSize));
+    if (iotCurrentPage > totalPages) iotCurrentPage = totalPages;
+    var start = (iotCurrentPage - 1) * iotPageSize;
+    var end = start + iotPageSize;
+    var pageData = data.slice(start, end);
+
+    var tbody = document.getElementById('iot-tbody');
+    var html = '';
+    for (var i = 0; i < pageData.length; i++) {
+        var d = pageData[i];
+        var tempColor = d.temp >= 35 ? 'text-red-600' : (d.temp >= 30 ? 'text-orange-600' : 'text-green-600');
+        var soilColor = d.soil < 60 ? 'text-yellow-600' : (d.soil > 90 ? 'text-blue-600' : 'text-green-600');
+        var lightColor = d.light > 60000 ? 'text-orange-600' : 'text-yellow-600';
+        var rainHtml = d.rain > 0 ? '<span class="text-blue-600 font-medium">' + d.rain + '</span>' : '<span class="text-gray-400">0</span>';
+        var irrClass = d.irrigation === '已开启' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600';
+        html += '<tr class="row-hover">' +
+            '<td class="px-4 py-3 text-gray-800">' + d.plotName + '</td>' +
+            '<td class="px-4 py-3 text-gray-600">' + d.device + '</td>' +
+            '<td class="px-4 py-3 text-gray-500">' + d.time + '</td>' +
+            '<td class="px-4 py-3 text-center font-semibold ' + tempColor + '">' + d.temp + '</td>' +
+            '<td class="px-4 py-3 text-center text-gray-700">' + d.humidity + '</td>' +
+            '<td class="px-4 py-3 text-center font-semibold ' + soilColor + '">' + d.soil + '</td>' +
+            '<td class="px-4 py-3 text-center font-semibold ' + lightColor + '">' + d.light.toLocaleString() + '</td>' +
+            '<td class="px-4 py-3 text-center">' + rainHtml + '</td>' +
+            '<td class="px-4 py-3 text-center"><span class="px-2 py-1 text-xs rounded-full ' + irrClass + '">' + d.irrigation + '</span></td>' +
+            '<td class="px-4 py-3 text-center"><button onclick="showIotDetail(' + d.id + ')" class="text-green-600 hover:text-green-800 text-sm">查看</button></td>' +
+            '</tr>';
+    }
+    if (html === '') html = '<tr><td colspan="10" class="px-4 py-10 text-center text-gray-400">暂无数据</td></tr>';
+    tbody.innerHTML = html;
+    document.getElementById('iot-total-count').textContent = total;
+    renderIotPagination(total, totalPages);
+    updateIotStats(data);
+}
+
+function renderIotPagination(total, totalPages) {
+    var container = document.getElementById('iot-pagination');
+    var start = (iotCurrentPage - 1) * iotPageSize + 1;
+    var end = Math.min(iotCurrentPage * iotPageSize, total);
+    var info = total > 0 ? '显示 ' + start + '-' + end + ' 条，共 ' + total + ' 条' : '没有数据';
+    var html = '<span class="text-sm text-gray-500">' + info + '</span>';
+    html += '<div class="flex items-center space-x-2">';
+    html += '<button onclick="changeIotPage(\'prev\')" class="px-3 py-1 text-sm bg-white border border-gray-300 rounded ' + (iotCurrentPage <= 1 ? 'text-gray-300 cursor-not-allowed' : 'text-gray-600 hover:bg-gray-50') + '">上一页</button>';
+    for (var i = 1; i <= totalPages; i++) {
+        html += '<button onclick="changeIotPage(' + i + ')" class="px-3 py-1 text-sm rounded ' + (i === iotCurrentPage ? 'bg-green-600 text-white' : 'bg-white border border-gray-300 text-gray-600 hover:bg-gray-50') + '">' + i + '</button>';
+    }
+    html += '<button onclick="changeIotPage(\'next\')" class="px-3 py-1 text-sm bg-white border border-gray-300 rounded ' + (iotCurrentPage >= totalPages ? 'text-gray-300 cursor-not-allowed' : 'text-gray-600 hover:bg-gray-50') + '">下一页</button>';
+    html += '<select onchange="changeIotPageSize(this.value)" class="px-3 py-1 border border-gray-300 rounded text-sm">';
+    html += '<option value="10"' + (iotPageSize === 10 ? ' selected' : '') + '>10条/页</option>';
+    html += '<option value="20"' + (iotPageSize === 20 ? ' selected' : '') + '>20条/页</option>';
+    html += '<option value="50"' + (iotPageSize === 50 ? ' selected' : '') + '>50条/页</option>';
+    html += '</select>';
+    html += '</div>';
+    container.innerHTML = html;
+}
+
+function changeIotPage(page) {
+    var totalPages = Math.max(1, Math.ceil(getFilteredIotData().length / iotPageSize));
+    if (page === 'prev') { if (iotCurrentPage > 1) iotCurrentPage--; else return; }
+    else if (page === 'next') { if (iotCurrentPage < totalPages) iotCurrentPage++; else return; }
+    else iotCurrentPage = page;
+    renderIotTable();
+}
+
+function changeIotPageSize(size) {
+    iotPageSize = parseInt(size);
+    iotCurrentPage = 1;
+    renderIotTable();
+}
+
+function showIotDetail(id) {
+    var d = iotData.find(function (item) { return item.id === id; });
+    if (!d) return;
+    var tempColor = d.temp >= 35 ? 'text-red-600' : (d.temp >= 30 ? 'text-orange-600' : 'text-green-600');
+    var soilColor = d.soil < 60 ? 'text-yellow-600' : (d.soil > 90 ? 'text-blue-600' : 'text-green-600');
+    var lightColor = d.light > 60000 ? 'text-orange-600' : 'text-yellow-600';
+    var irrClass = d.irrigation === '已开启' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600';
+    var html = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">' +
+        '<div><div class="text-xs text-gray-400 mb-1">地块</div><div class="text-sm font-medium text-gray-800">' + d.plotName + '</div></div>' +
+        '<div><div class="text-xs text-gray-400 mb-1">设备编号</div><div class="text-sm font-medium text-gray-800">' + d.device + '</div></div>' +
+        '<div><div class="text-xs text-gray-400 mb-1">采集时间</div><div class="text-sm font-medium text-gray-800">' + d.time + '</div></div>' +
+        '<div><div class="text-xs text-gray-400 mb-1">灌溉状态</div><span class="px-2 py-1 text-xs rounded-full ' + irrClass + '">' + d.irrigation + '</span></div>' +
+        '</div>';
+    html += '<div class="form-group-title">环境监测指标</div>';
+    html += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px">' +
+        '<div class="bg-green-50 rounded-lg p-3 text-center"><div class="text-xs text-green-600 mb-1">温度</div><div class="text-lg font-bold ' + tempColor + '">' + d.temp + '℃</div><div class="text-xs text-gray-400">适宜: 20-35℃</div></div>' +
+        '<div class="bg-cyan-50 rounded-lg p-3 text-center"><div class="text-xs text-cyan-600 mb-1">空气湿度</div><div class="text-lg font-bold text-cyan-700">' + d.humidity + '%</div><div class="text-xs text-gray-400">适宜: 60-85%</div></div>' +
+        '<div class="bg-blue-50 rounded-lg p-3 text-center"><div class="text-xs text-blue-600 mb-1">土壤含水量</div><div class="text-lg font-bold ' + soilColor + '">' + d.soil + '%</div><div class="text-xs text-gray-400">适宜: 60-85%</div></div>' +
+        '<div class="bg-yellow-50 rounded-lg p-3 text-center"><div class="text-xs text-yellow-600 mb-1">光照强度</div><div class="text-lg font-bold ' + lightColor + '">' + d.light.toLocaleString() + ' lux</div><div class="text-xs text-gray-400">适宜: 25000-80000</div></div>' +
+        '<div class="bg-indigo-50 rounded-lg p-3 text-center"><div class="text-xs text-indigo-600 mb-1">降雨量</div><div class="text-lg font-bold text-indigo-700">' + d.rain + ' mm</div><div class="text-xs text-gray-400">24小时累计</div></div>' +
+        '</div>';
+    document.getElementById('iot-detail-content').innerHTML = html;
+    showModal('iot-detail-modal');
+}
+
+function updateIotStats(data) {
+    if (data.length === 0) {
+        document.getElementById('stat-temp').textContent = '-';
+        document.getElementById('stat-soil').textContent = '-';
+        document.getElementById('stat-light').textContent = '-';
+        return;
+    }
+    // 取最新时间点的数据计算均值作为实时数据
+    var latestTime = data[0].time;
+    var latestData = data.filter(function (d) { return d.time === latestTime; });
+    var avgTemp = 0, avgSoil = 0, avgLight = 0;
+    for (var i = 0; i < latestData.length; i++) { avgTemp += latestData[i].temp; avgSoil += latestData[i].soil; avgLight += latestData[i].light; }
+    avgTemp = (avgTemp / latestData.length).toFixed(1);
+    avgSoil = (avgSoil / latestData.length).toFixed(1);
+    avgLight = Math.round(avgLight / latestData.length).toLocaleString();
+    document.getElementById('stat-temp').textContent = avgTemp + '℃';
+    document.getElementById('stat-soil').textContent = avgSoil + '%';
+    document.getElementById('stat-light').textContent = avgLight + ' lux';
+}
+
+function toggleAutoRefresh() {
+    isAutoRefresh = !isAutoRefresh;
+    var btn = document.getElementById('auto-refresh-text');
+    if (isAutoRefresh) {
+        btn.textContent = '暂停自动刷新';
+        startAutoRefresh();
+    } else {
+        btn.textContent = '开启自动刷新';
+        stopAutoRefresh();
+    }
+}
+
+function startAutoRefresh() {
+    stopAutoRefresh();
+    autoRefreshTimer = setInterval(function () {
+        refreshIotData();
+    }, autoRefreshInterval);
+}
+
+function stopAutoRefresh() {
+    if (autoRefreshTimer) { clearInterval(autoRefreshTimer); autoRefreshTimer = null; }
+}
+
+function refreshIotData() {
+    // Simulate data refresh with slight variations
+    for (var i = 0; i < iotData.length; i++) {
+        var d = iotData[i];
+        d.temp = +(d.temp + (Math.random() - 0.5) * 0.4).toFixed(1);
+        d.humidity = Math.min(100, Math.max(0, Math.round(d.humidity + (Math.random() - 0.5) * 2)));
+        d.soil = Math.min(100, Math.max(0, Math.round(d.soil + (Math.random() - 0.5) * 2)));
+        d.light = Math.max(0, Math.round(d.light + (Math.random() - 0.5) * 2000));
+    }
+    updateLastUpdateTime();
+    renderIotTable();
+}
+
+// ============ 人工采样录入 ============
+var manualCurrentPage = 1;
+var manualPageSize = 10;
+
+function getFilteredManualData() {
+    var search = (document.getElementById('manual-search').value || '').toLowerCase();
+    var plotFilter = document.getElementById('manual-plot-filter').value;
+    var data = manualData.slice().sort(function (a, b) { return b.date.localeCompare(a.date); });
+    if (search) {
+        data = data.filter(function (d) {
+            var plotName = d.plot.toLowerCase();
+            return plotName.indexOf(search) >= 0 || d.date.indexOf(search) >= 0;
+        });
+    }
+    if (plotFilter) {
+        data = data.filter(function (d) { return d.plot.indexOf(plotFilter) === 0; });
+    }
+    return data;
+}
+
+function renderManualTable() {
+    var data = getFilteredManualData();
+    var totalPages = Math.max(1, Math.ceil(data.length / manualPageSize));
+    if (manualCurrentPage > totalPages) manualCurrentPage = totalPages;
+    var start = (manualCurrentPage - 1) * manualPageSize;
+    var pageData = data.slice(start, start + manualPageSize);
+    var tbody = document.getElementById('manual-tbody');
+    var html = '';
+    for (var i = 0; i < pageData.length; i++) {
+        var d = pageData[i];
+        var plotParts = d.plot.split('|');
+        html += '<tr class="row-hover">' +
+            '<td class="px-4 py-3 text-gray-800 text-sm">' + plotParts[1] + '</td>' +
+            '<td class="px-4 py-3 text-gray-600 text-sm">' + d.date + '</td>' +
+            '<td class="px-4 py-3 text-center text-sm ' + valColor(d.diameter, 60, 85) + '">' + d.diameter + '</td>' +
+            '<td class="px-4 py-3 text-center text-sm ' + valColor(d.sugar, 10, 16) + '">' + d.sugar + '</td>' +
+            '<td class="px-4 py-3 text-center text-sm ' + valColor(d.spad, 40, 60) + '">' + d.spad + '</td>' +
+            '<td class="px-4 py-3 text-center text-sm ' + valColor(d.ph, 5.5, 7.0) + '">' + d.ph + '</td>' +
+            '<td class="px-4 py-3 text-center text-sm text-gray-700">' + d.n + '</td>' +
+            '<td class="px-4 py-3 text-center text-sm text-gray-700">' + d.p + '</td>' +
+            '<td class="px-4 py-3 text-center text-sm text-gray-700">' + d.k + '</td>' +
+            '<td class="px-4 py-3 text-center text-sm ' + valColor(d.yield, 80, 150) + '">' + d.yield + '</td>' +
+            '<td class="px-4 py-3 text-center text-sm whitespace-nowrap">' +
+            '<button onclick="showManualDetail(' + d.id + ')" class="text-blue-600 hover:text-blue-800 mr-2">查看</button>' +
+            '<button onclick="editManualRecord(' + d.id + ')" class="text-green-600 hover:text-green-800 mr-2">编辑</button>' +
+            '<button onclick="deleteManualRecord(' + d.id + ')" class="text-red-500 hover:text-red-700">删除</button>' +
+            '</td>' +
+            '</tr>';
+    }
+    if (html === '') html = '<tr><td colspan="11" class="px-4 py-10 text-center text-gray-400">暂无数据</td></tr>';
+    tbody.innerHTML = html;
+    renderManualPagination(data.length, totalPages);
+}
+
+function renderManualPagination(total, totalPages) {
+    var container = document.getElementById('manual-pagination');
+    var start = (manualCurrentPage - 1) * manualPageSize + 1;
+    var end = Math.min(manualCurrentPage * manualPageSize, total);
+    var info = total > 0 ? '显示 ' + start + '-' + end + ' 条，共 ' + total + ' 条' : '没有数据';
+    var html = '<span class="text-sm text-gray-500">' + info + '</span>';
+    html += '<div class="flex items-center space-x-2">';
+    html += '<button onclick="changeManualPage(\'prev\')" class="px-3 py-1 text-sm bg-white border border-gray-300 rounded ' + (manualCurrentPage <= 1 ? 'text-gray-300 cursor-not-allowed' : 'text-gray-600 hover:bg-gray-50') + '">上一页</button>';
+    for (var i = 1; i <= totalPages; i++) {
+        html += '<button onclick="changeManualPage(' + i + ')" class="px-3 py-1 text-sm rounded ' + (i === manualCurrentPage ? 'bg-green-600 text-white' : 'bg-white border border-gray-300 text-gray-600 hover:bg-gray-50') + '">' + i + '</button>';
+    }
+    html += '<button onclick="changeManualPage(\'next\')" class="px-3 py-1 text-sm bg-white border border-gray-300 rounded ' + (manualCurrentPage >= totalPages ? 'text-gray-300 cursor-not-allowed' : 'text-gray-600 hover:bg-gray-50') + '">下一页</button>';
+    html += '<select onchange="changeManualPageSize(this.value)" class="px-3 py-1 border border-gray-300 rounded text-sm">';
+    html += '<option value="10"' + (manualPageSize === 10 ? ' selected' : '') + '>10条/页</option>';
+    html += '<option value="20"' + (manualPageSize === 20 ? ' selected' : '') + '>20条/页</option>';
+    html += '<option value="50"' + (manualPageSize === 50 ? ' selected' : '') + '>50条/页</option>';
+    html += '</select>';
+    html += '</div>';
+    container.innerHTML = html;
+}
+
+function changeManualPage(page) {
+    var totalPages = Math.max(1, Math.ceil(getFilteredManualData().length / manualPageSize));
+    if (page === 'prev') { if (manualCurrentPage > 1) manualCurrentPage--; else return; }
+    else if (page === 'next') { if (manualCurrentPage < totalPages) manualCurrentPage++; else return; }
+    else manualCurrentPage = page;
+    renderManualTable();
+}
+
+function changeManualPageSize(size) {
+    manualPageSize = parseInt(size);
+    manualCurrentPage = 1;
+    renderManualTable();
+}
+
+function valColor(val, min, max) {
+    if (val < min || val > max) return 'text-orange-600';
+    return 'text-green-600';
+}
+
+function updateManualStats() {
+    // 统计卡片已移除，此函数保留为空以兼容调用
+}
+
+function openManualAddModal() {
+    manualEditId = null;
+    document.getElementById('manual-edit-title').textContent = '新增采样数据';
+    document.getElementById('m-plot').value = '';
+    document.getElementById('m-date').value = '2026-08-04';
+    document.getElementById('m-diameter').value = '';
+    document.getElementById('m-sugar').value = '';
+    document.getElementById('m-spad').value = '';
+    document.getElementById('m-ph').value = '';
+    document.getElementById('m-ec').value = '';
+    document.getElementById('m-n').value = '';
+    document.getElementById('m-p').value = '';
+    document.getElementById('m-k').value = '';
+    document.getElementById('m-yield').value = '';
+    document.getElementById('m-pest').value = '';
+    showModal('manual-edit-modal');
+}
+
+function editManualRecord(id) {
+    var d = manualData.find(function (item) { return item.id === id; });
+    if (!d) return;
+    manualEditId = id;
+    document.getElementById('manual-edit-title').textContent = '编辑采样数据';
+    document.getElementById('m-plot').value = d.plot;
+    document.getElementById('m-date').value = d.date;
+    document.getElementById('m-diameter').value = d.diameter;
+    document.getElementById('m-sugar').value = d.sugar;
+    document.getElementById('m-spad').value = d.spad;
+    document.getElementById('m-ph').value = d.ph;
+    document.getElementById('m-ec').value = d.ec;
+    document.getElementById('m-n').value = d.n;
+    document.getElementById('m-p').value = d.p;
+    document.getElementById('m-k').value = d.k;
+    document.getElementById('m-yield').value = d.yield;
+    document.getElementById('m-pest').value = d.pest || '';
+    showModal('manual-edit-modal');
+}
+
+function submitManualForm() {
+    var plot = document.getElementById('m-plot').value;
+    var date = document.getElementById('m-date').value;
+    if (!plot) { showToast('请选择地块', 'error'); return; }
+    if (!date) { showToast('请选择采样日期', 'error'); return; }
+    var diameter = parseFloat(document.getElementById('m-diameter').value);
+    var sugar = parseFloat(document.getElementById('m-sugar').value);
+    var spad = parseFloat(document.getElementById('m-spad').value);
+    var ph = parseFloat(document.getElementById('m-ph').value);
+    var ec = parseFloat(document.getElementById('m-ec').value);
+    var n = parseFloat(document.getElementById('m-n').value);
+    var p = parseFloat(document.getElementById('m-p').value);
+    var k = parseFloat(document.getElementById('m-k').value);
+    var yieldVal = parseInt(document.getElementById('m-yield').value);
+    var pest = document.getElementById('m-pest').value;
+
+    var warnings = [];
+    if (diameter && (diameter < 20 || diameter > 120)) warnings.push('果径超出范围 (20-120mm)');
+    if (sugar && (sugar < 5 || sugar > 20)) warnings.push('糖度超出范围 (5-20°Brix)');
+    if (spad && (spad < 20 || spad > 80)) warnings.push('SPAD超出范围 (20-80)');
+    if (ph && (ph < 4 || ph > 9)) warnings.push('PH超出范围 (4-9)');
+
+    if (warnings.length > 0) {
+        if (!confirm('存在数据超出适宜范围：\n' + warnings.join('\n') + '\n\n是否仍要提交？')) return;
+    }
+
+    if (manualEditId !== null) {
+        var d = manualData.find(function (item) { return item.id === manualEditId; });
+        if (d) {
+            d.plot = plot; d.date = date;
+            d.diameter = diameter || 0; d.sugar = sugar || 0; d.spad = spad || 0;
+            d.ph = ph || 0; d.ec = ec || 0; d.n = n || 0; d.p = p || 0; d.k = k || 0;
+            d.yield = yieldVal || 0; d.pest = pest || '无';
+            showToast('修改成功', 'success');
+        }
+    } else {
+        var newId = manualData.length > 0 ? Math.max.apply(null, manualData.map(function (d) { return d.id; })) + 1 : 1;
+        manualData.push({
+            id: newId, plot: plot, date: date,
+            diameter: diameter || 0, sugar: sugar || 0, spad: spad || 0,
+            ph: ph || 0, ec: ec || 0, n: n || 0, p: p || 0, k: k || 0,
+            yield: yieldVal || 0, pest: pest || '无'
+        });
+        showToast('采样数据提交成功', 'success');
+    }
+    closeModal('manual-edit-modal');
+    renderManualTable();
+}
+
+function showManualDetail(id) {
+    var d = manualData.find(function (item) { return item.id === id; });
+    if (!d) return;
+    currentDetailId = id;
+    isEditing = false;
+    manualEditId = id;
+    var plotParts = d.plot.split('|');
+    var statusHtml = getManualStatusHtml(d);
+    var html = '<div style="margin-bottom:16px">' +
+        '<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px;margin-bottom:12px">' +
+        '<div style="font-size:15px;font-weight:600;color:#166534">' + plotParts[1] + '</div>' +
+        '<div style="font-size:12px;color:#15803d;margin-top:4px">采样日期: ' + d.date + '</div>' +
+        '</div>' +
+        statusHtml +
+        '<table style="width:100%;border-collapse:collapse;font-size:13px">' +
+        '<thead><tr style="background:#f9fafb">' +
+        '<th style="text-align:left;padding:8px;border-bottom:1px solid #e5e7eb">指标</th>' +
+        '<th style="text-align:left;padding:8px;border-bottom:1px solid #e5e7eb">数值</th>' +
+        '<th style="text-align:left;padding:8px;border-bottom:1px solid #e5e7eb">适宜范围</th>' +
+        '<th style="text-align:left;padding:8px;border-bottom:1px solid #e5e7eb">状态</th>' +
+        '</tr></thead><tbody>' +
+        detailRow('果径 (mm)', d.diameter, '60-85', valBadge(d.diameter, 60, 85)) +
+        detailRow('糖度 (°Brix)', d.sugar, '10-16', valBadge(d.sugar, 10, 16)) +
+        detailRow('SPAD', d.spad, '40-60', valBadge(d.spad, 40, 60)) +
+        detailRow('PH', d.ph, '5.5-7.0', valBadge(d.ph, 5.5, 7.0)) +
+        detailRow('EC (mS/cm)', d.ec, '1.0-2.0', valBadge(d.ec, 1.0, 2.0)) +
+        detailRow('氮N (g/kg)', d.n, '-', '-') +
+        detailRow('磷P (g/kg)', d.p, '-', '-') +
+        detailRow('钾K (g/kg)', d.k, '-', '-') +
+        detailRow('挂果量 (个/株)', d.yield, '80-150', valBadge(d.yield, 80, 150)) +
+        '</tbody></table>' +
+        '<div style="margin-top:12px;padding:10px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px">' +
+        '<span style="font-size:13px;font-weight:500;color:#92400e">病虫害描述:</span>' +
+        '<span style="font-size:13px;color:#78350f;margin-left:8px">' + (d.pest || '无') + '</span>' +
+        '</div>' +
+        '</div>';
+    document.getElementById('manual-detail-content').innerHTML = html;
+    showModal('manual-detail-modal');
+}
+
+function getManualStatusHtml(d) {
+    var abnormal = [];
+    if (d.diameter < 60 || d.diameter > 85) abnormal.push('果径');
+    if (d.sugar < 10 || d.sugar > 16) abnormal.push('糖度');
+    if (d.spad < 40 || d.spad > 60) abnormal.push('SPAD');
+    if (abnormal.length > 0) {
+        return '<div style="background:#fef3c7;border:1px solid #fcd34d;border-radius:8px;padding:10px;margin-bottom:12px">' +
+            '<span style="font-size:13px;color:#92400e">⚠️ 异常指标: ' + abnormal.join('、') + '</span></div>';
+    }
+    return '<div style="background:#dcfce7;border:1px solid #86efac;border-radius:8px;padding:10px;margin-bottom:12px">' +
+        '<span style="font-size:13px;color:#166534">✅ 各项指标均在适宜范围内</span></div>';
+}
+
+function detailRow(label, val, range, badge) {
+    return '<tr>' +
+        '<td style="padding:8px;border-bottom:1px solid #f3f4f6;color:#374151">' + label + '</td>' +
+        '<td style="padding:8px;border-bottom:1px solid #f3f4f6;font-weight:500;color:#1f2937">' + val + '</td>' +
+        '<td style="padding:8px;border-bottom:1px solid #f3f4f6;color:#6b7280">' + range + '</td>' +
+        '<td style="padding:8px;border-bottom:1px solid #f3f4f6">' + badge + '</td>' +
+        '</tr>';
+}
+
+function valBadge(val, min, max) {
+    if (val < min || val > max) {
+        return '<span class="badge bg-orange-100 text-orange-700">偏离</span>';
+    }
+    return '<span class="badge bg-green-100 text-green-700">正常</span>';
+}
+
+function deleteManualRecord(id) {
+    deleteTargetId = id;
+    deleteTargetType = 'manual';
+    document.getElementById('delete-msg').textContent = '确定要删除这条采样记录吗？此操作不可恢复。';
+    showModal('delete-modal');
+}
+
+// ============ 农事操作记录 ============
+var farmTypeIcons = { '灌溉': '💧', '施肥': '🌱', '疏果': '✂️', '修剪': '🌿', '遮阳': '⛱️', '打药': '💊', '排水': '🌊' };
+var farmTypeColors = {
+    '灌溉': 'bg-blue-100 text-blue-700', '施肥': 'bg-green-100 text-green-700',
+    '疏果': 'bg-yellow-100 text-yellow-700', '修剪': 'bg-orange-100 text-orange-700',
+    '遮阳': 'bg-purple-100 text-purple-700', '打药': 'bg-red-100 text-red-700',
+    '排水': 'bg-cyan-100 text-cyan-700'
+};
+
+var farmCurrentPage = 1;
+var farmPageSize = 10;
+
+function getFilteredFarmData() {
+    var search = (document.getElementById('farm-search').value || '').toLowerCase();
+    var plotFilter = document.getElementById('farm-plot-filter').value;
+    var typeFilter = document.getElementById('farm-type-filter').value;
+    var data = farmData.slice().sort(function (a, b) { return b.date.localeCompare(a.date); });
+    if (search) {
+        data = data.filter(function (d) {
+            return d.detail.toLowerCase().indexOf(search) >= 0 || d.operator.toLowerCase().indexOf(search) >= 0;
+        });
+    }
+    if (plotFilter) data = data.filter(function (d) { return d.plot.indexOf(plotFilter) === 0; });
+    if (typeFilter) data = data.filter(function (d) { return d.type === typeFilter; });
+    return data;
+}
+
+function renderFarmTable() {
+    var data = getFilteredFarmData();
+    var totalPages = Math.max(1, Math.ceil(data.length / farmPageSize));
+    if (farmCurrentPage > totalPages) farmCurrentPage = totalPages;
+    var start = (farmCurrentPage - 1) * farmPageSize;
+    var pageData = data.slice(start, start + farmPageSize);
+    var tbody = document.getElementById('farm-tbody');
+    var html = '';
+    for (var i = 0; i < pageData.length; i++) {
+        var d = pageData[i];
+        var plotParts = d.plot.split('|');
+        var icon = farmTypeIcons[d.type] || '📝';
+        var colorCls = farmTypeColors[d.type] || 'bg-gray-100 text-gray-700';
+        html += '<tr class="row-hover">' +
+            '<td class="px-4 py-3 text-gray-800 text-sm">' + plotParts[1] + '</td>' +
+            '<td class="px-4 py-3 text-gray-600 text-sm">' + d.date + '</td>' +
+            '<td class="px-4 py-3 text-sm"><span class="badge ' + colorCls + '">' + icon + ' ' + d.type + '</span></td>' +
+            '<td class="px-4 py-3 text-gray-700 text-sm max-w-xs truncate" title="' + d.detail + '">' + d.detail + '</td>' +
+            '<td class="px-4 py-3 text-gray-600 text-sm">' + d.operator + '</td>' +
+            '<td class="px-4 py-3 text-center text-sm whitespace-nowrap">' +
+            '<button onclick="showFarmDetail(' + d.id + ')" class="text-blue-600 hover:text-blue-800 mr-2">查看</button>' +
+            '<button onclick="editFarmRecord(' + d.id + ')" class="text-green-600 hover:text-green-800 mr-2">编辑</button>' +
+            '<button onclick="deleteFarmRecord(' + d.id + ')" class="text-red-500 hover:text-red-700">删除</button>' +
+            '</td>' +
+            '</tr>';
+    }
+    if (html === '') html = '<tr><td colspan="6" class="px-4 py-10 text-center text-gray-400">暂无数据</td></tr>';
+    tbody.innerHTML = html;
+    renderFarmPagination(data.length, totalPages);
+}
+
+function renderFarmPagination(total, totalPages) {
+    var container = document.getElementById('farm-pagination');
+    var start = (farmCurrentPage - 1) * farmPageSize + 1;
+    var end = Math.min(farmCurrentPage * farmPageSize, total);
+    var info = total > 0 ? '显示 ' + start + '-' + end + ' 条，共 ' + total + ' 条' : '没有数据';
+    var html = '<span class="text-sm text-gray-500">' + info + '</span>';
+    html += '<div class="flex items-center space-x-2">';
+    html += '<button onclick="changeFarmPage(\'prev\')" class="px-3 py-1 text-sm bg-white border border-gray-300 rounded ' + (farmCurrentPage <= 1 ? 'text-gray-300 cursor-not-allowed' : 'text-gray-600 hover:bg-gray-50') + '">上一页</button>';
+    for (var i = 1; i <= totalPages; i++) {
+        html += '<button onclick="changeFarmPage(' + i + ')" class="px-3 py-1 text-sm rounded ' + (i === farmCurrentPage ? 'bg-green-600 text-white' : 'bg-white border border-gray-300 text-gray-600 hover:bg-gray-50') + '">' + i + '</button>';
+    }
+    html += '<button onclick="changeFarmPage(\'next\')" class="px-3 py-1 text-sm bg-white border border-gray-300 rounded ' + (farmCurrentPage >= totalPages ? 'text-gray-300 cursor-not-allowed' : 'text-gray-600 hover:bg-gray-50') + '">下一页</button>';
+    html += '<select onchange="changeFarmPageSize(this.value)" class="px-3 py-1 border border-gray-300 rounded text-sm">';
+    html += '<option value="10"' + (farmPageSize === 10 ? ' selected' : '') + '>10条/页</option>';
+    html += '<option value="20"' + (farmPageSize === 20 ? ' selected' : '') + '>20条/页</option>';
+    html += '<option value="50"' + (farmPageSize === 50 ? ' selected' : '') + '>50条/页</option>';
+    html += '</select>';
+    html += '</div>';
+    container.innerHTML = html;
+}
+
+function changeFarmPage(page) {
+    var totalPages = Math.max(1, Math.ceil(getFilteredFarmData().length / farmPageSize));
+    if (page === 'prev') { if (farmCurrentPage > 1) farmCurrentPage--; else return; }
+    else if (page === 'next') { if (farmCurrentPage < totalPages) farmCurrentPage++; else return; }
+    else farmCurrentPage = page;
+    renderFarmTable();
+}
+
+function changeFarmPageSize(size) {
+    farmPageSize = parseInt(size);
+    farmCurrentPage = 1;
+    renderFarmTable();
+}
+
+function updateFarmStats() {
+    var typeCount = {};
+    farmData.forEach(function (d) {
+        typeCount[d.type] = (typeCount[d.type] || 0) + 1;
+    });
+    document.getElementById('type-irrigation').textContent = typeCount['灌溉'] || 0;
+    document.getElementById('type-fertilize').textContent = typeCount['施肥'] || 0;
+    document.getElementById('type-thin').textContent = typeCount['疏果'] || 0;
+    document.getElementById('type-prune').textContent = typeCount['修剪'] || 0;
+    document.getElementById('type-shade').textContent = typeCount['遮阳'] || 0;
+    document.getElementById('type-spray').textContent = typeCount['打药'] || 0;
+    document.getElementById('type-drain').textContent = typeCount['排水'] || 0;
+}
+
+function openFarmAddModal() {
+    farmEditId = null;
+    document.getElementById('farm-edit-title').textContent = '新增农事记录';
+    document.getElementById('f-plot').value = '';
+    document.getElementById('f-date').value = '2026-08-04';
+    document.getElementById('f-type').value = '';
+    document.getElementById('f-operator').value = '';
+    document.getElementById('f-detail').value = '';
+    showModal('farm-edit-modal');
+}
+
+function editFarmRecord(id) {
+    var d = farmData.find(function (item) { return item.id === id; });
+    if (!d) return;
+    farmEditId = id;
+    document.getElementById('farm-edit-title').textContent = '编辑农事记录';
+    document.getElementById('f-plot').value = d.plot;
+    document.getElementById('f-date').value = d.date;
+    document.getElementById('f-type').value = d.type;
+    document.getElementById('f-operator').value = d.operator;
+    document.getElementById('f-detail').value = d.detail;
+    showModal('farm-edit-modal');
+}
+
+function submitFarmForm() {
+    var plot = document.getElementById('f-plot').value;
+    var date = document.getElementById('f-date').value;
+    var type = document.getElementById('f-type').value;
+    var operator = document.getElementById('f-operator').value.trim();
+    var detail = document.getElementById('f-detail').value.trim();
+    if (!plot) { showToast('请选择地块', 'error'); return; }
+    if (!date) { showToast('请选择操作日期', 'error'); return; }
+    if (!type) { showToast('请选择农事类型', 'error'); return; }
+    if (!operator) { showToast('请输入操作人', 'error'); return; }
+    if (!detail) { showToast('请输入操作详情', 'error'); return; }
+
+    if (farmEditId !== null) {
+        var d = farmData.find(function (item) { return item.id === farmEditId; });
+        if (d) {
+            d.plot = plot; d.date = date; d.type = type;
+            d.operator = operator; d.detail = detail;
+            showToast('修改成功', 'success');
+        }
+    } else {
+        var newId = farmData.length > 0 ? Math.max.apply(null, farmData.map(function (d) { return d.id; })) + 1 : 1;
+        farmData.push({ id: newId, plot: plot, date: date, type: type, operator: operator, detail: detail });
+        showToast('新增成功', 'success');
+    }
+    closeModal('farm-edit-modal');
+    renderFarmTable();
+    updateFarmStats();
+}
+
+function showFarmDetail(id) {
+    var d = farmData.find(function (item) { return item.id === id; });
+    if (!d) return;
+    currentDetailId = id;
+    var plotParts = d.plot.split('|');
+    var icon = farmTypeIcons[d.type] || '📝';
+    var colorCls = farmTypeColors[d.type] || 'bg-gray-100 text-gray-700';
+    var html = '<div style="margin-bottom:16px">' +
+        '<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px;margin-bottom:12px">' +
+        '<div style="font-size:15px;font-weight:600;color:#166534">' + plotParts[1] + '</div>' +
+        '<div style="font-size:12px;color:#15803d;margin-top:4px">操作日期: ' + d.date + '</div>' +
+        '</div>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">' +
+        '<div style="background:#f9fafb;padding:10px;border-radius:8px">' +
+        '<div style="font-size:11px;color:#6b7280;margin-bottom:2px">农事类型</div>' +
+        '<div><span class="badge ' + colorCls + '">' + icon + ' ' + d.type + '</span></div>' +
+        '</div>' +
+        '<div style="background:#f9fafb;padding:10px;border-radius:8px">' +
+        '<div style="font-size:11px;color:#6b7280;margin-bottom:2px">操作人</div>' +
+        '<div style="font-size:14px;font-weight:500;color:#1f2937">' + d.operator + '</div>' +
+        '</div>' +
+        '</div>' +
+        '<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:12px">' +
+        '<div style="font-size:12px;font-weight:500;color:#92400e;margin-bottom:6px">操作详情</div>' +
+        '<div style="font-size:13px;color:#78350f;line-height:1.6">' + d.detail + '</div>' +
+        '</div>' +
+        '</div>';
+    document.getElementById('farm-detail-content').innerHTML = html;
+    showModal('farm-detail-modal');
+}
+
+function editFarmFromDetail() {
+    closeModal('farm-detail-modal');
+    if (currentDetailId) editFarmRecord(currentDetailId);
+}
+
+function deleteFarmRecord(id) {
+    deleteTargetId = id;
+    deleteTargetType = 'farm';
+    document.getElementById('delete-msg').textContent = '确定要删除这条农事记录吗？此操作不可恢复。';
+    showModal('delete-modal');
+}
+
+// ============ 删除确认 ============
+function confirmDelete() {
+    if (deleteTargetType === 'manual') {
+        var idx = manualData.findIndex(function (d) { return d.id === deleteTargetId; });
+        if (idx >= 0) manualData.splice(idx, 1);
+        showToast('删除成功', 'success');
+        renderManualTable();
+    } else if (deleteTargetType === 'farm') {
+        var idx2 = farmData.findIndex(function (d) { return d.id === deleteTargetId; });
+        if (idx2 >= 0) farmData.splice(idx2, 1);
+        showToast('删除成功', 'success');
+        renderFarmTable();
+        updateFarmStats();
+    }
+    closeModal('delete-modal');
+    deleteTargetId = null;
+    deleteTargetType = null;
+}
+
+// ============ 批量导入 ============
+function showBatchImport() {
+    showModal('batch-import-modal');
+}
+
+function handleFileUpload(input) {
+    if (input.files && input.files.length > 0) {
+        var fileName = input.files[0].name;
+        showToast('文件 "' + fileName + '" 已选择，模拟导入成功', 'success');
+        closeModal('batch-import-modal');
+        input.value = '';
+        // Simulate adding imported data
+        for (var i = 0; i < 3; i++) {
+            var newId = manualData.length > 0 ? Math.max.apply(null, manualData.map(function (d) { return d.id; })) + i + 1 : i + 1;
+            manualData.push({
+                id: newId,
+                plot: 'NF-001|东坡A-03地块',
+                date: getTodayStr(),
+                diameter: +(60 + Math.random() * 15).toFixed(1),
+                sugar: +(7 + Math.random() * 3).toFixed(1),
+                spad: +(42 + Math.random() * 10).toFixed(1),
+                ph: +(6 + Math.random()).toFixed(1),
+                ec: +(1.2 + Math.random() * 0.5).toFixed(2),
+                n: +(1.5 + Math.random() * 0.5).toFixed(1),
+                p: +(0.3 + Math.random() * 0.1).toFixed(2),
+                k: +(1.1 + Math.random() * 0.4).toFixed(1),
+                yield: Math.round(100 + Math.random() * 40),
+                pest: '批量导入数据'
+            });
+        }
+        if (currentTab === 'manual') { renderManualTable(); }
+    }
+}
+
+function downloadTemplate() {
+    showToast('模板下载中...', 'info');
+}
+
+// ============ 初始化 ============
+window.addEventListener('load', function () {
+    updateLastUpdateTime();
+    renderIotTable();
+    startAutoRefresh();
+    // Render manual and farm tabs in background
+    renderManualTable();
+    renderFarmTable();
+    updateFarmStats();
+});
+</script>
+</body>
+</html>

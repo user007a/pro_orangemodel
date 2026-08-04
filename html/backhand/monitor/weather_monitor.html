@@ -15,7 +15,6 @@
       }}}}
     </script>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
     <style>
         @keyframes modalSlideIn {
@@ -51,75 +50,6 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-6 gap-4 mb-6">
-            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-500 text-sm">当前温度</p>
-                        <h3 class="text-2xl font-bold text-red mt-1">35.2°C</h3>
-                    </div>
-                    <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
-                        <iconify-icon icon="material-symbols:thermostat" class="w-6 h-6 text-red-500"></iconify-icon>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-500 text-sm">空气湿度</p>
-                        <h3 class="text-2xl font-bold text-blue mt-1">55%</h3>
-                    </div>
-                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                        <iconify-icon icon="material-symbols:water" class="w-6 h-6 text-blue-500"></iconify-icon>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-500 text-sm">光照强度</p>
-                        <h3 class="text-2xl font-bold text-yellow mt-1">12500 lux</h3>
-                    </div>
-                    <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
-                        <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-500 text-sm">土壤湿度</p>
-                        <h3 class="text-2xl font-bold text-orange-600 mt-1">32%</h3>
-                    </div>
-                    <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
-                        <iconify-icon icon="material-symbols:leaf" class="w-6 h-6 text-orange-500"></iconify-icon>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-500 text-sm">风速</p>
-                        <h3 class="text-2xl font-bold text-gray-800 mt-1">2.8 m/s</h3>
-                    </div>
-                    <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
-                        <iconify-icon icon="material-symbols:air" class="w-6 h-6 text-gray-500"></iconify-icon>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-500 text-sm">降雨量</p>
-                        <h3 class="text-2xl font-bold text-gray-400 mt-1">0 mm</h3>
-                    </div>
-                    <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
-                        <iconify-icon icon="material-symbols:cloud-rain" class="w-6 h-6 text-gray-400"></iconify-icon>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <div class="p-4 border-b border-gray-100">
                 <h3 class="text-lg font-semibold text-gray-800 flex items-center">
@@ -128,17 +58,18 @@
                 </h3>
             </div>
             <div class="overflow-x-auto">
-                <table class="w-full">
+                <table class="w-full min-w-[1000px]">
                     <thead>
                         <tr class="bg-gray-50">
-                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">站点名称</th>
-                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">站点编号</th>
-                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">站点位置</th>
-                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">设备类型</th>
-                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">设备编号</th>
-                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">安装时间</th>
-                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">负责人员</th>
-                            <th class="text-center px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">操作</th>
+                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">站点名称</th>
+                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">站点编号</th>
+                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">站点位置</th>
+                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">设备类型</th>
+                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">设备编号</th>
+                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">安装时间</th>
+                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">负责人员</th>
+                            <th class="text-center px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">模型监测点</th>
+                            <th class="text-center px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">操作</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100" id="station-table-body">
@@ -634,6 +565,10 @@
                             <p class="text-xs text-gray-500 mb-1">负责人员</p>
                             <p class="text-sm font-medium text-gray-800" id="detail-manager">张明</p>
                         </div>
+                        <div class="p-3 bg-gradient-to-r from-emerald-50 to-gray-50 rounded-lg border border-emerald-100/50">
+                            <p class="text-xs text-gray-500 mb-1">是否模型监测点位</p>
+                            <span id="detail-is-model-monitor" class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full font-medium">是</span>
+                        </div>
                         <div class="p-3 bg-gradient-to-r from-gray-50 to-gray-50 rounded-lg border border-gray-200/50 sm:col-span-2">
                             <p class="text-xs text-gray-500 mb-1">最后更新</p>
                             <p class="text-sm font-medium text-gray-800" id="detail-update-time">2026-07-22 10:00</p>
@@ -723,6 +658,16 @@
                         </label>
                         <input type="text" id="edit-manager" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" placeholder="请输入负责人员">
                     </div>
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <label class="block text-sm font-medium text-gray-600 mb-2 flex items-center">
+                            <svg class="w-4 h-4 mr-2 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            是否模型监测点位
+                        </label>
+                        <select id="edit-is-model-monitor" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                            <option value="是">是</option>
+                            <option value="否">否</option>
+                        </select>
+                    </div>
                 </div>
             </div>
             <div class="p-4 bg-gray-50 border-t border-gray-200 flex justify-end space-x-3">
@@ -807,6 +752,16 @@
                             负责人员
                         </label>
                         <input type="text" id="add-manager" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all" placeholder="请输入负责人员">
+                    </div>
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <label class="block text-sm font-medium text-gray-600 mb-2 flex items-center">
+                            <svg class="w-4 h-4 mr-2 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            是否模型监测点位
+                        </label>
+                        <select id="add-is-model-monitor" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all">
+                            <option value="是">是</option>
+                            <option value="否">否</option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -893,16 +848,6 @@
                 </div>
 
                 <h5 class="text-sm font-semibold text-gray-700 mb-3 flex items-center">
-                    <iconify-icon icon="material-symbols:history" class="w-4 h-4 mr-2 text-gray-500"></iconify-icon>
-                    历史数据趋势（近24小时）
-                </h5>
-                <div class="bg-gray-50 rounded-lg p-3 mb-6">
-                    <div class="h-56">
-                        <canvas id="data-chart"></canvas>
-                    </div>
-                </div>
-
-                <h5 class="text-sm font-semibold text-gray-700 mb-3 flex items-center">
                     <iconify-icon icon="material-symbols:list-alt" class="w-4 h-4 mr-2 text-gray-500"></iconify-icon>
                     数据列表
                 </h5>
@@ -931,62 +876,42 @@
     </div>
 
     <script>
-        let historyChartInstance = null;
-        let dataChartInstance = null;
-
-        function generateHistoryData(baseTemp, baseHumidity) {
-            const hours = [];
-            const temps = [];
-            const humids = [];
-            const now = new Date();
-            for (let i = 23; i >= 0; i--) {
-                const h = new Date(now.getTime() - i * 3600000);
-                hours.push(`${h.getHours().toString().padStart(2, '0')}:00`);
-                const timeOffset = (h.getHours() - 14) / 14;
-                const tempVariation = Math.sin(timeOffset * Math.PI) * 8 + (Math.random() - 0.5) * 3;
-                const humidVariation = -Math.sin(timeOffset * Math.PI) * 15 + (Math.random() - 0.5) * 5;
-                temps.push(Math.round((parseFloat(baseTemp.replace('°C', '')) + tempVariation) * 10) / 10);
-                humids.push(Math.round(parseFloat(baseHumidity.replace('%', '')) + humidVariation));
-            }
-            return { hours, temps, humids };
-        }
-
         const stationDetails = {
-            '南丰镇气象站': { stationId: 'NF-001', deviceType: '自动气象站 DWS-200', wind: '2.8 m/s', rain: '0 mm', longitude: '116.532°E', latitude: '27.218°N', signal: '85%', battery: '92%', deviceId: 'WX-001', installTime: '2025-03-15', manager: '张明' },
-            '市山镇气象站': { stationId: 'NF-002', deviceType: '自动气象站 DWS-200', wind: '3.1 m/s', rain: '0 mm', longitude: '116.485°E', latitude: '27.245°N', signal: '88%', battery: '87%', deviceId: 'WX-002', installTime: '2025-03-20', manager: '李伟' },
-            '太和镇气象站': { stationId: 'NF-003', deviceType: '自动气象站 DWS-100', wind: '-', rain: '-', longitude: '116.580°E', latitude: '27.262°N', signal: '-', battery: '-', deviceId: 'WX-003', installTime: '2025-04-01', manager: '王芳' },
-            '莱溪乡气象站': { stationId: 'NF-004', deviceType: '自动气象站 DWS-200', wind: '2.5 m/s', rain: '0.2 mm', longitude: '116.468°E', latitude: '27.185°N', signal: '79%', battery: '95%', deviceId: 'WX-004', installTime: '2025-04-10', manager: '刘强' },
-            '洽湾镇气象站': { stationId: 'NF-005', deviceType: '自动气象站 DWS-300', wind: '3.0 m/s', rain: '0 mm', longitude: '116.620°E', latitude: '27.230°N', signal: '91%', battery: '89%', deviceId: 'WX-005', installTime: '2025-04-15', manager: '陈刚' },
-            '白舍镇气象站': { stationId: 'NF-006', deviceType: '自动气象站 DWS-200', wind: '3.5 m/s', rain: '0 mm', longitude: '116.380°E', latitude: '27.120°N', signal: '82%', battery: '76%', deviceId: 'WX-006', installTime: '2025-05-01', manager: '赵秀' },
-            '紫霄镇气象站': { stationId: 'NF-007', deviceType: '自动气象站 DWS-100', wind: '2.2 m/s', rain: '0.5 mm', longitude: '116.510°E', latitude: '27.350°N', signal: '75%', battery: '90%', deviceId: 'WX-007', installTime: '2025-05-08', manager: '孙磊' },
-            '东坪乡气象站': { stationId: 'NF-008', deviceType: '自动气象站 DWS-100', wind: '-', rain: '-', longitude: '116.650°E', latitude: '27.150°N', signal: '-', battery: '-', deviceId: 'WX-008', installTime: '2025-05-12', manager: '周婷' },
-            '三溪乡气象站': { stationId: 'NF-009', deviceType: '自动气象站 DWS-200', wind: '2.7 m/s', rain: '0 mm', longitude: '116.420°E', latitude: '27.280°N', signal: '86%', battery: '83%', deviceId: 'WX-009', installTime: '2025-05-20', manager: '吴鹏' },
-            '傅坊乡气象站': { stationId: 'NF-010', deviceType: '自动气象站 DWS-200', wind: '2.4 m/s', rain: '0.1 mm', longitude: '116.350°E', latitude: '27.080°N', signal: '81%', battery: '94%', deviceId: 'WX-010', installTime: '2025-06-01', manager: '郑华' },
-            '琴城镇气象站': { stationId: 'NF-011', deviceType: '自动气象站 DWS-300', wind: '3.8 m/s', rain: '0 mm', longitude: '116.550°E', latitude: '27.200°N', signal: '93%', battery: '85%', deviceId: 'WX-011', installTime: '2025-06-05', manager: '黄敏' },
-            '桑田镇气象站': { stationId: 'NF-012', deviceType: '自动气象站 DWS-200', wind: '2.9 m/s', rain: '0 mm', longitude: '116.490°E', latitude: '27.165°N', signal: '84%', battery: '88%', deviceId: 'WX-012', installTime: '2025-06-10', manager: '林超' },
-            '潭湖气象站': { stationId: 'NF-013', deviceType: '自动气象站 DWS-300', wind: '2.1 m/s', rain: '0.8 mm', longitude: '116.600°E', latitude: '27.190°N', signal: '78%', battery: '91%', deviceId: 'WX-013', installTime: '2025-06-15', manager: '何静' },
-            '军峰山气象站': { stationId: 'NF-014', deviceType: '自动气象站 DWS-100', wind: '4.2 m/s', rain: '1.2 mm', longitude: '116.470°E', latitude: '27.420°N', signal: '72%', battery: '86%', deviceId: 'WX-014', installTime: '2025-06-20', manager: '高远' },
-            '荷田气象站': { stationId: 'NF-015', deviceType: '自动气象站 DWS-200', wind: '3.3 m/s', rain: '0 mm', longitude: '116.520°E', latitude: '27.145°N', signal: '87%', battery: '81%', deviceId: 'WX-015', installTime: '2025-06-25', manager: '马俊' },
-            '双田气象站': { stationId: 'NF-016', deviceType: '自动气象站 DWS-200', wind: '2.6 m/s', rain: '0 mm', longitude: '116.570°E', latitude: '27.225°N', signal: '83%', battery: '93%', deviceId: 'WX-016', installTime: '2025-07-01', manager: '谢丽' },
-            '古城气象站': { stationId: 'NF-017', deviceType: '自动气象站 DWS-300', wind: '3.4 m/s', rain: '0 mm', longitude: '116.390°E', latitude: '27.110°N', signal: '90%', battery: '78%', deviceId: 'WX-017', installTime: '2025-07-05', manager: '韩雪' },
-            '石咀气象站': { stationId: 'NF-018', deviceType: '自动气象站 DWS-100', wind: '-', rain: '-', longitude: '116.440°E', latitude: '27.090°N', signal: '-', battery: '-', deviceId: 'WX-018', installTime: '2025-07-08', manager: '唐杰' },
-            '河东气象站': { stationId: 'NF-019', deviceType: '自动气象站 DWS-200', wind: '2.8 m/s', rain: '0.3 mm', longitude: '116.560°E', latitude: '27.195°N', signal: '89%', battery: '84%', deviceId: 'WX-019', installTime: '2025-07-10', manager: '冯涛' },
-            '里塔气象站': { stationId: 'NF-020', deviceType: '自动气象站 DWS-200', wind: '3.2 m/s', rain: '0 mm', longitude: '116.330°E', latitude: '27.050°N', signal: '76%', battery: '96%', deviceId: 'WX-020', installTime: '2025-07-12', manager: '曹颖' },
-            '新丰气象站': { stationId: 'NF-021', deviceType: '自动气象站 DWS-100', wind: '2.3 m/s', rain: '0.4 mm', longitude: '116.540°E', latitude: '27.255°N', signal: '80%', battery: '82%', deviceId: 'WX-021', installTime: '2025-07-15', manager: '袁博' },
-            '万坊气象站': { stationId: 'NF-022', deviceType: '自动气象站 DWS-300', wind: '3.6 m/s', rain: '0 mm', longitude: '116.410°E', latitude: '27.270°N', signal: '92%', battery: '79%', deviceId: 'WX-022', installTime: '2025-07-18', manager: '邓凯' },
-            '杨桥气象站': { stationId: 'NF-023', deviceType: '自动气象站 DWS-200', wind: '2.0 m/s', rain: '0.6 mm', longitude: '116.610°E', latitude: '27.320°N', signal: '77%', battery: '97%', deviceId: 'WX-023', installTime: '2025-07-20', manager: '彭超' },
-            '瑶浦气象站': { stationId: 'NF-024', deviceType: '自动气象站 DWS-200', wind: '3.1 m/s', rain: '0 mm', longitude: '116.500°E', latitude: '27.175°N', signal: '86%', battery: '80%', deviceId: 'WX-024', installTime: '2025-07-22', manager: '蒋琳' },
-            '竺由气象站': { stationId: 'NF-025', deviceType: '自动气象站 DWS-100', wind: '2.5 m/s', rain: '0.9 mm', longitude: '116.450°E', latitude: '27.380°N', signal: '74%', battery: '91%', deviceId: 'WX-025', installTime: '2025-07-25', manager: '戴勇' },
-            '溪湖气象站': { stationId: 'NF-026', deviceType: '自动气象站 DWS-300', wind: '1.8 m/s', rain: '1.5 mm', longitude: '116.590°E', latitude: '27.135°N', signal: '73%', battery: '95%', deviceId: 'WX-026', installTime: '2025-07-28', manager: '夏雨' },
-            '茅排气象站': { stationId: 'NF-027', deviceType: '自动气象站 DWS-200', wind: '3.7 m/s', rain: '0 mm', longitude: '116.360°E', latitude: '27.070°N', signal: '79%', battery: '75%', deviceId: 'WX-027', installTime: '2025-08-01', manager: '钟伟' },
-            '甘泉气象站': { stationId: 'NF-028', deviceType: '自动气象站 DWS-100', wind: '-', rain: '-', longitude: '116.430°E', latitude: '27.295°N', signal: '-', battery: '-', deviceId: 'WX-028', installTime: '2025-08-05', manager: '汪洋' },
-            '高坪气象站': { stationId: 'NF-029', deviceType: '自动气象站 DWS-200', wind: '2.7 m/s', rain: '0.1 mm', longitude: '116.585°E', latitude: '27.240°N', signal: '82%', battery: '89%', deviceId: 'WX-029', installTime: '2025-08-08', manager: '石磊' },
-            '下洋气象站': { stationId: 'NF-030', deviceType: '自动气象站 DWS-200', wind: '2.9 m/s', rain: '0 mm', longitude: '116.475°E', latitude: '27.155°N', signal: '85%', battery: '90%', deviceId: 'WX-030', installTime: '2025-08-10', manager: '任飞' },
-            '水南气象站': { stationId: 'NF-031', deviceType: '自动气象站 DWS-300', wind: '3.9 m/s', rain: '0 mm', longitude: '116.370°E', latitude: '27.060°N', signal: '91%', battery: '74%', deviceId: 'WX-031', installTime: '2025-08-12', manager: '范斌' },
-            '坪山气象站': { stationId: 'NF-032', deviceType: '自动气象站 DWS-100', wind: '2.1 m/s', rain: '0.7 mm', longitude: '116.630°E', latitude: '27.300°N', signal: '76%', battery: '92%', deviceId: 'WX-032', installTime: '2025-08-15', manager: '段鹏' },
-            '大源气象站': { stationId: 'NF-033', deviceType: '自动气象站 DWS-200', wind: '2.8 m/s', rain: '0 mm', longitude: '116.495°E', latitude: '27.180°N', signal: '84%', battery: '86%', deviceId: 'WX-033', installTime: '2025-08-18', manager: '龙海' },
-            '石峡气象站': { stationId: 'NF-034', deviceType: '自动气象站 DWS-100', wind: '1.9 m/s', rain: '1.0 mm', longitude: '116.640°E', latitude: '27.360°N', signal: '71%', battery: '87%', deviceId: 'WX-034', installTime: '2025-08-20', manager: '叶青' },
-            '桃源气象站': { stationId: 'NF-035', deviceType: '自动气象站 DWS-200', wind: '2.2 m/s', rain: '0.5 mm', longitude: '116.525°E', latitude: '27.330°N', signal: '78%', battery: '93%', deviceId: 'WX-035', installTime: '2025-08-22', manager: '苏婷' }
+            '南丰镇气象站': { stationId: 'NF-001', deviceType: '自动气象站 DWS-200', wind: '2.8 m/s', rain: '0 mm', longitude: '116.532°E', latitude: '27.218°N', signal: '85%', battery: '92%', deviceId: 'WX-001', installTime: '2025-03-15', manager: '张明', isModelMonitor: '是' },
+            '市山镇气象站': { stationId: 'NF-002', deviceType: '自动气象站 DWS-200', wind: '3.1 m/s', rain: '0 mm', longitude: '116.485°E', latitude: '27.245°N', signal: '88%', battery: '87%', deviceId: 'WX-002', installTime: '2025-03-20', manager: '李伟', isModelMonitor: '是' },
+            '太和镇气象站': { stationId: 'NF-003', deviceType: '自动气象站 DWS-100', wind: '-', rain: '-', longitude: '116.580°E', latitude: '27.262°N', signal: '-', battery: '-', deviceId: 'WX-003', installTime: '2025-04-01', manager: '王芳', isModelMonitor: '是' },
+            '莱溪乡气象站': { stationId: 'NF-004', deviceType: '自动气象站 DWS-200', wind: '2.5 m/s', rain: '0.2 mm', longitude: '116.468°E', latitude: '27.185°N', signal: '79%', battery: '95%', deviceId: 'WX-004', installTime: '2025-04-10', manager: '刘强', isModelMonitor: '否' },
+            '洽湾镇气象站': { stationId: 'NF-005', deviceType: '自动气象站 DWS-300', wind: '3.0 m/s', rain: '0 mm', longitude: '116.620°E', latitude: '27.230°N', signal: '91%', battery: '89%', deviceId: 'WX-005', installTime: '2025-04-15', manager: '陈刚', isModelMonitor: '是' },
+            '白舍镇气象站': { stationId: 'NF-006', deviceType: '自动气象站 DWS-200', wind: '3.5 m/s', rain: '0 mm', longitude: '116.380°E', latitude: '27.120°N', signal: '82%', battery: '76%', deviceId: 'WX-006', installTime: '2025-05-01', manager: '赵秀', isModelMonitor: '是' },
+            '紫霄镇气象站': { stationId: 'NF-007', deviceType: '自动气象站 DWS-100', wind: '2.2 m/s', rain: '0.5 mm', longitude: '116.510°E', latitude: '27.350°N', signal: '75%', battery: '90%', deviceId: 'WX-007', installTime: '2025-05-08', manager: '孙磊', isModelMonitor: '否' },
+            '东坪乡气象站': { stationId: 'NF-008', deviceType: '自动气象站 DWS-100', wind: '-', rain: '-', longitude: '116.650°E', latitude: '27.150°N', signal: '-', battery: '-', deviceId: 'WX-008', installTime: '2025-05-12', manager: '周婷', isModelMonitor: '否' },
+            '三溪乡气象站': { stationId: 'NF-009', deviceType: '自动气象站 DWS-200', wind: '2.7 m/s', rain: '0 mm', longitude: '116.420°E', latitude: '27.280°N', signal: '86%', battery: '83%', deviceId: 'WX-009', installTime: '2025-05-20', manager: '吴鹏', isModelMonitor: '是' },
+            '傅坊乡气象站': { stationId: 'NF-010', deviceType: '自动气象站 DWS-200', wind: '2.4 m/s', rain: '0.1 mm', longitude: '116.350°E', latitude: '27.080°N', signal: '81%', battery: '94%', deviceId: 'WX-010', installTime: '2025-06-01', manager: '郑华', isModelMonitor: '否' },
+            '琴城镇气象站': { stationId: 'NF-011', deviceType: '自动气象站 DWS-300', wind: '3.8 m/s', rain: '0 mm', longitude: '116.550°E', latitude: '27.200°N', signal: '93%', battery: '85%', deviceId: 'WX-011', installTime: '2025-06-05', manager: '黄敏', isModelMonitor: '是' },
+            '桑田镇气象站': { stationId: 'NF-012', deviceType: '自动气象站 DWS-200', wind: '2.9 m/s', rain: '0 mm', longitude: '116.490°E', latitude: '27.165°N', signal: '84%', battery: '88%', deviceId: 'WX-012', installTime: '2025-06-10', manager: '林超', isModelMonitor: '否' },
+            '潭湖气象站': { stationId: 'NF-013', deviceType: '自动气象站 DWS-300', wind: '2.1 m/s', rain: '0.8 mm', longitude: '116.600°E', latitude: '27.190°N', signal: '78%', battery: '91%', deviceId: 'WX-013', installTime: '2025-06-15', manager: '何静', isModelMonitor: '否' },
+            '军峰山气象站': { stationId: 'NF-014', deviceType: '自动气象站 DWS-100', wind: '4.2 m/s', rain: '1.2 mm', longitude: '116.470°E', latitude: '27.420°N', signal: '72%', battery: '86%', deviceId: 'WX-014', installTime: '2025-06-20', manager: '高远', isModelMonitor: '否' },
+            '荷田气象站': { stationId: 'NF-015', deviceType: '自动气象站 DWS-200', wind: '3.3 m/s', rain: '0 mm', longitude: '116.520°E', latitude: '27.145°N', signal: '87%', battery: '81%', deviceId: 'WX-015', installTime: '2025-06-25', manager: '马俊', isModelMonitor: '是' },
+            '双田气象站': { stationId: 'NF-016', deviceType: '自动气象站 DWS-200', wind: '2.6 m/s', rain: '0 mm', longitude: '116.570°E', latitude: '27.225°N', signal: '83%', battery: '93%', deviceId: 'WX-016', installTime: '2025-07-01', manager: '谢丽', isModelMonitor: '否' },
+            '古城气象站': { stationId: 'NF-017', deviceType: '自动气象站 DWS-300', wind: '3.4 m/s', rain: '0 mm', longitude: '116.390°E', latitude: '27.110°N', signal: '90%', battery: '78%', deviceId: 'WX-017', installTime: '2025-07-05', manager: '韩雪', isModelMonitor: '是' },
+            '石咀气象站': { stationId: 'NF-018', deviceType: '自动气象站 DWS-100', wind: '-', rain: '-', longitude: '116.440°E', latitude: '27.090°N', signal: '-', battery: '-', deviceId: 'WX-018', installTime: '2025-07-08', manager: '唐杰', isModelMonitor: '否' },
+            '河东气象站': { stationId: 'NF-019', deviceType: '自动气象站 DWS-200', wind: '2.8 m/s', rain: '0.3 mm', longitude: '116.560°E', latitude: '27.195°N', signal: '89%', battery: '84%', deviceId: 'WX-019', installTime: '2025-07-10', manager: '冯涛', isModelMonitor: '是' },
+            '里塔气象站': { stationId: 'NF-020', deviceType: '自动气象站 DWS-200', wind: '3.2 m/s', rain: '0 mm', longitude: '116.330°E', latitude: '27.050°N', signal: '76%', battery: '96%', deviceId: 'WX-020', installTime: '2025-07-12', manager: '曹颖', isModelMonitor: '否' },
+            '新丰气象站': { stationId: 'NF-021', deviceType: '自动气象站 DWS-100', wind: '2.3 m/s', rain: '0.4 mm', longitude: '116.540°E', latitude: '27.255°N', signal: '80%', battery: '82%', deviceId: 'WX-021', installTime: '2025-07-15', manager: '袁博', isModelMonitor: '否' },
+            '万坊气象站': { stationId: 'NF-022', deviceType: '自动气象站 DWS-300', wind: '3.6 m/s', rain: '0 mm', longitude: '116.410°E', latitude: '27.270°N', signal: '92%', battery: '79%', deviceId: 'WX-022', installTime: '2025-07-18', manager: '邓凯', isModelMonitor: '是' },
+            '杨桥气象站': { stationId: 'NF-023', deviceType: '自动气象站 DWS-200', wind: '2.0 m/s', rain: '0.6 mm', longitude: '116.610°E', latitude: '27.320°N', signal: '77%', battery: '97%', deviceId: 'WX-023', installTime: '2025-07-20', manager: '彭超', isModelMonitor: '否' },
+            '瑶浦气象站': { stationId: 'NF-024', deviceType: '自动气象站 DWS-200', wind: '3.1 m/s', rain: '0 mm', longitude: '116.500°E', latitude: '27.175°N', signal: '86%', battery: '80%', deviceId: 'WX-024', installTime: '2025-07-22', manager: '蒋琳', isModelMonitor: '否' },
+            '竺由气象站': { stationId: 'NF-025', deviceType: '自动气象站 DWS-100', wind: '2.5 m/s', rain: '0.9 mm', longitude: '116.450°E', latitude: '27.380°N', signal: '74%', battery: '91%', deviceId: 'WX-025', installTime: '2025-07-25', manager: '戴勇', isModelMonitor: '否' },
+            '溪湖气象站': { stationId: 'NF-026', deviceType: '自动气象站 DWS-300', wind: '1.8 m/s', rain: '1.5 mm', longitude: '116.590°E', latitude: '27.135°N', signal: '73%', battery: '95%', deviceId: 'WX-026', installTime: '2025-07-28', manager: '夏雨', isModelMonitor: '否' },
+            '茅排气象站': { stationId: 'NF-027', deviceType: '自动气象站 DWS-200', wind: '3.7 m/s', rain: '0 mm', longitude: '116.360°E', latitude: '27.070°N', signal: '79%', battery: '75%', deviceId: 'WX-027', installTime: '2025-08-01', manager: '钟伟', isModelMonitor: '是' },
+            '甘泉气象站': { stationId: 'NF-028', deviceType: '自动气象站 DWS-100', wind: '-', rain: '-', longitude: '116.430°E', latitude: '27.295°N', signal: '-', battery: '-', deviceId: 'WX-028', installTime: '2025-08-05', manager: '汪洋', isModelMonitor: '否' },
+            '高坪气象站': { stationId: 'NF-029', deviceType: '自动气象站 DWS-200', wind: '2.7 m/s', rain: '0.1 mm', longitude: '116.585°E', latitude: '27.240°N', signal: '82%', battery: '89%', deviceId: 'WX-029', installTime: '2025-08-08', manager: '石磊', isModelMonitor: '是' },
+            '下洋气象站': { stationId: 'NF-030', deviceType: '自动气象站 DWS-200', wind: '2.9 m/s', rain: '0 mm', longitude: '116.475°E', latitude: '27.155°N', signal: '85%', battery: '90%', deviceId: 'WX-030', installTime: '2025-08-10', manager: '任飞', isModelMonitor: '否' },
+            '水南气象站': { stationId: 'NF-031', deviceType: '自动气象站 DWS-300', wind: '3.9 m/s', rain: '0 mm', longitude: '116.370°E', latitude: '27.060°N', signal: '91%', battery: '74%', deviceId: 'WX-031', installTime: '2025-08-12', manager: '范斌', isModelMonitor: '是' },
+            '坪山气象站': { stationId: 'NF-032', deviceType: '自动气象站 DWS-100', wind: '2.1 m/s', rain: '0.7 mm', longitude: '116.630°E', latitude: '27.300°N', signal: '76%', battery: '92%', deviceId: 'WX-032', installTime: '2025-08-15', manager: '段鹏', isModelMonitor: '否' },
+            '大源气象站': { stationId: 'NF-033', deviceType: '自动气象站 DWS-200', wind: '2.8 m/s', rain: '0 mm', longitude: '116.495°E', latitude: '27.180°N', signal: '84%', battery: '86%', deviceId: 'WX-033', installTime: '2025-08-18', manager: '龙海', isModelMonitor: '是' },
+            '石峡气象站': { stationId: 'NF-034', deviceType: '自动气象站 DWS-100', wind: '1.9 m/s', rain: '1.0 mm', longitude: '116.640°E', latitude: '27.360°N', signal: '71%', battery: '87%', deviceId: 'WX-034', installTime: '2025-08-20', manager: '叶青', isModelMonitor: '否' },
+            '桃源气象站': { stationId: 'NF-035', deviceType: '自动气象站 DWS-200', wind: '2.2 m/s', rain: '0.5 mm', longitude: '116.525°E', latitude: '27.330°N', signal: '78%', battery: '93%', deviceId: 'WX-035', installTime: '2025-08-22', manager: '苏婷', isModelMonitor: '否' }
         };
 
         function openDetailModal(name) {
@@ -1016,6 +941,10 @@
                         document.getElementById('detail-longitude').textContent = detail.longitude;
                         document.getElementById('detail-latitude').textContent = detail.latitude;
                         document.getElementById('detail-manager').textContent = detail.manager || '-';
+                        const mmEl = document.getElementById('detail-is-model-monitor');
+                        const isModel = detail.isModelMonitor || '否';
+                        mmEl.textContent = isModel;
+                        mmEl.className = 'px-2 py-1 text-xs rounded-full font-medium ' + (isModel === '是' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600');
                     }
                 }
             } catch (e) {
@@ -1047,6 +976,7 @@
                         document.getElementById('edit-device-id').value = detail.deviceId || '';
                         document.getElementById('edit-install-time').value = detail.installTime || '';
                         document.getElementById('edit-manager').value = detail.manager || '';
+                        document.getElementById('edit-is-model-monitor').value = detail.isModelMonitor || '否';
                     } else {
                         document.getElementById('edit-station-id').value = '';
                         document.getElementById('edit-longitude').value = '';
@@ -1055,6 +985,7 @@
                         document.getElementById('edit-device-id').value = '';
                         document.getElementById('edit-install-time').value = '';
                         document.getElementById('edit-manager').value = '';
+                        document.getElementById('edit-is-model-monitor').value = '否';
                     }
                 }
             } catch (e) {
@@ -1074,6 +1005,7 @@
             const deviceId = document.getElementById('edit-device-id').value.trim();
             const installTime = document.getElementById('edit-install-time').value;
             const manager = document.getElementById('edit-manager').value.trim();
+            const isModelMonitor = document.getElementById('edit-is-model-monitor').value;
 
             if (!newName) {
                 alert('请输入站点名称');
@@ -1093,6 +1025,10 @@
                 row.setAttribute('data-id', newName);
                 row.querySelector('td:nth-child(1)').textContent = newName;
                 row.querySelector('td:nth-child(3)').textContent = location;
+                const mmTd = row.querySelector('td:nth-child(8)');
+                if (mmTd) {
+                    mmTd.innerHTML = '<span class="px-2 py-1 rounded-full text-xs font-medium ' + (isModelMonitor === '是' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600') + '">' + isModelMonitor + '</span>';
+                }
             }
             
             if (stationDetails[currentEditStationName]) {
@@ -1107,7 +1043,8 @@
                     signal: stationDetails[currentEditStationName].signal,
                     battery: stationDetails[currentEditStationName].battery,
                     installTime: installTime,
-                    manager: manager
+                    manager: manager,
+                    isModelMonitor: isModelMonitor
                 };
                 if (currentEditStationName !== newName) {
                     delete stationDetails[currentEditStationName];
@@ -1147,8 +1084,6 @@
                 document.getElementById('data-signal').textContent = detail ? detail.signal : '-';
                 document.getElementById('data-battery').textContent = detail ? detail.battery : '-';
 
-                renderDataChart(baseTemp + '°C', baseHumidity + '%');
-
                 // Generate 24-hour data table
                 const tableBody = document.getElementById('data-table-body');
                 const now = new Date();
@@ -1186,74 +1121,6 @@
             }
         }
 
-        function renderDataChart(temp, humidity) {
-            if (dataChartInstance) {
-                dataChartInstance.destroy();
-            }
-
-            const historyData = generateHistoryData(temp, humidity);
-            const ctx = document.getElementById('data-chart').getContext('2d');
-
-            dataChartInstance = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: historyData.hours,
-                    datasets: [{
-                        label: '温度(°C)',
-                        data: historyData.temps,
-                        borderColor: '#EF4444',
-                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                        borderWidth: 2,
-                        fill: true,
-                        tension: 0.3,
-                        pointBackgroundColor: '#EF4444',
-                        pointBorderColor: '#ffffff',
-                        pointBorderWidth: 2,
-                        pointRadius: 3,
-                        yAxisID: 'y'
-                    }, {
-                        label: '湿度(%)',
-                        data: historyData.humids,
-                        borderColor: '#3B82F6',
-                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                        borderWidth: 2,
-                        fill: true,
-                        tension: 0.3,
-                        pointBackgroundColor: '#3B82F6',
-                        pointBorderColor: '#ffffff',
-                        pointBorderWidth: 2,
-                        pointRadius: 3,
-                        yAxisID: 'y1'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'top', labels: { font: { size: 12 } } }
-                    },
-                    scales: {
-                        y: {
-                            type: 'linear',
-                            position: 'left',
-                            min: 15,
-                            max: 45,
-                            ticks: { callback: (value) => value + '°C' },
-                            grid: { color: '#f3f4f6' }
-                        },
-                        y1: {
-                            type: 'linear',
-                            position: 'right',
-                            min: 30,
-                            max: 100,
-                            ticks: { callback: (value) => value + '%' },
-                            grid: { display: false }
-                        }
-                    }
-                }
-            });
-        }
-
         function refreshData() {
             alert('正在刷新气象数据...\n数据已更新');
         }
@@ -1268,6 +1135,7 @@
             document.getElementById('add-device-id').value = '';
             document.getElementById('add-install-time').value = '';
             document.getElementById('add-manager').value = '';
+            document.getElementById('add-is-model-monitor').value = '否';
             document.getElementById('add-modal').classList.add('active');
         }
 
@@ -1281,6 +1149,7 @@
             const deviceId = document.getElementById('add-device-id').value.trim();
             const installTime = document.getElementById('add-install-time').value;
             const manager = document.getElementById('add-manager').value.trim();
+            const isModelMonitor = document.getElementById('add-is-model-monitor').value;
 
             if (!name) {
                 alert('请输入站点名称');
@@ -1313,12 +1182,14 @@
                 '<td class="px-6 py-4 text-sm text-gray-500">' + (deviceId || '-') + '</td>' +
                 '<td class="px-6 py-4 text-sm text-gray-500">' + (installTime || '-') + '</td>' +
                 '<td class="px-6 py-4 text-sm text-gray-500">' + (manager || '-') + '</td>' +
+                '<td class="px-6 py-4 text-center"><span class="px-2 py-1 rounded-full text-xs font-medium ' + (isModelMonitor === '是' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600') + '">' + isModelMonitor + '</span></td>' +
                 '<td class="px-6 py-4"><div class="flex space-x-2">' +
                 '<button onclick="openDetailModal(\'' + name + '\')" class="px-3 py-1 text-green hover:bg-green-50 rounded text-xs font-medium transition-colors">查看</button>' +
                 '<button onclick="openEditModal(\'' + name + '\')" class="px-3 py-1 text-blue hover:bg-blue-50 rounded text-xs font-medium transition-colors">编辑</button>' +
                 '<button onclick="openDataModal(\'' + name + '\')" class="px-3 py-1 text-purple hover:bg-purple-50 rounded text-xs font-medium transition-colors">数据查看</button>' +
                 '</div></td>';
             tbody.appendChild(tr);
+            optimizeStationRowStyle();
 
             stationDetails[name] = {
                 stationId: stationId,
@@ -1331,7 +1202,8 @@
                 signal: '-',
                 battery: '-',
                 installTime: installTime,
-                manager: manager
+                manager: manager,
+                isModelMonitor: isModelMonitor
             };
 
             closeModal('add-modal');
@@ -1371,7 +1243,7 @@
                 if (!emptyRow) {
                     emptyRow = document.createElement('tr');
                     emptyRow.id = 'empty-row';
-                    emptyRow.innerHTML = '<td colspan="8" class="px-6 py-8 text-center text-gray-400">暂无匹配的气象站数据</td>';
+                    emptyRow.innerHTML = '<td colspan="9" class="px-6 py-8 text-center text-gray-400">暂无匹配的气象站数据</td>';
                     document.getElementById('station-table-body').appendChild(emptyRow);
                 }
                 emptyRow.style.display = '';
@@ -1473,7 +1345,42 @@
             renderStationTable();
         };
 
+        function injectModelMonitorCells() {
+            document.querySelectorAll('#station-table-body tr[data-id]').forEach(function(row) {
+                // 已注入过（含模型监测点共9列）则跳过，避免重复注入
+                if (row.cells.length >= 9) return;
+                const name = row.getAttribute('data-id');
+                const detail = stationDetails[name];
+                const isModel = detail && detail.isModelMonitor ? detail.isModelMonitor : '否';
+                const td = document.createElement('td');
+                td.className = 'px-6 py-4 text-sm text-center whitespace-nowrap';
+                td.innerHTML = '<span class="px-2 py-1 rounded-full text-xs font-medium ' + (isModel === '是' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600') + '">' + isModel + '</span>';
+                const actionTd = row.querySelector('td:last-child');
+                if (actionTd) {
+                    row.insertBefore(td, actionTd);
+                }
+            });
+        }
+
+        function optimizeStationRowStyle() {
+            document.querySelectorAll('#station-table-body tr[data-id]').forEach(function(row) {
+                const tds = row.querySelectorAll('td');
+                if (tds.length < 9) return;
+                // 所有列禁止换行，保持单行展示
+                tds.forEach(function(td) {
+                    td.classList.add('whitespace-nowrap');
+                });
+                // 模型监测点列：居中展示
+                const mmTd = tds[tds.length - 2];
+                if (mmTd) {
+                    mmTd.classList.add('text-center');
+                }
+            });
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
+            injectModelMonitorCells();
+            optimizeStationRowStyle();
             setTimeout(initStationPagination, 100);
         });
 

@@ -48,53 +48,6 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-500 text-sm">监控点位</p>
-                        <h3 class="text-2xl font-bold text-gray-800 mt-1" id="stat-total">12</h3>
-                    </div>
-                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                        <iconify-icon icon="material-symbols:video-camera-front" class="w-6 h-6 text-blue-500"></iconify-icon>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-500 text-sm">在线监控</p>
-                        <h3 class="text-2xl font-bold text-green-600 mt-1" id="stat-online">10</h3>
-                    </div>
-                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                        <iconify-icon icon="material-symbols:check-circle" class="w-6 h-6 text-green-500"></iconify-icon>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-500 text-sm">离线监控</p>
-                        <h3 class="text-2xl font-bold text-red-600 mt-1" id="stat-offline">2</h3>
-                    </div>
-                    <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
-                        <iconify-icon icon="material-symbols:offline-bolt" class="w-6 h-6 text-red-500"></iconify-icon>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-500 text-sm">运行时长</p>
-                        <h3 class="text-2xl font-bold text-purple-600 mt-1">1,248 h</h3>
-                    </div>
-                    <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-                        <iconify-icon icon="material-symbols:timer" class="w-6 h-6 text-purple-500"></iconify-icon>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 video-card cursor-pointer" onclick="openVideoPlayer(1)">
                 <div class="relative h-40 bg-gray-900 rounded-lg overflow-hidden mb-3">
@@ -266,6 +219,7 @@
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">监测类型</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">负责人员</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">设备状态</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">模型监测点</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
                         </tr>
                     </thead>
@@ -369,6 +323,13 @@
                         </label>
                         <p class="text-sm font-medium text-gray-800" id="detail-device-status">在线</p>
                     </div>
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <label class="block text-sm font-medium text-gray-600 mb-2 flex items-center">
+                            <iconify-icon icon="material-symbols:location-on" class="w-4 h-4 mr-2 text-emerald-500"></iconify-icon>
+                            是否模型监测点位
+                        </label>
+                        <span id="detail-is-model-monitor" class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full font-medium">是</span>
+                    </div>
                 </div>
             </div>
             <div class="p-4 bg-gray-50 border-t border-gray-100 flex justify-end space-x-3 rounded-b-xl">
@@ -436,6 +397,16 @@
                             <option value="离线">离线</option>
                         </select>
                     </div>
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <label class="block text-sm font-medium text-gray-600 mb-2 flex items-center">
+                            <iconify-icon icon="material-symbols:location-on" class="w-4 h-4 mr-2 text-emerald-500"></iconify-icon>
+                            是否模型监测点位
+                        </label>
+                        <select id="edit-is-model-monitor" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                            <option value="是">是</option>
+                            <option value="否">否</option>
+                        </select>
+                    </div>
                 </div>
             </div>
             <div class="p-4 bg-gray-50 border-t border-gray-200 flex justify-end space-x-3">
@@ -498,6 +469,16 @@
                         <select id="add-device-status" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all">
                             <option value="在线">在线</option>
                             <option value="离线">离线</option>
+                        </select>
+                    </div>
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <label class="block text-sm font-medium text-gray-600 mb-2 flex items-center">
+                            <iconify-icon icon="material-symbols:location-on" class="w-4 h-4 mr-2 text-emerald-500"></iconify-icon>
+                            是否模型监测点位
+                        </label>
+                        <select id="add-is-model-monitor" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all">
+                            <option value="是">是</option>
+                            <option value="否">否</option>
                         </select>
                     </div>
                 </div>
@@ -608,18 +589,18 @@
 
     <script>
         const mockVideos = [
-            { id: 1, deviceId: 'CAM-001', camera: '太和镇果园', type: '枪机', manager: '张三', deviceStatus: '在线', date: '2026-07-25', time: '14:00', duration: '2小时30分', size: '450 MB', status: '已完成' },
-            { id: 2, deviceId: 'CAM-002', camera: '桑田镇果园', type: '枪机', manager: '李四', deviceStatus: '在线', date: '2026-07-25', time: '13:00', duration: '3小时00分', size: '580 MB', status: '已完成' },
-            { id: 3, deviceId: 'CAM-003', camera: '市山镇果园', type: '球机', manager: '王五', deviceStatus: '在线', date: '2026-07-25', time: '12:00', duration: '2小时15分', size: '410 MB', status: '已完成' },
-            { id: 4, deviceId: 'CAM-004', camera: '白舍镇果园', type: '枪机', manager: '赵六', deviceStatus: '在线', date: '2026-07-25', time: '11:00', duration: '1小时45分', size: '320 MB', status: '在线' },
-            { id: 5, deviceId: 'CAM-005', camera: '三溪乡果园', type: 'AI监测', manager: '钱七', deviceStatus: '在线', date: '2026-07-25', time: '10:00', duration: '2小时00分', size: '380 MB', status: '已完成' },
-            { id: 6, deviceId: 'CAM-006', camera: '洽湾镇果园', type: '枪机', manager: '孙八', deviceStatus: '离线', date: '2026-07-24', time: '16:00', duration: '1小时30分', size: '280 MB', status: '已完成' },
-            { id: 7, deviceId: 'CAM-007', camera: '东坪乡果园', type: '球机', manager: '周九', deviceStatus: '在线', date: '2026-07-24', time: '15:00', duration: '2小时45分', size: '510 MB', status: '已完成' },
-            { id: 8, deviceId: 'CAM-008', camera: '莱溪乡果园', type: '枪机', manager: '吴十', deviceStatus: '离线', date: '2026-07-24', time: '14:00', duration: '1小时00分', size: '190 MB', status: '已完成' },
-            { id: 9, deviceId: 'CAM-009', camera: '太和镇果园二区', type: 'AI监测', manager: '张三', deviceStatus: '在线', date: '2026-07-24', time: '13:00', duration: '2小时30分', size: '450 MB', status: '已完成' },
-            { id: 10, deviceId: 'CAM-010', camera: '桑田镇果园二区', type: '枪机', manager: '李四', deviceStatus: '在线', date: '2026-07-24', time: '12:00', duration: '3小时00分', size: '580 MB', status: '已完成' },
-            { id: 11, deviceId: 'CAM-011', camera: '市山镇果园二区', type: '球机', manager: '王五', deviceStatus: '在线', date: '2026-07-23', time: '11:00', duration: '2小时15分', size: '410 MB', status: '已完成' },
-            { id: 12, deviceId: 'CAM-012', camera: '白舍镇果园二区', type: 'AI监测', manager: '赵六', deviceStatus: '在线', date: '2026-07-23', time: '10:00', duration: '1小时45分', size: '320 MB', status: '已完成' }
+            { id: 1, deviceId: 'CAM-001', camera: '太和镇果园', type: '枪机', manager: '张三', deviceStatus: '在线', isModelMonitor: '是', date: '2026-07-25', time: '14:00', duration: '2小时30分', size: '450 MB', status: '已完成' },
+            { id: 2, deviceId: 'CAM-002', camera: '桑田镇果园', type: '枪机', manager: '李四', deviceStatus: '在线', isModelMonitor: '是', date: '2026-07-25', time: '13:00', duration: '3小时00分', size: '580 MB', status: '已完成' },
+            { id: 3, deviceId: 'CAM-003', camera: '市山镇果园', type: '球机', manager: '王五', deviceStatus: '在线', isModelMonitor: '否', date: '2026-07-25', time: '12:00', duration: '2小时15分', size: '410 MB', status: '已完成' },
+            { id: 4, deviceId: 'CAM-004', camera: '白舍镇果园', type: '枪机', manager: '赵六', deviceStatus: '在线', isModelMonitor: '是', date: '2026-07-25', time: '11:00', duration: '1小时45分', size: '320 MB', status: '在线' },
+            { id: 5, deviceId: 'CAM-005', camera: '三溪乡果园', type: 'AI监测', manager: '钱七', deviceStatus: '在线', isModelMonitor: '否', date: '2026-07-25', time: '10:00', duration: '2小时00分', size: '380 MB', status: '已完成' },
+            { id: 6, deviceId: 'CAM-006', camera: '洽湾镇果园', type: '枪机', manager: '孙八', deviceStatus: '离线', isModelMonitor: '否', date: '2026-07-24', time: '16:00', duration: '1小时30分', size: '280 MB', status: '已完成' },
+            { id: 7, deviceId: 'CAM-007', camera: '东坪乡果园', type: '球机', manager: '周九', deviceStatus: '在线', isModelMonitor: '是', date: '2026-07-24', time: '15:00', duration: '2小时45分', size: '510 MB', status: '已完成' },
+            { id: 8, deviceId: 'CAM-008', camera: '莱溪乡果园', type: '枪机', manager: '吴十', deviceStatus: '离线', isModelMonitor: '否', date: '2026-07-24', time: '14:00', duration: '1小时00分', size: '190 MB', status: '已完成' },
+            { id: 9, deviceId: 'CAM-009', camera: '太和镇果园二区', type: 'AI监测', manager: '张三', deviceStatus: '在线', isModelMonitor: '是', date: '2026-07-24', time: '13:00', duration: '2小时30分', size: '450 MB', status: '已完成' },
+            { id: 10, deviceId: 'CAM-010', camera: '桑田镇果园二区', type: '枪机', manager: '李四', deviceStatus: '在线', isModelMonitor: '否', date: '2026-07-24', time: '12:00', duration: '3小时00分', size: '580 MB', status: '已完成' },
+            { id: 11, deviceId: 'CAM-011', camera: '市山镇果园二区', type: '球机', manager: '王五', deviceStatus: '在线', isModelMonitor: '是', date: '2026-07-23', time: '11:00', duration: '2小时15分', size: '410 MB', status: '已完成' },
+            { id: 12, deviceId: 'CAM-012', camera: '白舍镇果园二区', type: 'AI监测', manager: '赵六', deviceStatus: '在线', isModelMonitor: '否', date: '2026-07-23', time: '10:00', duration: '1小时45分', size: '320 MB', status: '已完成' }
         ];
 
         let currentPage = 1;
@@ -662,6 +643,9 @@
                     <td class="px-6 py-4 whitespace-nowrap">
                         <span class="px-2 py-1 rounded-full text-xs font-medium ${getStatusClass(video.deviceStatus)}">${video.deviceStatus}</span>
                     </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 py-1 rounded-full text-xs font-medium ${video.isModelMonitor === '是' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}">${video.isModelMonitor}</span>
+                    </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm">
                         <div class="flex space-x-2">
                             <button onclick="openDetailModal(${video.id})" class="px-3 py-1 text-green-600 hover:bg-green-50 rounded text-xs font-medium transition-colors">查看</button>
@@ -674,13 +658,6 @@
             `).join('');
 
             updatePagination();
-            updateStats();
-        }
-
-        function updateStats() {
-            document.getElementById('stat-total').textContent = mockVideos.length;
-            document.getElementById('stat-online').textContent = mockVideos.filter(v => v.deviceStatus === '在线').length;
-            document.getElementById('stat-offline').textContent = mockVideos.filter(v => v.deviceStatus === '离线').length;
         }
 
         function updatePagination() {
@@ -782,6 +759,9 @@
                 document.getElementById('detail-type').textContent = video.type;
                 document.getElementById('detail-manager').textContent = video.manager;
                 document.getElementById('detail-device-status').textContent = video.deviceStatus;
+                const detailMmEl = document.getElementById('detail-is-model-monitor');
+                detailMmEl.textContent = video.isModelMonitor;
+                detailMmEl.className = 'px-2 py-1 text-xs rounded-full font-medium ' + (video.isModelMonitor === '是' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600');
 
                 document.getElementById('detail-modal').classList.add('active');
             } catch (e) {
@@ -800,6 +780,7 @@
                 document.getElementById('edit-type').value = video.type;
                 document.getElementById('edit-manager').value = video.manager;
                 document.getElementById('edit-device-status').value = video.deviceStatus;
+                document.getElementById('edit-is-model-monitor').value = video.isModelMonitor;
 
                 document.getElementById('edit-modal').classList.add('active');
             } catch (e) {
@@ -813,6 +794,7 @@
             const type = document.getElementById('edit-type').value;
             const manager = document.getElementById('edit-manager').value.trim();
             const deviceStatus = document.getElementById('edit-device-status').value;
+            const isModelMonitor = document.getElementById('edit-is-model-monitor').value;
 
             if (!deviceId) {
                 alert('请输入设备编号');
@@ -834,6 +816,7 @@
                 mockVideos[videoIndex].type = type;
                 mockVideos[videoIndex].manager = manager;
                 mockVideos[videoIndex].deviceStatus = deviceStatus;
+                mockVideos[videoIndex].isModelMonitor = isModelMonitor;
             }
 
             closeModal('edit-modal');
@@ -847,6 +830,7 @@
             document.getElementById('add-type').value = '枪机';
             document.getElementById('add-manager').value = '';
             document.getElementById('add-device-status').value = '在线';
+            document.getElementById('add-is-model-monitor').value = '是';
             document.getElementById('add-modal').classList.add('active');
         }
 
@@ -860,6 +844,7 @@
             const type = document.getElementById('add-type').value;
             const manager = document.getElementById('add-manager').value.trim();
             const deviceStatus = document.getElementById('add-device-status').value;
+            const isModelMonitor = document.getElementById('add-is-model-monitor').value;
 
             if (!deviceId) {
                 alert('请输入设备编号');
@@ -882,6 +867,7 @@
                 type: type,
                 manager: manager,
                 deviceStatus: deviceStatus,
+                isModelMonitor: isModelMonitor,
                 date: new Date().toISOString().split('T')[0],
                 time: '00:00',
                 duration: '0小时00分',

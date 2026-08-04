@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>植株综合评价报告 - 南丰蜜桔模型管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body{margin:0;padding:0;background-color:#F0F2F5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,'Noto Sans SC',sans-serif}
+        .content-wrapper{padding:24px;min-height:100vh}
+        @media print {
+            body{background:#fff}
+            .no-print{display:none!important}
+            .report-container{box-shadow:none!important;border:none!important;padding:0!important}
+        }
+    </style>
+</head>
+<body>
+<div class="content-wrapper">
+    <div class="flex items-center justify-between mb-6 no-print">
+        <div class="flex items-center gap-3">
+            <button onclick="goBack()" class="flex items-center gap-1 text-gray-600 hover:text-gray-800 text-sm transition">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                返回
+            </button>
+            <span class="text-gray-300">|</span>
+            <h1 class="text-xl font-bold text-gray-800">植株综合评价报告</h1>
+        </div>
+        <div class="flex items-center gap-2">
+            <button onclick="window.print()" class="px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition inline-flex items-center gap-1">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                导出PDF
+            </button>
+        </div>
+    </div>
+
+    <div class="report-container bg-white rounded-xl shadow-sm border border-gray-100 p-8">
+        <div class="text-center border-b-2 border-gray-800 pb-5 mb-6">
+            <h1 class="text-2xl font-bold text-gray-900">南丰蜜桔植株综合评价报告</h1>
+            <p class="text-sm text-gray-500 mt-2" id="report-meta">报告编号: RPT-20260804-001 | 生成时间: 2026-08-04 15:32</p>
+        </div>
+
+        <div class="mb-8">
+            <div class="flex items-center gap-2 mb-4">
+                <div class="w-1 h-5 bg-green-600 rounded"></div>
+                <h2 class="text-base font-bold text-gray-800">模块1 · 地块基础信息</h2>
+            </div>
+            <table class="w-full text-sm border border-gray-200">
+                <tbody>
+                    <tr class="border-b border-gray-100">
+                        <td class="px-4 py-3 bg-gray-50 font-medium text-gray-600 w-32">对象编码</td>
+                        <td class="px-4 py-3 text-gray-800">南丰蜜桔-小果系-枳砧-6年-NF-001</td>
+                        <td class="px-4 py-3 bg-gray-50 font-medium text-gray-600 w-32">品系</td>
+                        <td class="px-4 py-3 text-gray-800">小果系</td>
+                    </tr>
+                    <tr class="border-b border-gray-100">
+                        <td class="px-4 py-3 bg-gray-50 font-medium text-gray-600">树龄</td>
+                        <td class="px-4 py-3 text-gray-800">6年</td>
+                        <td class="px-4 py-3 bg-gray-50 font-medium text-gray-600">生育阶段</td>
+                        <td class="px-4 py-3 text-gray-800">膨大期</td>
+                    </tr>
+                    <tr class="border-b border-gray-100">
+                        <td class="px-4 py-3 bg-gray-50 font-medium text-gray-600">评价日期</td>
+                        <td class="px-4 py-3 text-gray-800" id="report-date">2026-08-04</td>
+                        <td class="px-4 py-3 bg-gray-50 font-medium text-gray-600">负责人</td>
+                        <td class="px-4 py-3 text-gray-800">张明</td>
+                    </tr>
+                    <tr>
+                        <td class="px-4 py-3 bg-gray-50 font-medium text-gray-600">果园位置</td>
+                        <td class="px-4 py-3 text-gray-800" id="report-location">南丰镇示范果园 · 东坡A-03地块</td>
+                        <td class="px-4 py-3 bg-gray-50 font-medium text-gray-600">种植面积</td>
+                        <td class="px-4 py-3 text-gray-800">3.2 亩</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mb-8">
+            <div class="flex items-center gap-2 mb-4">
+                <div class="w-1 h-5 bg-green-600 rounded"></div>
+                <h2 class="text-base font-bold text-gray-800">模块2 · 综合结论</h2>
+            </div>
+            <div class="bg-gray-50 rounded-lg p-6 flex items-center gap-8">
+                <div class="flex-shrink-0 text-center">
+                    <div class="w-28 h-28 rounded-full bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center text-white shadow-lg">
+                        <div>
+                            <div class="text-4xl font-bold leading-none" id="report-score">78</div>
+                            <div class="text-sm mt-1 opacity-90">分</div>
+                        </div>
+                    </div>
+                    <span class="inline-block mt-3 px-4 py-1 rounded-full text-sm font-semibold" id="report-grade">良好</span>
+                </div>
+                <div class="flex-1">
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="text-sm text-gray-500">与上次评价对比:</span>
+                        <span class="inline-flex items-center gap-1 text-red-600 text-sm font-semibold">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" transform="rotate(180 10 10)"/></svg>
+                            ↓ 3分
+                        </span>
+                        <span class="text-xs text-gray-400">(上次: 81分, 评价日期: 2026-07-15)</span>
+                    </div>
+                    <p class="text-sm text-gray-700 leading-relaxed" id="report-summary">
+                        本评价对象整体生长状态良好，植株树势健壮，叶片光合效能正常。近期受高温天气影响，部分幼果出现日灼风险，建议及时采取遮阴措施并加强水分管理。根系活力略有下降，需关注土壤湿度调控。整体仍处于健康生长状态，具备丰产基础。
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-8">
+            <div class="flex items-center gap-2 mb-4">
+                <div class="w-1 h-5 bg-green-600 rounded"></div>
+                <h2 class="text-base font-bold text-gray-800">模块3 · 六维度分项得分表</h2>
+            </div>
+            <table class="w-full text-sm border border-gray-200">
+                <thead>
+                    <tr class="bg-gray-50 border-b border-gray-200">
+                        <th class="px-4 py-3 text-left font-semibold text-gray-600">维度</th>
+                        <th class="px-4 py-3 text-center font-semibold text-gray-600">满分</th>
+                        <th class="px-4 py-3 text-center font-semibold text-gray-600">得分</th>
+                        <th class="px-4 py-3 text-center font-semibold text-gray-600">扣分</th>
+                        <th class="px-4 py-3 text-left font-semibold text-gray-600">得分率</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="border-b border-gray-100"><td class="px-4 py-3 text-gray-800 font-medium">树势</td><td class="px-4 py-3 text-center text-gray-600">20</td><td class="px-4 py-3 text-center text-green-600 font-semibold">18</td><td class="px-4 py-3 text-center text-red-500">-2</td><td class="px-4 py-3"><div class="flex items-center gap-2"><div class="flex-1 bg-gray-200 rounded-full h-2"><div class="bg-green-500 h-2 rounded-full" style="width:90%"></div></div><span class="text-xs text-gray-600">90%</span></div></td></tr>
+                    <tr class="border-b border-gray-100"><td class="px-4 py-3 text-gray-800 font-medium">叶片</td><td class="px-4 py-3 text-center text-gray-600">15</td><td class="px-4 py-3 text-center text-green-600 font-semibold">13</td><td class="px-4 py-3 text-center text-red-500">-2</td><td class="px-4 py-3"><div class="flex items-center gap-2"><div class="flex-1 bg-gray-200 rounded-full h-2"><div class="bg-green-500 h-2 rounded-full" style="width:87%"></div></div><span class="text-xs text-gray-600">87%</span></div></td></tr>
+                    <tr class="border-b border-gray-100"><td class="px-4 py-3 text-gray-800 font-medium">根系</td><td class="px-4 py-3 text-center text-gray-600">15</td><td class="px-4 py-3 text-center text-yellow-600 font-semibold">11</td><td class="px-4 py-3 text-center text-red-500">-4</td><td class="px-4 py-3"><div class="flex items-center gap-2"><div class="flex-1 bg-gray-200 rounded-full h-2"><div class="bg-yellow-500 h-2 rounded-full" style="width:73%"></div></div><span class="text-xs text-gray-600">73%</span></div></td></tr>
+                    <tr class="border-b border-gray-100"><td class="px-4 py-3 text-gray-800 font-medium">花果</td><td class="px-4 py-3 text-center text-gray-600">20</td><td class="px-4 py-3 text-center text-green-600 font-semibold">17</td><td class="px-4 py-3 text-center text-red-500">-3</td><td class="px-4 py-3"><div class="flex items-center gap-2"><div class="flex-1 bg-gray-200 rounded-full h-2"><div class="bg-green-500 h-2 rounded-full" style="width:85%"></div></div><span class="text-xs text-gray-600">85%</span></div></td></tr>
+                    <tr class="border-b border-gray-100"><td class="px-4 py-3 text-gray-800 font-medium">环境</td><td class="px-4 py-3 text-center text-gray-600">15</td><td class="px-4 py-3 text-center text-yellow-600 font-semibold">12</td><td class="px-4 py-3 text-center text-red-500">-3</td><td class="px-4 py-3"><div class="flex items-center gap-2"><div class="flex-1 bg-gray-200 rounded-full h-2"><div class="bg-yellow-500 h-2 rounded-full" style="width:80%"></div></div><span class="text-xs text-gray-600">80%</span></div></td></tr>
+                    <tr class="border-b border-gray-100"><td class="px-4 py-3 text-gray-800 font-medium">病虫</td><td class="px-4 py-3 text-center text-gray-600">15</td><td class="px-4 py-3 text-center text-green-600 font-semibold">7</td><td class="px-4 py-3 text-center text-red-500">-8</td><td class="px-4 py-3"><div class="flex items-center gap-2"><div class="flex-1 bg-gray-200 rounded-full h-2"><div class="bg-red-500 h-2 rounded-full" style="width:47%"></div></div><span class="text-xs text-gray-600">47%</span></div></td></tr>
+                    <tr class="bg-gray-50 font-semibold"><td class="px-4 py-3 text-gray-800">合计</td><td class="px-4 py-3 text-center text-gray-700">100</td><td class="px-4 py-3 text-center text-green-700" id="report-total">78</td><td class="px-4 py-3 text-center text-red-600">-22</td><td class="px-4 py-3 text-gray-700 text-right">78%</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mb-8">
+            <div class="flex items-center gap-2 mb-4">
+                <div class="w-1 h-5 bg-green-600 rounded"></div>
+                <h2 class="text-base font-bold text-gray-800">模块4 · 扣分明细</h2>
+            </div>
+            <table class="w-full text-sm border border-gray-200">
+                <thead><tr class="bg-gray-50 border-b border-gray-200"><th class="px-4 py-3 text-left font-semibold text-gray-600">扣分因子</th><th class="px-4 py-3 text-left font-semibold text-gray-600">实测值</th><th class="px-4 py-3 text-left font-semibold text-gray-600">目标区间</th><th class="px-4 py-3 text-center font-semibold text-gray-600">扣分值</th><th class="px-4 py-3 text-left font-semibold text-gray-600">所属维度</th></tr></thead>
+                <tbody>
+                    <tr class="border-b border-gray-100"><td class="px-4 py-3 text-gray-800">叶片SPAD值偏低</td><td class="px-4 py-3 text-gray-700">32.5</td><td class="px-4 py-3 text-gray-700">35-45</td><td class="px-4 py-3 text-center text-red-500 font-medium">-2</td><td class="px-4 py-3"><span class="px-2 py-0.5 bg-gray-100 text-gray-600 rounded text-xs">叶片</span></td></tr>
+                    <tr class="border-b border-gray-100"><td class="px-4 py-3 text-gray-800">土壤湿度不足</td><td class="px-4 py-3 text-gray-700">48%</td><td class="px-4 py-3 text-gray-700">60-80%</td><td class="px-4 py-3 text-center text-red-500 font-medium">-3</td><td class="px-4 py-3"><span class="px-2 py-0.5 bg-gray-100 text-gray-600 rounded text-xs">环境</span></td></tr>
+                    <tr class="border-b border-gray-100"><td class="px-4 py-3 text-gray-800">根系活力下降</td><td class="px-4 py-3 text-gray-700">65%</td><td class="px-4 py-3 text-gray-700">≥80%</td><td class="px-4 py-3 text-center text-red-500 font-medium">-4</td><td class="px-4 py-3"><span class="px-2 py-0.5 bg-gray-100 text-gray-600 rounded text-xs">根系</span></td></tr>
+                    <tr class="border-b border-gray-100"><td class="px-4 py-3 text-gray-800">落果率偏高</td><td class="px-4 py-3 text-gray-700">12%</td><td class="px-4 py-3 text-gray-700">≤5%</td><td class="px-4 py-3 text-center text-red-500 font-medium">-3</td><td class="px-4 py-3"><span class="px-2 py-0.5 bg-gray-100 text-gray-600 rounded text-xs">花果</span></td></tr>
+                    <tr class="border-b border-gray-100"><td class="px-4 py-3 text-gray-800">红蜘蛛检出</td><td class="px-4 py-3 text-gray-700">3.2头/叶</td><td class="px-4 py-3 text-gray-700">≤1头/叶</td><td class="px-4 py-3 text-center text-red-500 font-medium">-5</td><td class="px-4 py-3"><span class="px-2 py-0.5 bg-gray-100 text-gray-600 rounded text-xs">病虫</span></td></tr>
+                    <tr><td class="px-4 py-3 text-gray-800">高温胁迫</td><td class="px-4 py-3 text-gray-700">38.5℃(持续3天)</td><td class="px-4 py-3 text-gray-700">≤35℃</td><td class="px-4 py-3 text-center text-red-500 font-medium">-5</td><td class="px-4 py-3"><span class="px-2 py-0.5 bg-gray-100 text-gray-600 rounded text-xs">环境</span></td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mb-8">
+            <div class="flex items-center gap-2 mb-4">
+                <div class="w-1 h-5 bg-green-600 rounded"></div>
+                <h2 class="text-base font-bold text-gray-800">模块5 · 风险诊断</h2>
+            </div>
+            <div class="space-y-4">
+                <div class="border border-red-200 bg-red-50 rounded-lg overflow-hidden">
+                    <div class="px-4 py-3 bg-red-100 flex items-center justify-between">
+                        <div class="flex items-center gap-2"><span class="px-2 py-0.5 bg-red-600 text-white text-xs rounded font-semibold">高风险</span><span class="text-sm font-semibold text-red-800">风险1 · 红蜘蛛虫害暴发风险</span></div>
+                        <span class="text-xs text-red-600">发生概率: 72%</span>
+                    </div>
+                    <div class="p-4 text-sm text-gray-700 space-y-2">
+                        <div class="flex items-start gap-2"><span class="inline-block px-2 py-0.5 bg-red-100 text-red-700 rounded text-xs font-semibold mt-0.5 w-16 text-center">现象</span><span>抽查叶片红蜘蛛密度达3.2头/叶，已超过经济阈值(1头/叶)，部分叶片出现黄白色斑点</span></div>
+                        <div class="flex items-start gap-2"><span class="inline-block px-2 py-0.5 bg-orange-100 text-orange-700 rounded text-xs font-semibold mt-0.5 w-16 text-center">直接原因</span><span>近期高温干燥天气有利于螨类繁殖，田间天敌(捕食螨)数量不足，防治窗口期延误</span></div>
+                        <div class="flex items-start gap-2"><span class="inline-block px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded text-xs font-semibold mt-0.5 w-16 text-center">深层诱因</span><span>果园生物防治体系不完善，长期单一使用广谱农药杀伤天敌，果园微生态平衡遭到破坏</span></div>
+                    </div>
+                </div>
+                <div class="border border-yellow-200 bg-yellow-50 rounded-lg overflow-hidden">
+                    <div class="px-4 py-3 bg-yellow-100 flex items-center justify-between">
+                        <div class="flex items-center gap-2"><span class="px-2 py-0.5 bg-yellow-600 text-white text-xs rounded font-semibold">中风险</span><span class="text-sm font-semibold text-yellow-800">风险2 · 幼果日灼风险</span></div>
+                        <span class="text-xs text-yellow-600">发生概率: 55%</span>
+                    </div>
+                    <div class="p-4 text-sm text-gray-700 space-y-2">
+                        <div class="flex items-start gap-2"><span class="inline-block px-2 py-0.5 bg-red-100 text-red-700 rounded text-xs font-semibold mt-0.5 w-16 text-center">现象</span><span>向阳面果实出现局部黄化、果皮失水皱缩，树冠外围受害较重</span></div>
+                        <div class="flex items-start gap-2"><span class="inline-block px-2 py-0.5 bg-orange-100 text-orange-700 rounded text-xs font-semibold mt-0.5 w-16 text-center">直接原因</span><span>连续3天最高气温超过38℃，空气湿度低于40%，果实表面温度超过45℃</span></div>
+                        <div class="flex items-start gap-2"><span class="inline-block px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded text-xs font-semibold mt-0.5 w-16 text-center">深层诱因</span><span>果园缺乏合理的遮阴设施，树冠整形修剪留枝过多导致通风透光性差，果园周围防护林不完善</span></div>
+                    </div>
+                </div>
+                <div class="border border-yellow-200 bg-yellow-50 rounded-lg overflow-hidden">
+                    <div class="px-4 py-3 bg-yellow-100 flex items-center justify-between">
+                        <div class="flex items-center gap-2"><span class="px-2 py-0.5 bg-yellow-600 text-white text-xs rounded font-semibold">中风险</span><span class="text-sm font-semibold text-yellow-800">风险3 · 根系衰退风险</span></div>
+                        <span class="text-xs text-yellow-600">发生概率: 42%</span>
+                    </div>
+                    <div class="p-4 text-sm text-gray-700 space-y-2">
+                        <div class="flex items-start gap-2"><span class="inline-block px-2 py-0.5 bg-red-100 text-red-700 rounded text-xs font-semibold mt-0.5 w-16 text-center">现象</span><span>根系活力检测值65%，低于健康阈值80%，根尖发黑现象增加</span></div>
+                        <div class="flex items-start gap-2"><span class="inline-block px-2 py-0.5 bg-orange-100 text-orange-700 rounded text-xs font-semibold mt-0.5 w-16 text-center">直接原因</span><span>土壤含水量持续偏低(48%)，超过15天未进行有效灌溉，根系吸收功能受阻</span></div>
+                        <div class="flex items-start gap-2"><span class="inline-block px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded text-xs font-semibold mt-0.5 w-16 text-center">深层诱因</span><span>果园灌溉设施老旧，滴灌覆盖率仅60%，土壤有机质含量偏低(1.8%)导致保水能力差</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-8">
+            <div class="flex items-center gap-2 mb-4"><div class="w-1 h-5 bg-green-600 rounded"></div><h2 class="text-base font-bold text-gray-800">模块6 · 农事处置清单</h2></div>
+            <table class="w-full text-sm border border-gray-200">
+                <thead><tr class="bg-gray-50 border-b border-gray-200"><th class="px-4 py-3 text-left font-semibold text-gray-600">优先级</th><th class="px-4 py-3 text-left font-semibold text-gray-600">农事措施</th><th class="px-4 py-3 text-left font-semibold text-gray-600">复查周期</th><th class="px-4 py-3 text-left font-semibold text-gray-600">监测指标</th></tr></thead>
+                <tbody>
+                    <tr class="border-b border-gray-100"><td class="px-4 py-3"><span class="inline-block px-2 py-0.5 bg-red-100 text-red-700 text-xs rounded font-semibold">1项·紧急</span></td><td class="px-4 py-3 text-gray-800">喷施 1.8% 阿维菌素乳油 2000倍液防治红蜘蛛，重点喷施叶背面</td><td class="px-4 py-3 text-gray-700">施药后 3 天</td><td class="px-4 py-3 text-gray-700">红蜘蛛密度 ≤ 0.5头/叶</td></tr>
+                    <tr class="border-b border-gray-100"><td class="px-4 py-3"><span class="inline-block px-2 py-0.5 bg-red-100 text-red-700 text-xs rounded font-semibold">1项·紧急</span></td><td class="px-4 py-3 text-gray-800">立即进行滴灌补水，灌水量 25 吨/亩，分2次进行间隔12小时</td><td class="px-4 py-3 text-gray-700">灌溉后 24 小时</td><td class="px-4 py-3 text-gray-700">土壤湿度恢复至 60% 以上</td></tr>
+                    <tr class="border-b border-gray-100"><td class="px-4 py-3"><span class="inline-block px-2 py-0.5 bg-yellow-100 text-yellow-700 text-xs rounded font-semibold">2项·重要</span></td><td class="px-4 py-3 text-gray-800">树冠外围搭建遮阳网(遮光率30%)，或在中午11-14时进行树冠喷水降温</td><td class="px-4 py-3 text-gray-700">持续高温期每日巡查</td><td class="px-4 py-3 text-gray-700">果实表面温度 ≤ 40℃</td></tr>
+                    <tr class="border-b border-gray-100"><td class="px-4 py-3"><span class="inline-block px-2 py-0.5 bg-yellow-100 text-yellow-700 text-xs rounded font-semibold">2项·重要</span></td><td class="px-4 py-3 text-gray-800">叶面喷施 0.3% 尿素 + 0.2% 磷酸二氢钾混合液，补充营养</td><td class="px-4 py-3 text-gray-700">喷施后 7 天</td><td class="px-4 py-3 text-gray-700">叶片 SPAD 值 ≥ 35</td></tr>
+                    <tr><td class="px-4 py-3"><span class="inline-block px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded font-semibold">3项·常规</span></td><td class="px-4 py-3 text-gray-800">果园行间种植三叶草或生草覆盖，改善果园微生态环境</td><td class="px-4 py-3 text-gray-700">30 天后评估</td><td class="px-4 py-3 text-gray-700">天敌昆虫数量增长 30% 以上</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mb-8">
+            <div class="flex items-center gap-2 mb-4"><div class="w-1 h-5 bg-green-600 rounded"></div><h2 class="text-base font-bold text-gray-800">模块7 · 品质预测</h2></div>
+            <div class="grid grid-cols-3 gap-4">
+                <div class="border border-gray-200 rounded-lg p-4 bg-gradient-to-br from-green-50 to-white"><div class="text-xs text-gray-500 mb-1">果径</div><div class="text-2xl font-bold text-gray-800">78 <span class="text-sm font-normal text-gray-500">mm</span></div><div class="text-xs text-green-600 mt-1">目标区间: 75-85mm</div></div>
+                <div class="border border-gray-200 rounded-lg p-4 bg-gradient-to-br from-green-50 to-white"><div class="text-xs text-gray-500 mb-1">果重</div><div class="text-2xl font-bold text-gray-800">235 <span class="text-sm font-normal text-gray-500">g</span></div><div class="text-xs text-green-600 mt-1">目标区间: 200-250g</div></div>
+                <div class="border border-gray-200 rounded-lg p-4 bg-gradient-to-br from-green-50 to-white"><div class="text-xs text-gray-500 mb-1">糖度</div><div class="text-2xl font-bold text-gray-800">14.2 <span class="text-sm font-normal text-gray-500">°Brix</span></div><div class="text-xs text-green-600 mt-1">目标区间: 12-16°Brix</div></div>
+                <div class="border border-gray-200 rounded-lg p-4 bg-gradient-to-br from-blue-50 to-white"><div class="text-xs text-gray-500 mb-1">预估亩产</div><div class="text-2xl font-bold text-gray-800">2800 <span class="text-sm font-normal text-gray-500">kg/亩</span></div><div class="text-xs text-blue-600 mt-1">对比去年 +12%</div></div>
+                <div class="border border-gray-200 rounded-lg p-4 bg-gradient-to-br from-blue-50 to-white"><div class="text-xs text-gray-500 mb-1">商品果率</div><div class="text-2xl font-bold text-gray-800">92 <span class="text-sm font-normal text-gray-500">%</span></div><div class="text-xs text-blue-600 mt-1">优质果率: 68%</div></div>
+                <div class="border border-gray-200 rounded-lg p-4 bg-gradient-to-br from-orange-50 to-white"><div class="text-xs text-gray-500 mb-1">预测置信度</div><div class="text-2xl font-bold text-gray-800">85 <span class="text-sm font-normal text-gray-500">%</span></div><div class="w-full bg-gray-200 rounded-full h-2 mt-2"><div class="bg-orange-400 h-2 rounded-full" style="width:85%"></div></div></div>
+            </div>
+            <p class="text-xs text-gray-500 mt-3">* 品质预测基于当前生长状态、气象数据和历史模型计算，仅供参考</p>
+        </div>
+
+        <div class="mb-8">
+            <div class="flex items-center gap-2 mb-4"><div class="w-1 h-5 bg-yellow-500 rounded"></div><h2 class="text-base font-bold text-gray-800">模块8 · 风险提示</h2></div>
+            <div class="bg-yellow-50 border border-yellow-300 rounded-lg p-4">
+                <div class="flex items-start gap-3">
+                    <svg class="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                    <div class="flex-1 space-y-2 text-sm text-gray-800">
+                        <div class="flex items-start gap-2"><span class="px-1.5 py-0.5 bg-yellow-200 text-yellow-800 text-xs rounded font-semibold flex-shrink-0">预警</span><span>气象部门预报：未来 5 天持续高温天气（最高 38-40℃），建议做好遮阴降温准备，重点关注向阳面果实日灼风险。</span></div>
+                        <div class="flex items-start gap-2"><span class="px-1.5 py-0.5 bg-orange-200 text-orange-800 text-xs rounded font-semibold flex-shrink-0">提醒</span><span>红蜘蛛已超出防治经济阈值，若不及时处理将影响果实外观品质和产量，建议 48 小时内完成施药。</span></div>
+                        <div class="flex items-start gap-2"><span class="px-1.5 py-0.5 bg-blue-200 text-blue-800 text-xs rounded font-semibold flex-shrink-0">建议</span><span>近期土壤湿度持续偏低，建议采用滴灌方式少量多次补水，避免一次性大量灌溉导致裂果。</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <div class="flex items-center gap-2 mb-4"><div class="w-1 h-5 bg-gray-400 rounded"></div><h2 class="text-base font-bold text-gray-800">模块9 · 数据可信度说明</h2></div>
+            <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 text-sm text-gray-600 leading-relaxed">
+                <p class="mb-2"><strong class="text-gray-700">本报告基于以下数据源综合分析生成：</strong></p>
+                <ul class="list-disc pl-5 space-y-1">
+                    <li>植株生长监测数据（树势、叶片、花果等 6 个维度）</li>
+                    <li>田间环境监测数据（温度、湿度、光照、土壤水分）</li>
+                    <li>病虫害调查数据（红蜘蛛、炭疽病等普查结果）</li>
+                    <li>历史评价数据对比分析</li>
+                </ul>
+                <p class="mt-3"><strong class="text-gray-700">局限性说明：</strong>本报告中 <span class="text-red-600">根系活力</span>、<span class="text-red-600">土壤养分</span> 等指标因缺乏部分实测数据，采用了历史估算模型进行推断，可能影响评价精度约 ±5%。建议结合现场实地勘察进一步校正评价结果。品质预测的准确率受天气、管理水平等因素影响，实际产出可能存在 ±10% 的偏差。</p>
+                <p class="mt-3 text-xs text-gray-400">报告审核人: 李建国 | 审核时间: 2026-08-04 16:00 | 数据来源: 南丰蜜桔监测数据库 v2.3</p>
+            </div>
+        </div>
+
+        <div class="text-center pt-4 border-t border-gray-200 text-xs text-gray-400">
+            <p>© 2026 南丰蜜桔生长模型系统 | 本报告由系统自动生成，仅供农业生产参考</p>
+        </div>
+    </div>
+</div>
+
+<script>
+const reportData = {
+    'NF-001': {
+        '2026-08-04': { score: 78, grade: '良好', gradeColor: 'bg-green-100 text-green-700', location: '南丰镇示范果园 · 东坡A-03地块', summary: '本评价对象整体生长状态良好，植株树势健壮，叶片光合效能正常。近期受高温天气影响，部分幼果出现日灼风险，建议及时采取遮阴措施并加强水分管理。根系活力略有下降，需关注土壤湿度调控。整体仍处于健康生长状态，具备丰产基础。' },
+        '2026-07-15': { score: 81, grade: '良好', gradeColor: 'bg-green-100 text-green-700', location: '南丰镇示范果园 · 东坡A-03地块', summary: '本评价对象整体生长状态良好，植株树势健壮，叶片光合效能正常。夏梢生长饱满，果实坐稳率高。建议继续做好水分管理和病虫害防治工作。整体处于健康生长状态，丰产基础扎实。' },
+        '2026-06-20': { score: 83, grade: '良好', gradeColor: 'bg-green-100 text-green-700', location: '南丰镇示范果园 · 东坡A-03地块', summary: '本评价对象整体生长状态优秀，植株树势健壮，春梢生长良好，花果管理到位。建议继续关注花期病虫害防治和坐果期肥水管理。' },
+    },
+    'NF-002': {
+        '2026-08-04': { score: 86, grade: '优秀', gradeColor: 'bg-blue-100 text-blue-700', location: '南丰镇示范果园 · 东坡A-05地块', summary: '本评价对象整体生长状态优秀，植株树势强健，叶片光合效能高。果实膨大良好，品质形成关键期管理到位。建议继续做好水分调控和品质提升工作，有望获得高产优质果实。' },
+        '2026-07-15': { score: 85, grade: '优秀', gradeColor: 'bg-blue-100 text-blue-700', location: '南丰镇示范果园 · 东坡A-05地块', summary: '本评价对象整体生长状态优秀，植株树势强健，夏梢生长饱满。果实坐稳率高，品质形成良好。建议继续做好肥水管理和病虫害防治。' },
+    },
+    'NF-003': {
+        '2026-08-04': { score: 72, grade: '一般', gradeColor: 'bg-yellow-100 text-yellow-700', location: '南丰镇南塘片区 · 南塘B-01地块', summary: '本评价对象整体生长状态一般，部分植株树势偏弱，叶片SPAD值偏低。近期降雨偏少，土壤湿度不足，建议及时进行灌溉补水。部分区域有红蜘蛛危害，需加强防治。' },
+        '2026-07-15': { score: 75, grade: '良好', gradeColor: 'bg-green-100 text-green-700', location: '南丰镇南塘片区 · 南塘B-01地块', summary: '本评价对象整体生长状态良好，植株树势正常，叶片光合效能稳定。建议继续做好水分管理和病虫害防治。' },
+    },
+    'NF-004': {
+        '2026-08-04': { score: 65, grade: '需改进', gradeColor: 'bg-orange-100 text-orange-700', location: '南丰镇南塘片区 · 南塘B-07地块', summary: '本评价对象整体生长状态偏弱，植株树势衰弱，部分叶片黄化。土壤养分含量偏低，根系活力不足。建议加强肥水管理，进行土壤改良，及时防治病虫害。整体需要重点关注和改进管理措施。' },
+    },
+};
+
+function getQueryParam(name) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(name);
+}
+
+function initReport() {
+    const plotId = getQueryParam('plot') || 'NF-001';
+    const date = getQueryParam('date') || '2026-08-04';
+    const data = reportData[plotId] && reportData[plotId][date];
+
+    document.getElementById('report-date').textContent = date;
+    document.getElementById('report-location').textContent = data ? data.location : '南丰镇示范果园 · 东坡A-03地块';
+    document.getElementById('report-meta').textContent = '报告编号: RPT-' + date.replace(/-/g,'') + '-' + plotId + ' | 生成时间: ' + date + ' 15:32';
+
+    if (data) {
+        document.getElementById('report-score').textContent = data.score;
+        document.getElementById('report-total').textContent = data.score;
+        document.getElementById('report-grade').textContent = data.grade;
+        document.getElementById('report-grade').className = 'inline-block mt-3 px-4 py-1 rounded-full text-sm font-semibold ' + data.gradeColor;
+        document.getElementById('report-summary').textContent = data.summary;
+    }
+}
+
+function goBack() {
+    if (window.history.length > 1) {
+        window.history.back();
+    } else {
+        window.location.href = 'report.html';
+    }
+}
+
+initReport();
+</script>
+</body>
+</html>

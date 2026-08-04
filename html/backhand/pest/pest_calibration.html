@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>数据校准 - 南丰蜜桔模型管理系统</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+@keyframes modalSlideIn {
+    from { opacity: 0; transform: translateY(-20px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.modal-overlay.active .modal-content { animation: modalSlideIn 0.3s ease; }
+body { margin: 0; padding: 0; background-color: #F0F2F5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans SC', sans-serif; }
+.content-wrapper { padding: 24px; height: 100vh; overflow-y: auto; }
+.modal-overlay { display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center }
+.modal-content { background:#fff;border-radius:12px;width:90%;max-width:600px;max-height:85vh;overflow-y:auto }
+.tab-active{color:#16a34a;border-bottom:2px solid #16a34a;font-weight:600}
+.tab-inactive{color:#6b7280;border-bottom:2px solid transparent}
+.tab-inactive:hover{color:#374151}
+.text-green{color:#16a34a} .text-blue{color:#2563eb} .text-red{color:#dc2626} .text-yellow{color:#d97706} .text-orange{color:#ea580c} .text-purple{color:#7c3aed}
+.form-input{width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box;outline:none;background:#fff}
+.form-input:focus{border-color:#16a34a;box-shadow:0 0 0 2px rgba(22,163,74,0.1)}
+#toast{display:none;position:fixed;top:24px;left:50%;transform:translateX(-50%);background:#16a34a;color:#fff;padding:10px 20px;border-radius:8px;font-size:14px;z-index:100000;box-shadow:0 4px 12px rgba(0,0,0,0.15)}
+input[type=range]{accent-color:#16a34a}
+</style>
+</head>
+<body>
+<div class="content-wrapper">
+  <!-- 1. 头部 -->
+  <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+    <div>
+      <h1 class="text-xl font-bold text-gray-800">数据校准</h1>
+      <p class="text-gray-500 text-sm mt-1">模型概率校准 · 历史数据验证 · 参数微调</p>
+    </div>
+    <div class="flex items-center gap-3">
+      <select id="pestSel" onchange="switchPest()" class="form-input" style="width:130px">
+        <option>红蜘蛛</option><option>黄龙病</option><option>炭疽病</option><option>潜叶蛾</option><option>溃疡病</option><option>疮痂病</option>
+      </select>
+      <button id="calBtn" onclick="runCalibration()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium flex items-center gap-1.5">
+        <svg id="calSpin" class="hidden w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path></svg>
+        <span id="calTxt">执行校准</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- 2. 指标卡片 -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+      <div class="flex items-center justify-between mb-2"><span class="text-sm text-gray-500">预测准确率</span><svg class="w-5 h-5 text-green" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+      <div class="text-2xl font-bold text-gray-800"><span id="mAcc">86.2</span><span class="text-base text-gray-500">%</span></div>
+      <p class="text-xs text-gray-400 mt-1">较上次校准提升 <span id="mAccD" class="text-green font-medium">+3.7%</span></p>
+    </div>
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+      <div class="flex items-center justify-between mb-2"><span class="text-sm text-gray-500">召回率</span><svg class="w-5 h-5 text-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg></div>
+      <div class="text-2xl font-bold text-gray-800"><span id="mRec">82.5</span><span class="text-base text-gray-500">%</span></div>
+      <p class="text-xs text-gray-400 mt-1">较上次校准提升 <span id="mRecD" class="text-blue font-medium">+3.6%</span></p>
+    </div>
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+      <div class="flex items-center justify-between mb-2"><span class="text-sm text-gray-500">F1 分数</span><svg class="w-5 h-5 text-purple" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9 9 0 1020.945 13H11V3.055z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"/></svg></div>
+      <div class="text-2xl font-bold text-gray-800"><span id="mF1">0.84</span></div>
+      <p class="text-xs text-gray-400 mt-1">较上次校准提升 <span id="mF1D" class="text-purple font-medium">+0.04</span></p>
+    </div>
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+      <div class="flex items-center justify-between mb-2"><span class="text-sm text-gray-500">校准样本数</span><svg class="w-5 h-5 text-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></div>
+      <div class="text-2xl font-bold text-gray-800"><span id="mN">1,240</span><span class="text-base text-gray-500"> 条</span></div>
+      <p class="text-xs text-gray-400 mt-1">覆盖 2024-01 以来历史发生数据</p>
+    </div>
+  </div>
+
+  <!-- 3. 校准进度 -->
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6">
+    <div class="flex items-center justify-between mb-3">
+      <h3 class="text-sm font-semibold text-gray-700">校准进度</h3>
+      <div class="flex items-center gap-2">
+        <span class="text-xs text-gray-500">校准数据范围</span>
+        <select id="rangeSel" onchange="changeRange()" class="form-input" style="width:190px">
+          <option>2024-01 至 2026-07</option><option>2025-01 至 2026-07</option><option>2024-01 至 2025-12</option><option>近12个月</option>
+        </select>
+      </div>
+    </div>
+    <div class="w-full bg-gray-200 rounded-full h-2.5"><div id="progBar" class="bg-green-600 h-2.5 rounded-full" style="width:100%"></div></div>
+    <div class="flex items-center justify-between text-xs text-gray-500 mt-2">
+      <span><span class="text-green font-semibold">100%</span> 已完成</span>
+      <span>校准数据范围 <span id="progRange" class="text-gray-700 font-medium">2024-01 至 2026-07</span></span>
+    </div>
+    <p class="text-xs text-gray-500 mt-2">最近校准时间 <span id="progTime" class="text-gray-700 font-medium">2026-08-03 10:30</span></p>
+  </div>
+
+  <!-- 4. 图表区 -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+      <h3 class="text-sm font-semibold text-gray-700">预测值 vs 实际值对比图</h3>
+      <p class="text-xs text-gray-400 mt-1 mb-3">2026年1月至7月 · 模型预测概率与实际发生概率</p>
+      <div style="height:280px"><canvas id="compareChart"></canvas></div>
+    </div>
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+      <h3 class="text-sm font-semibold text-gray-700">校准前后对比图</h3>
+      <p class="text-xs text-gray-400 mt-1 mb-3">P = Cal(综合风险指数) · 历史数据拟合校准曲线</p>
+      <div style="height:280px"><canvas id="calibChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- 5. 校准参数微调 -->
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6">
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+      <div>
+        <h3 class="text-sm font-semibold text-gray-700">校准参数微调</h3>
+        <p class="text-xs text-gray-400 mt-1">校准函数 P = 1/(1+e^-(5k(x-0.5)+5b))，将综合风险指数 x 映射为实际发生概率</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <button onclick="resetParams()" class="px-4 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 text-sm font-medium">恢复默认</button>
+        <button onclick="saveParams()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium">保存校准参数</button>
+      </div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+      <div>
+        <label class="block text-xs font-medium text-gray-600 mb-1">校准斜率 k：<span id="kVal" class="text-green font-semibold">1.35</span></label>
+        <input type="range" id="inK" min="0.5" max="2.5" step="0.05" value="1.35" oninput="liveParam()" class="w-full">
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-gray-600 mb-1">校准截距 b：<span id="bVal" class="text-blue font-semibold">0.12</span></label>
+        <input type="range" id="inB" min="-0.20" max="0.50" step="0.01" value="0.12" oninput="liveParam()" class="w-full">
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-gray-600 mb-1">温度阈值 (°C)</label>
+        <input type="number" id="inTh" class="form-input" value="30" onchange="liveParam()">
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-gray-600 mb-1">湿度阈值 (%)</label>
+        <input type="number" id="inHh" class="form-input" value="80" onchange="liveParam()">
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-gray-600 mb-1">降雨阈值 (mm)</label>
+        <input type="number" id="inRh" class="form-input" value="20" onchange="liveParam()">
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. 校准历史记录 -->
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+      <h3 class="text-sm font-semibold text-gray-700">校准历史记录</h3>
+      <span class="text-xs text-gray-400" id="histCount">共 6 条记录</span>
+    </div>
+    <div class="overflow-x-auto"><table class="w-full text-sm" id="histTable"></table></div>
+  </div>
+</div>
+
+<!-- 7. 校准详情模态框 -->
+<div id="detailModal" class="modal-overlay">
+  <div class="modal-content">
+    <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+      <h3 id="dTitle" style="font-size:18px;font-weight:600;color:#1f2937">校准详情</h3>
+      <button onclick="hideModal()" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
+    </div>
+    <div id="dBody" style="padding:20px"></div>
+    <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end">
+      <button onclick="hideModal()" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">关闭</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+var PESTS=['红蜘蛛','黄龙病','炭疽病','潜叶蛾','溃疡病','疮痂病'];
+var MONTHS=['2026-01','2026-02','2026-03','2026-04','2026-05','2026-06','2026-07'];
+var XI=[0,0.2,0.4,0.6,0.8,1.0];
+/* 默认参数 [k,b,温度阈值,湿度阈值,降雨阈值] */
+var DEF={
+ '红蜘蛛':[1.35,0.12,30,80,20],'黄龙病':[1.30,0.14,28,75,25],'炭疽病':[1.42,0.15,28,85,15],
+ '潜叶蛾':[1.28,0.11,32,70,18],'溃疡病':[1.25,0.13,30,85,25],'疮痂病':[1.22,0.12,25,85,20]
+};
+/* 各病虫害当前校准结果与预测/实际数据 */
+var D={
+ '红蜘蛛':{acc:86.2,rec:82.5,f1:0.84,n:1240,p:[28,35,52,61,47,38,32],a:[25,38,48,63,44,41,30],k:1.35,b:0.12,th:30,hh:80,rh:20},
+ '黄龙病':{acc:84.1,rec:80.9,f1:0.82,n:986,p:[10,16,22,30,26,20,14],a:[9,18,20,32,24,22,13],k:1.30,b:0.14,th:28,hh:75,rh:25},
+ '炭疽病':{acc:85.8,rec:81.2,f1:0.83,n:1105,p:[22,30,44,58,52,40,26],a:[20,33,41,61,49,42,24],k:1.42,b:0.15,th:28,hh:85,rh:15},
+ '潜叶蛾':{acc:83.2,rec:80.1,f1:0.81,n:892,p:[35,48,62,70,55,42,30],a:[32,51,58,72,52,45,28],k:1.28,b:0.11,th:32,hh:70,rh:18},
+ '溃疡病':{acc:82.7,rec:79.3,f1:0.80,n:957,p:[18,26,38,50,56,46,30],a:[16,28,35,52,58,44,28],k:1.25,b:0.13,th:30,hh:85,rh:25},
+ '疮痂病':{acc:81.9,rec:78.6,f1:0.80,n:873,p:[15,22,35,45,40,30,20],a:[13,24,32,47,38,32,19],k:1.22,b:0.12,th:25,hh:85,rh:20}
+};
+var HIST=[
+ {t:'2026-08-03 10:30',p:'红蜘蛛',r:'2024-01 至 2026-07',pa:82.5,na:86.2,pr:78.9,nr:82.5,pf:0.80,nf:0.84,pk:1.12,nk:1.35,pb:0.05,nb:0.12},
+ {t:'2026-07-18 09:20',p:'炭疽病',r:'2024-01 至 2026-06',pa:81.3,na:85.8,pr:77.5,nr:81.2,pf:0.79,nf:0.83,pk:1.20,nk:1.42,pb:0.08,nb:0.15},
+ {t:'2026-06-25 14:10',p:'黄龙病',r:'2024-01 至 2026-05',pa:80.6,na:84.1,pr:76.8,nr:80.9,pf:0.78,nf:0.82,pk:1.15,nk:1.30,pb:0.10,nb:0.14},
+ {t:'2026-05-30 11:45',p:'潜叶蛾',r:'2024-01 至 2026-04',pa:78.9,na:83.2,pr:75.2,nr:80.1,pf:0.77,nf:0.81,pk:1.08,nk:1.28,pb:0.06,nb:0.11},
+ {t:'2026-04-22 16:30',p:'溃疡病',r:'2024-01 至 2026-03',pa:79.5,na:82.7,pr:74.6,nr:79.3,pf:0.77,nf:0.80,pk:1.10,nk:1.25,pb:0.09,nb:0.13},
+ {t:'2026-03-15 10:00',p:'疮痂病',r:'2023-06 至 2026-02',pa:78.2,na:81.9,pr:73.8,nr:78.6,pf:0.76,nf:0.80,pk:1.05,nk:1.22,pb:0.07,nb:0.12}
+];
+var cur='红蜘蛛',c1=null,c2=null,calRunning=false;
+
+function th(t){ return '<th class="text-left px-4 py-3 text-xs font-semibold text-gray-500">'+t+'</th>'; }
+function tc(c,t){ return '<td class="px-4 py-3 '+c+'">'+t+'</td>'; }
+function sig(x,k,b){ return 1/(1+Math.exp(-(5*k*(x-0.5)+5*b))); }
+function fmt(n){ return n.toLocaleString('en-US'); }
+function ts(){ var d=new Date(),p=function(n){return n<10?'0'+n:n;}; return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes()); }
+function showToast(msg){ var t=document.getElementById('toast'); t.textContent=msg; t.style.display='block'; setTimeout(function(){ t.style.display='none'; },2200); }
+function showModal(){ var m=document.getElementById('detailModal'); m.style.display='flex'; m.classList.add('active'); }
+function hideModal(){ var m=document.getElementById('detailModal'); m.style.display='none'; m.classList.remove('active'); }
+
+function lastImp(){
+  for(var i=0;i<HIST.length;i++) if(HIST[i].p===cur) return {a:HIST[i].na-HIST[i].pa,r:HIST[i].nr-HIST[i].pr,f:HIST[i].nf-HIST[i].pf};
+  return {a:0,r:0,f:0};
+}
+
+function renderMetrics(){
+  var m=D[cur],imp=lastImp();
+  document.getElementById('mAcc').textContent=m.acc.toFixed(1);
+  document.getElementById('mRec').textContent=m.rec.toFixed(1);
+  document.getElementById('mF1').textContent=m.f1.toFixed(2);
+  document.getElementById('mN').textContent=fmt(m.n);
+  document.getElementById('mAccD').textContent='+'+(imp.a>=0?imp.a.toFixed(1)+'%':'');
+  document.getElementById('mRecD').textContent='+'+(imp.r>=0?imp.r.toFixed(1)+'%':'');
+  document.getElementById('mF1D').textContent='+'+imp.f.toFixed(2);
+}
+
+function renderHistory(){
+  var html='<thead><tr class="bg-gray-50">'+th('校准时间')+th('病虫害')+th('校准范围')+th('校准前准确率')+th('校准后准确率')+th('提升幅度')+th('操作')+'</tr></thead><tbody>';
+  HIST.forEach(function(h,i){
+    var up=h.na-h.pa;
+    html+='<tr class="border-b border-gray-100 '+(h.p===cur?'bg-green-50':'')+'">'
+      +tc('text-gray-500',h.t)
+      +tc('font-medium text-gray-800',h.p)
+      +tc('text-gray-500 text-xs',h.r)
+      +tc('text-gray-600',h.pa.toFixed(1)+'%')
+      +tc('text-green font-medium',h.na.toFixed(1)+'%')
+      +tc('text-green font-semibold','+'+up.toFixed(1)+'%')
+      +tc('text-center','<button onclick="openDetail('+i+')" class="px-2 py-1 text-green hover:bg-green-50 rounded text-xs">查看</button>')
+      +'</tr>';
+  });
+  html+='</tbody>';
+  document.getElementById('histTable').innerHTML=html;
+  document.getElementById('histCount').textContent='共 '+HIST.length+' 条记录';
+}
+
+function openDetail(i){
+  var h=HIST[i];
+  var ia=(h.na-h.pa).toFixed(1),ir=(h.nr-h.pr).toFixed(1),fi=(h.nf-h.pf).toFixed(2);
+  document.getElementById('dTitle').textContent='校准详情 - '+h.p;
+  document.getElementById('dBody').innerHTML=
+    '<div class="grid grid-cols-2 gap-3 text-sm mb-4">'
+    +'<div class="bg-gray-50 rounded-lg p-3"><div class="text-xs text-gray-500 mb-1">校准时间</div><div class="font-medium text-gray-800">'+h.t+'</div></div>'
+    +'<div class="bg-gray-50 rounded-lg p-3"><div class="text-xs text-gray-500 mb-1">病虫害</div><div class="font-medium text-gray-800">'+h.p+'</div></div>'
+    +'<div class="bg-gray-50 rounded-lg p-3 col-span-2"><div class="text-xs text-gray-500 mb-1">校准数据范围</div><div class="font-medium text-gray-800">'+h.r+'</div></div>'
+    +'</div>'
+    +'<h4 class="text-sm font-semibold text-gray-700 mb-2">校准前后指标对比</h4>'
+    +'<table class="w-full text-sm mb-4"><thead><tr class="bg-gray-50"><th class="text-left px-3 py-2 text-xs font-semibold text-gray-500">指标</th><th class="text-center px-3 py-2 text-xs font-semibold text-gray-500">校准前</th><th class="text-center px-3 py-2 text-xs font-semibold text-gray-500">校准后</th><th class="text-center px-3 py-2 text-xs font-semibold text-gray-500">提升</th></tr></thead><tbody>'
+    +'<tr class="border-b border-gray-100"><td class="px-3 py-2 text-gray-700">预测准确率</td><td class="px-3 py-2 text-center text-gray-600">'+h.pa.toFixed(1)+'%</td><td class="px-3 py-2 text-center text-green font-medium">'+h.na.toFixed(1)+'%</td><td class="px-3 py-2 text-center text-green font-medium">+'+ia+'%</td></tr>'
+    +'<tr class="border-b border-gray-100"><td class="px-3 py-2 text-gray-700">召回率</td><td class="px-3 py-2 text-center text-gray-600">'+h.pr.toFixed(1)+'%</td><td class="px-3 py-2 text-center text-green font-medium">'+h.nr.toFixed(1)+'%</td><td class="px-3 py-2 text-center text-green font-medium">+'+ir+'%</td></tr>'
+    +'<tr class="border-b border-gray-100"><td class="px-3 py-2 text-gray-700">F1 分数</td><td class="px-3 py-2 text-center text-gray-600">'+h.pf.toFixed(2)+'</td><td class="px-3 py-2 text-center text-green font-medium">'+h.nf.toFixed(2)+'</td><td class="px-3 py-2 text-center text-green font-medium">+'+fi+'</td></tr>'
+    +'</tbody></table>'
+    +'<h4 class="text-sm font-semibold text-gray-700 mb-2">校准参数变化</h4>'
+    +'<table class="w-full text-sm"><thead><tr class="bg-gray-50"><th class="text-left px-3 py-2 text-xs font-semibold text-gray-500">参数</th><th class="text-center px-3 py-2 text-xs font-semibold text-gray-500">校准前</th><th class="text-center px-3 py-2 text-xs font-semibold text-gray-500">校准后</th></tr></thead><tbody>'
+    +'<tr class="border-b border-gray-100"><td class="px-3 py-2 text-gray-700">校准斜率 k</td><td class="px-3 py-2 text-center text-gray-600">'+h.pk.toFixed(2)+'</td><td class="px-3 py-2 text-center text-blue font-medium">'+h.nk.toFixed(2)+'</td></tr>'
+    +'<tr class="border-b border-gray-100"><td class="px-3 py-2 text-gray-700">校准截距 b</td><td class="px-3 py-2 text-center text-gray-600">'+h.pb.toFixed(2)+'</td><td class="px-3 py-2 text-center text-blue font-medium">'+h.nb.toFixed(2)+'</td></tr>'
+    +'</tbody></table>';
+  showModal();
+}
+
+function setParams(){
+  var m=D[cur];
+  document.getElementById('inK').value=m.k; document.getElementById('kVal').textContent=m.k.toFixed(2);
+  document.getElementById('inB').value=m.b; document.getElementById('bVal').textContent=m.b.toFixed(2);
+  document.getElementById('inTh').value=m.th; document.getElementById('inHh').value=m.hh; document.getElementById('inRh').value=m.rh;
+}
+
+function curCalib(){
+  var m=D[cur];
+  return XI.map(function(x){ return +sig(x,m.k,m.b).toFixed(3); });
+}
+
+function initCharts(){
+  var m=D[cur],comOpts={
+    responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{position:'bottom'}, tooltip:{callbacks:{label:function(ctx){return ctx.dataset.label+': '+ctx.parsed.y+'%';}}} },
+    scales:{ y:{min:0,max:80,title:{display:true,text:'发生概率 (%)'},grid:{color:'#f3f4f6'}}, x:{title:{display:true,text:'时间'},grid:{display:false}} }
+  };
+  c1=new Chart(document.getElementById('compareChart'),{
+    type:'line',
+    data:{ labels:MONTHS, datasets:[
+      {label:'模型预测概率',data:m.p,borderColor:'#2563eb',backgroundColor:'rgba(37,99,235,0.08)',tension:0.35,pointRadius:4,pointBackgroundColor:'#2563eb',fill:true},
+      {label:'实际发生概率',data:m.a,borderColor:'#16a34a',backgroundColor:'rgba(22,163,74,0.08)',tension:0.35,pointRadius:4,pointBackgroundColor:'#16a34a',fill:true}
+    ]}, options:comOpts
+  });
+  var calOpts={
+    responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{position:'bottom'}, tooltip:{callbacks:{label:function(ctx){return ctx.dataset.label+': '+(ctx.parsed.y*100).toFixed(0)+'%';}}} },
+    scales:{ y:{min:0,max:1.1,title:{display:true,text:'发生概率'},grid:{color:'#f3f4f6'}}, x:{title:{display:true,text:'风险指数'},grid:{display:false}} }
+  };
+  c2=new Chart(document.getElementById('calibChart'),{
+    type:'line',
+    data:{ labels:XI.map(String), datasets:[
+      {label:'校准前原始风险指数',data:XI,borderColor:'#9ca3af',borderDash:[5,5],pointRadius:0,fill:false},
+      {label:'校准后发生概率',data:curCalib(),borderColor:'#16a34a',backgroundColor:'rgba(22,163,74,0.1)',tension:0.4,pointRadius:5,pointBackgroundColor:'#16a34a',fill:true}
+    ]}, options:calOpts
+  });
+}
+
+function updateCharts(){
+  var m=D[cur];
+  c1.data.datasets[0].data=m.p; c1.data.datasets[1].data=m.a; c1.update();
+  c2.data.datasets[1].data=curCalib(); c2.update();
+}
+
+function switchPest(){
+  cur=document.getElementById('pestSel').value;
+  renderMetrics(); renderHistory(); setParams(); updateCharts();
+}
+
+function liveParam(){
+  var k=Number(document.getElementById('inK').value),b=Number(document.getElementById('inB').value);
+  document.getElementById('kVal').textContent=k.toFixed(2);
+  document.getElementById('bVal').textContent=b.toFixed(2);
+  c2.data.datasets[1].data=XI.map(function(x){ return +sig(x,k,b).toFixed(3); });
+  c2.update();
+}
+
+function saveParams(){
+  var m=D[cur];
+  m.k=Number(document.getElementById('inK').value); m.b=Number(document.getElementById('inB').value);
+  m.th=Number(document.getElementById('inTh').value); m.hh=Number(document.getElementById('inHh').value); m.rh=Number(document.getElementById('inRh').value);
+  updateCharts(); showToast('校准参数已保存（'+cur+'）');
+}
+
+function resetParams(){
+  var d=DEF[cur];
+  document.getElementById('inK').value=d[0]; document.getElementById('inB').value=d[1];
+  document.getElementById('inTh').value=d[2]; document.getElementById('inHh').value=d[3]; document.getElementById('inRh').value=d[4];
+  D[cur].k=d[0]; D[cur].b=d[1]; D[cur].th=d[2]; D[cur].hh=d[3]; D[cur].rh=d[4];
+  liveParam(); showToast('已恢复默认校准参数（'+cur+'）');
+}
+
+function changeRange(){
+  document.getElementById('progRange').textContent=document.getElementById('rangeSel').value;
+}
+
+function runCalibration(){
+  if(calRunning) return;
+  calRunning=true;
+  var btn=document.getElementById('calBtn'),txt=document.getElementById('calTxt'),sp=document.getElementById('calSpin');
+  btn.disabled=true; btn.classList.remove('bg-green-600','hover:bg-green-700'); btn.classList.add('bg-gray-400','cursor-not-allowed');
+  sp.classList.remove('hidden'); txt.textContent='校准执行中...';
+  setTimeout(function(){
+    var m=D[cur],k=+(m.k+0.02).toFixed(2),b=+(m.b+0.01).toFixed(2),pa=m.acc,pr=m.rec,pf=m.f1;
+    m.acc=Math.min(88.5,+(m.acc+0.6).toFixed(1));
+    m.rec=Math.min(84.5,+(m.rec+0.5).toFixed(1));
+    m.f1=+(m.f1+0.01).toFixed(2);
+    m.n+=38; m.k=k; m.b=b;
+    HIST.unshift({t:ts(),p:cur,r:document.getElementById('rangeSel').value,pa:pa,na:m.acc,pr:pr,nr:m.rec,pf:pf,nf:m.f1,pk:+(k-0.02).toFixed(2),nk:k,pb:+(b-0.01).toFixed(2),nb:b});
+    renderMetrics(); renderHistory(); updateCharts();
+    document.getElementById('progTime').textContent='最近校准时间 '+ts();
+    sp.classList.add('hidden'); txt.textContent='执行校准';
+    btn.disabled=false; btn.classList.add('bg-green-600','hover:bg-green-700'); btn.classList.remove('bg-gray-400','cursor-not-allowed');
+    calRunning=false;
+    showToast('校准执行完成，'+cur+'预测准确率提升至 '+m.acc.toFixed(1)+'%');
+  },1600);
+}
+
+document.addEventListener('click',function(e){
+  var m=document.getElementById('detailModal');
+  if(m.style.display==='flex'&&e.target===m) hideModal();
+});
+
+window.onload=function(){
+  renderMetrics(); renderHistory(); setParams(); initCharts();
+};
+</script>
+</body>
+</html>

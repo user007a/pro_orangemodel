@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>参数配置 - 南丰蜜桔模型管理系统</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+@keyframes modalSlideIn { from { opacity: 0; transform: translateY(-20px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+.modal-overlay.active .modal-content { animation: modalSlideIn 0.3s ease; }
+body { margin: 0; padding: 0; background-color: #F0F2F5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans SC', sans-serif; }
+.content-wrapper { padding: 24px; height: 100vh; overflow-y: auto; }
+.modal-overlay { display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center }
+.modal-content { background:#fff;border-radius:12px;width:90%;max-width:600px;max-height:85vh;overflow-y:auto }
+.tab-active{color:#16a34a;border-bottom:2px solid #16a34a;font-weight:600}
+.tab-inactive{color:#6b7280;border-bottom:2px solid transparent}
+.tab-inactive:hover{color:#374151}
+.text-green{color:#16a34a} .text-blue{color:#2563eb} .text-red{color:#dc2626} .text-yellow{color:#d97706} .text-purple{color:#7c3aed}
+.form-input{width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box;outline:none}
+.form-input:focus{border-color:#16a34a;box-shadow:0 0 0 2px rgba(22,163,74,0.1)}
+#toast{display:none;position:fixed;top:24px;left:50%;transform:translateX(-50%);background:#16a34a;color:#fff;padding:10px 20px;border-radius:8px;font-size:14px;z-index:100000;box-shadow:0 4px 12px rgba(0,0,0,0.15)}
+</style>
+</head>
+<body>
+<div class="content-wrapper">
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-xl font-bold text-gray-800">参数配置</h1>
+      <p class="text-gray-500 text-sm mt-1">配置病虫害预测模型的多因子权重、耦合系数、时间窗口与θ权重参数</p>
+    </div>
+    <button onclick="saveConfig()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium flex items-center">
+      <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>保存配置
+    </button>
+  </div>
+
+  <!-- Tab Bar -->
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 mb-6">
+    <div class="border-b border-gray-100 flex items-center px-6 overflow-x-auto">
+      <div class="tab-item px-4 py-4 cursor-pointer text-sm mr-6 tab-active whitespace-nowrap" data-tab="weight" onclick="switchTab('weight')">因子权重 (w)</div>
+      <div class="tab-item px-4 py-4 cursor-pointer text-sm mr-6 tab-inactive whitespace-nowrap" data-tab="coupling" onclick="switchTab('coupling')">耦合系数 (β/γ)</div>
+      <div class="tab-item px-4 py-4 cursor-pointer text-sm mr-6 tab-inactive whitespace-nowrap" data-tab="time" onclick="switchTab('time')">时间窗口 (L/h)</div>
+      <div class="tab-item px-4 py-4 cursor-pointer text-sm mr-6 tab-inactive whitespace-nowrap" data-tab="theta" onclick="switchTab('theta')">θ权重 (θ1-θ5)</div>
+    </div>
+  </div>
+
+  <!-- Tab: 因子权重 -->
+  <div id="tab-weight" class="tab-content">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+        <h3 class="text-sm font-semibold text-gray-700">因子权重配置（按病虫害分组，各因子权重合计为 1.0）</h3>
+        <span class="text-xs text-gray-400">来源：多因子耦合时序风险预测模型</span>
+      </div>
+      <div class="overflow-x-auto"><table class="w-full text-sm" id="weight-table"></table></div>
+    </div>
+  </div>
+
+  <!-- Tab: 耦合系数 -->
+  <div id="tab-coupling" class="tab-content" style="display:none">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+        <h3 class="text-sm font-semibold text-gray-700">耦合系数配置（β 为两因子耦合，γ 为三因子耦合）</h3>
+        <span class="text-xs text-gray-400">增强：耦合项放大综合风险；未列出耦合项默认为 0</span>
+      </div>
+      <div class="overflow-x-auto"><table class="w-full text-sm" id="coupling-table"></table></div>
+    </div>
+  </div>
+
+  <!-- Tab: 时间窗口 -->
+  <div id="tab-time" class="tab-content" style="display:none">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+        <h3 class="text-sm font-semibold text-gray-700">时间窗口参数（历史回看天数 L 与预测周期 h）</h3>
+        <span class="text-xs text-gray-400">a 为历史权重时间衰减系数，q 为未来权重系数</span>
+      </div>
+      <div class="overflow-x-auto"><table class="w-full text-sm" id="time-table"></table></div>
+    </div>
+  </div>
+
+  <!-- Tab: θ权重 -->
+  <div id="tab-theta" class="tab-content" style="display:none">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden lg:col-span-2">
+        <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+          <h3 class="text-sm font-semibold text-gray-700">θ 权重参数（全局配置，总和为 1.0）</h3>
+          <span class="text-xs text-gray-400">θ1-θ5 对应模型耦合累积项与驱动项</span>
+        </div>
+        <div class="overflow-x-auto"><table class="w-full text-sm" id="theta-table"></table></div>
+      </div>
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+        <h3 class="text-sm font-semibold text-gray-700 mb-3">θ 权重分布</h3>
+        <div style="height:280px"><canvas id="theta-chart"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 参数变更历史 -->
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 mt-6 overflow-hidden">
+    <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+      <h3 class="text-sm font-semibold text-gray-700">参数变更历史</h3>
+      <span class="text-xs text-gray-400">最近变更记录</span>
+    </div>
+    <div class="overflow-x-auto"><table class="w-full text-sm" id="history-table"></table></div>
+  </div>
+</div>
+
+<!-- 编辑模态框 -->
+<div id="form-modal" class="modal-overlay">
+  <div class="modal-content">
+    <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+      <h3 id="form-title" style="font-size:18px;font-weight:600;color:#1f2937">编辑参数</h3>
+      <button onclick="hideModal()" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
+    </div>
+    <div id="form-fields" style="padding:24px;display:grid;grid-template-columns:1fr 1fr;gap:16px"></div>
+    <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:12px">
+      <button onclick="hideModal()" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
+      <button onclick="saveForm()" style="padding:8px 16px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">保存</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+var P=['红蜘蛛','黄龙病','炭疽病','潜叶蛾','溃疡病','疮痂病'];
+var PT={'红蜘蛛':'虫害','黄龙病':'病害','炭疽病':'病害','潜叶蛾':'虫害','溃疡病':'病害','疮痂病':'病害'};
+
+var weightData={
+ '红蜘蛛':[{f:'温度',w:0.35,d:'高温干旱（25-30℃）加速螨类发育与种群增殖'},{f:'湿度',w:0.30,d:'低湿（60%以下）利于成螨存活与扩散'},{f:'降雨',w:0.20,d:'强降雨冲刷抑制虫口密度'},{f:'叶面湿润',w:0.15,d:'叶面湿润度影响螨类栖息与产卵活动'}],
+ '黄龙病':[{f:'木虱密度',w:0.40,d:'柑橘木虱为唯一传播媒介，带菌虫量决定传毒风险'},{f:'温度',w:0.25,d:'温度影响木虱发育速率与传毒效率'},{f:'物候',w:0.35,d:'嫩梢抽发期木虱集中取食传毒，决定传播窗口'}],
+ '炭疽病':[{f:'温度',w:0.30,d:'20-28℃最适菌丝生长与产孢'},{f:'湿度',w:0.35,d:'高湿（>90%）是孢子萌发侵染的关键条件'},{f:'降雨',w:0.20,d:'雨水飞溅传播分生孢子'},{f:'叶面湿润',w:0.15,d:'叶面水膜持续时长决定侵染机率'}],
+ '潜叶蛾':[{f:'温度',w:0.30,d:'高温加速幼虫发育与世代更替'},{f:'嫩梢比例',w:0.40,d:'潜叶蛾仅为害嫩梢，新梢量决定产卵与为害基数'},{f:'虫口基数',w:0.30,d:'上代及越冬虫口密度决定暴发潜力'}],
+ '溃疡病':[{f:'温度',w:0.25,d:'25-30℃适宜病菌增殖'},{f:'湿度',w:0.25,d:'高湿环境利于病菌侵染定殖'},{f:'降雨',w:0.30,d:'台风暴雨造成伤口并传播病菌'},{f:'风速',w:0.20,d:'大风加速病菌远距离传播与叶片擦伤'}],
+ '疮痂病':[{f:'温度',w:0.30,d:'20-24℃最适孢子萌发侵入'},{f:'湿度',w:0.35,d:'高湿多雨是流行发生的主导因子'},{f:'幼果期',w:0.35,d:'幼果与新梢幼嫩组织最易感病'}]
+};
+
+var couplingData=[
+ {p:'红蜘蛛',t:'两因子耦合 β',c:'温度 × 湿度',v:0.25,d:'增强'},
+ {p:'黄龙病',t:'两因子耦合 β',c:'木虱密度 × 嫩梢',v:0.35,d:'增强'},
+ {p:'炭疽病',t:'三因子耦合 γ',c:'温度 × 湿度 × 降雨',v:0.30,d:'增强'},
+ {p:'炭疽病',t:'两因子耦合 β',c:'温度 × 湿度',v:0.20,d:'增强'},
+ {p:'潜叶蛾',t:'两因子耦合 β',c:'嫩梢比例 × 虫口基数',v:0.30,d:'增强'},
+ {p:'溃疡病',t:'两因子耦合 β',c:'降雨 × 风速',v:0.28,d:'增强'},
+ {p:'疮痂病',t:'三因子耦合 γ',c:'温度 × 湿度 × 物候',v:0.25,d:'增强'},
+ {p:'疮痂病',t:'两因子耦合 β',c:'温度 × 湿度',v:0.15,d:'增强'}
+];
+
+var timeData=[
+ {p:'红蜘蛛',L:14,h:'3/7',a:0.90,q:0.70},
+ {p:'黄龙病',L:30,h:'3/7',a:0.92,q:0.65},
+ {p:'炭疽病',L:21,h:'3/7',a:0.88,q:0.70},
+ {p:'潜叶蛾',L:7,h:'3/7',a:0.85,q:0.75},
+ {p:'溃疡病',L:14,h:'3/7',a:0.90,q:0.70},
+ {p:'疮痂病',L:21,h:'3/7',a:0.88,q:0.65}
+];
+
+var thetaData=[
+ {k:'θ1',part:'历史耦合累积',v:0.35,d:'过去14-30天实测气象、物候因子耦合累积风险'},
+ {k:'θ2',part:'未来耦合风险',v:0.20,d:'未来3-7天预报气象耦合风险外推'},
+ {k:'θ3',part:'虫源基数',v:0.15,d:'当前虫口基数与病原菌源量水平'},
+ {k:'θ4',part:'历史发生水平',v:0.15,d:'历史同期病虫害发生程度'},
+ {k:'θ5',part:'空间传播压力',v:0.15,d:'邻近果园疫情与气流传播介质强度'}
+];
+
+var historyData=[
+ {t:'2026-08-03 14:30',type:'因子权重',p:'红蜘蛛',n:'温度(w)',o:'0.30',v:'0.35',u:'张研究员'},
+ {t:'2026-08-01 10:15',type:'耦合系数',p:'炭疽病',n:'γ 温度×湿度×降雨',o:'0.25',v:'0.30',u:'李技术员'},
+ {t:'2026-07-29 16:40',type:'时间窗口',p:'黄龙病',n:'历史回看天数L',o:'20天',v:'30天',u:'王工程师'},
+ {t:'2026-07-26 09:20',type:'θ权重',p:'全局',n:'θ1 历史耦合累积',o:'0.30',v:'0.35',u:'张研究员'},
+ {t:'2026-07-24 15:05',type:'耦合系数',p:'溃疡病',n:'β 降雨×风速',o:'0.30',v:'0.28',u:'刘管理员'}
+];
+
+var curTab='weight',editTab='',editPest='',editIdx=0,chart=null;
+
+function th(t,c){ return '<th class="'+(c||'text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider')+'">'+t+'</th>'; }
+function tc(c,t){ return '<td class="px-4 py-3 '+c+'">'+t+'</td>'; }
+function badge(p){ var t=PT[p]; var c=t==='虫害'?'bg-green-100 text-green-600':'bg-red-100 text-red-600'; return '<span class="px-2 py-0.5 rounded-full text-xs font-medium '+c+'">'+t+'</span>'; }
+function btnEdit(fn){ return '<button onclick="'+fn+'" class="px-2 py-1 text-blue hover:bg-blue-50 rounded text-xs">编辑</button>'; }
+
+function switchTab(tab){
+  curTab=tab;
+  document.querySelectorAll('.tab-item').forEach(function(el){
+    el.className='tab-item px-4 py-4 cursor-pointer text-sm mr-6 whitespace-nowrap '+(el.getAttribute('data-tab')===tab?'tab-active':'tab-inactive');
+  });
+  document.querySelectorAll('.tab-content').forEach(function(el){ el.style.display='none'; });
+  document.getElementById('tab-'+tab).style.display='';
+}
+
+function renderWeight(){
+  var html='<thead><tr class="bg-gray-50">'+th('病虫害')+th('因子名称')+th('因子权重(w)')+th('权重说明')+th('操作','text-center px-4 py-3 text-xs font-semibold text-gray-500')+'</tr></thead><tbody>';
+  P.forEach(function(p){
+    var arr=weightData[p],sum=0;
+    arr.forEach(function(x){ sum+=x.w; });
+    html+='<tr class="bg-gray-50 border-t border-gray-100"><td colspan="5" class="px-4 py-2"><span class="font-medium text-gray-800">'+p+'</span> '+badge(p)+'<span class="text-xs text-gray-400 ml-3">权重合计 '+sum.toFixed(2)+'</span></td></tr>';
+    arr.forEach(function(x,i){
+      html+='<tr class="border-b border-gray-100">'+tc('text-gray-400','')+tc('text-gray-700',x.f)+tc('font-medium text-gray-800',x.w.toFixed(2))+tc('text-gray-500 text-xs',x.d)+tc('text-center',btnEdit("openEdit('weight','"+p+"',"+i+")"))+'</tr>';
+    });
+  });
+  html+='</tbody>';
+  document.getElementById('weight-table').innerHTML=html;
+}
+
+function renderCoupling(){
+  var html='<thead><tr class="bg-gray-50">'+th('病虫害')+th('耦合类型')+th('耦合因子组合')+th('耦合系数(β/γ)')+th('作用方向')+th('操作','text-center px-4 py-3 text-xs font-semibold text-gray-500')+'</tr></thead><tbody>';
+  couplingData.forEach(function(x,i){
+    var tColor=x.t.indexOf('β')>-1?'text-blue':'text-purple';
+    var pColor=PT[x.p]==='虫害'?'bg-green-100 text-green-600':'bg-red-100 text-red-600';
+    html+='<tr class="border-b border-gray-100">'+tc('','<span class="text-gray-800 font-medium">'+x.p+'</span> <span class="px-1.5 py-0.5 rounded text-xs '+pColor+'">'+PT[x.p]+'</span>')+tc('text-gray-600',x.t)+tc('text-gray-700',x.c)+tc(tColor+' font-medium',x.v.toFixed(2))+tc('text-gray-600',x.d)+tc('text-center',btnEdit("openEdit('coupling','',"+i+")"))+'</tr>';
+  });
+  html+='</tbody>';
+  document.getElementById('coupling-table').innerHTML=html;
+}
+
+function renderTime(){
+  var html='<thead><tr class="bg-gray-50">'+th('病虫害')+th('历史回看天数(L)')+th('预测周期(h)')+th('时间衰减系数(a)')+th('未来权重(q)')+th('操作','text-center px-4 py-3 text-xs font-semibold text-gray-500')+'</tr></thead><tbody>';
+  timeData.forEach(function(x,i){
+    html+='<tr class="border-b border-gray-100">'+tc('font-medium text-gray-800',x.p)+tc('text-gray-700',x.L+'天')+tc('text-gray-700',x.h)+tc('text-gray-700',x.a.toFixed(2))+tc('text-gray-700',x.q.toFixed(2))+tc('text-center',btnEdit("openEdit('time','',"+i+")"))+'</tr>';
+  });
+  html+='</tbody>';
+  document.getElementById('time-table').innerHTML=html;
+}
+
+function renderTheta(){
+  var sum=0;
+  var html='<thead><tr class="bg-gray-50">'+th('权重系数')+th('对应部分')+th('当前值')+th('说明')+th('操作','text-center px-4 py-3 text-xs font-semibold text-gray-500')+'</tr></thead><tbody>';
+  thetaData.forEach(function(x,i){
+    sum+=x.v;
+    html+='<tr class="border-b border-gray-100">'+tc('font-medium text-gray-800',x.k)+tc('text-gray-700',x.part)+tc('font-medium text-blue',x.v.toFixed(2))+tc('text-gray-500 text-xs',x.d)+tc('text-center',btnEdit("openEdit('theta','',"+i+")"))+'</tr>';
+  });
+  html+='<tr class="bg-green-50">'+tc('font-semibold text-gray-800','合计')+tc('text-gray-400','')+tc('font-bold text-green',sum.toFixed(2))+tc('text-xs text-gray-500','权重总和应为 1.0')+tc('','')+'</tr></tbody>';
+  document.getElementById('theta-table').innerHTML=html;
+  if(chart){ chart.data.datasets[0].data=thetaData.map(function(x){return x.v;}); chart.update(); }
+}
+
+function renderHistory(){
+  var html='<thead><tr class="bg-gray-50">'+th('修改时间')+th('参数类型')+th('病虫害')+th('参数名')+th('原值')+th('新值')+th('操作人')+'</tr></thead><tbody>';
+  historyData.forEach(function(h){
+    html+='<tr class="border-b border-gray-100">'+tc('text-gray-500',h.t)+tc('text-gray-700',h.type)+tc('text-gray-700',h.p)+tc('text-gray-700',h.n)+tc('text-gray-500',h.o)+tc('text-green font-medium',h.v)+tc('text-gray-700',h.u)+'</tr>';
+  });
+  html+='</tbody>';
+  document.getElementById('history-table').innerHTML=html;
+}
+
+function showModal(){ var m=document.getElementById('form-modal'); m.style.display='flex'; m.classList.add('active'); }
+function hideModal(){ var m=document.getElementById('form-modal'); m.style.display='none'; m.classList.remove('active'); }
+function showToast(msg){ var t=document.getElementById('toast'); t.textContent=msg; t.style.display='block'; setTimeout(function(){ t.style.display='none'; },2000); }
+
+function fld(label,name,val,opts){
+  opts=opts||{};
+  var ro=opts.ro?' disabled style="background:#f9fafb"':'';
+  var inp=opts.type==='select'
+    ? '<select class="form-input" name="'+name+'"><option value="增强"'+(val==='增强'?' selected':'')+'>增强</option><option value="抑制"'+(val==='抑制'?' selected':'')+'>抑制</option></select>'
+    : '<input type="'+(opts.type||'number')+'"'+(opts.type!=='text'?' step="0.01"':'')+' class="form-input" name="'+name+'" value="'+val+'"'+ro+'>';
+  return '<div><label class="block text-xs font-medium text-gray-600 mb-1">'+label+'</label>'+inp+'</div>';
+}
+
+function openEdit(tab,pest,idx){
+  editTab=tab; editPest=pest; editIdx=idx;
+  var html='';
+  if(tab==='weight'){
+    var x=weightData[pest][idx];
+    document.getElementById('form-title').textContent='编辑因子权重 - '+pest+'（'+x.f+'）';
+    html=fld('因子名称','fname',x.f,{type:'text',ro:1})+fld('因子权重(w)','val',x.w)+fld('权重说明','desc',x.d,{type:'text'});
+  }else if(tab==='coupling'){
+    var x=couplingData[idx];
+    document.getElementById('form-title').textContent='编辑耦合系数 - '+x.p;
+    html=fld('耦合类型','ct',x.t,{type:'text',ro:1})+fld('耦合因子组合','combo',x.c,{type:'text',ro:1})+fld('耦合系数(β/γ)','val',x.v)+fld('作用方向','dir',x.d,{type:'select'});
+  }else if(tab==='time'){
+    var x=timeData[idx];
+    document.getElementById('form-title').textContent='编辑时间窗口 - '+x.p;
+    html=fld('历史回看天数L','L',x.L)+fld('预测周期h','h',x.h,{type:'text'})+fld('时间衰减系数a','a',x.a)+fld('未来权重q','q',x.q);
+  }else if(tab==='theta'){
+    var x=thetaData[idx];
+    document.getElementById('form-title').textContent='编辑θ权重 - '+x.k;
+    html=fld('权重系数','k',x.k,{type:'text',ro:1})+fld('对应部分','part',x.part,{type:'text',ro:1})+fld('当前值','val',x.v)+fld('说明','desc',x.d,{type:'text'});
+  }
+  document.getElementById('form-fields').innerHTML=html;
+  showModal();
+}
+
+function gv(name){ var el=document.querySelector('#form-fields [name="'+name+'"]'); return el?el.value:''; }
+function addHist(type,p,name,oldV,newV){
+  var d=new Date(),pad=function(n){return n<10?'0'+n:n;};
+  historyData.unshift({t:d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+' '+pad(d.getHours())+':'+pad(d.getMinutes()),type:type,p:p,n:name,o:oldV,v:newV,u:'当前用户'});
+}
+
+function saveForm(){
+  if(editTab==='weight'){
+    var x=weightData[editPest][editIdx],nv=Number(gv('val'));
+    if(nv!==x.w){ addHist('因子权重',editPest,x.f,x.w.toFixed(2),nv.toFixed(2)); x.w=nv; }
+    x.d=gv('desc');
+  }else if(editTab==='coupling'){
+    var x=couplingData[editIdx],nv=Number(gv('val'));
+    if(nv!==x.v){ addHist('耦合系数',x.p,x.t+' '+x.c,x.v.toFixed(2),nv.toFixed(2)); x.v=nv; }
+    var nd=gv('dir'); if(nd&&nd!==x.d){ x.d=nd; }
+  }else if(editTab==='time'){
+    var x=timeData[editIdx],nL=Number(gv('L')),na=Number(gv('a')),nq=Number(gv('q')),nh=gv('h');
+    if(nL!==x.L){ addHist('时间窗口',x.p,'历史回看天数L',x.L+'天',nL+'天'); x.L=nL; }
+    if(nh!==x.h){ addHist('时间窗口',x.p,'预测周期h',x.h,nh); x.h=nh; }
+    if(na!==x.a){ addHist('时间窗口',x.p,'时间衰减系数a',x.a.toFixed(2),na.toFixed(2)); x.a=na; }
+    if(nq!==x.q){ addHist('时间窗口',x.p,'未来权重q',x.q.toFixed(2),nq.toFixed(2)); x.q=nq; }
+  }else if(editTab==='theta'){
+    var x=thetaData[editIdx],nv=Number(gv('val'));
+    if(nv!==x.v){ addHist('θ权重','全局',x.k+' '+x.part,x.v.toFixed(2),nv.toFixed(2)); x.v=nv; }
+    x.d=gv('desc');
+  }
+  hideModal();
+  renderWeight(); renderCoupling(); renderTime(); renderTheta(); renderHistory();
+  showToast('参数已更新');
+}
+
+function saveConfig(){
+  alert('配置已保存成功');
+}
+
+function initChart(){
+  chart=new Chart(document.getElementById('theta-chart'),{
+    type:'pie',
+    data:{ labels:thetaData.map(function(x){return x.k+' '+x.part;}), datasets:[{ data:thetaData.map(function(x){return x.v;}), backgroundColor:['#16a34a','#2563eb','#dc2626','#d97706','#7c3aed'], borderWidth:2, borderColor:'#fff' }] },
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'bottom' } } }
+  });
+}
+
+window.onload=function(){
+  renderWeight(); renderCoupling(); renderTime(); renderTheta(); renderHistory(); initChart();
+};
+
+document.addEventListener('click',function(e){
+  var m=document.getElementById('form-modal');
+  if(m.style.display==='flex'&&e.target===m) hideModal();
+});
+</script>
+</body>
+</html>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>病虫害防控模型 - 南丰蜜桔模型管理系统</title>
+    <title>模型说明 - 南丰蜜桔模型管理系统</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -16,14 +16,18 @@
         .content-wrapper { padding: 24px; height: 100vh; overflow-y: auto; }
         .modal-overlay { display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center }
         .modal-content { background:#fff;border-radius:12px;width:90%;max-width:600px;max-height:85vh;overflow-y:auto }
+        .formula-box { background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px;font-family:'Courier New',monospace;font-size:14px;overflow-x:auto;line-height:1.8;white-space:pre-wrap;color:#1f2937 }
+        .flowchart-node { background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:12px;text-align:center;box-shadow:0 2px 4px rgba(0,0,0,0.05) }
+        .flowchart-arrow { width:28px;height:28px;background:#3b82f6;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:600;flex-shrink:0 }
     </style>
 </head>
 <body>
     <div class="content-wrapper">
+        <!-- 1. Header -->
         <div class="flex items-center justify-between mb-6">
             <div>
-                <h1 class="text-xl font-bold text-gray-800">病虫害防控模型</h1>
-                <p class="text-gray-500 text-sm mt-1">管理病虫害防控模型与预警监测</p>
+                <h1 class="text-xl font-bold text-gray-800">模型说明</h1>
+                <p class="text-gray-500 text-sm mt-1">南丰蜜桔病虫害多因子耦合时序风险预测模型</p>
             </div>
             <div class="flex items-center space-x-3">
                 <button onclick="openTrainModal()" class="px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50 flex items-center">
@@ -37,6 +41,7 @@
             </div>
         </div>
 
+        <!-- 2. Statistics Cards -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
             <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
                 <div class="flex items-center justify-between">
@@ -53,9 +58,9 @@
             <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-gray-500 text-sm">病虫模型个数</p>
-                        <h3 class="text-2xl font-bold text-gray-800 mt-1">10</h3>
-                        <p class="text-gray-400 text-xs mt-1">虫害 4 / 病害 6</p>
+                        <p class="text-gray-500 text-sm">病虫害种类</p>
+                        <h3 class="text-2xl font-bold text-gray-800 mt-1">6</h3>
+                        <p class="text-gray-400 text-xs mt-1">虫害 2 / 病害 4</p>
                     </div>
                     <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
                         <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
@@ -76,214 +81,169 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-                <h2 class="text-lg font-semibold text-gray-800 mb-4">各类别准确率</h2>
-                <div class="h-64">
-                    <canvas id="accuracyBarChart"></canvas>
+        <!-- 3. Model Overview Card -->
+        <div class="bg-gradient-to-r from-red-500 to-rose-600 rounded-2xl p-8 text-white mb-6">
+            <h2 class="text-2xl font-bold mb-4">南丰蜜桔病虫害多因子耦合时序风险预测模型</h2>
+            <div class="flex flex-wrap gap-3 mb-6">
+                <div class="bg-white/20 backdrop-blur-sm rounded-lg px-5 py-2">
+                    <div class="text-lg font-bold">多因子</div>
+                    <div class="text-xs opacity-80">温度/湿度/降雨/物候</div>
+                </div>
+                <div class="bg-white/20 backdrop-blur-sm rounded-lg px-5 py-2">
+                    <div class="text-lg font-bold">耦合</div>
+                    <div class="text-xs opacity-80">两因子/三因子交互</div>
+                </div>
+                <div class="bg-white/20 backdrop-blur-sm rounded-lg px-5 py-2">
+                    <div class="text-lg font-bold">时序</div>
+                    <div class="text-xs opacity-80">14-30天累积</div>
+                </div>
+                <div class="bg-white/20 backdrop-blur-sm rounded-lg px-5 py-2">
+                    <div class="text-lg font-bold">空间</div>
+                    <div class="text-xs opacity-80">县域/乡镇传播</div>
                 </div>
             </div>
-            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-                <h2 class="text-lg font-semibold text-gray-800 mb-4">病虫预警产生趋势</h2>
-                <div class="h-64">
-                    <canvas id="trainingTrendChart"></canvas>
+            <p class="text-sm leading-relaxed opacity-95">模型面向县域尺度，根据近期气象、区域物候、县域病情、虫情和历史发生数据，预测县域内不同病虫害未来3天、7天的发生概率、风险等级和重点风险区域。模型不面向具体植株或单个果园，也不读取病虫害图片。</p>
+        </div>
+
+        <!-- 4. Unified Prediction Formula Card -->
+        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 mb-6">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4">统一预测公式</h2>
+            <p class="text-gray-600 text-sm mb-3">主公式（未来发生概率）：</p>
+            <div class="formula-box">Pd(t+h) = Cald,h{ θ1·Στ=0…L-1 ad,τ·Cd(t-τ) + θ2·Σu=1…h qd,u·C̃d(t+u) + θ3·Id(t) + θ4·Hd(t) + θ5·Spreadd(t,h) }</div>
+            <p class="text-gray-600 text-sm mb-3 mt-4">耦合公式（单因子+两因子+三因子耦合）：</p>
+            <div class="formula-box">Cd(v) = σ[ bd + Σk wd,k·Sd,k(v) + Σi&lt;j βd,ij·Sd,i(v)·Sd,j(v) + Σi&lt;j&lt;k γd,ijk·Sd,i(v)·Sd,j(v)·Sd,k(v) ]</div>
+        </div>
+
+        <!-- 5. 8 Elements Card -->
+        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 mb-6">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4">公式包含的8大要素</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                    <span class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0">1</span>
+                    <span class="text-gray-600 text-sm">温度、湿度、降雨、叶面湿润、物候等单因子适宜度</span>
+                </div>
+                <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                    <span class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0">2</span>
+                    <span class="text-gray-600 text-sm">两个因子共同出现时的耦合作用</span>
+                </div>
+                <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                    <span class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0">3</span>
+                    <span class="text-gray-600 text-sm">三个关键因子同时出现时的耦合作用</span>
+                </div>
+                <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                    <span class="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0">4</span>
+                    <span class="text-gray-600 text-sm">最近14～30天已观测耦合结果的时间累积</span>
+                </div>
+                <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                    <span class="w-8 h-8 bg-cyan-500 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0">5</span>
+                    <span class="text-gray-600 text-sm">未来3～7天天气预报形成的新增耦合风险</span>
+                </div>
+                <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                    <span class="w-8 h-8 bg-pink-500 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0">6</span>
+                    <span class="text-gray-600 text-sm">当前病原、虫卵或虫口基数</span>
+                </div>
+                <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                    <span class="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0">7</span>
+                    <span class="text-gray-600 text-sm">县域历史发生水平和乡镇间空间传播压力</span>
+                </div>
+                <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                    <span class="w-8 h-8 bg-indigo-500 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0">8</span>
+                    <span class="text-gray-600 text-sm">由综合风险到未来3天、7天发生概率的校准</span>
                 </div>
             </div>
         </div>
 
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 mb-6">
-            <div class="flex items-center justify-between mb-4 p-6 pb-0">
-                <h2 class="text-lg font-semibold text-gray-800">病虫害模型列表</h2>
-                <div class="flex items-center space-x-3">
-                    <input type="text" id="pest-search" placeholder="搜索模型名称..." class="pl-3 pr-4 py-2 border border-gray-300 rounded-lg text-sm w-56" oninput="filterPest()">
-                    <button onclick="openPestAddModal()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">+ 添加</button>
-                </div>
+        <!-- 6. 6 Pest Comparison Table Card -->
+        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 mb-6">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4">不同病虫害怎样使用统一公式</h2>
+            <p class="text-gray-600 text-sm mb-4">所有病虫害使用相同的公式结构，但采用不同的输入因子、耦合关系、时间窗口和参数。</p>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="border-b border-gray-200">
+                            <th class="text-left py-3 px-4 font-semibold text-gray-600">病虫害</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-600">关键因子</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-600">主要耦合</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-600">时间窗口</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b border-gray-100"><td class="py-3 px-4 font-medium text-gray-800">红蜘蛛</td><td class="py-3 px-4 text-gray-600">温度、湿度、降雨</td><td class="py-3 px-4 text-gray-600">温度×湿度</td><td class="py-3 px-4 text-gray-600">14天</td></tr>
+                        <tr class="border-b border-gray-100"><td class="py-3 px-4 font-medium text-gray-800">黄龙病</td><td class="py-3 px-4 text-gray-600">木虱密度、温度、物候</td><td class="py-3 px-4 text-gray-600">木虱×嫩梢</td><td class="py-3 px-4 text-gray-600">30天</td></tr>
+                        <tr class="border-b border-gray-100"><td class="py-3 px-4 font-medium text-gray-800">炭疽病</td><td class="py-3 px-4 text-gray-600">温度、湿度、降雨</td><td class="py-3 px-4 text-gray-600">温度×湿度×降雨</td><td class="py-3 px-4 text-gray-600">21天</td></tr>
+                        <tr class="border-b border-gray-100"><td class="py-3 px-4 font-medium text-gray-800">潜叶蛾</td><td class="py-3 px-4 text-gray-600">温度、嫩梢比例、虫口基数</td><td class="py-3 px-4 text-gray-600">嫩梢×虫口</td><td class="py-3 px-4 text-gray-600">7天</td></tr>
+                        <tr class="border-b border-gray-100"><td class="py-3 px-4 font-medium text-gray-800">溃疡病</td><td class="py-3 px-4 text-gray-600">温度、湿度、降雨、风速</td><td class="py-3 px-4 text-gray-600">降雨×风速</td><td class="py-3 px-4 text-gray-600">14天</td></tr>
+                        <tr><td class="py-3 px-4 font-medium text-gray-800">疮痂病</td><td class="py-3 px-4 text-gray-600">温度、湿度、幼果期</td><td class="py-3 px-4 text-gray-600">温度×湿度×物候</td><td class="py-3 px-4 text-gray-600">21天</td></tr>
+                    </tbody>
+                </table>
             </div>
-            <div class="p-6 pt-0">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-sm table-fixed">
-                        <colgroup>
-                            <col width="18%">
-                            <col width="8%">
-                            <col width="10%">
-                            <col width="12%">
-                            <col width="28%">
-                            <col width="24%">
-                        </colgroup>
-                        <thead>
-                            <tr class="border-b border-gray-200">
-                                <th class="text-left py-3 px-4 font-semibold text-gray-600">模型名称</th>
-                                <th class="text-left py-3 px-4 font-semibold text-gray-600">模型类型</th>
-                                <th class="text-center py-3 px-4 font-semibold text-gray-600">样本数量</th>
-                                <th class="text-center py-3 px-4 font-semibold text-gray-600">识别准确率</th>
-                                <th class="text-left py-3 px-4 font-semibold text-gray-600">关联数据集</th>
-                                <th class="text-center py-3 px-4 font-semibold text-gray-600">操作</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-100" id="pest-tbody"></tbody>
-                    </table>
+        </div>
+
+        <!-- 7. Model Calculation Flow Chart Card -->
+        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 mb-6">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4">模型计算步骤</h2>
+            <div class="space-y-3">
+                <div class="flex items-start gap-4">
+                    <div class="flowchart-arrow">1</div>
+                    <div class="flex-1 flowchart-node"><p class="font-medium text-gray-800 text-sm">输入最近14～30天监测数据及未来3～7天天气预报</p></div>
                 </div>
-                <div class="pt-4 border-t border-gray-100 flex items-center justify-between">
-                    <p class="text-sm text-gray-500">共 <span id="pest-total-count">10</span> 条记录</p>
-                    <div class="flex items-center space-x-2">
-                        <button onclick="pestPrevPage()" class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50">上一页</button>
-                        <span class="text-sm text-gray-600"><span id="pest-current-page">1</span> / <span id="pest-total-pages">2</span></span>
-                        <button onclick="pestNextPage()" class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50">下一页</button>
-                    </div>
+                <div class="flex items-center justify-center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-gray-400"><path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14M5 12l7-7 7 7"/></svg></div>
+                <div class="flex items-start gap-4">
+                    <div class="flowchart-arrow">2</div>
+                    <div class="flex-1 flowchart-node"><p class="font-medium text-gray-800 text-sm">计算温度、湿度、降雨、物候等因子的0～1适宜度</p></div>
+                </div>
+                <div class="flex items-center justify-center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-gray-400"><path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14M5 12l7-7 7 7"/></svg></div>
+                <div class="flex items-start gap-4">
+                    <div class="flowchart-arrow">3</div>
+                    <div class="flex-1 flowchart-node"><p class="font-medium text-gray-800 text-sm">计算单因子、两因子和三因子耦合作用</p></div>
+                </div>
+                <div class="flex items-center justify-center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-gray-400"><path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14M5 12l7-7 7 7"/></svg></div>
+                <div class="flex items-start gap-4">
+                    <div class="flowchart-arrow">4</div>
+                    <div class="flex-1 flowchart-node"><p class="font-medium text-gray-800 text-sm">按照时间权重累积每天的多因子耦合结果</p></div>
+                </div>
+                <div class="flex items-center justify-center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-gray-400"><path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14M5 12l7-7 7 7"/></svg></div>
+                <div class="flex items-start gap-4">
+                    <div class="flowchart-arrow">5</div>
+                    <div class="flex-1 flowchart-node"><p class="font-medium text-gray-800 text-sm">加入各乡镇虫源、县域历史发生和相邻区域空间传播压力</p></div>
+                </div>
+                <div class="flex items-center justify-center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-gray-400"><path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14M5 12l7-7 7 7"/></svg></div>
+                <div class="flex items-start gap-4">
+                    <div class="flowchart-arrow">6</div>
+                    <div class="flex-1 flowchart-node"><p class="font-medium text-gray-800 text-sm">使用当地历史真实调查数据进行概率校准</p></div>
+                </div>
+                <div class="flex items-center justify-center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-red-400"><path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14M5 12l7-7 7 7"/></svg></div>
+                <div class="flex items-start gap-4">
+                    <div class="flowchart-arrow bg-red-500">7</div>
+                    <div class="flex-1 flowchart-node border-red-200 bg-red-50"><p class="font-medium text-red-800 text-sm">逐病种输出县域及乡镇未来3天、7天发生概率和风险等级</p></div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- 查看弹窗 -->
-    <div id="pest-view-modal" class="modal-overlay">
-        <div class="modal-content">
-            <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
-                <h3 style="font-size:18px;font-weight:600;color:#1f2937">模型详情</h3>
-                <button onclick="closeModal('pest-view-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
-            </div>
-            <div style="padding:24px">
-                <div style="display:flex;flex-direction:column;gap:20px">
-                    <div>
-                        <h4 style="font-size:14px;font-weight:600;color:#374151;margin-bottom:8px">模型名称</h4>
-                        <div style="padding:12px;background:#f9fafb;border-radius:8px;font-size:14px;color:#1f2937;font-weight:500" id="view-model-name">-</div>
-                    </div>
-                    <div>
-                        <h4 style="font-size:14px;font-weight:600;color:#374151;margin-bottom:8px">模型介绍</h4>
-                        <div style="padding:12px;background:#f9fafb;border-radius:8px;font-size:14px;color:#4b5563;line-height:1.6" id="view-model-desc">-</div>
-                    </div>
-                    <div>
-                        <h4 style="font-size:14px;font-weight:600;color:#374151;margin-bottom:8px">模型公式</h4>
-                        <div style="padding:12px;background:#f9fafb;border-radius:8px;font-size:14px;color:#4b5563;font-family:monospace;line-height:1.6" id="view-model-formula">-</div>
-                    </div>
-                    <div>
-                        <h4 style="font-size:14px;font-weight:600;color:#374151;margin-bottom:8px">参数解读</h4>
-                        <div style="padding:12px;background:#f9fafb;border-radius:8px;font-size:14px;color:#4b5563;line-height:1.6" id="view-model-params">-</div>
-                    </div>
-                    <div>
-                        <h4 style="font-size:14px;font-weight:600;color:#374151;margin-bottom:8px">模型揭示规律</h4>
-                        <div style="padding:12px;background:#f9fafb;border-radius:8px;font-size:14px;color:#4b5563;line-height:1.6" id="view-model-rules">-</div>
-                    </div>
-                    <div>
-                        <h4 style="font-size:14px;font-weight:600;color:#374151;margin-bottom:8px">所需数据</h4>
-                        <div style="padding:12px;background:#f9fafb;border-radius:8px;font-size:14px;color:#4b5563;line-height:1.6" id="view-model-data">-</div>
-                    </div>
+        <!-- 8. Model Output Card -->
+        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 mb-6">
+            <h2 class="text-lg font-semibold text-gray-800 mb-4">模型输出</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-gray-50 rounded-xl p-5">
+                    <h5 class="font-semibold text-gray-800 mb-3">预测指标</h5>
+                    <ul class="text-gray-600 text-sm space-y-2">
+                        <li>• 未来3天发生概率</li>
+                        <li>• 未来7天发生概率</li>
+                        <li>• 风险等级（低/中/高/极高）</li>
+                        <li>• 重点风险乡镇列表</li>
+                        <li>• 风险等级空间分布图</li>
+                    </ul>
                 </div>
-            </div>
-            <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end">
-                <button onclick="closeModal('pest-view-modal')" style="padding:8px 16px;background:#f3f4f6;color:#374151;border:none;border-radius:8px;font-size:14px;cursor:pointer">关闭</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 编辑弹窗 -->
-    <div id="pest-edit-modal" class="modal-overlay">
-        <div class="modal-content">
-            <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
-                <h3 style="font-size:18px;font-weight:600;color:#1f2937">编辑模型</h3>
-                <button onclick="closeModal('pest-edit-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
-            </div>
-            <div style="padding:24px">
-                <div style="display:flex;flex-direction:column;gap:20px">
-                    <div>
-                        <h4 style="font-size:14px;font-weight:600;color:#374151;margin-bottom:8px">模型名称 <span style="color:#ef4444">*</span></h4>
-                        <input type="text" id="edit-model-name" style="width:100%;padding:12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box">
-                    </div>
-                    <div>
-                        <h4 style="font-size:14px;font-weight:600;color:#374151;margin-bottom:8px">模型介绍</h4>
-                        <textarea id="edit-model-desc" rows="4" style="width:100%;padding:12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;color:#4b5563;line-height:1.6;box-sizing:border-box;resize:vertical"></textarea>
-                    </div>
-                    <div>
-                        <h4 style="font-size:14px;font-weight:600;color:#374151;margin-bottom:8px">模型公式</h4>
-                        <textarea id="edit-model-formula" rows="4" style="width:100%;padding:12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;color:#4b5563;font-family:monospace;line-height:1.6;box-sizing:border-box;resize:vertical;white-space:pre-wrap"></textarea>
-                    </div>
-                    <div>
-                        <h4 style="font-size:14px;font-weight:600;color:#374151;margin-bottom:8px">参数解读</h4>
-                        <textarea id="edit-model-params" rows="6" style="width:100%;padding:12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;color:#4b5563;line-height:1.6;box-sizing:border-box;resize:vertical"></textarea>
-                    </div>
-                    <div>
-                        <h4 style="font-size:14px;font-weight:600;color:#374151;margin-bottom:8px">揭示规律</h4>
-                        <textarea id="edit-model-rules" rows="5" style="width:100%;padding:12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;color:#4b5563;line-height:1.6;box-sizing:border-box;resize:vertical"></textarea>
-                    </div>
-                    <div>
-                        <h4 style="font-size:14px;font-weight:600;color:#374151;margin-bottom:8px">所需数据</h4>
-                        <textarea id="edit-model-data" rows="6" style="width:100%;padding:12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;color:#4b5563;line-height:1.6;box-sizing:border-box;resize:vertical"></textarea>
-                    </div>
+                <div class="bg-gray-50 rounded-xl p-5">
+                    <h5 class="font-semibold text-gray-800 mb-3">诊断信息</h5>
+                    <ul class="text-gray-600 text-sm space-y-2">
+                        <li>• 主要风险因子排名</li>
+                        <li>• 耦合作用贡献分析</li>
+                        <li>• 历史累积影响程度</li>
+                        <li>• 空间传播来源追踪</li>
+                        <li>• 防控建议与优先级</li>
+                    </ul>
                 </div>
-            </div>
-            <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:12px">
-                <button onclick="closeModal('pest-edit-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
-                <button onclick="submitPestEdit()" style="padding:8px 16px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">保存修改</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 数据关联弹窗 -->
-    <div id="pest-data-modal" class="modal-overlay">
-        <div class="modal-content">
-            <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
-                <h3 style="font-size:18px;font-weight:600;color:#1f2937">数据关联</h3>
-                <button onclick="closeModal('pest-data-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
-            </div>
-            <div style="padding:24px">
-                <div style="margin-bottom:16px">
-                    <h4 style="font-size:14px;font-weight:600;color:#374151;margin-bottom:8px">关联数据集列表</h4>
-                    <div style="border:1px solid #d1d5db;border-radius:8px;overflow:hidden">
-                        <table style="width:100%">
-                            <thead>
-                                <tr style="background:#f9fafb">
-                                    <th style="text-left;padding:10px;font-size:12px;font-weight:600;color:#6b7280">数据名称</th>
-                                    <th style="text-left;padding:10px;font-size:12px;font-weight:600;color:#6b7280">数据类型</th>
-                                    <th style="text-center;padding:10px;font-size:12px;font-weight:600;color:#6b7280">数据量</th>
-                                    <th style="text-center;padding:10px;font-size:12px;font-weight:600;color:#6b7280">更新时间</th>
-                                    <th style="text-center;padding:10px;font-size:12px;font-weight:600;color:#6b7280">状态</th>
-                                </tr>
-                            </thead>
-                            <tbody id="data-rel-tbody"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end">
-                <button onclick="closeModal('pest-data-modal')" style="padding:8px 16px;background:#f3f4f6;color:#374151;border:none;border-radius:8px;font-size:14px;cursor:pointer">关闭</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 删除确认弹窗 -->
-    <div id="pest-delete-modal" class="modal-overlay">
-        <div style="background:#fff;border-radius:12px;width:90%;max-width:400px">
-            <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
-                <h3 style="font-size:18px;font-weight:600;color:#1f2937">删除确认</h3>
-                <button onclick="closeModal('pest-delete-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
-            </div>
-            <div style="padding:24px;text-align:center">
-                <div style="width:60px;height:60px;background:#fee2e2;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px"><span style="font-size:28px;color:#dc2626">!</span></div>
-                <h3 style="font-size:18px;font-weight:600;color:#1f2937;margin-bottom:8px">确认删除</h3>
-                <p style="font-size:14px;color:#6b7280;margin-bottom:24px">确定要删除模型"<span id="delete-model-name" style="font-weight:500;color:#1f2937"></span>"吗？</p>
-                <div style="display:flex;justify-content:center;gap:12px">
-                    <button onclick="closeModal('pest-delete-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
-                    <button onclick="confirmPestDelete()" style="padding:8px 16px;background:#dc2626;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">确认删除</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 添加弹窗 -->
-    <div id="pest-add-modal" class="modal-overlay">
-        <div class="modal-content">
-            <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
-                <h3 style="font-size:18px;font-weight:600;color:#1f2937">+ 添加模型</h3>
-                <button onclick="closeModal('pest-add-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
-            </div>
-            <div style="padding:24px;display:flex;flex-direction:column;gap:16px">
-                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">模型名称 <span style="color:#ef4444">*</span></label><input type="text" id="add-model-name" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box" placeholder="如：红蜘蛛检测模型"></div>
-                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">模型类型 <span style="color:#ef4444">*</span></label><select id="add-model-type" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"><option value="虫害">虫害</option><option value="病害">病害</option></select></div>
-                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">状态</label><select id="add-model-status" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"><option value="启用">启用</option><option value="禁用">禁用</option></select></div>
-            </div>
-            <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:12px">
-                <button onclick="closeModal('pest-add-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
-                <button onclick="submitPestAdd()" style="padding:8px 16px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">确认添加</button>
             </div>
         </div>
     </div>
@@ -303,19 +263,19 @@
                 <div style="display:flex;flex-direction:column;gap:12px">
                     <div style="display:flex;justify-content:space-between;padding:10px;background:#f9fafb;border-radius:8px">
                         <span style="font-size:13px;color:#6b7280">模型总数</span>
-                        <span style="font-size:13px;font-weight:500;color:#1f2937">10 个</span>
+                        <span style="font-size:13px;font-weight:500;color:#1f2937">6 个</span>
                     </div>
                     <div style="display:flex;justify-content:space-between;padding:10px;background:#f9fafb;border-radius:8px">
                         <span style="font-size:13px;color:#6b7280">运行中</span>
-                        <span style="font-size:13px;font-weight:500;color:#16a34a">9 个</span>
+                        <span style="font-size:13px;font-weight:500;color:#16a34a">6 个</span>
                     </div>
                     <div style="display:flex;justify-content:space-between;padding:10px;background:#f9fafb;border-radius:8px">
                         <span style="font-size:13px;color:#6b7280">已禁用</span>
-                        <span style="font-size:13px;font-weight:500;color:#9ca3af">1 个</span>
+                        <span style="font-size:13px;font-weight:500;color:#9ca3af">0 个</span>
                     </div>
                     <div style="display:flex;justify-content:space-between;padding:10px;background:#f9fafb;border-radius:8px">
                         <span style="font-size:13px;color:#6b7280">最近刷新时间</span>
-                        <span style="font-size:13px;font-weight:500;color:#1f2937">2026-08-01 09:30</span>
+                        <span style="font-size:13px;font-weight:500;color:#1f2937">2026-08-04 09:30</span>
                     </div>
                 </div>
             </div>
@@ -327,369 +287,30 @@
     </div>
 
     <script>
-        var pestData = [
-            {id:'p-1', name:'红蜘蛛检测模型', target:'柑橘红蜘蛛成虫/若虫', accuracy:'94%', scene:'叶片背面检测、果园巡检', status:'启用', type:'虫害', samples:'12,580',
-             desc:'基于YOLOv8的红蜘蛛目标检测模型，采用迁移学习技术，在南丰蜜桔种植环境下进行精细化训练，能够准确识别叶片背面的红蜘蛛成虫及若虫。',
-             formula:'置信度 = Σ(特征权重 × 特征值) / 特征总数 × IoU匹配度',
-             params:'- 置信度阈值：控制识别结果的可靠性，低于阈值的结果被标记为不确定\n- IoU阈值：判断预测框与真实框的重合度\n- NMS阈值：非极大值抑制，去除冗余检测框\n- 图像尺寸：输入图像的统一缩放尺寸，影响检测精度和速度',
-             rules:'1. 红蜘蛛主要分布在叶片背面，正面检测准确率较低\n2. 高温干燥环境下红蜘蛛繁殖速度加快，检测频率需提高\n3. 红蜘蛛密度与叶片受害程度呈正相关\n4. 不同龄期红蜘蛛的形态特征差异明显，需针对性识别',
-             data:'- 叶片图像数据（RGB格式）\n- 红蜘蛛标注数据（边界框坐标）\n- 环境温湿度数据\n- 果园位置信息\n- 拍摄时间信息',
-             config:{confidence:'0.85', imageSize:'640x640', batchSize:'32', learningRate:'0.001', iterations:'5000', depth:'5', iou:'0.5', nms:'0.45'},
-             datasets:['红蜘蛛图像数据集','叶片背面标注数据','环境温湿度监测']},
-            {id:'p-2', name:'黄龙病识别模型', target:'黄龙病症状叶片', accuracy:'91%', scene:'叶片斑驳检测、PCR辅助诊断', status:'启用', type:'病害', samples:'8,920',
-             desc:'基于CNN的黄龙病叶片识别模型，通过分析叶片的黄化斑驳特征，结合光谱分析技术，实现黄龙病早期诊断。',
-             formula:'病害概率 = σ(卷积层输出 × 全连接层权重 + 偏置)',
-             params:'- 卷积核数量：影响特征提取能力\n- 池化窗口：控制特征降采样程度\n- 学习率：影响模型收敛速度\n- Dropout率：防止过拟合\n- 正则化系数：控制模型复杂度',
-             rules:'1. 黄龙病叶片呈现不对称黄化特征\n2. 叶脉保持绿色是黄龙病的典型症状\n3. 病害从枝条下部向上蔓延\n4. 不同品种蜜桔的症状表现存在差异',
-             data:'- 病叶图像数据\n- 健康叶片对照数据\n- 叶片光谱反射数据\n- 病害等级标注\n- 采样位置信息',
-             config:{confidence:'0.80', imageSize:'512x512', batchSize:'16', learningRate:'0.0005', iterations:'8000', depth:'7', iou:'0.5', nms:'0.5'},
-             datasets:['黄龙病叶片数据集','光谱反射率数据','病害等级标注']},
-            {id:'p-3', name:'炭疽病检测模型', target:'炭疽病典型病斑', accuracy:'87%', scene:'果实表面检测、落叶期监测', status:'启用', type:'病害', samples:'6,750',
-             desc:'基于深度学习的炭疽病病斑检测模型，能够识别果实和叶片上的炭疽病典型症状，支持多尺度检测。',
-             formula:'检测分数 = 特征匹配度 × 病斑形态相似度 × 颜色特征权重',
-             params:'- 特征通道数：多通道特征融合能力\n- 病斑面积阈值：过滤过小的检测区域\n- 颜色阈值：区分病斑与正常组织\n- 边缘检测系数：增强病斑边界识别',
-             rules:'1. 炭疽病病斑呈不规则圆形\n2. 病斑中心颜色较深，边缘有黄色晕圈\n3. 高温高湿环境易诱发炭疽病\n4. 果实成熟后期发病率上升',
-             data:'- 病斑图像数据\n- 病斑标注数据\n- 环境温湿度数据\n- 果实成熟度数据\n- 发病部位信息',
-             config:{confidence:'0.75', imageSize:'416x416', batchSize:'24', learningRate:'0.001', iterations:'6000', depth:'5', iou:'0.45', nms:'0.4'},
-             datasets:['炭疽病病斑数据集','果实成熟度数据','病斑标注数据']},
-            {id:'p-4', name:'潜叶蛾识别模型', target:'潜叶蛾幼虫/潜道', accuracy:'85%', scene:'新梢嫩叶检测、春梢期监测', status:'启用', type:'虫害', samples:'5,320',
-             desc:'基于Transformer架构的潜叶蛾识别模型，通过分析叶片潜道特征，实现幼虫早期检测和数量估计。',
-             formula:'预测值 = Transformer编码器输出 × 分类头权重',
-             params:'- 注意力头数：多维度特征关注能力\n- 编码器层数：特征提取深度\n- 序列长度：输入序列的最大长度\n- 隐藏层维度：模型表达能力',
-             rules:'1. 潜叶蛾主要危害新梢嫩叶\n2. 潜道呈弯曲蛇形\n3. 幼虫在叶片内部取食叶肉\n4. 春梢期是防治关键时期',
-             data:'- 受害叶片图像\n- 潜道标注数据\n- 幼虫数量统计\n- 新梢生长阶段数据\n- 监测时间数据',
-             config:{confidence:'0.78', imageSize:'512x512', batchSize:'16', learningRate:'0.0003', iterations:'10000', depth:'6', iou:'0.5', nms:'0.45'},
-             datasets:['潜叶蛾受害叶片','潜道标注数据','新梢生长阶段']},
-            {id:'p-5', name:'黑点病检测模型', target:'黑点病斑果实/叶片', accuracy:'82%', scene:'果实表面检测、采收前筛查', status:'启用', type:'病害', samples:'4,180',
-             desc:'基于Faster R-CNN的黑点病检测模型，专门针对南丰蜜桔果实表面的黑点病症状进行检测识别。',
-             formula:'候选区域得分 = RPN输出 × ROI特征提取 × 分类回归',
-             params:'- 锚点尺寸：不同大小病斑的检测能力\n- 候选区域数量：影响检测速度和召回率\n- 非极大值抑制阈值：去除冗余检测结果\n- 特征金字塔层数：多尺度特征融合',
-             rules:'1. 黑点病斑呈黑色小圆点\n2. 病斑表面粗糙，中央凹陷\n3. 主要危害果实，叶片较少发生\n4. 多雨高湿环境有利于发病',
-             data:'- 病果图像数据\n- 病斑标注数据\n- 果实成熟度数据\n- 降雨量数据\n- 果园排水条件数据',
-             config:{confidence:'0.72', imageSize:'608x608', batchSize:'8', learningRate:'0.0005', iterations:'12000', depth:'10', iou:'0.5', nms:'0.5'},
-             datasets:['黑点病果实数据集','果实表面特征数据','降雨量监测']},
-            {id:'p-6', name:'疮痂病识别模型', target:'疮痂病斑果实/枝梢', accuracy:'89%', scene:'幼果期检测、枝梢筛查', status:'启用', type:'病害', samples:'3,650',
-             desc:'基于ResNet的疮痂病识别模型，通过残差学习技术，有效识别幼果和枝梢上的疮痂病症状。',
-             formula:'分类概率 = Softmax(残差网络输出 × 全连接层)',
-             params:'- 残差块数量：网络深度和特征提取能力\n- 瓶颈结构：减少参数数量\n- 跳跃连接：缓解梯度消失问题\n- 批归一化：加速收敛',
-             rules:'1. 疮痂病斑呈圆锥状凸起\n2. 病斑表面粗糙呈木栓化\n3. 幼果期感病后果实畸形\n4. 低温高湿环境易发病',
-             data:'- 病果病枝图像\n- 病斑标注数据\n- 果实发育阶段数据\n- 环境温度数据\n- 湿度数据',
-             config:{confidence:'0.82', imageSize:'448x448', batchSize:'20', learningRate:'0.001', iterations:'7000', depth:'18', iou:'0.5', nms:'0.45'},
-             datasets:['疮痂病病斑数据集','幼果发育阶段','病斑形态标注']},
-            {id:'p-7', name:'锈壁虱检测模型', target:'锈壁虱成虫/若虫', accuracy:'86%', scene:'果实表皮检测、夏秋季监测', status:'启用', type:'虫害', samples:'2,940',
-             desc:'基于YOLOv5的锈壁虱检测模型，针对微小体型的锈壁虱进行专门优化，提高检测精度。',
-             formula:'检测置信度 = 特征匹配度 × 尺寸归一化因子 × 形态相似度',
-             params:'- 小目标检测阈值：针对微小害虫的检测优化\n- 特征融合策略：多尺度特征融合提高小目标识别能力\n- 锚点框优化：针对锈壁虱体型的锚点框调整\n- 图像增强：提高微小目标的可见性',
-             rules:'1. 锈壁虱体型微小，需高倍率放大检测\n2. 主要危害果实表皮，导致黑皮果\n3. 夏秋季高温干旱易暴发\n4. 危害初期症状不明显，需精细检测',
-             data:'- 果实表皮放大图像\n- 锈壁虱标注数据\n- 果实颜色变化数据\n- 环境温湿度数据\n- 监测时间数据',
-             config:{confidence:'0.76', imageSize:'640x640', batchSize:'32', learningRate:'0.001', iterations:'5000', depth:'5', iou:'0.4', nms:'0.35'},
-             datasets:['锈壁虱检测数据','果实表皮放大图','微小目标标注']},
-            {id:'p-8', name:'煤烟病识别模型', target:'煤烟病菌丝/孢子', accuracy:'78%', scene:'叶片表面检测、蚜虫伴生检测', status:'禁用', type:'病害', samples:'2,310',
-             desc:'基于图像分割的煤烟病识别模型，能够区分煤烟病与正常叶片表面特征。',
-             formula:'分割掩码 = U-Net输出 × Sigmoid激活函数',
-             params:'- 编码器层数：特征提取深度\n- 解码器上采样：恢复图像分辨率\n- 跳跃连接：保留细节信息\n- 损失函数权重：平衡前景背景',
-             rules:'1. 煤烟病呈黑色霉层覆盖叶片表面\n2. 多由蚜虫、粉虱等害虫分泌蜜露诱发\n3. 影响叶片光合作用\n4. 通风不良环境易发生',
-             data:'- 病叶图像数据\n- 分割标注数据\n- 害虫发生数据\n- 通风条件数据\n- 湿度数据',
-             config:{confidence:'0.70', imageSize:'512x512', batchSize:'12', learningRate:'0.0005', iterations:'8000', depth:'16', iou:'0.5', nms:'0.5'},
-             datasets:['煤烟病叶片数据集','分割标注数据','蚜虫发生数据']},
-            {id:'p-9', name:'溃疡病检测模型', target:'溃疡病斑叶片/果实', accuracy:'92%', scene:'叶片斑点检测、果面筛查', status:'启用', type:'病害', samples:'5,880',
-             desc:'基于EfficientDet的溃疡病检测模型，高效识别叶片和果实上的溃疡病斑。',
-             formula:'检测得分 = BiFPN特征融合 × 分类回归头',
-             params:'- 特征金字塔层数：多尺度特征融合\n- 双向特征融合：增强特征传递\n- 缩放因子：控制模型大小和精度\n- 检测头数量：分类和回归分支',
-             rules:'1. 溃疡病斑呈隆起的火山口状\n2. 病斑中央凹陷，周围有黄色晕圈\n3. 叶片病斑穿透正反面\n4. 风雨传播，高温高湿易流行',
-             data:'- 病叶病果图像\n- 病斑标注数据\n- 降雨数据\n- 风速数据\n- 环境温度数据',
-             config:{confidence:'0.85', imageSize:'512x512', batchSize:'24', learningRate:'0.001', iterations:'6000', depth:'6', iou:'0.5', nms:'0.45'},
-             datasets:['溃疡病病斑数据集','叶片穿透特征数据','气象监测数据']},
-            {id:'p-10', name:'蚜虫识别模型', target:'蚜虫成虫/若虫/卵', accuracy:'83%', scene:'嫩梢嫩叶检测、春夏季监测', status:'启用', type:'虫害', samples:'4,120',
-             desc:'基于SSD的蚜虫识别模型，能够识别不同龄期的蚜虫及虫卵。',
-             formula:'预测框 = 先验框 + 偏移量 × 置信度',
-             params:'- 先验框尺寸：针对不同大小蚜虫的先验框设计\n- 特征图数量：多尺度检测能力\n- 置信度阈值：过滤低置信度检测结果\n- 非极大值抑制：去除重叠检测框',
-             rules:'1. 蚜虫聚集在嫩梢和嫩叶背面\n2. 有翅蚜和无翅蚜形态差异较大\n3. 春季温度回升后开始繁殖\n4. 分泌蜜露诱发煤烟病',
-             data:'- 蚜虫图像数据\n- 标注数据（不同龄期）\n- 嫩梢生长数据\n- 温度数据\n- 天敌昆虫数据',
-             config:{confidence:'0.75', imageSize:'512x512', batchSize:'32', learningRate:'0.001', iterations:'4000', depth:'5', iou:'0.5', nms:'0.45'},
-             datasets:['蚜虫识别数据集','多龄期标注数据','嫩梢生长数据']}
-        ];
-
-        var pestCurrentPage = 1;
-        var pestPageSize = 5;
-        var pestEditId = null;
-        var pestDeleteId = null;
-        var pestCurrentId = null;
-
-        // 统一模型说明内容（与 pest_model_memo.html 保持一致）
-        var unifiedModelContent = {
-            desc: '南丰蜜桔病虫害多因子耦合时序风险预测模型，面向县域尺度，根据近期气象、区域物候、县域病情、虫情和历史发生数据，预测县域内不同病虫害未来3天、7天的发生概率、风险等级和重点风险区域。模型先判断温度、湿度、降雨等单项条件是否适宜，再计算多个条件同时出现时的耦合作用，然后累积最近14～30天的影响，最后加入县域虫源、历史发生和乡镇之间的空间传播压力。',
-            formula: 'Pd(t+h) = Cald,h{ θ1·Στ=0…L-1 ad,τ·Cd(t-τ) + θ2·Σu=1…h qd,u·C̃d(t+u) + θ3·Id(t) + θ4·Hd(t) + θ5·Spreadd(t,h) }\n\nCd(v) = σ[ bd + Σk wd,k·Sd,k(v) + Σi<j βd,ij·Sd,i(v)·Sd,j(v) + Σi<j<k γd,ijk·Sd,i(v)·Sd,j(v)·Sd,k(v) ]',
-            params: '• Pd(t+h)：病虫害d在t+h时刻的发生概率，输出结果，经过概率校准\n• Cd(v)：病虫害d在时刻v的耦合风险，单因子+双因子+三因子耦合\n• Sd,k：因子k对病虫害d的适宜度，0～1之间的数值\n• wd,k：因子k对病虫害d的权重，单因子重要程度\n• βd,ij：因子i和j对病虫害d的耦合系数，双因子相互作用强度\n• γd,ijk：因子i,j,k对病虫害d的耦合系数，三因子相互作用强度\n• L：历史回看天数，通常14～30天\n• h：预测周期，通常3或7天\n• ad,τ：历史日期τ的时间权重，过去数据的衰减系数\n• qd,u：未来日期u的时间权重，未来预报的可信度\n• Id(t)：时刻t的虫源基数，病原、虫卵、虫口数量\n• Hd(t)：时刻t的历史发生水平，同期历史数据\n• Spreadd(t,h)：空间传播压力，乡镇间传播风险\n• θ1～θ5：各部分权重系数，校准参数\n• Cald,h：概率校准函数，将风险指数转为概率\n• σ：Sigmoid函数，将输出限制在0～1',
-            rules: '1. 温度、湿度、降雨、叶面湿润、物候等单因子适宜度计算\n2. 两个因子共同出现时的耦合作用（如温度×湿度、降雨×风速）\n3. 三个关键因子同时出现时的耦合作用（如高温+高湿+降雨）\n4. 最近14～30天已观测耦合结果的时间累积\n5. 未来3～7天天气预报形成的新增耦合风险\n6. 当前病原、虫卵或虫口基数修正\n7. 县域历史发生水平和乡镇间空间传播压力修正\n8. 由综合风险到未来3天、7天发生概率的校准',
-            data: '模型输入向量：Xt = [Wt, Pt, Dt, It, Ht]\n\n• Wt 气象数据：温度、湿度、降雨、光照、风速等\n• Pt 物候数据：生育阶段、嫩梢比例、开花坐果等\n• Dt 病情虫情：当前病斑率、虫口密度、卵量等\n• It 虫源基数：越冬虫源、病原菌数量等\n• Ht 历史数据：同期发生水平、历史趋势等\n\n数据时间窗口：读取最近14～30天的连续数据，同时使用未来3～7天的天气预报数据。'
-        };
-
-        function showModal(id) { var m = document.getElementById(id); if(m) m.style.display = 'flex'; }
-        function hideModal(id) { var m = document.getElementById(id); if(m) m.style.display = 'none'; }
+        function showModal(id) { var m = document.getElementById(id); if (m) { m.style.display = 'flex'; m.classList.add('active'); } }
+        function hideModal(id) { var m = document.getElementById(id); if (m) { m.style.display = 'none'; m.classList.remove('active'); } }
         function closeModal(id) { hideModal(id); }
-
-        function renderPestTable() {
-            var tbody = document.getElementById('pest-tbody');
-            var searchVal = document.getElementById('pest-search') ? document.getElementById('pest-search').value.trim().toLowerCase() : '';
-            var filteredData = pestData.filter(function(item) {
-                return item.name.toLowerCase().indexOf(searchVal) > -1;
-            });
-            var start = (pestCurrentPage - 1) * pestPageSize;
-            var end = start + pestPageSize;
-            var pageData = filteredData.slice(start, end);
-            var html = '';
-            for (var i = 0; i < pageData.length; i++) {
-                var item = pageData[i];
-                var accNum = parseInt(item.accuracy);
-                var barColor = accNum >= 90 ? '#16a34a' : (accNum >= 85 ? '#eab308' : '#ef4444');
-                var datasets = item.datasets || [];
-                var datasetTags = '';
-                for (var j = 0; j < Math.min(datasets.length, 3); j++) {
-                    datasetTags += '<span class="inline-block px-2 py-0.5 bg-blue-50 text-blue-600 text-xs rounded mr-1 mb-1">' + datasets[j] + '</span>';
-                }
-                if (datasets.length > 3) {
-                    datasetTags += '<span class="inline-block px-2 py-0.5 bg-gray-100 text-gray-500 text-xs rounded">+' + (datasets.length - 3) + '</span>';
-                }
-                html += '<tr class="hover:bg-gray-50">';
-                html += '<td class="px-4 py-3 text-sm font-medium text-gray-800 truncate">' + item.name + '</td>';
-                html += '<td class="px-4 py-3"><span class="px-2 py-1 ' + (item.type === '病害' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700') + ' text-xs rounded-full">' + item.type + '</span></td>';
-                html += '<td class="px-4 py-3 text-center text-sm text-gray-600">' + item.samples + '</td>';
-                html += '<td class="px-4 py-3"><div class="flex items-center justify-center"><div class="w-16 h-2 bg-gray-200 rounded-full overflow-hidden"><div class="h-full rounded-full" style="width:' + item.accuracy + ';background:' + barColor + '"></div></div><span class="ml-2 text-sm text-gray-600">' + item.accuracy + '</span></div></td>';
-                html += '<td class="px-4 py-3">' + datasetTags + '</td>';
-                html += '<td class="px-2 py-3"><div style="display:flex;justify-content:center;gap:2px;flex-wrap:nowrap;min-width:0">';
-                html += '<button onclick="viewPestItem(\'' + item.id + '\')" style="background:none;border:none;cursor:pointer;color:#6b7280;padding:2px 5px;border-radius:3px;font-size:11px;border:1px solid #d1d5db;white-space:nowrap" title="查看">查看</button>';
-                html += '<button onclick="editPestItem(\'' + item.id + '\')" style="background:none;border:none;cursor:pointer;color:#3b82f6;padding:2px 5px;border-radius:3px;font-size:11px;border:1px solid #93c5fd;white-space:nowrap" title="编辑">编辑</button>';
-                html += '<button onclick="openDataModal(\'' + item.id + '\')" style="background:none;border:none;cursor:pointer;color:#f59e0b;padding:2px 5px;border-radius:3px;font-size:11px;border:1px solid #fcd34d;white-space:nowrap" title="数据关联">数据关联</button>';
-                html += '<button onclick="deletePestItem(\'' + item.id + '\')" style="background:none;border:none;cursor:pointer;color:#dc2626;padding:2px 5px;border-radius:3px;font-size:11px;border:1px solid #fca5a5;white-space:nowrap" title="删除">删除</button>';
-                html += '</div></td></tr>';
-            }
-            tbody.innerHTML = html;
-            document.getElementById('pest-total-count').textContent = filteredData.length;
-            document.getElementById('pest-current-page').textContent = pestCurrentPage;
-            document.getElementById('pest-total-pages').textContent = Math.ceil(filteredData.length / pestPageSize) || 1;
-        }
-
-        function pestPrevPage() { var searchVal = document.getElementById('pest-search') ? document.getElementById('pest-search').value.trim().toLowerCase() : ''; var filteredData = pestData.filter(function(item) { return item.name.toLowerCase().indexOf(searchVal) > -1; }); var t = Math.ceil(filteredData.length / pestPageSize); if (pestCurrentPage > 1) { pestCurrentPage--; renderPestTable(); } }
-        function pestNextPage() { var searchVal = document.getElementById('pest-search') ? document.getElementById('pest-search').value.trim().toLowerCase() : ''; var filteredData = pestData.filter(function(item) { return item.name.toLowerCase().indexOf(searchVal) > -1; }); var t = Math.ceil(filteredData.length / pestPageSize); if (pestCurrentPage < t) { pestCurrentPage++; renderPestTable(); } }
-        function filterPest() { pestCurrentPage = 1; renderPestTable(); }
-
-        function viewPestItem(id) {
-            pestCurrentId = id;
-            for (var i = 0; i < pestData.length; i++) {
-                if (pestData[i].id === id) {
-                    var item = pestData[i];
-                    document.getElementById('view-model-name').textContent = item.name;
-                    document.getElementById('view-model-desc').textContent = item.desc || unifiedModelContent.desc;
-                    document.getElementById('view-model-formula').textContent = item.formula || unifiedModelContent.formula;
-                    document.getElementById('view-model-params').innerHTML = (item.params || unifiedModelContent.params).replace(/\n/g, '<br>');
-                    document.getElementById('view-model-rules').innerHTML = (item.rules || unifiedModelContent.rules).replace(/\n/g, '<br>');
-                    document.getElementById('view-model-data').innerHTML = (item.data || unifiedModelContent.data).replace(/\n/g, '<br>');
-                    showModal('pest-view-modal');
-                    break;
-                }
-            }
-        }
-
-        function editPestItem(id) {
-            pestEditId = id;
-            for (var i = 0; i < pestData.length; i++) {
-                if (pestData[i].id === id) {
-                    var item = pestData[i];
-                    document.getElementById('edit-model-name').value = item.name;
-                    document.getElementById('edit-model-desc').value = item.desc || unifiedModelContent.desc;
-                    document.getElementById('edit-model-formula').value = item.formula || unifiedModelContent.formula;
-                    document.getElementById('edit-model-params').value = item.params || unifiedModelContent.params;
-                    document.getElementById('edit-model-rules').value = item.rules || unifiedModelContent.rules;
-                    document.getElementById('edit-model-data').value = item.data || unifiedModelContent.data;
-                    showModal('pest-edit-modal');
-                    break;
-                }
-            }
-        }
-
-        function submitPestEdit() {
-            var name = document.getElementById('edit-model-name').value.trim();
-            if (!name) { alert('请填写模型名称'); return; }
-            for (var i = 0; i < pestData.length; i++) {
-                if (pestData[i].id === pestEditId) {
-                    pestData[i].name = name;
-                    pestData[i].desc = document.getElementById('edit-model-desc').value;
-                    pestData[i].formula = document.getElementById('edit-model-formula').value;
-                    pestData[i].params = document.getElementById('edit-model-params').value;
-                    pestData[i].rules = document.getElementById('edit-model-rules').value;
-                    pestData[i].data = document.getElementById('edit-model-data').value;
-                    break;
-                }
-            }
-            hideModal('pest-edit-modal');
-            pestEditId = null;
-            renderPestTable();
-            alert('模型修改成功！');
-        }
-
-        function deletePestItem(id) {
-            for (var i = 0; i < pestData.length; i++) {
-                if (pestData[i].id === id) {
-                    pestDeleteId = id;
-                    document.getElementById('delete-model-name').textContent = pestData[i].name;
-                    showModal('pest-delete-modal');
-                    break;
-                }
-            }
-        }
-
-        function confirmPestDelete() {
-            for (var i = 0; i < pestData.length; i++) { if (pestData[i].id === pestDeleteId) { pestData.splice(i, 1); break; } }
-            hideModal('pest-delete-modal');
-            pestDeleteId = null;
-            if (pestCurrentPage > Math.ceil(pestData.length / pestPageSize)) { pestCurrentPage = Math.max(1, Math.ceil(pestData.length / pestPageSize) || 1); }
-            renderPestTable();
-            alert('模型删除成功！');
-        }
-
-        function openPestAddModal() {
-            document.getElementById('add-model-name').value = '';
-            document.getElementById('add-model-type').value = '虫害';
-            document.getElementById('add-model-status').value = '启用';
-            showModal('pest-add-modal');
-        }
-
-        function submitPestAdd() {
-            var name = document.getElementById('add-model-name').value.trim();
-            var type = document.getElementById('add-model-type').value;
-            var status = document.getElementById('add-model-status').value;
-            if (!name) { alert('请填写模型名称'); return; }
-            var newId = 'p-' + (pestData.length + 1);
-            pestData.push({
-                id: newId, name: name, type: type, target: '', accuracy: '--',
-                scene: '', status: status, samples: '0', datasets: []
-            });
-            hideModal('pest-add-modal');
-            pestCurrentPage = Math.ceil(pestData.length / pestPageSize);
-            renderPestTable();
-            alert('模型添加成功！');
-        }
-
-        var modelDataRelations = {
-            'p-1': [
-                {name:'红蜘蛛图像数据集', type:'图像数据', count:'12,580', time:'2026-07-20', status:'正常'},
-                {name:'叶片背面标注数据', type:'标注数据', count:'8,920', time:'2026-07-18', status:'正常'},
-                {name:'红蜘蛛形态特征库', type:'特征数据', count:'1,200', time:'2026-07-15', status:'正常'},
-                {name:'环境温湿度监测数据', type:'环境数据', count:'56,000', time:'2026-07-20', status:'正常'}
-            ],
-            'p-2': [
-                {name:'黄龙病叶片数据集', type:'图像数据', count:'8,920', time:'2026-07-19', status:'正常'},
-                {name:'光谱反射率数据', type:'光谱数据', count:'3,200', time:'2026-07-17', status:'正常'},
-                {name:'病害等级标注数据', type:'标注数据', count:'5,600', time:'2026-07-18', status:'正常'},
-                {name:'PCR检测结果数据', type:'检测数据', count:'1,800', time:'2026-07-16', status:'正常'}
-            ],
-            'p-3': [
-                {name:'炭疽病病斑数据集', type:'图像数据', count:'6,750', time:'2026-07-19', status:'正常'},
-                {name:'果实成熟度数据', type:'生长数据', count:'2,400', time:'2026-07-20', status:'正常'},
-                {name:'病斑标注数据', type:'标注数据', count:'4,100', time:'2026-07-17', status:'正常'}
-            ],
-            'p-4': [
-                {name:'潜叶蛾受害叶片数据', type:'图像数据', count:'5,320', time:'2026-07-18', status:'正常'},
-                {name:'潜道标注数据', type:'标注数据', count:'3,800', time:'2026-07-16', status:'正常'},
-                {name:'新梢生长阶段数据', type:'生长数据', count:'1,500', time:'2026-07-20', status:'正常'}
-            ],
-            'p-5': [
-                {name:'黑点病果实数据集', type:'图像数据', count:'4,180', time:'2026-07-17', status:'正常'},
-                {name:'果实表面特征数据', type:'特征数据', count:'2,800', time:'2026-07-19', status:'正常'},
-                {name:'降雨量监测数据', type:'气象数据', count:'12,000', time:'2026-07-20', status:'正常'}
-            ],
-            'p-6': [
-                {name:'疮痂病病斑数据集', type:'图像数据', count:'3,650', time:'2026-07-18', status:'正常'},
-                {name:'幼果发育阶段数据', type:'生长数据', count:'1,200', time:'2026-07-19', status:'正常'},
-                {name:'病斑形态标注数据', type:'标注数据', count:'2,100', time:'2026-07-16', status:'正常'}
-            ],
-            'p-7': [
-                {name:'锈壁虱检测数据集', type:'图像数据', count:'2,940', time:'2026-07-20', status:'正常'},
-                {name:'果实表皮放大图像', type:'图像数据', count:'3,500', time:'2026-07-18', status:'正常'},
-                {name:'微小目标标注数据', type:'标注数据', count:'1,800', time:'2026-07-17', status:'正常'}
-            ],
-            'p-8': [
-                {name:'煤烟病叶片数据集', type:'图像数据', count:'2,310', time:'2026-07-15', status:'正常'},
-                {name:'分割标注数据', type:'标注数据', count:'1,600', time:'2026-07-14', status:'正常'},
-                {name:'蚜虫发生数据', type:'虫害数据', count:'800', time:'2026-07-19', status:'正常'}
-            ],
-            'p-9': [
-                {name:'溃疡病病斑数据集', type:'图像数据', count:'5,880', time:'2026-07-19', status:'正常'},
-                {name:'叶片穿透特征数据', type:'特征数据', count:'2,400', time:'2026-07-17', status:'正常'},
-                {name:'气象监测数据', type:'气象数据', count:'45,000', time:'2026-07-20', status:'正常'}
-            ],
-            'p-10': [
-                {name:'蚜虫识别数据集', type:'图像数据', count:'4,120', time:'2026-07-18', status:'正常'},
-                {name:'多龄期标注数据', type:'标注数据', count:'2,800', time:'2026-07-16', status:'正常'},
-                {name:'天敌昆虫数据', type:'生态数据', count:'600', time:'2026-07-15', status:'正常'}
-            ]
-        };
-
-        function openDataModal(id) {
-            pestCurrentId = id;
-            var tbody = document.getElementById('data-rel-tbody');
-            var data = modelDataRelations[id] || [];
-            var html = '';
-            for (var i = 0; i < data.length; i++) {
-                var item = data[i];
-                html += '<tr style="border-bottom:1px solid #f3f4f6">';
-                html += '<td style="text-left;padding:10px;font-size:13px;color:#1f2937">' + item.name + '</td>';
-                html += '<td style="text-left;padding:10px;font-size:13px;color:#6b7280">' + item.type + '</td>';
-                html += '<td style="text-center;padding:10px;font-size:13px;color:#6b7280">' + item.count + '</td>';
-                html += '<td style="text-center;padding:10px;font-size:13px;color:#6b7280">' + item.time + '</td>';
-                html += '<td style="text-center;padding:10px"><span style="padding:2px 8px;border-radius:4px;font-size:12px;background:#dcfce7;color:#166534">' + item.status + '</span></td>';
-                html += '</tr>';
-            }
-            tbody.innerHTML = html;
-            showModal('pest-data-modal');
-        }
 
         function openTrainModal() { showModal('train-modal'); }
         function openModelMemo() { window.open('pest_model_memo.html', '_blank'); }
 
         function startTraining() {
-            alert('状态刷新成功！\n已重新获取全部 10 个模型的最新运行状态与预警数据。');
+            alert('状态刷新成功！\n已重新获取全部 6 个模型的最新运行状态与预警数据。');
             closeModal('train-modal');
         }
 
         document.addEventListener('click', function(e) {
-            var ids = ['pest-view-modal', 'pest-edit-modal', 'pest-delete-modal', 'pest-add-modal', 'train-modal', 'pest-data-modal'];
+            var ids = ['train-modal'];
             for (var i = 0; i < ids.length; i++) {
                 var m = document.getElementById(ids[i]);
                 if (m && m.style.display === 'flex') {
                     var inner = m.children[0];
                     if (inner && !inner.contains(e.target) && e.target === m) {
                         m.style.display = 'none';
+                        m.classList.remove('active');
                     }
                 }
             }
-        });
-
-        document.addEventListener('DOMContentLoaded', function() {
-            renderPestTable();
-            var ctx1 = document.getElementById('accuracyBarChart').getContext('2d');
-            new Chart(ctx1, {
-                type: 'bar',
-                data: {
-                    labels: ['红蜘蛛', '黄龙病', '炭疽病', '潜叶蛾', '黑点病'],
-                    datasets: [{label: '识别准确率', data: [94, 91, 87, 85, 82], backgroundColor: ['#16A34A', '#16A34A', '#EAB308', '#EAB308', '#EAB308'], borderRadius: 6, borderSkipped: false}]
-                },
-                options: {responsive: true, maintainAspectRatio: false, plugins: {legend: {display: false}}, scales: {y: {beginAtZero: false, min: 75, max: 100, ticks: {callback: function(v) {return v + '%';}}}}}
-            });
-
-            var ctx2 = document.getElementById('trainingTrendChart').getContext('2d');
-            new Chart(ctx2, {
-                type: 'line',
-                data: {
-                    labels: ['7/22', '7/24', '7/26', '7/28', '7/30', '8/01'],
-                    datasets: [
-                        {label: '虫害预警', data: [8, 12, 6, 15, 10, 9], borderColor: '#DC2626', backgroundColor: 'rgba(220, 38, 38, 0.1)', borderWidth: 2, fill: true, tension: 0.3, pointBackgroundColor: '#DC2626', pointBorderColor: '#ffffff', pointBorderWidth: 2, pointRadius: 4},
-                        {label: '病害预警', data: [5, 7, 9, 6, 11, 8], borderColor: '#3B82F6', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderWidth: 2, fill: true, tension: 0.3, pointBackgroundColor: '#3B82F6', pointBorderColor: '#ffffff', pointBorderWidth: 2, pointRadius: 4}
-                    ]
-                },
-                options: {responsive: true, maintainAspectRatio: false, plugins: {legend: {position: 'bottom', labels: {font: {size: 11}}}}, scales: {y: {beginAtZero: true, min: 0, max: 20, ticks: {callback: function(v) {return v + '次';}}}}}
-            });
         });
     </script>
 </body>

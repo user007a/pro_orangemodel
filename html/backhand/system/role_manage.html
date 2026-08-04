@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -62,10 +62,6 @@
                             <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                         </div>
                         <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
-                            <span class="text-sm text-gray-600">运行监控</span>
-                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        </div>
-                        <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
                             <span class="text-sm text-gray-600">微信后台</span>
                             <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                         </div>
@@ -111,10 +107,6 @@
                             <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                         </div>
                         <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
-                            <span class="text-sm text-gray-600">运行监控</span>
-                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        </div>
-                        <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
                             <span class="text-sm text-gray-600">微信后台</span>
                             <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                         </div>
@@ -157,10 +149,6 @@
                         </div>
                         <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
                             <span class="text-sm text-gray-600">预警管理</span>
-                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        </div>
-                        <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
-                            <span class="text-sm text-gray-600">运行监控</span>
                             <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                         </div>
                         <div class="flex items-center justify-between p-2 bg-gray-50 rounded opacity-50">
@@ -345,11 +333,6 @@
                 { id: 'alert-config', name: '预警配置', desc: '配置预警阈值规则' },
                 { id: 'alert-handle', name: '预警处理', desc: '处理响应预警事件' }
             ]},
-            { id: 'monitor', name: '运行监控', desc: '长势研判与产量品质预测', children: [
-                { id: 'monitor-growth', name: '长势研判', desc: '查看作物长势评价' },
-                { id: 'monitor-quality', name: '品质预测', desc: '查看果实品质预测' },
-                { id: 'monitor-yield', name: '产量预测', desc: '查看产量预测数据' }
-            ]},
             { id: 'wechat', name: '微信后台', desc: '微信小程序用户与内容管理', children: [
                 { id: 'wechat-user', name: '微信用户', desc: '管理微信用户账号' },
                 { id: 'wechat-orchard', name: '果园管理', desc: '管理果园信息' },
@@ -369,7 +352,6 @@
                 'model': true, 'model-train': true, 'model-deploy': true, 'model-eval': true,
                 'data': true, 'data-view': true, 'data-input': true, 'data-export': true, 'data-delete': true,
                 'alert': true, 'alert-view': true, 'alert-config': true, 'alert-handle': true,
-                'monitor': true, 'monitor-growth': true, 'monitor-quality': true, 'monitor-yield': true,
                 'wechat': true, 'wechat-user': true, 'wechat-orchard': true, 'wechat-news': true, 'wechat-question': true,
                 'system': true, 'sys-user': true, 'sys-role': true, 'sys-config': true
             },
@@ -377,7 +359,6 @@
                 'model': true, 'model-train': true, 'model-deploy': false, 'model-eval': true,
                 'data': true, 'data-view': true, 'data-input': true, 'data-export': true, 'data-delete': false,
                 'alert': true, 'alert-view': true, 'alert-config': true, 'alert-handle': true,
-                'monitor': true, 'monitor-growth': true, 'monitor-quality': true, 'monitor-yield': true,
                 'wechat': true, 'wechat-user': false, 'wechat-orchard': true, 'wechat-news': false, 'wechat-question': true,
                 'system': false, 'sys-user': false, 'sys-role': false, 'sys-config': false
             },
@@ -385,7 +366,6 @@
                 'model': false, 'model-train': false, 'model-deploy': false, 'model-eval': false,
                 'data': true, 'data-view': true, 'data-input': false, 'data-export': false, 'data-delete': false,
                 'alert': true, 'alert-view': true, 'alert-config': false, 'alert-handle': false,
-                'monitor': true, 'monitor-growth': true, 'monitor-quality': false, 'monitor-yield': false,
                 'wechat': false, 'wechat-user': false, 'wechat-orchard': false, 'wechat-news': false, 'wechat-question': false,
                 'system': false, 'sys-user': false, 'sys-role': false, 'sys-config': false
             }
@@ -512,7 +492,7 @@
         }
 
         function downloadTemplate() {
-            const content = '角色名称,角色描述,模型管理,数据管理,预警管理,运行监控,微信后台,系统管理\n管理员,系统管理员,是,是,是,是,是,是\n农技员,业务农技员,是,是,是,是,是,否\n数据管理员,数据查看管理员,否,是,是,是,否,否';
+            const content = '角色名称,角色描述,模型管理,数据管理,预警管理,微信后台,系统管理\n管理员,系统管理员,是,是,是,是,是\n农技员,业务农技员,是,是,是,是,否\n数据管理员,数据查看管理员,否,是,是,否,否';
             const blob = new Blob(['\uFEFF' + content], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
@@ -531,7 +511,7 @@
         }
 
         function exportRoles() {
-            const content = '角色名称,角色描述,模型管理,数据管理,预警管理,运行监控,微信后台,系统管理\n管理员,系统管理员,是,是,是,是,是,是\n农技员,业务农技员,是,是,是,是,是,否\n数据管理员,数据查看管理员,否,是,是,是,否,否';
+            const content = '角色名称,角色描述,模型管理,数据管理,预警管理,微信后台,系统管理\n管理员,系统管理员,是,是,是,是,是\n农技员,业务农技员,是,是,是,是,否\n数据管理员,数据查看管理员,否,是,是,否,否';
             const blob = new Blob(['\uFEFF' + content], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);

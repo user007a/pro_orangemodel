@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>防控方案 - 南丰蜜桔模型管理系统</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+@keyframes modalSlideIn {
+    from { opacity: 0; transform: translateY(-20px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.modal-overlay.active .modal-content { animation: modalSlideIn 0.3s ease; }
+body { margin: 0; padding: 0; background-color: #F0F2F5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans SC', sans-serif; }
+.content-wrapper { padding: 24px; height: 100vh; overflow-y: auto; }
+.modal-overlay { display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center }
+.modal-content { background:#fff;border-radius:12px;width:90%;max-width:600px;max-height:85vh;overflow-y:auto }
+.text-green{color:#16a34a} .text-blue{color:#2563eb} .text-red{color:#dc2626} .text-yellow{color:#d97706} .text-orange{color:#ea580c} .text-purple{color:#7c3aed}
+.form-input{width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box;outline:none;background:#fff}
+.form-input:focus{border-color:#16a34a;box-shadow:0 0 0 2px rgba(22,163,74,0.1)}
+#toast{display:none;position:fixed;top:24px;left:50%;transform:translateX(-50%);background:#16a34a;color:#fff;padding:10px 20px;border-radius:8px;font-size:14px;z-index:100000;box-shadow:0 4px 12px rgba(0,0,0,0.15)}
+</style>
+</head>
+<body>
+<div class="content-wrapper">
+  <!-- 1. 头部 -->
+  <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+    <div>
+      <h1 class="text-xl font-bold text-gray-800">防控方案</h1>
+      <p class="text-gray-500 text-sm mt-1">病虫害防控方案配置 · 措施 / 优先级 / 复查周期 / 关联预警等级</p>
+    </div>
+    <button onclick="openAdd()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium flex items-center gap-2">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>新增方案
+    </button>
+  </div>
+
+  <!-- 2. 统计卡片 -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center justify-between">
+      <div>
+        <p class="text-xs text-gray-500 mb-1">方案总数</p>
+        <p class="text-2xl font-bold text-gray-800"><span id="sTotal">0</span><span class="text-sm text-gray-400 ml-1">个</span></p>
+        <p class="text-xs text-gray-400 mt-1">覆盖 6 类病虫害</p>
+      </div>
+      <div class="w-12 h-12 rounded-xl bg-green-50 flex items-center justify-center"><svg class="w-6 h-6 text-green" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></div>
+    </div>
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center justify-between">
+      <div>
+        <p class="text-xs text-gray-500 mb-1">启用中</p>
+        <p class="text-2xl font-bold text-green"><span id="sOn">0</span><span class="text-sm text-gray-400 ml-1">个</span></p>
+        <p class="text-xs text-gray-400 mt-1">已生效的防控方案</p>
+      </div>
+      <div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center"><svg class="w-6 h-6 text-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+    </div>
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center justify-between">
+      <div>
+        <p class="text-xs text-gray-500 mb-1">已停用</p>
+        <p class="text-2xl font-bold text-gray-400"><span id="sOff">0</span><span class="text-sm text-gray-400 ml-1">个</span></p>
+        <p class="text-xs text-gray-400 mt-1">暂停生效的方案</p>
+      </div>
+      <div class="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center"><svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+    </div>
+  </div>
+
+  <!-- 3. 筛选栏 -->
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6 flex flex-wrap items-center gap-3">
+    <div class="flex items-center gap-2">
+      <span class="text-xs text-gray-500 whitespace-nowrap">病虫害</span>
+      <select id="fPest" class="form-input" style="width:130px">
+        <option>全部</option><option>红蜘蛛</option><option>黄龙病</option><option>炭疽病</option><option>潜叶蛾</option><option>溃疡病</option><option>疮痂病</option>
+      </select>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="text-xs text-gray-500 whitespace-nowrap">状态</span>
+      <select id="fSt" class="form-input" style="width:110px">
+        <option>全部</option><option>启用</option><option>停用</option>
+      </select>
+    </div>
+    <button onclick="doFilter()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium">查询</button>
+    <button onclick="resetFilter()" class="px-4 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 text-sm font-medium">重置</button>
+    <span class="text-xs text-gray-400 ml-auto">方案按病虫害分组展示 · 关联预警等级 极高/高/中/低</span>
+  </div>
+
+  <!-- 4. 防控方案列表 -->
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6">
+    <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+      <h3 class="text-sm font-semibold text-gray-700">防控方案列表</h3>
+      <span class="text-xs text-gray-400">按病虫害分组 · 每页 6 条</span>
+    </div>
+    <div class="overflow-x-auto"><table class="w-full text-sm" id="scheme-table"></table></div>
+    <div class="flex items-center justify-between px-4 py-3 border-t border-gray-100">
+      <span class="text-xs text-gray-500">共 <span id="totalCnt" class="text-gray-700 font-medium">0</span> 条方案</span>
+      <div class="flex items-center gap-1" id="pageBtns"></div>
+    </div>
+  </div>
+
+  <!-- 7. 方案版本记录 -->
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+      <h3 class="text-sm font-semibold text-gray-700">方案版本记录</h3>
+      <span class="text-xs text-gray-400">最近变更记录</span>
+    </div>
+    <div class="overflow-x-auto"><table class="w-full text-sm" id="ver-table"></table></div>
+  </div>
+</div>
+
+<!-- 6a. 新增/编辑方案模态框 -->
+<div id="form-modal" class="modal-overlay">
+  <div class="modal-content">
+    <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+      <h3 id="form-title" style="font-size:18px;font-weight:600;color:#1f2937">新增方案</h3>
+      <button onclick="hideModal('form-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px;color:#9ca3af">&times;</button>
+    </div>
+    <div id="form-fields" style="padding:24px"></div>
+    <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:12px">
+      <button onclick="hideModal('form-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
+      <button onclick="saveForm()" style="padding:8px 16px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- 6b. 查看详情模态框 -->
+<div id="view-modal" class="modal-overlay">
+  <div class="modal-content">
+    <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+      <h3 style="font-size:18px;font-weight:600;color:#1f2937">方案详情</h3>
+      <button onclick="hideModal('view-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px;color:#9ca3af">&times;</button>
+    </div>
+    <div id="view-body" style="padding:20px"></div>
+    <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end">
+      <button onclick="hideModal('view-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- 6c. 删除确认模态框 -->
+<div id="del-modal" class="modal-overlay">
+  <div class="modal-content" style="max-width:420px">
+    <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+      <h3 style="font-size:18px;font-weight:600;color:#1f2937">删除确认</h3>
+      <button onclick="hideModal('del-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px;color:#9ca3af">&times;</button>
+    </div>
+    <div id="del-body" style="padding:24px"></div>
+    <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:12px">
+      <button onclick="hideModal('del-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
+      <button onclick="confirmDelete()" style="padding:8px 16px;background:#dc2626;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">删除</button>
+    </div>
+  </div>
+</div>
+
+<!-- 6d. 启停确认模态框 -->
+<div id="tg-modal" class="modal-overlay">
+  <div class="modal-content" style="max-width:420px">
+    <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+      <h3 id="tg-title" style="font-size:18px;font-weight:600;color:#1f2937">启停方案</h3>
+      <button onclick="hideModal('tg-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px;color:#9ca3af">&times;</button>
+    </div>
+    <div id="tg-body" style="padding:24px"></div>
+    <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:12px">
+      <button onclick="hideModal('tg-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
+      <button id="tg-btn" onclick="confirmToggle()" style="padding:8px 16px;background:#d97706;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">确认停用</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+var P=['红蜘蛛','黄龙病','炭疽病','潜叶蛾','溃疡病','疮痂病'];
+var PT={'红蜘蛛':'虫害','黄龙病':'病害','炭疽病':'病害','潜叶蛾':'虫害','溃疡病':'病害','疮痂病':'病害'};
+var PR={'一级·紧急':'bg-red-100 text-red-600','二级·重要':'bg-orange-100 text-orange-600','三级·常规':'bg-yellow-100 text-yellow-600','四级·可选':'bg-gray-100 text-gray-600'};
+var AL={'极高':'bg-red-100 text-red-600','高':'bg-orange-100 text-orange-600','中':'bg-yellow-100 text-yellow-600','低':'bg-green-100 text-green-600'};
+var DATA=[
+{p:'红蜘蛛',n:'红蜘蛛综合防治方案',pr:'一级·紧急',cycle:'24小时',idx:'虫口密度、螨情指数',lv:'高/极高',st:1,measures:['释放捕食螨（胡瓜钝绥螨）','喷施阿维菌素乳油 4000倍液','剪除严重受害枝叶']},
+{p:'红蜘蛛',n:'红蜘蛛预防监测方案',pr:'三级·常规',cycle:'7天',idx:'叶螨基数、气象预报',lv:'中',st:1,measures:['定期调查叶螨基数','结合气象预报提前预警','加强果园巡查监测']},
+{p:'黄龙病',n:'黄龙病砍除销毁方案',pr:'一级·紧急',cycle:'24小时',idx:'木虱密度、病株率',lv:'极高',st:1,measures:['确诊病株立即砍除','全株连根销毁处理','对周边植株喷药保护']},
+{p:'黄龙病',n:'木虱防治与病树清理方案',pr:'二级·重要',cycle:'3天',idx:'木虱密度、新梢比例',lv:'高',st:1,measures:['统一喷药防治木虱','抹除夏秋梢控制新梢','清理病树减少侵染源']},
+{p:'炭疽病',n:'炭疽病药剂防治方案',pr:'二级·重要',cycle:'3天',idx:'病斑扩展率、降雨量',lv:'高',st:1,measures:['喷施代森锰锌保护性药剂','雨后及时补喷','剪除病枝病叶集中销毁']},
+{p:'炭疽病',n:'炭疽病预防性保护方案',pr:'三级·常规',cycle:'7天',idx:'叶片湿度、气温',lv:'中',st:1,measures:['加强果园通风降湿','合理施肥增强树势','高湿期喷保护性杀菌剂']},
+{p:'潜叶蛾',n:'潜叶蛾新梢防治方案',pr:'二级·重要',cycle:'3天',idx:'嫩梢被害率、幼虫量',lv:'高',st:1,measures:['统一抹芽控梢','喷施高效氯氟氰菊酯','悬挂黄板监测成虫']},
+{p:'潜叶蛾',n:'潜叶蛾春梢期预防方案',pr:'三级·常规',cycle:'7天',idx:'新梢比例、虫口基数',lv:'中',st:0,measures:['春梢期提前监测虫口','新梢抽发期重点巡查','结合修剪去除虫梢']},
+{p:'溃疡病',n:'溃疡病风雨后防治方案',pr:'一级·紧急',cycle:'24小时',idx:'病斑数、降雨大风',lv:'极高',st:1,measures:['风雨后及时清园','剪除病枝涂保护剂','喷施铜制剂预防扩散']},
+{p:'溃疡病',n:'溃疡病铜制剂保护方案',pr:'二级·重要',cycle:'7天',idx:'病叶率、风速',lv:'高',st:1,measures:['台风季前喷施铜制剂','大风天气后巡查病斑','加强果园排水减少伤口']},
+{p:'疮痂病',n:'疮痂病幼果期防治方案',pr:'二级·重要',cycle:'3天',idx:'幼果发病率、湿度',lv:'高',st:1,measures:['幼果期喷施保护性杀菌剂','剪除病梢病果集中销毁','雨后及时补喷药剂']},
+{p:'疮痂病',n:'疮痂病预防性喷药方案',pr:'三级·常规',cycle:'7天',idx:'物候期、降雨',lv:'中',st:0,measures:['根据物候期安排喷药','关注降雨提前预防','保持果园清洁清除病残体']}
+];
+var VERS=[
+{v:'v1.2',p:'红蜘蛛',n:'红蜘蛛综合防治方案',t:'2026-08-02 15:20',u:'张研究员',d:'新增“释放捕食螨”措施，预警等级扩展为 高/极高'},
+{v:'v1.1',p:'溃疡病',n:'溃疡病风雨后防治方案',t:'2026-07-28 10:40',u:'李技术员',d:'复查周期由 48小时 调整为 24小时'},
+{v:'v1.0',p:'黄龙病',n:'黄龙病砍除销毁方案',t:'2026-07-21 09:15',u:'王工程师',d:'初始版本，关联预警等级 极高'},
+{v:'v1.2',p:'潜叶蛾',n:'潜叶蛾春梢期预防方案',t:'2026-07-15 16:30',u:'刘管理员',d:'方案停用，待春梢期前重新评估'},
+{v:'v1.1',p:'炭疽病',n:'炭疽病药剂防治方案',t:'2026-07-08 14:05',u:'张研究员',d:'增加复查指标“降雨量”'},
+{v:'v1.0',p:'疮痂病',n:'疮痂病幼果期防治方案',t:'2026-07-02 11:25',u:'李技术员',d:'初始版本，关联预警等级 高'}
+];
+var page=0,editIdx=-1,delIdx=-1,tgIdx=-1;
+
+function th(t){ return '<th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 whitespace-nowrap">'+t+'</th>'; }
+function td(c,v){ return '<td class="px-4 py-3 '+c+'">'+v+'</td>'; }
+function pBadge(pr){ return '<span class="px-2 py-0.5 rounded-full text-xs font-medium '+PR[pr]+'">'+pr+'</span>'; }
+function lvBadges(s){ return s.split('/').map(function(x){ return '<span class="px-2 py-0.5 rounded-full text-xs font-medium '+AL[x]+'">'+x+'</span>'; }).join(' '); }
+function stBadge(st){ return st?'<span class="px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-600">启用</span>':'<span class="px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-500">停用</span>'; }
+function ts(){ var d=new Date(),p=function(n){return n<10?'0'+n:n;}; return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes()); }
+function showModal(id){ var m=document.getElementById(id); m.style.display='flex'; m.classList.add('active'); }
+function hideModal(id){ var m=document.getElementById(id); m.style.display='none'; m.classList.remove('active'); }
+function showToast(msg,c){ var t=document.getElementById('toast'); t.textContent=msg; t.style.background=c||'#16a34a'; t.style.display='block'; setTimeout(function(){ t.style.display='none'; },2200); }
+
+function filtered(){
+  var fp=document.getElementById('fPest').value,fs=document.getElementById('fSt').value,out=[];
+  DATA.forEach(function(x,i){
+    if(fp!=='全部'&&x.p!==fp) return;
+    if(fs!=='全部'&&(fs==='启用'?x.st!==1:x.st!==0)) return;
+    out.push(i);
+  });
+  return out;
+}
+
+function renderStats(){
+  var on=0; DATA.forEach(function(x){ if(x.st) on++; });
+  document.getElementById('sTotal').textContent=DATA.length;
+  document.getElementById('sOn').textContent=on;
+  document.getElementById('sOff').textContent=DATA.length-on;
+}
+
+function renderTable(){
+  var idxs=filtered(),pages=Math.max(1,Math.ceil(idxs.length/6));
+  if(page>=pages) page=pages-1;
+  var vis=idxs.slice(page*6,page*6+6),h='<thead><tr class="bg-gray-50">'+th('病虫害')+th('方案名称')+th('优先级')+th('复查周期')+th('复查指标')+th('关联预警等级')+th('状态')+th('操作','text-center')+'</tr></thead><tbody>',last='';
+  if(!vis.length) h+='<tr><td colspan="8" class="text-center py-10 text-gray-400">暂无匹配的防控方案</td></tr>';
+  vis.forEach(function(i){
+    var x=DATA[i];
+    if(x.p!==last){
+      var t=PT[x.p],c=t==='虫害'?'bg-green-100 text-green-600':'bg-red-100 text-red-600';
+      h+='<tr class="bg-gray-50 border-t border-gray-100"><td colspan="8" class="px-4 py-2"><span class="font-medium text-gray-800">'+x.p+'</span> <span class="px-1.5 py-0.5 rounded text-xs '+c+'">'+t+'</span></td></tr>';
+      last=x.p;
+    }
+    h+='<tr class="border-b border-gray-100 hover:bg-gray-50">'+td('text-gray-400','')+td('font-medium text-gray-800',x.n)+td('',pBadge(x.pr))+td('text-gray-600',x.cycle)+td('text-gray-600',x.idx)+td('',lvBadges(x.lv))+td('',stBadge(x.st))+td('text-center whitespace-nowrap','<button onclick="viewScheme('+i+')" class="px-2 py-1 text-green hover:bg-green-50 rounded text-xs">查看</button><button onclick="openEdit('+i+')" class="px-2 py-1 text-blue hover:bg-blue-50 rounded text-xs">编辑</button><button onclick="openDelete('+i+')" class="px-2 py-1 text-red hover:bg-red-50 rounded text-xs">删除</button><button onclick="openToggle('+i+')" class="px-2 py-1 text-yellow hover:bg-yellow-50 rounded text-xs">'+(x.st?'停用':'启用')+'</button>')+'</tr>';
+  });
+  h+='</tbody>';
+  document.getElementById('scheme-table').innerHTML=h;
+  document.getElementById('totalCnt').textContent=idxs.length+'';
+}
+
+function renderPager(){
+  var pages=Math.max(1,Math.ceil(filtered().length/6)),h='';
+  h+='<button onclick="goPage('+(page-1)+')" class="px-3 py-1.5 rounded text-xs '+(page===0?'text-gray-300 cursor-not-allowed':'text-gray-600 hover:bg-gray-100')+'">上一页</button>';
+  for(var i=0;i<pages;i++) h+='<button onclick="goPage('+i+')" class="px-3 py-1.5 rounded text-xs font-medium '+(i===page?'bg-green-600 text-white':'text-gray-600 hover:bg-gray-100')+'">'+(i+1)+'</button>';
+  h+='<button onclick="goPage('+(page+1)+')" class="px-3 py-1.5 rounded text-xs '+(page>=pages-1?'text-gray-300 cursor-not-allowed':'text-gray-600 hover:bg-gray-100')+'">下一页</button>';
+  document.getElementById('pageBtns').innerHTML=h;
+}
+
+function renderVers(){
+  var h='<thead><tr class="bg-gray-50">'+th('版本')+th('病虫害')+th('方案名称')+th('更新时间')+th('更新人')+th('变更说明')+'</tr></thead><tbody>';
+  VERS.forEach(function(v){
+    h+='<tr class="border-b border-gray-100 hover:bg-gray-50">'+td('font-medium text-gray-800',v.v)+td('text-gray-700',v.p)+td('text-gray-700',v.n)+td('text-gray-500',v.t)+td('text-gray-700',v.u)+td('text-gray-500 text-xs',v.d)+'</tr>';
+  });
+  h+='</tbody>';
+  document.getElementById('ver-table').innerHTML=h;
+}
+function renderAll(){ renderStats(); renderTable(); renderPager(); renderVers(); }
+function goPage(p){ var pages=Math.max(1,Math.ceil(filtered().length/6)); page=Math.min(Math.max(0,p),pages-1); renderTable(); renderPager(); }
+function doFilter(){ page=0; renderAll(); showToast('筛选条件已应用'); }
+function resetFilter(){ document.getElementById('fPest').value='全部'; document.getElementById('fSt').value='全部'; page=0; renderAll(); showToast('已重置筛选条件'); }
+function addVer(p,n,d){ VERS.unshift({v:'v1.'+(VERS.length+1),p:p,n:n,t:ts(),u:'当前用户',d:d}); renderVers(); }
+
+/* ============ 查看详情 ============ */
+function info(k,v){ return '<div class="bg-gray-50 rounded-lg p-3"><div class="text-xs text-gray-400 mb-1">'+k+'</div><div>'+v+'</div></div>'; }
+function viewScheme(i){
+  var x=DATA[i],t=PT[x.p],c=t==='虫害'?'bg-green-100 text-green-600':'bg-red-100 text-red-600';
+  var ms=x.measures.map(function(m){ return '<li class="flex items-start gap-2"><span class="mt-1.5 w-1.5 h-1.5 rounded-full bg-green-500 flex-shrink-0"></span><span>'+m+'</span></li>'; }).join('');
+  document.getElementById('view-body').innerHTML=
+    '<div class="grid grid-cols-2 gap-3 text-sm mb-4">'
+    +info('病虫害','<span class="font-medium text-gray-800">'+x.p+'</span> <span class="px-1.5 py-0.5 rounded text-xs '+c+'">'+t+'</span>')
+    +info('方案名称',x.n)
+    +info('优先级',pBadge(x.pr))
+    +info('复查周期',x.cycle)
+    +info('关联预警等级',lvBadges(x.lv))
+    +info('状态',stBadge(x.st))
+    +'</div>'
+    +'<div class="mb-3"><p class="text-xs font-medium text-gray-500 mb-1">复查指标</p><p class="text-sm text-gray-800">'+x.idx+'</p></div>'
+    +'<div><p class="text-xs font-medium text-gray-500 mb-2">防控措施</p><ul class="space-y-2">'+ms+'</ul></div>';
+  showModal('view-modal');
+}
+
+/* ============ 新增 / 编辑 ============ */
+function selOpts(arr,val){ return arr.map(function(o){ return '<option value="'+o+'"'+(o===val?' selected':'')+'>'+o+'</option>'; }).join(''); }
+function fld(label,inner){ return '<div><label class="block text-xs font-medium text-gray-600 mb-1">'+label+'</label>'+inner+'</div>'; }
+function formHtml(x){
+  x=x||{p:'红蜘蛛',n:'',pr:'一级·紧急',cycle:'',idx:'',lv:'高',st:1};
+  return '<div class="grid grid-cols-1 md:grid-cols-2 gap-4">'
+    +fld('病虫害','<select class="form-input" id="fP">'+selOpts(P,x.p)+'</select>')
+    +fld('方案名称','<input type="text" class="form-input" id="fN" value="'+x.n+'">')
+    +fld('优先级','<select class="form-input" id="fPR">'+selOpts(['一级·紧急','二级·重要','三级·常规','四级·可选'],x.pr)+'</select>')
+    +fld('复查周期','<input type="text" class="form-input" id="fC" value="'+x.cycle+'" placeholder="如 24小时 / 3天">')
+    +fld('关联预警等级','<select class="form-input" id="fLV">'+selOpts(['极高','高','中','低','高/极高','中/高'],x.lv)+'</select>')
+    +fld('状态','<select class="form-input" id="fST"><option value="1"'+(x.st===1?' selected':'')+'>启用</option><option value="0"'+(x.st===0?' selected':'')+'>停用</option></select>')
+    +'<div class="md:col-span-2">'+fld('复查指标','<input type="text" class="form-input" id="fI" value="'+x.idx+'" placeholder="如 虫口密度、螨情指数">')+'</div>'
+    +'<div class="md:col-span-2">'+fld('防控措施（每行一条）','<textarea class="form-input" id="fM" rows="4" placeholder="如：释放捕食螨（胡瓜钝绥螨）">'+x.measures+'</textarea>')+'</div>'
+    +'</div>';
+}
+function openAdd(){ editIdx=-1; document.getElementById('form-title').textContent='新增方案'; document.getElementById('form-fields').innerHTML=formHtml(null); showModal('form-modal'); }
+function openEdit(i){ editIdx=i; var x=DATA[i]; document.getElementById('form-title').textContent='编辑方案 - '+x.n; document.getElementById('form-fields').innerHTML=formHtml(x); showModal('form-modal'); }
+function saveForm(){
+  var p=document.getElementById('fP').value,n=document.getElementById('fN').value.trim(),pr=document.getElementById('fPR').value,
+      cycle=document.getElementById('fC').value.trim(),idx=document.getElementById('fI').value.trim(),
+      lv=document.getElementById('fLV').value,st=Number(document.getElementById('fST').value),
+      ms=document.getElementById('fM').value.split('\n').map(function(s){return s.trim();}).filter(Boolean);
+  if(!n){ showToast('请输入方案名称','#dc2626'); return; }
+  if(editIdx<0){ DATA.push({p:p,n:n,pr:pr,cycle:cycle,idx:idx,lv:lv,st:st,measures:ms}); addVer(p,n,'新增防控方案'); showToast('方案已新增'); }
+  else { var x=DATA[editIdx]; x.p=p; x.n=n; x.pr=pr; x.cycle=cycle; x.idx=idx; x.lv=lv; x.st=st; x.measures=ms; addVer(p,n,'更新防控方案配置'); showToast('方案已更新'); }
+  hideModal('form-modal'); renderAll();
+}
+
+/* ============ 删除 ============ */
+function openDelete(i){ delIdx=i; document.getElementById('del-body').innerHTML='<p class="text-sm text-gray-700">确定要删除方案「<span class="font-medium text-red-600">'+DATA[i].n+'</span>」吗？</p><p class="text-xs text-gray-400 mt-2">删除后不可恢复，相关版本记录将保留。</p>'; showModal('del-modal'); }
+function confirmDelete(){
+  var x=DATA[delIdx]; addVer(x.p,x.n,'删除防控方案'); DATA.splice(delIdx,1);
+  hideModal('del-modal'); renderAll(); showToast('方案已删除','#dc2626');
+}
+
+/* ============ 启停 ============ */
+function openToggle(i){
+  tgIdx=i; var x=DATA[i],action=x.st?'停用':'启用';
+  document.getElementById('tg-title').textContent=action+'方案';
+  document.getElementById('tg-body').innerHTML='<p class="text-sm text-gray-700">确定要'+action+'方案「<span class="font-medium '+(x.st?'text-yellow-600':'text-green-600')+'">'+x.n+'</span>」吗？</p><p class="text-xs text-gray-400 mt-2">'+action+'后将对关联预警等级的方案生效状态产生影响。</p>';
+  var b=document.getElementById('tg-btn'); b.textContent='确认'+action; b.style.background=x.st?'#d97706':'#16a34a';
+  showModal('tg-modal');
+}
+function confirmToggle(){
+  var x=DATA[tgIdx],action=x.st?'停用':'启用'; x.st=1-x.st;
+  addVer(x.p,x.n,action+'方案');
+  hideModal('tg-modal'); renderAll(); showToast('方案已'+action);
+}
+
+document.addEventListener('click',function(e){
+  ['form-modal','view-modal','del-modal','tg-modal'].forEach(function(id){
+    var m=document.getElementById(id);
+    if(m.style.display==='flex'&&e.target===m) hideModal(id);
+  });
+});
+window.onload=function(){ renderAll(); };
+</script>
+</body>
+</html>

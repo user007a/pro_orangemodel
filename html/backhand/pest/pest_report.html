@@ -92,13 +92,6 @@ body { margin: 0; padding: 0; background-color: #F0F2F5; font-family: -apple-sys
         </tr></thead><tbody id="htb"></tbody>
       </table></div>
     </div>
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-      <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
-        <h3 class="text-sm font-semibold text-gray-700">历史预警趋势图</h3>
-        <span class="text-xs text-gray-400">近 8 周预警数量变化</span>
-      </div>
-      <div class="p-5" style="height:280px"><canvas id="line-chart"></canvas></div>
-    </div>
   </div>
 </div>
 
@@ -168,9 +161,7 @@ var HIST=[
 {r:'PR2026062201',d:'2026-06-22',p:'7天',ex:0,hi:2,st:'已查看',pr:[.68,.62,.56,.50,.44,.40,.36,.32,.28,.22,.18,.15]},
 {r:'PR2026060101',d:'2026-06-01',p:'7天',ex:0,hi:1,st:'未查看',pr:[.62,.55,.50,.44,.40,.36,.32,.28,.24,.20,.16,.12]}
 ];
-var WEEKS=['06-08','06-15','06-22','06-29','07-06','07-13','07-20','07-27'];
-var WCNT=[6,9,13,11,15,18,22,18];
-var curPest='红蜘蛛',curPer='3',doughs={3:null,7:null},lineChart=null;
+var curPest='红蜘蛛',curPer='3',doughs={3:null,7:null};
 
 /* ============ 工具函数 ============ */
 function lvl(p){return p>=.8?'极高':p>=.6?'高':p>=.4?'中':'低';}
@@ -195,9 +186,6 @@ function fcHTML(s){
   +'<div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between"><h3 class="text-sm font-semibold text-gray-700">各乡镇发生概率列表</h3><span class="text-xs text-gray-400">按概率降序 · ≥0.8 极高 / ≥0.6 高 / ≥0.4 中 / &lt;0.4 低</span></div>'
   +'<div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="bg-gray-50">'+th('乡镇')+th('发生概率')+th('风险等级')+th('主要风险因子')+th('防控建议')+'</tr></thead><tbody id="ptb-'+s+'"></tbody></table></div></div>'
   +'<div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4"><h3 class="text-sm font-semibold text-gray-700 mb-3">风险等级分布图</h3><div style="height:280px"><canvas id="dg-'+s+'"></canvas></div></div></div>'
-  +'<div class="bg-white rounded-xl shadow-sm border-2 border-red-100 mb-4 overflow-hidden">'
-  +'<div class="px-4 py-3 border-b border-red-100 flex items-center justify-between"><h3 class="text-sm font-semibold text-red-600">重点风险乡镇列表</h3><span class="text-xs text-gray-400">发生概率 &gt; 0.7 · 需重点关注</span></div>'
-  +'<div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="bg-red-50">'+th('乡镇')+th('发生概率')+th('主要耦合作用')+th('建议防控措施')+'</tr></thead><tbody id="ktb-'+s+'"></tbody></table></div></div>'
   +'<div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">'
   +'<div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between"><h3 class="text-sm font-semibold text-gray-700">防控建议清单</h3><span class="text-xs text-gray-400">按优先级排序</span></div>'
   +'<div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="bg-gray-50">'+th('优先级')+th('病虫害')+th('防控区域')+th('防控措施')+th('复查周期')+'</tr></thead><tbody id="stb-'+s+'"></tbody></table></div></div>';
@@ -223,12 +211,6 @@ function renderForecast(s){
   });
   document.getElementById('ptb-'+s).innerHTML=h;
   renderDough(s,rows);
-  var keys=rows.filter(function(r){return r.p>.7;}),kh='';
-  keys.forEach(function(r,i){
-    var l=lvl(r.p),col=l==='极高'?'#dc2626':'#fb923c';
-    kh+='<tr class="border-b border-gray-100 hover:bg-gray-50" style="border-left:4px solid '+col+'">'+td('font-medium text-gray-800',r.t)+td('',probCell(r.p))+td('text-gray-600',meta.c[i%meta.c.length])+td('text-gray-500 text-xs',meta.m+'，'+keyAdv(l))+'</tr>';
-  });
-  document.getElementById('ktb-'+s).innerHTML=kh||'<tr><td colspan="4" class="text-center py-6 text-gray-400">当前病虫害暂无概率大于 0.7 的重点乡镇</td></tr>';
   var sh='';
   SUG[p].forEach(function(x){
     sh+='<tr class="border-b border-gray-100">'+td('',badge(x[0],PB[x[0]]))+td('font-medium text-gray-800',p)+td('text-gray-700',x[1])+td('text-gray-700',x[2])+td('text-gray-500 text-xs',x[3])+'</tr>';
@@ -254,13 +236,6 @@ function renderHist(){
   });
   document.getElementById('htb').innerHTML=h;
 }
-function renderLine(){
-  lineChart=new Chart(document.getElementById('line-chart'),{
-    type:'line',
-    data:{labels:WEEKS,datasets:[{label:'预警数量',data:WCNT,borderColor:'#16a34a',backgroundColor:'rgba(22,163,74,0.1)',fill:true,tension:.35,pointRadius:4,pointBackgroundColor:'#16a34a'}]},
-    options:{responsive:true,maintainAspectRatio:false,scales:{y:{beginAtZero:true,ticks:{precision:0}}},plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return ' 预警 '+c.parsed.y+' 条';}}}}}
-  });
-}
 
 /* ============ 交互 ============ */
 function switchTab(tab){
@@ -271,8 +246,7 @@ function switchTab(tab){
   document.getElementById('fc-7').style.display=tab==='7'?'':'none';
   document.getElementById('tab-history').style.display=tab==='history'?'':'none';
   if(tab==='3'||tab==='7')curPer=tab;
-  if(tab==='history'&&!lineChart)renderLine();
-  setTimeout(function(){if(tab!=='history'&&doughs[tab])doughs[tab].resize();if(tab==='history'&&lineChart)lineChart.resize();},60);
+  setTimeout(function(){if(doughs[tab])doughs[tab].resize();},60);
 }
 function setPest(p){curPest=p;renderPestTabs('3');renderPestTabs('7');renderForecast('3');renderForecast('7');}
 function openReport(i){

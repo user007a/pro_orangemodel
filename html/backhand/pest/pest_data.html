@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>监测数据 - 南丰蜜桔模型管理系统</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 @keyframes modalSlideIn { from { opacity: 0; transform: translateY(-20px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
 .modal-overlay.active .modal-content { animation: modalSlideIn 0.3s ease; }
@@ -38,7 +37,6 @@ body { margin: 0; padding: 0; background-color: #F0F2F5; font-family: -apple-sys
   <div class="bg-white rounded-xl shadow-sm border border-gray-100 mb-6">
     <div class="border-b border-gray-100 flex items-center px-6 overflow-x-auto">
       <div class="tab-item px-4 py-4 cursor-pointer text-sm mr-6 tab-active whitespace-nowrap" data-tab="wt" onclick="switchTab('wt')">气象数据 (Wt)</div>
-      <div class="tab-item px-4 py-4 cursor-pointer text-sm mr-6 tab-inactive whitespace-nowrap" data-tab="pt" onclick="switchTab('pt')">物候数据 (Pt)</div>
       <div class="tab-item px-4 py-4 cursor-pointer text-sm mr-6 tab-inactive whitespace-nowrap" data-tab="dt" onclick="switchTab('dt')">病情虫情 (Dt)</div>
       <div class="tab-item px-4 py-4 cursor-pointer text-sm mr-6 tab-inactive whitespace-nowrap" data-tab="it" onclick="switchTab('it')">虫源基数 (It)</div>
       <div class="tab-item px-4 py-4 cursor-pointer text-sm mr-6 tab-inactive whitespace-nowrap" data-tab="ht" onclick="switchTab('ht')">历史数据 (Ht)</div>
@@ -54,40 +52,12 @@ body { margin: 0; padding: 0; background-color: #F0F2F5; font-family: -apple-sys
       <input type="date" id="wt-date-to" value="2026-08-04" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
       <button onclick="currentPage.wt=1;renderTable('wt')" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">查询</button>
     </div>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4" id="wt-stats"></div>
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 mb-4 overflow-hidden">
       <div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="bg-gray-50" id="wt-thead"></tr></thead><tbody id="wt-tbody"></tbody></table></div>
       <div class="p-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
         <span id="wt-page-info"></span>
         <div class="flex gap-2"><button onclick="prevPage('wt')" class="px-3 py-1 border border-gray-300 rounded hover:bg-gray-50">上一页</button><button onclick="nextPage('wt')" class="px-3 py-1 border border-gray-300 rounded hover:bg-gray-50">下一页</button></div>
       </div>
-    </div>
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
-      <h3 class="text-sm font-semibold text-gray-700 mb-3">近14天温度与湿度趋势</h3>
-      <div style="height:280px"><canvas id="wt-chart"></canvas></div>
-    </div>
-  </div>
-
-  <!-- pt Tab -->
-  <div id="tab-pt" class="tab-content" style="display:none">
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-4 flex flex-wrap items-center gap-3">
-      <select id="pt-town-filter" class="px-3 py-2 border border-gray-300 rounded-lg text-sm" onchange="currentPage.pt=1;renderTable('pt')"><option value="">全部乡镇</option></select>
-      <input type="date" id="pt-date-from" value="2026-07-20" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
-      <span class="text-gray-400 text-sm">至</span>
-      <input type="date" id="pt-date-to" value="2026-08-04" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
-      <button onclick="currentPage.pt=1;renderTable('pt')" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">查询</button>
-    </div>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4" id="pt-stats"></div>
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 mb-4 overflow-hidden">
-      <div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="bg-gray-50" id="pt-thead"></tr></thead><tbody id="pt-tbody"></tbody></table></div>
-      <div class="p-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
-        <span id="pt-page-info"></span>
-        <div class="flex gap-2"><button onclick="prevPage('pt')" class="px-3 py-1 border border-gray-300 rounded hover:bg-gray-50">上一页</button><button onclick="nextPage('pt')" class="px-3 py-1 border border-gray-300 rounded hover:bg-gray-50">下一页</button></div>
-      </div>
-    </div>
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
-      <h3 class="text-sm font-semibold text-gray-700 mb-3">各乡镇物候记录分布</h3>
-      <div style="height:280px"><canvas id="pt-chart"></canvas></div>
     </div>
   </div>
 
@@ -100,17 +70,12 @@ body { margin: 0; padding: 0; background-color: #F0F2F5; font-family: -apple-sys
       <input type="date" id="dt-date-to" value="2026-08-04" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
       <button onclick="currentPage.dt=1;renderTable('dt')" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">查询</button>
     </div>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4" id="dt-stats"></div>
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 mb-4 overflow-hidden">
       <div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="bg-gray-50" id="dt-thead"></tr></thead><tbody id="dt-tbody"></tbody></table></div>
       <div class="p-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
         <span id="dt-page-info"></span>
         <div class="flex gap-2"><button onclick="prevPage('dt')" class="px-3 py-1 border border-gray-300 rounded hover:bg-gray-50">上一页</button><button onclick="nextPage('dt')" class="px-3 py-1 border border-gray-300 rounded hover:bg-gray-50">下一页</button></div>
       </div>
-    </div>
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
-      <h3 class="text-sm font-semibold text-gray-700 mb-3">各乡镇病虫害类型分布（堆叠）</h3>
-      <div style="height:280px"><canvas id="dt-chart"></canvas></div>
     </div>
   </div>
 
@@ -123,17 +88,12 @@ body { margin: 0; padding: 0; background-color: #F0F2F5; font-family: -apple-sys
       <input type="date" id="it-date-to" value="2026-08-04" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
       <button onclick="currentPage.it=1;renderTable('it')" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">查询</button>
     </div>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4" id="it-stats"></div>
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 mb-4 overflow-hidden">
       <div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="bg-gray-50" id="it-thead"></tr></thead><tbody id="it-tbody"></tbody></table></div>
       <div class="p-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
         <span id="it-page-info"></span>
         <div class="flex gap-2"><button onclick="prevPage('it')" class="px-3 py-1 border border-gray-300 rounded hover:bg-gray-50">上一页</button><button onclick="nextPage('it')" class="px-3 py-1 border border-gray-300 rounded hover:bg-gray-50">下一页</button></div>
       </div>
-    </div>
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
-      <h3 class="text-sm font-semibold text-gray-700 mb-3">各乡镇越冬虫源合计</h3>
-      <div style="height:280px"><canvas id="it-chart"></canvas></div>
     </div>
   </div>
 
@@ -146,17 +106,12 @@ body { margin: 0; padding: 0; background-color: #F0F2F5; font-family: -apple-sys
       <input type="date" id="ht-date-to" value="2026-12-31" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
       <button onclick="currentPage.ht=1;renderTable('ht')" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">查询</button>
     </div>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4" id="ht-stats"></div>
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 mb-4 overflow-hidden">
       <div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="bg-gray-50" id="ht-thead"></tr></thead><tbody id="ht-tbody"></tbody></table></div>
       <div class="p-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
         <span id="ht-page-info"></span>
         <div class="flex gap-2"><button onclick="prevPage('ht')" class="px-3 py-1 border border-gray-300 rounded hover:bg-gray-50">上一页</button><button onclick="nextPage('ht')" class="px-3 py-1 border border-gray-300 rounded hover:bg-gray-50">下一页</button></div>
       </div>
-    </div>
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
-      <h3 class="text-sm font-semibold text-gray-700 mb-3">历年同期发生水平趋势</h3>
-      <div style="height:280px"><canvas id="ht-chart"></canvas></div>
     </div>
   </div>
 </div>
@@ -207,11 +162,9 @@ body { margin: 0; padding: 0; background-color: #F0F2F5; font-family: -apple-sys
 
 <script>
 var townships = ['琴城镇','市山镇','洽湾镇','太和镇','桑田镇','白舍镇','紫霄镇','三溪乡','傅坊乡','太源乡','莱溪乡','东坪乡'];
-var TODAY = '2026-08-04';
 
 var colConfig = {
   wt: [{k:'town',l:'乡镇'},{k:'date',l:'日期'},{k:'temp',l:'温度(°C)'},{k:'humidity',l:'湿度(%)'},{k:'rain',l:'降雨量(mm)'},{k:'light',l:'光照(klx)'},{k:'wind',l:'风速(m/s)'}],
-  pt: [{k:'town',l:'乡镇'},{k:'date',l:'日期'},{k:'stage',l:'生育阶段'},{k:'shoot',l:'嫩梢比例(%)'},{k:'bloom',l:'开花率(%)'},{k:'fruit',l:'坐果率(%)'}],
   dt: [{k:'town',l:'乡镇'},{k:'date',l:'日期'},{k:'type',l:'病虫害类型'},{k:'spot',l:'病斑率(%)'},{k:'density',l:'虫口密度(头/叶)'},{k:'egg',l:'卵量(粒/叶)'}],
   it: [{k:'town',l:'乡镇'},{k:'date',l:'日期'},{k:'stype',l:'虫源类型'},{k:'winter',l:'越冬虫源(头/m²)'},{k:'cfu',l:'病原菌量(CFU/g)'},{k:'remark',l:'备注'}],
   ht: [{k:'town',l:'乡镇'},{k:'year',l:'年份'},{k:'level',l:'同期发生水平'},{k:'trend',l:'历史趋势'},{k:'cycle',l:'流行周期'}]
@@ -219,7 +172,6 @@ var colConfig = {
 
 var fieldConfig = {
   wt: [{k:'town',l:'乡镇',t:'select',opts:townships},{k:'date',l:'日期',t:'date'},{k:'temp',l:'温度(°C)',t:'number'},{k:'humidity',l:'湿度(%)',t:'number'},{k:'rain',l:'降雨量(mm)',t:'number'},{k:'light',l:'光照(klx)',t:'number'},{k:'wind',l:'风速(m/s)',t:'number',step:'0.1'}],
-  pt: [{k:'town',l:'乡镇',t:'select',opts:townships},{k:'date',l:'日期',t:'date'},{k:'stage',l:'生育阶段',t:'select',opts:['萌芽期','花期','坐果期','膨大期','着色期','成熟期']},{k:'shoot',l:'嫩梢比例(%)',t:'number'},{k:'bloom',l:'开花率(%)',t:'number'},{k:'fruit',l:'坐果率(%)',t:'number'}],
   dt: [{k:'town',l:'乡镇',t:'select',opts:townships},{k:'date',l:'日期',t:'date'},{k:'type',l:'病虫害类型',t:'select',opts:['红蜘蛛','黄龙病','炭疽病','潜叶蛾','溃疡病','疮痂病']},{k:'spot',l:'病斑率(%)',t:'number'},{k:'density',l:'虫口密度(头/叶)',t:'number'},{k:'egg',l:'卵量(粒/叶)',t:'number'}],
   it: [{k:'town',l:'乡镇',t:'select',opts:townships},{k:'date',l:'日期',t:'date'},{k:'stype',l:'虫源类型',t:'select',opts:['红蜘蛛越冬','木虱越冬','潜叶蛾越冬','炭疽病菌源','溃疡病菌源']},{k:'winter',l:'越冬虫源(头/m²)',t:'number'},{k:'cfu',l:'病原菌量(CFU/g)',t:'number'},{k:'remark',l:'备注',t:'text'}],
   ht: [{k:'town',l:'乡镇',t:'select',opts:townships},{k:'year',l:'年份',t:'number'},{k:'level',l:'同期发生水平',t:'select',opts:['轻度','中度','偏重','重度']},{k:'trend',l:'历史趋势',t:'text'},{k:'cycle',l:'流行周期',t:'text'}]
@@ -236,17 +188,6 @@ var allData = {
     {town:'紫霄镇',date:'2026-08-01',temp:32,humidity:79,rain:6,light:44,wind:2.0},
     {town:'三溪乡',date:'2026-07-30',temp:29,humidity:84,rain:18,light:35,wind:1.6},
     {town:'傅坊乡',date:'2026-07-28',temp:35,humidity:68,rain:0,light:50,wind:3.5}
-  ],
-  pt: [
-    {town:'琴城镇',date:'2026-08-04',stage:'膨大期',shoot:18,bloom:0,fruit:85},
-    {town:'市山镇',date:'2026-08-03',stage:'膨大期',shoot:22,bloom:0,fruit:82},
-    {town:'洽湾镇',date:'2026-08-02',stage:'膨大期',shoot:15,bloom:0,fruit:88},
-    {town:'太和镇',date:'2026-08-01',stage:'膨大期',shoot:25,bloom:0,fruit:78},
-    {town:'桑田镇',date:'2026-07-30',stage:'膨大期',shoot:20,bloom:0,fruit:84},
-    {town:'白舍镇',date:'2026-07-28',stage:'着色期',shoot:10,bloom:0,fruit:90},
-    {town:'紫霄镇',date:'2026-07-25',stage:'膨大期',shoot:28,bloom:0,fruit:76},
-    {town:'莱溪乡',date:'2026-07-22',stage:'膨大期',shoot:16,bloom:0,fruit:86},
-    {town:'东坪乡',date:'2026-07-20',stage:'坐果期',shoot:30,bloom:5,fruit:70}
   ],
   dt: [
     {town:'琴城镇',date:'2026-08-04',type:'红蜘蛛',spot:12,density:8,egg:5},
@@ -284,25 +225,23 @@ var allData = {
 };
 
 var currentTab = 'wt';
-var currentPage = {wt:1,pt:1,dt:1,it:1,ht:1};
+var currentPage = {wt:1,dt:1,it:1,ht:1};
 var pageSize = 5;
 var editIdx = null;
 var formTab = null;
-var charts = {};
 var delTarget = null;
 
 window.onload = function() {
   populateTownFilters();
-  ['wt','pt','dt','it','ht'].forEach(function(t){
+  ['wt','dt','it','ht'].forEach(function(t){
     renderThead(t);
     renderTable(t);
   });
-  initAllCharts();
 };
 
 function populateTownFilters() {
   townships.forEach(function(tw){
-    ['wt','pt','dt','it','ht'].forEach(function(t){
+    ['wt','dt','it','ht'].forEach(function(t){
       var sel = document.getElementById(t+'-town-filter');
       if(sel){ var o=document.createElement('option'); o.value=tw; o.textContent=tw; sel.appendChild(o); }
     });
@@ -349,19 +288,6 @@ function renderTable(tab) {
   if(pageData.length===0) html = '<tr><td colspan="'+(cols.length+1)+'" class="text-center py-8 text-gray-400">暂无数据</td></tr>';
   document.getElementById(tab+'-tbody').innerHTML = html;
   document.getElementById(tab+'-page-info').textContent = '第 '+currentPage[tab]+' / '+totalPages+' 页，共 '+filtered.length+' 条';
-  renderStats(tab);
-}
-
-function renderStats(tab) {
-  var data = allData[tab];
-  var total = data.length;
-  var todayCount = data.filter(function(d){ return d.date === TODAY; }).length;
-  var latest = '-';
-  data.forEach(function(d){ var t = d.date || (d.year? String(d.year):''); if(t && (latest==='-' || t > latest)) latest = t; });
-  document.getElementById(tab+'-stats').innerHTML =
-    '<div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4"><p class="text-gray-500 text-xs">总记录数</p><p class="text-2xl font-bold text-gray-800 mt-1">'+total+'</p></div>'+
-    '<div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4"><p class="text-gray-500 text-xs">今日新增</p><p class="text-2xl font-bold text-green-600 mt-1">'+todayCount+'</p></div>'+
-    '<div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4"><p class="text-gray-500 text-xs">最近更新</p><p class="text-sm font-medium text-gray-700 mt-2">'+latest+'</p></div>';
 }
 
 function prevPage(tab){ if(currentPage[tab]>1){currentPage[tab]--;renderTable(tab);} }
@@ -375,14 +301,13 @@ function switchTab(tab) {
   document.querySelectorAll('.tab-content').forEach(function(el){ el.style.display = 'none'; });
   var target = document.getElementById('tab-'+tab);
   if(target) target.style.display = '';
-  if(charts[tab]){ setTimeout(function(){ charts[tab].resize(); }, 50); }
 }
 
 function showModal(id){ var m=document.getElementById(id); if(m){m.style.display='flex';m.classList.add('active');} }
 function hideModal(id){ var m=document.getElementById(id); if(m){m.style.display='none';m.classList.remove('active');} }
 function closeModal(id){ hideModal(id); }
 
-function tabName(tab){ return {wt:'气象',pt:'物候',dt:'病情虫情',it:'虫源基数',ht:'历史'}[tab]||''; }
+function tabName(tab){ return {wt:'气象',dt:'病情虫情',it:'虫源基数',ht:'历史'}[tab]||''; }
 
 function buildFormFields(tab, data) {
   var html = '';
@@ -444,56 +369,6 @@ document.addEventListener('click', function(e){
     }
   }
 });
-
-function initAllCharts(){ initWtChart(); initPtChart(); initDtChart(); initItChart(); initHtChart(); }
-
-function initWtChart(){
-  var ctx=document.getElementById('wt-chart').getContext('2d');
-  var labels=[],temps=[29,30,31,32,34,33,30,29,31,32,33,32,33,33],hums=[82,80,78,75,72,74,85,84,80,78,79,80,78,78];
-  for(var i=13;i>=0;i--){ var dt=new Date(2026,7,4-i); labels.push((dt.getMonth()+1)+'/'+dt.getDate()); }
-  charts.wt=new Chart(ctx,{type:'line',data:{labels:labels,datasets:[
-    {label:'温度(°C)',data:temps,borderColor:'#ef4444',backgroundColor:'rgba(239,68,68,0.1)',tension:0.3,fill:true},
-    {label:'湿度(%)',data:hums,borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,0.1)',tension:0.3,fill:true}
-  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}});
-}
-
-function initPtChart(){
-  var ctx=document.getElementById('pt-chart').getContext('2d');
-  var towns=['琴城镇','市山镇','洽湾镇','太和镇','桑田镇','白舍镇'];
-  var data=towns.map(function(t){ return allData.pt.filter(function(d){return d.town===t;}).length; });
-  charts.pt=new Chart(ctx,{type:'bar',data:{labels:towns,datasets:[{label:'物候记录数',data:data,backgroundColor:'#22c55e',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}});
-}
-
-function initDtChart(){
-  var ctx=document.getElementById('dt-chart').getContext('2d');
-  var types=['红蜘蛛','黄龙病','炭疽病','潜叶蛾','溃疡病','疮痂病'];
-  var towns=['琴城镇','市山镇','洽湾镇','太和镇','桑田镇','白舍镇'];
-  var colorMap={'红蜘蛛':'#ef4444','黄龙病':'#f59e0b','炭疽病':'#8b5cf6','潜叶蛾':'#3b82f6','溃疡病':'#06b6d4','疮痂病':'#ec4899'};
-  var datasets=types.map(function(tp){
-    return {label:tp, data: towns.map(function(tw){ return allData.dt.filter(function(d){return d.town===tw&&d.type===tp;}).length; }), backgroundColor:colorMap[tp], borderRadius:2};
-  });
-  charts.dt=new Chart(ctx,{type:'bar',data:{labels:towns,datasets:datasets},options:{responsive:true,maintainAspectRatio:false,scales:{x:{stacked:true},y:{stacked:true,beginAtZero:true}},plugins:{legend:{position:'bottom'}}}});
-}
-
-function initItChart(){
-  var ctx=document.getElementById('it-chart').getContext('2d');
-  var towns=['琴城镇','市山镇','洽湾镇','太和镇','桑田镇','白舍镇'];
-  var data=towns.map(function(tw){ return allData.it.filter(function(d){return d.town===tw;}).reduce(function(s,d){return s+(d.winter||0);},0); });
-  charts.it=new Chart(ctx,{type:'bar',data:{labels:towns,datasets:[{label:'越冬虫源合计(头/m²)',data:data,backgroundColor:'#f97316',borderRadius:4}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}});
-}
-
-function initHtChart(){
-  var ctx=document.getElementById('ht-chart').getContext('2d');
-  var years=['2020','2021','2022','2023','2024'];
-  var levelMap={轻度:1,中度:2,偏重:3,重度:4};
-  var data=years.map(function(y){
-    var recs=allData.ht.filter(function(d){return String(d.year)===y;});
-    if(recs.length===0) return 0;
-    var sum=recs.reduce(function(s,d){return s+(levelMap[d.level]||0);},0);
-    return Math.round(sum/recs.length*10)/10;
-  });
-  charts.ht=new Chart(ctx,{type:'line',data:{labels:years,datasets:[{label:'同期发生水平(指数)',data:data,borderColor:'#8b5cf6',backgroundColor:'rgba(139,92,246,0.1)',tension:0.3,fill:true}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}});
-}
 </script>
 </body>
 </html>

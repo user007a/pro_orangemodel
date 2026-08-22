@@ -241,8 +241,7 @@
         // 角色基础信息（含颜色与图标风格）
         const roleMeta = {
             '管理员': { users: '5人', color: 'green' },
-            '农技员': { users: '86人', color: 'blue' },
-            '数据管理员': { users: '65人', color: 'gray' }
+            '农技员': { users: '86人', color: 'blue' }
         };
 
         // 角色权限配置（一级+二级菜单，key 对应 permissionTree 的 id）
@@ -263,15 +262,6 @@
                 'data': true, 'data-disease': true, 'data-insect': true, 'data-disaster': true, 'data-variety': true, 'data-weather': true, 'data-soil': true, 'data-video': true, 'data-price': true, 'data-farming': true, 'data-manual': true, 'data-external': false,
                 'alert': true, 'alert-manage': true, 'alert-dispose': true, 'alert-rule': false, 'alert-template': false,
                 'wechat': true, 'wechat-user': false, 'wechat-orchard': true, 'wechat-news': false, 'wechat-question': true, 'wechat-recognize': true,
-                'system': false, 'sys-user': false, 'sys-role': false
-            },
-            '数据管理员': {
-                'home': true,
-                'growth': false, 'growth-memo': false, 'growth-archive': false, 'growth-factor': false, 'growth-scheme': false, 'growth-engine': false, 'growth-diagnosis': false, 'growth-report': false, 'growth-calibration': false,
-                'pest': false, 'pest-memo': false, 'pest-data': false, 'pest-params': false, 'pest-engine': false, 'pest-diagnosis': false, 'pest-report': false, 'pest-scheme': false,
-                'data': true, 'data-disease': true, 'data-insect': true, 'data-disaster': true, 'data-variety': true, 'data-weather': true, 'data-soil': true, 'data-video': true, 'data-price': true, 'data-farming': true, 'data-manual': true, 'data-external': true,
-                'alert': true, 'alert-manage': true, 'alert-dispose': true, 'alert-rule': false, 'alert-template': false,
-                'wechat': false, 'wechat-user': false, 'wechat-orchard': false, 'wechat-news': false, 'wechat-question': false, 'wechat-recognize': false,
                 'system': false, 'sys-user': false, 'sys-role': false
             }
         };
@@ -466,7 +456,7 @@
         function openEditModal(roleName) {
             editRoleName = roleName;
             document.getElementById('edit-role-name').value = roleName;
-            const descMap = { '管理员': '系统最高权限，可管理全部菜单功能', '农技员': '负责农事技术服务与模型应用', '数据管理员': '负责数据采集、维护与录入' };
+            const descMap = { '管理员': '系统最高权限，可管理全部菜单功能', '农技员': '负责农事技术服务与模型应用' };
             document.getElementById('edit-role-desc').value = descMap[roleName] || '';
             renderPermissionTree('edit-permission-tree', rolePermissions[roleName] || {});
             document.getElementById('edit-modal').classList.add('active');

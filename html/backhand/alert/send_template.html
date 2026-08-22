@@ -41,10 +41,6 @@
                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                     新增模板
                 </button>
-                <button onclick="openFlowSettingModal()" class="px-4 py-2 text-white rounded-lg text-sm hover:bg-blue-700 flex items-center transition" style="background-color: #2563EB;">
-                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-                    流程设置
-                </button>
             </div>
         </div>
 
@@ -292,61 +288,6 @@
             <div class="p-4 border-t border-gray-200 flex justify-end space-x-3">
                 <button onclick="closeModal('delete-modal')" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm">取消</button>
                 <button onclick="submitDelete()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm">确认删除</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 流程设置弹窗 -->
-    <div id="flow-setting-modal" class="modal-overlay">
-        <div class="modal-content" style="max-width: 700px;">
-            <div class="p-4 border-b border-gray-200 flex items-center justify-between">
-                <h3 class="text-lg font-semibold text-gray-800 flex items-center">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-                    流程设置
-                </h3>
-                <button onclick="closeModal('flow-setting-modal')" class="p-1 hover:bg-gray-100 rounded">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
-            </div>
-            <div class="p-6">
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">审批流程</label>
-                        <select id="flow-approval" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
-                            <option value="一级审批">一级审批（直接审批）</option>
-                            <option value="二级审批">二级审批（主管+经理）</option>
-                            <option value="三级审批">三级审批（主管+经理+总监）</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">发送流程</label>
-                        <select id="flow-send" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
-                            <option value="审核后发送">审核后立即发送</option>
-                            <option value="定时发送">定时发送</option>
-                            <option value="手动触发">手动触发发送</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">重试机制</label>
-                        <select id="flow-retry" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
-                            <option value="不重试">不重试</option>
-                            <option value="重试1次">重试1次</option>
-                            <option value="重试3次">重试3次（间隔5分钟）</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">通知方式</label>
-                        <div class="space-y-2">
-                            <label class="flex items-center"><input type="checkbox" id="flow-notify-sms" checked class="mr-2"> 短信通知</label>
-                            <label class="flex items-center"><input type="checkbox" id="flow-notify-app" checked class="mr-2"> APP推送</label>
-                            <label class="flex items-center"><input type="checkbox" id="flow-notify-wechat" class="mr-2"> 微信通知</label>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="p-4 border-t border-gray-200 flex justify-end space-x-3">
-                <button onclick="closeModal('flow-setting-modal')" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm">取消</button>
-                <button onclick="saveFlowSetting()" class="px-4 py-2 text-white rounded-lg hover:bg-blue-700 text-sm" style="background-color: #2563EB;">保存设置</button>
             </div>
         </div>
     </div>
@@ -708,28 +649,12 @@
         }
 
         document.addEventListener('click', (e) => {
-            ['add-modal', 'edit-modal', 'audit-modal', 'delete-modal', 'flow-setting-modal', 'content-setting-modal'].forEach(id => {
+            ['add-modal', 'edit-modal', 'audit-modal', 'delete-modal', 'content-setting-modal'].forEach(id => {
                 const modal = document.getElementById(id);
                 if (!modal) return;
                 if (e.target === modal) modal.classList.remove('active');
             });
         });
-
-        function openFlowSettingModal() {
-            document.getElementById('flow-setting-modal').classList.add('active');
-        }
-
-        function saveFlowSetting() {
-            const approval = document.getElementById('flow-approval').value;
-            const send = document.getElementById('flow-send').value;
-            const retry = document.getElementById('flow-retry').value;
-            const sms = document.getElementById('flow-notify-sms').checked;
-            const app = document.getElementById('flow-notify-app').checked;
-            const wechat = document.getElementById('flow-notify-wechat').checked;
-            console.log('流程设置已保存：', { approval, send, retry, sms, app, wechat });
-            closeModal('flow-setting-modal');
-            alert('流程设置保存成功！');
-        }
 
         let contentSettingTargetId = null;
 

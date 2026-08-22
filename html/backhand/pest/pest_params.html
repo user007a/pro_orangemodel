@@ -94,15 +94,6 @@ body { margin: 0; padding: 0; background-color: #F0F2F5; font-family: -apple-sys
       </div>
     </div>
   </div>
-
-  <!-- 参数变更历史 -->
-  <div class="bg-white rounded-xl shadow-sm border border-gray-100 mt-6 overflow-hidden">
-    <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
-      <h3 class="text-sm font-semibold text-gray-700">参数变更历史</h3>
-      <span class="text-xs text-gray-400">最近变更记录</span>
-    </div>
-    <div class="overflow-x-auto"><table class="w-full text-sm" id="history-table"></table></div>
-  </div>
 </div>
 
 <!-- 编辑模态框 -->
@@ -161,14 +152,6 @@ var thetaData=[
  {k:'θ3',part:'虫源基数',v:0.15,d:'当前虫口基数与病原菌源量水平'},
  {k:'θ4',part:'历史发生水平',v:0.15,d:'历史同期病虫害发生程度'},
  {k:'θ5',part:'空间传播压力',v:0.15,d:'邻近果园疫情与气流传播介质强度'}
-];
-
-var historyData=[
- {t:'2026-08-03 14:30',type:'因子权重',p:'红蜘蛛',n:'温度(w)',o:'0.30',v:'0.35',u:'张研究员'},
- {t:'2026-08-01 10:15',type:'耦合系数',p:'炭疽病',n:'γ 温度×湿度×降雨',o:'0.25',v:'0.30',u:'李技术员'},
- {t:'2026-07-29 16:40',type:'时间窗口',p:'黄龙病',n:'历史回看天数L',o:'20天',v:'30天',u:'王工程师'},
- {t:'2026-07-26 09:20',type:'θ权重',p:'全局',n:'θ1 历史耦合累积',o:'0.30',v:'0.35',u:'张研究员'},
- {t:'2026-07-24 15:05',type:'耦合系数',p:'溃疡病',n:'β 降雨×风速',o:'0.30',v:'0.28',u:'刘管理员'}
 ];
 
 var curTab='weight',editTab='',editPest='',editIdx=0,chart=null;
@@ -233,15 +216,6 @@ function renderTheta(){
   if(chart){ chart.data.datasets[0].data=thetaData.map(function(x){return x.v;}); chart.update(); }
 }
 
-function renderHistory(){
-  var html='<thead><tr class="bg-gray-50">'+th('修改时间')+th('参数类型')+th('病虫害')+th('参数名')+th('原值')+th('新值')+th('操作人')+'</tr></thead><tbody>';
-  historyData.forEach(function(h){
-    html+='<tr class="border-b border-gray-100">'+tc('text-gray-500',h.t)+tc('text-gray-700',h.type)+tc('text-gray-700',h.p)+tc('text-gray-700',h.n)+tc('text-gray-500',h.o)+tc('text-green font-medium',h.v)+tc('text-gray-700',h.u)+'</tr>';
-  });
-  html+='</tbody>';
-  document.getElementById('history-table').innerHTML=html;
-}
-
 function showModal(){ var m=document.getElementById('form-modal'); m.style.display='flex'; m.classList.add('active'); }
 function hideModal(){ var m=document.getElementById('form-modal'); m.style.display='none'; m.classList.remove('active'); }
 function showToast(msg){ var t=document.getElementById('toast'); t.textContent=msg; t.style.display='block'; setTimeout(function(){ t.style.display='none'; },2000); }
@@ -280,33 +254,29 @@ function openEdit(tab,pest,idx){
 }
 
 function gv(name){ var el=document.querySelector('#form-fields [name="'+name+'"]'); return el?el.value:''; }
-function addHist(type,p,name,oldV,newV){
-  var d=new Date(),pad=function(n){return n<10?'0'+n:n;};
-  historyData.unshift({t:d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+' '+pad(d.getHours())+':'+pad(d.getMinutes()),type:type,p:p,n:name,o:oldV,v:newV,u:'当前用户'});
-}
 
 function saveForm(){
   if(editTab==='weight'){
     var x=weightData[editPest][editIdx],nv=Number(gv('val'));
-    if(nv!==x.w){ addHist('因子权重',editPest,x.f,x.w.toFixed(2),nv.toFixed(2)); x.w=nv; }
+    if(nv!==x.w){ x.w=nv; }
     x.d=gv('desc');
   }else if(editTab==='coupling'){
     var x=couplingData[editIdx],nv=Number(gv('val'));
-    if(nv!==x.v){ addHist('耦合系数',x.p,x.t+' '+x.c,x.v.toFixed(2),nv.toFixed(2)); x.v=nv; }
+    if(nv!==x.v){ x.v=nv; }
     var nd=gv('dir'); if(nd&&nd!==x.d){ x.d=nd; }
   }else if(editTab==='time'){
     var x=timeData[editIdx],nL=Number(gv('L')),na=Number(gv('a')),nq=Number(gv('q')),nh=gv('h');
-    if(nL!==x.L){ addHist('时间窗口',x.p,'历史回看天数L',x.L+'天',nL+'天'); x.L=nL; }
-    if(nh!==x.h){ addHist('时间窗口',x.p,'预测周期h',x.h,nh); x.h=nh; }
-    if(na!==x.a){ addHist('时间窗口',x.p,'时间衰减系数a',x.a.toFixed(2),na.toFixed(2)); x.a=na; }
-    if(nq!==x.q){ addHist('时间窗口',x.p,'未来权重q',x.q.toFixed(2),nq.toFixed(2)); x.q=nq; }
+    if(nL!==x.L){ x.L=nL; }
+    if(nh!==x.h){ x.h=nh; }
+    if(na!==x.a){ x.a=na; }
+    if(nq!==x.q){ x.q=nq; }
   }else if(editTab==='theta'){
     var x=thetaData[editIdx],nv=Number(gv('val'));
-    if(nv!==x.v){ addHist('θ权重','全局',x.k+' '+x.part,x.v.toFixed(2),nv.toFixed(2)); x.v=nv; }
+    if(nv!==x.v){ x.v=nv; }
     x.d=gv('desc');
   }
   hideModal();
-  renderWeight(); renderCoupling(); renderTime(); renderTheta(); renderHistory();
+  renderWeight(); renderCoupling(); renderTime(); renderTheta();
   showToast('参数已更新');
 }
 
@@ -323,7 +293,7 @@ function initChart(){
 }
 
 window.onload=function(){
-  renderWeight(); renderCoupling(); renderTime(); renderTheta(); renderHistory(); initChart();
+  renderWeight(); renderCoupling(); renderTime(); renderTheta(); initChart();
 };
 
 document.addEventListener('click',function(e){

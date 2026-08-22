@@ -848,7 +848,7 @@
         <div class="kpi-card animate-fade-in-up" style="animation-delay: 0.3s;" onclick="openModal('植株')">
             <div class="kpi-info">
                 <h4>监控植株数量</h4>
-                <div class="kpi-number" data-value="12856">0</div>
+                <div class="kpi-number" data-value="26">0</div>
                 <span class="trend-badge">株</span>
             </div>
             <div class="kpi-icon"><i class="fas fa-seedling"></i></div>
@@ -897,6 +897,23 @@
 
     <div class="map-core-grid">
         <div class="side-col">
+            <div class="card side-card">
+                <div class="card-header"><span><i class="fas fa-square-poll-vertical"></i> 植株综合评测分析</span><span class="header-extra">全县平均</span></div>
+                <div class="health-index-container">
+                    <div class="health-ring" id="healthRingChart"></div>
+                    <div class="health-info">
+                        <div class="health-score">86.5</div>
+                        <div class="health-status">综合良好</div>
+                        <div class="health-breakdown">
+                            <div class="health-item"><span class="health-dot" style="background:#22c55e;"></span>优秀 42%</div>
+                            <div class="health-item"><span class="health-dot" style="background:#3b82f6;"></span>良好 45%</div>
+                            <div class="health-item"><span class="health-dot" style="background:#f59e0b;"></span>一般 13%</div>
+                        </div>
+                    </div>
+                </div>
+                <div id="healthTrendChart" class="chart-box"></div>
+            </div>
+
             <div class="card compact-card">
                 <div class="card-header"><span><i class="fas fa-sensors"></i> 环境监测数据</span><span class="header-extra">实时更新</span></div>
                 <div class="env-grid">
@@ -943,23 +960,6 @@
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <div class="card side-card">
-                <div class="card-header"><span><i class="fas fa-square-poll-vertical"></i> 植株综合评测分析</span><span class="header-extra">全县平均</span></div>
-                <div class="health-index-container">
-                    <div class="health-ring" id="healthRingChart"></div>
-                    <div class="health-info">
-                        <div class="health-score">86.5</div>
-                        <div class="health-status">综合良好</div>
-                        <div class="health-breakdown">
-                            <div class="health-item"><span class="health-dot" style="background:#22c55e;"></span>优秀 42%</div>
-                            <div class="health-item"><span class="health-dot" style="background:#3b82f6;"></span>良好 45%</div>
-                            <div class="health-item"><span class="health-dot" style="background:#f59e0b;"></span>一般 13%</div>
-                        </div>
-                    </div>
-                </div>
-                <div id="healthTrendChart" class="chart-box"></div>
             </div>
 
             <div class="card side-card">
@@ -1049,76 +1049,18 @@
                     <text x="230" y="250" fill="#475569" font-size="11" font-weight="500">紫霄镇</text>
                     <text x="250" y="170" text-anchor="middle" fill="rgba(22,101,52,0.08)" font-size="40" font-weight="bold">南丰县</text>
                     <g filter="url(#bubbleGlow)">
-                        <!-- 原有21个气泡（半径减半） -->
-                        <circle cx="130" cy="90" r="8" class="map-bubble bubble-service" data-type="service" data-index="0"/>
-                        <circle cx="215" cy="75" r="10" class="map-bubble bubble-enterprise" data-type="enterprise" data-index="0"/>
-                        <circle cx="295" cy="70" r="7" class="map-bubble bubble-cooperative" data-type="cooperative" data-index="0"/>
-                        <circle cx="380" cy="85" r="9" class="map-bubble bubble-demonstration" data-type="demonstration" data-index="0"/>
-                        <circle cx="440" cy="120" r="6" class="map-bubble bubble-largegrower" data-type="largegrower" data-index="0"/>
-                        <circle cx="155" cy="175" r="5" class="map-bubble bubble-iot" data-type="iot" data-index="0"/>
-                        <circle cx="235" cy="165" r="6" class="map-bubble bubble-iot" data-type="iot" data-index="1"/>
-                        <circle cx="315" cy="160" r="5" class="map-bubble bubble-iot" data-type="iot" data-index="2"/>
-                        <circle cx="395" cy="180" r="6" class="map-bubble bubble-iot" data-type="iot" data-index="3"/>
-                        <circle cx="255" cy="70" r="7" class="map-bubble bubble-cooperative" data-type="cooperative" data-index="1"/>
-                        <circle cx="390" cy="75" r="8" class="map-bubble bubble-demonstration" data-type="demonstration" data-index="1"/>
-                        <circle cx="425" cy="190" r="6" class="map-bubble bubble-largegrower" data-type="largegrower" data-index="1"/>
-                        <circle cx="190" cy="155" r="7" class="map-bubble bubble-enterprise" data-type="enterprise" data-index="1"/>
-                        <circle cx="310" cy="200" r="6" class="map-bubble bubble-service" data-type="service" data-index="1"/>
-                        <circle cx="230" cy="210" r="5" class="map-bubble bubble-iot" data-type="iot" data-index="4"/>
-                        <circle cx="350" cy="195" r="4" class="map-bubble bubble-iot" data-type="iot" data-index="5"/>
-                        <circle cx="445" cy="160" r="7" class="map-bubble bubble-demonstration" data-type="demonstration" data-index="2"/>
-                        <circle cx="145" cy="200" r="6" class="map-bubble bubble-cooperative" data-type="cooperative" data-index="2"/>
-                        <circle cx="370" cy="215" r="5" class="map-bubble bubble-largegrower" data-type="largegrower" data-index="2"/>
-                        <circle cx="290" cy="230" r="5" class="map-bubble bubble-iot" data-type="iot" data-index="6"/>
-                        <circle cx="410" cy="220" r="5" class="map-bubble bubble-iot" data-type="iot" data-index="7"/>
-                        <!-- 新增 service 4个 -->
-                        <circle cx="170" cy="80" r="8" class="map-bubble bubble-service" data-type="service" data-index="2"/>
-                        <circle cx="335" cy="70" r="7" class="map-bubble bubble-service" data-type="service" data-index="3"/>
-                        <circle cx="295" cy="245" r="6" class="map-bubble bubble-service" data-type="service" data-index="4"/>
-                        <circle cx="115" cy="165" r="7" class="map-bubble bubble-service" data-type="service" data-index="5"/>
-                        <!-- 新增 enterprise 4个 -->
-                        <circle cx="165" cy="70" r="9" class="map-bubble bubble-enterprise" data-type="enterprise" data-index="2"/>
-                        <circle cx="415" cy="95" r="10" class="map-bubble bubble-enterprise" data-type="enterprise" data-index="3"/>
-                        <circle cx="275" cy="245" r="8" class="map-bubble bubble-enterprise" data-type="enterprise" data-index="4"/>
-                        <circle cx="235" cy="65" r="9" class="map-bubble bubble-enterprise" data-type="enterprise" data-index="5"/>
-                        <!-- 新增 cooperative 6个 -->
-                        <circle cx="325" cy="80" r="7" class="map-bubble bubble-cooperative" data-type="cooperative" data-index="3"/>
-                        <circle cx="430" cy="105" r="7" class="map-bubble bubble-cooperative" data-type="cooperative" data-index="4"/>
-                        <circle cx="110" cy="185" r="6" class="map-bubble bubble-cooperative" data-type="cooperative" data-index="5"/>
-                        <circle cx="250" cy="90" r="7" class="map-bubble bubble-cooperative" data-type="cooperative" data-index="6"/>
-                        <circle cx="150" cy="90" r="6" class="map-bubble bubble-cooperative" data-type="cooperative" data-index="7"/>
-                        <circle cx="265" cy="250" r="6" class="map-bubble bubble-cooperative" data-type="cooperative" data-index="8"/>
-                        <!-- 新增 demonstration 6个 -->
-                        <circle cx="160" cy="85" r="8" class="map-bubble bubble-demonstration" data-type="demonstration" data-index="3"/>
-                        <circle cx="320" cy="250" r="7" class="map-bubble bubble-demonstration" data-type="demonstration" data-index="4"/>
-                        <circle cx="135" cy="175" r="7" class="map-bubble bubble-demonstration" data-type="demonstration" data-index="5"/>
-                        <circle cx="220" cy="90" r="8" class="map-bubble bubble-demonstration" data-type="demonstration" data-index="6"/>
-                        <circle cx="365" cy="75" r="8" class="map-bubble bubble-demonstration" data-type="demonstration" data-index="7"/>
-                        <circle cx="435" cy="130" r="8" class="map-bubble bubble-demonstration" data-type="demonstration" data-index="8"/>
-                        <!-- 新增 largegrower 6个 -->
-                        <circle cx="345" cy="70" r="6" class="map-bubble bubble-largegrower" data-type="largegrower" data-index="3"/>
-                        <circle cx="200" cy="85" r="6" class="map-bubble bubble-largegrower" data-type="largegrower" data-index="4"/>
-                        <circle cx="120" cy="225" r="5" class="map-bubble bubble-largegrower" data-type="largegrower" data-index="5"/>
-                        <circle cx="175" cy="170" r="6" class="map-bubble bubble-largegrower" data-type="largegrower" data-index="6"/>
-                        <circle cx="335" cy="240" r="5" class="map-bubble bubble-largegrower" data-type="largegrower" data-index="7"/>
-                        <circle cx="430" cy="150" r="6" class="map-bubble bubble-largegrower" data-type="largegrower" data-index="8"/>
-                        <!-- 新增 iot 16个 -->
-                        <circle cx="125" cy="95" r="5" class="map-bubble bubble-iot" data-type="iot" data-index="8"/>
-                        <circle cx="240" cy="60" r="5" class="map-bubble bubble-iot" data-type="iot" data-index="9"/>
-                        <circle cx="305" cy="90" r="5" class="map-bubble bubble-iot" data-type="iot" data-index="10"/>
-                        <circle cx="420" cy="80" r="6" class="map-bubble bubble-iot" data-type="iot" data-index="11"/>
-                        <circle cx="270" cy="245" r="5" class="map-bubble bubble-iot" data-type="iot" data-index="12"/>
-                        <circle cx="100" cy="195" r="5" class="map-bubble bubble-iot" data-type="iot" data-index="13"/>
-                        <circle cx="175" cy="180" r="5" class="map-bubble bubble-iot" data-type="iot" data-index="14"/>
-                        <circle cx="265" cy="160" r="5" class="map-bubble bubble-iot" data-type="iot" data-index="15"/>
-                        <circle cx="345" cy="175" r="5" class="map-bubble bubble-iot" data-type="iot" data-index="16"/>
-                        <circle cx="430" cy="175" r="5" class="map-bubble bubble-iot" data-type="iot" data-index="17"/>
-                        <circle cx="255" cy="235" r="5" class="map-bubble bubble-iot" data-type="iot" data-index="18"/>
-                        <circle cx="120" cy="250" r="5" class="map-bubble bubble-iot" data-type="iot" data-index="19"/>
-                        <circle cx="195" cy="240" r="5" class="map-bubble bubble-iot" data-type="iot" data-index="20"/>
-                        <circle cx="380" cy="230" r="5" class="map-bubble bubble-iot" data-type="iot" data-index="21"/>
-                        <circle cx="135" cy="215" r="5" class="map-bubble bubble-iot" data-type="iot" data-index="22"/>
-                        <circle cx="400" cy="200" r="5" class="map-bubble bubble-iot" data-type="iot" data-index="23"/>
+                        <!-- 每个乡镇一个监测点（11 个乡镇共 11 个气泡） -->
+                        <circle cx="135" cy="85" r="8" class="map-bubble bubble-service" data-type="service" data-index="0" data-count="2"/>
+                        <circle cx="290" cy="170" r="7" class="map-bubble bubble-service" data-type="service" data-index="1" data-count="2"/>
+                        <circle cx="225" cy="80" r="10" class="map-bubble bubble-enterprise" data-type="enterprise" data-index="0" data-count="3"/>
+                        <circle cx="380" cy="185" r="8" class="map-bubble bubble-enterprise" data-type="enterprise" data-index="1" data-count="2"/>
+                        <circle cx="315" cy="75" r="9" class="map-bubble bubble-cooperative" data-type="cooperative" data-index="0" data-count="2"/>
+                        <circle cx="405" cy="235" r="8" class="map-bubble bubble-cooperative" data-type="cooperative" data-index="1" data-count="3"/>
+                        <circle cx="395" cy="95" r="9" class="map-bubble bubble-demonstration" data-type="demonstration" data-index="0" data-count="2"/>
+                        <circle cx="115" cy="250" r="7" class="map-bubble bubble-demonstration" data-type="demonstration" data-index="1" data-count="2"/>
+                        <circle cx="120" cy="180" r="8" class="map-bubble bubble-largegrower" data-type="largegrower" data-index="0" data-count="2"/>
+                        <circle cx="230" cy="250" r="7" class="map-bubble bubble-largegrower" data-type="largegrower" data-index="1" data-count="2"/>
+                        <circle cx="205" cy="170" r="7" class="map-bubble bubble-iot" data-type="iot" data-index="0" data-count="4"/>
                     </g>
                 </svg>
                 <div class="map-legend">
@@ -1131,7 +1073,7 @@
                 </div>
                 <div style="position:absolute;top:14px;right:14px;z-index:10;display:flex;gap:10px;pointer-events:none;">
                     <div style="background:rgba(255,255,255,0.88);backdrop-filter:blur(10px);border:1px solid rgba(0,0,0,0.06);border-radius:10px;padding:8px 14px;text-align:center;box-shadow:0 2px 12px rgba(0,0,0,0.06);">
-                        <div style="font-size:20px;font-weight:700;color:#166534;">12,856</div>
+                        <div style="font-size:20px;font-weight:700;color:#166534;">26</div>
                         <div style="font-size:10px;color:#94a3b8;margin-top:1px;">植株总数</div>
                     </div>
                 </div>
@@ -1146,12 +1088,6 @@
             <div class="scrolling-cards">
                 <div class="scrolling-header">
                     <div class="scrolling-title">植株综合评价数据</div>
-                    <div class="scrolling-tabs">
-                        <div class="scrolling-tab active" onclick="switchTab('all', this)">全部</div>
-                        <div class="scrolling-tab" onclick="switchTab('enterprise', this)">3年生</div>
-                        <div class="scrolling-tab" onclick="switchTab('cooperative', this)">5年生</div>
-                        <div class="scrolling-tab" onclick="switchTab('demonstration', this)">10年生</div>
-                    </div>
                 </div>
                 <div class="scrolling-container" id="scrollingContainer"></div>
             </div>
@@ -1169,55 +1105,54 @@
             </div>
 
             <div class="card side-card">
-                <div class="card-header"><span><i class="fas fa-calendar-check"></i> 生长阶段分布</span><span class="header-extra">当前</span></div>
-                <div id="growthStageChart" class="chart-box"></div>
+                <div class="card-header"><span><i class="fas fa-seedling"></i> 监测植株品系分布</span><span class="header-extra">当前</span></div>
                 <div class="phenology-stage-list">
                     <div class="phenology-stage-item">
                         <div class="phenology-dot" style="background:#3b82f6;"></div>
-                        <span class="phenology-name">幼苗期</span>
-                        <span class="phenology-count">186</span>
+                        <span class="phenology-name">小果系（杨小2-6、金钱蜜桔）</span>
+                        <span class="phenology-count">6</span>
                         <div class="phenology-bar-wrapper">
-                            <div class="phenology-bar"><div class="phenology-bar-fill" style="width:6%;background:#3b82f6;"></div></div>
+                            <div class="phenology-bar"><div class="phenology-bar-fill" style="width:23%;background:#3b82f6;"></div></div>
                         </div>
                     </div>
                     <div class="phenology-stage-item">
                         <div class="phenology-dot" style="background:#8b5cf6;"></div>
-                        <span class="phenology-name">生长期</span>
-                        <span class="phenology-count">245</span>
+                        <span class="phenology-name">大果系</span>
+                        <span class="phenology-count">5</span>
                         <div class="phenology-bar-wrapper">
-                            <div class="phenology-bar"><div class="phenology-bar-fill" style="width:8%;background:#8b5cf6;"></div></div>
+                            <div class="phenology-bar"><div class="phenology-bar-fill" style="width:19%;background:#8b5cf6;"></div></div>
                         </div>
                     </div>
                     <div class="phenology-stage-item">
                         <div class="phenology-dot" style="background:#ec4899;"></div>
-                        <span class="phenology-name">开花期</span>
-                        <span class="phenology-count">89</span>
+                        <span class="phenology-name">桂花蒂系（柿蒂蜜桔）</span>
+                        <span class="phenology-count">5</span>
                         <div class="phenology-bar-wrapper">
-                            <div class="phenology-bar"><div class="phenology-bar-fill" style="width:3%;background:#ec4899;"></div></div>
+                            <div class="phenology-bar"><div class="phenology-bar-fill" style="width:19%;background:#ec4899;"></div></div>
                         </div>
                     </div>
                     <div class="phenology-stage-item">
                         <div class="phenology-dot" style="background:#f59e0b;"></div>
-                        <span class="phenology-name">落果期</span>
-                        <span class="phenology-count">312</span>
+                        <span class="phenology-name">早熟系（普通早熟蜜桔）</span>
+                        <span class="phenology-count">4</span>
                         <div class="phenology-bar-wrapper">
-                            <div class="phenology-bar"><div class="phenology-bar-fill" style="width:11%;background:#f59e0b;"></div></div>
+                            <div class="phenology-bar"><div class="phenology-bar-fill" style="width:15%;background:#f59e0b;"></div></div>
                         </div>
                     </div>
                     <div class="phenology-stage-item">
                         <div class="phenology-dot" style="background:#22c55e;"></div>
-                        <span class="phenology-name">膨大期</span>
-                        <span class="phenology-count">1,936</span>
+                        <span class="phenology-name">桂月红（特早熟芽变）</span>
+                        <span class="phenology-count">3</span>
                         <div class="phenology-bar-wrapper">
-                            <div class="phenology-bar"><div class="phenology-bar-fill" style="width:68%;background:#22c55e;"></div></div>
+                            <div class="phenology-bar"><div class="phenology-bar-fill" style="width:12%;background:#22c55e;"></div></div>
                         </div>
                     </div>
                     <div class="phenology-stage-item">
                         <div class="phenology-dot" style="background:#10b981;"></div>
-                        <span class="phenology-name">成熟期</span>
-                        <span class="phenology-count">79</span>
+                        <span class="phenology-name">蜜广1号（晚熟蜜广）</span>
+                        <span class="phenology-count">3</span>
                         <div class="phenology-bar-wrapper">
-                            <div class="phenology-bar"><div class="phenology-bar-fill" style="width:4%;background:#10b981;"></div></div>
+                            <div class="phenology-bar"><div class="phenology-bar-fill" style="width:12%;background:#10b981;"></div></div>
                         </div>
                     </div>
                 </div>
@@ -1264,11 +1199,13 @@
             splitLine: { show: false },
             axisLabel: { show: false },
             detail: {
-                valueAnimation: true,
-                formatter: '{value}',
-                fontSize: 20,
-                fontWeight: 'bold',
-                color: '#2b6e3c'
+                show: false
+            },
+            title: {
+                show: true,
+                offsetCenter: ['0%', '70%'],
+                fontSize: 12,
+                color: '#64748b'
             },
             data: [{ value: 86.5, name: '综合评分' }]
         }]
@@ -1340,51 +1277,30 @@
         }]
     });
 
-    var growthStageChart = echarts.init(document.getElementById('growthStageChart'));
-    growthStageChart.setOption({
-        tooltip: { trigger: 'item' },
-        legend: { orient: 'vertical', right: 10, top: 'center' },
-        series: [{
-            type: 'pie',
-            radius: ['40%', '70%'],
-            avoidLabelOverlap: false,
-            itemStyle: { borderRadius: 8, borderColor: '#fff', borderWidth: 2 },
-            label: { show: false },
-            emphasis: { label: { show: true, fontSize: 14, fontWeight: 'bold' } },
-            data: [
-                { value: 186, name: '幼苗期', itemStyle: { color: '#3b82f6' } },
-                { value: 245, name: '生长期', itemStyle: { color: '#8b5cf6' } },
-                { value: 89, name: '开花期', itemStyle: { color: '#ec4899' } },
-                { value: 312, name: '落果期', itemStyle: { color: '#f59e0b' } },
-                { value: 1936, name: '膨大期', itemStyle: { color: '#22c55e' } },
-                { value: 79, name: '成熟期', itemStyle: { color: '#10b981' } }
-            ]
-        }]
-    });
-
-    
-
     var entityData = (function() {
+        // 11 个监测点（每个乡镇一个），每点 2-4 株，共 26 株
+        // entityData[type][pointIndex] 返回该监测点的植株信息汇总
         var typeConfig = [
-            { type: 'service', age: '1年生', count: 6 },
-            { type: 'enterprise', age: '3年生', count: 6 },
-            { type: 'cooperative', age: '5年生', count: 9 },
-            { type: 'demonstration', age: '10年生', count: 9 },
-            { type: 'largegrower', age: '15年生', count: 9 },
-            { type: 'iot', age: '20年生', count: 24 }
+            { type: 'service', age: '1年生', counts: [2, 2] },
+            { type: 'enterprise', age: '3年生', counts: [3, 2] },
+            { type: 'cooperative', age: '5年生', counts: [2, 3] },
+            { type: 'demonstration', age: '10年生', counts: [2, 2] },
+            { type: 'largegrower', age: '15年生', counts: [2, 2] },
+            { type: 'iot', age: '20年生', counts: [4] }
         ];
-        var persons = ['李建国','王志强','陈国强','刘建军','黄国平','吴建华','张明华','刘芳','张志远','陈伟明','李大海','周明辉','陈大山','赵晓峰','孙伟','吴大勇','李德发','赵永强','钱国华','孙建明','周大海','周建国','吴丽华','郑伟','马建国','胡志远','徐明德','杨春华','朱国强','秦伟明','黄小明','林秀英','许志强','陈大伟','刘美兰','张国庆','李冬梅','王建军','赵秀芬','张技术员','王技术员','李技术员','赵技术员','孙技术员','周技术员','吴技术员','郑技术员','黄技术员','陈技术员','刘技术员','马技术员','杨技术员','徐技术员','胡技术员','朱技术员','秦技术员','何技术员','罗技术员','高技术员','林技术员','谢技术员','宋技术员','唐技术员'];
+        var persons = ['李建国','王志强','陈国强','刘建军','黄国平','吴建华','张明华','刘芳','张志远','陈伟明','李大海','周明辉','陈大山','赵晓峰','孙伟','吴大勇','李德发','赵永强','钱国华','孙建明','周大海','周建国','吴丽华','郑伟','马建国','胡志远','徐明德','杨春华','朱国强','秦伟明'];
         var data = {};
         var num = 1;
         var pIdx = 0;
         typeConfig.forEach(function(tc) {
             data[tc.type] = [];
-            for (var i = 0; i < tc.count; i++) {
+            tc.counts.forEach(function(pointCount, pointIdx) {
                 var score = 78 + (num * 7 + 3) % 18;
                 var grade = score >= 90 ? '优秀' : (score >= 80 ? '良好' : '一般');
                 data[tc.type].push({
                     evalId: 'PF-2026-' + ('000' + num).slice(-4),
-                    evalObj: '南丰蜜桔-' + tc.age + '-' + ('00' + (i + 1)).slice(-3),
+                    evalObj: '南丰蜜桔-' + tc.age + '·监测点' + (pointIdx + 1),
+                    plantCount: pointCount,
                     score: score.toFixed(1),
                     grade: grade,
                     person: persons[pIdx % persons.length],
@@ -1392,7 +1308,7 @@
                 });
                 num++;
                 pIdx++;
-            }
+            });
         });
         return data;
     })();
@@ -1418,6 +1334,7 @@
         content.innerHTML =
             '<div class="popup-row"><span class="popup-label">评分编号</span><span class="popup-value">' + data.evalId + '</span></div>' +
             '<div class="popup-row"><span class="popup-label">评价对象</span><span class="popup-value">' + data.evalObj + '</span></div>' +
+            '<div class="popup-row"><span class="popup-label">监测植株</span><span class="popup-value">' + data.plantCount + '株</span></div>' +
             '<div class="popup-row"><span class="popup-label">评分结果</span><span class="popup-value">' + data.score + '分</span></div>' +
             '<div class="popup-row"><span class="popup-label">评分等级</span><span class="popup-value" style="color:' + gradeColor + ';">' + data.grade + '</span></div>' +
             '<div class="popup-row"><span class="popup-label">负责人员</span><span class="popup-value">' + data.person + '</span></div>' +
@@ -1449,23 +1366,27 @@
     });
 
     var scrollingEntities = (function() {
+        // 按监测点展示，11 个监测点合计 26 株
         var typeConfig = [
-            { type: 'enterprise', age: '3年生', count: 6 },
-            { type: 'cooperative', age: '5年生', count: 6 },
-            { type: 'demonstration', age: '10年生', count: 6 },
-            { type: 'largegrower', age: '15年生', count: 6 }
+            { type: 'service', age: '1年生', counts: [2, 2] },
+            { type: 'enterprise', age: '3年生', counts: [3, 2] },
+            { type: 'cooperative', age: '5年生', counts: [2, 3] },
+            { type: 'demonstration', age: '10年生', counts: [2, 2] },
+            { type: 'largegrower', age: '15年生', counts: [2, 2] },
+            { type: 'iot', age: '20年生', counts: [4] }
         ];
         var persons = ['张明华','陈大山','周建国','刘芳','黄小明','赵晓峰','吴丽华','林秀英','孙伟','郑伟','李志强','王大海','刘海龙','陈小燕','杨伟','张建国','刘艳','李明','王强','陈秀英','张磊','刘强','周芳','王小军'];
         var entities = [];
         var num = 101;
         var pIdx = 0;
         typeConfig.forEach(function(tc) {
-            for (var i = 0; i < tc.count; i++) {
+            tc.counts.forEach(function(pointCount, pointIdx) {
                 var score = 78 + (num * 7 + 3) % 18;
                 var grade = score >= 90 ? '优秀' : (score >= 80 ? '良好' : '一般');
                 entities.push({
                     evalId: 'PF-2026-' + ('000' + num).slice(-4),
-                    evalObj: '南丰蜜桔-' + tc.age + '-' + ('00' + (i + 1)).slice(-3),
+                    evalObj: '南丰蜜桔-' + tc.age + '·监测点' + (pointIdx + 1),
+                    plantCount: pointCount,
                     score: score.toFixed(1),
                     grade: grade,
                     person: persons[pIdx % persons.length],
@@ -1474,7 +1395,7 @@
                 });
                 num++;
                 pIdx++;
-            }
+            });
         });
         return entities;
     })();
@@ -1490,6 +1411,7 @@
                 rows += '<tr>' +
                     '<td>' + entity.evalId + '</td>' +
                     '<td>' + entity.evalObj + '</td>' +
+                    '<td>' + entity.plantCount + '株</td>' +
                     '<td>' + entity.score + '分</td>' +
                     '<td style="color:' + gradeColor + ';font-weight:500;">' + entity.grade + '</td>' +
                     '<td>' + entity.person + '</td>' +
@@ -1506,6 +1428,7 @@
             '<thead><tr>' +
             '<th>评分编号</th>' +
             '<th>评价对象</th>' +
+            '<th>监测植株</th>' +
             '<th>评分结果</th>' +
             '<th>评分等级</th>' +
             '<th>负责人员</th>' +
@@ -1530,7 +1453,6 @@
         healthTrendChart.resize();
         qualityTrendChart.resize();
         farmingSuggestionChart.resize();
-        growthStageChart.resize();
     });
 
     function animateNumbers() {
@@ -1667,7 +1589,7 @@
                     series: [{
                         name: '监控植株',
                         type: 'bar',
-                        data: [2156, 2847, 3125, 1689, 1456, 1583],
+                        data: [4, 3, 2, 3, 2, 2],
                         itemStyle: {
                             color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
                                 { offset: 0, color: '#22c55e' }, { offset: 1, color: '#4ade80' }
@@ -1677,7 +1599,7 @@
                     }, {
                         name: '未监控植株',
                         type: 'bar',
-                        data: [568, 723, 612, 445, 398, 512],
+                        data: [0, 0, 0, 0, 0, 0],
                         itemStyle: {
                             color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
                                 { offset: 0, color: '#cbd5e1' }, { offset: 1, color: '#94a3b8' }
@@ -1794,9 +1716,9 @@
                 { value: '82.5%', label: '周活跃率', color: '#f59e0b' }
             ],
             '植株': [
-                { value: '12,856', label: '监控植株总数(株)', color: '#166534' },
-                { value: '85.6%', label: '监控覆盖率', color: '#10b981' },
-                { value: '3,125', label: '白舍镇最多', color: '#f59e0b' }
+                { value: '26', label: '监控植株总数(株)', color: '#166534' },
+                { value: '11', label: '监测点数量', color: '#10b981' },
+                { value: '4', label: '太和镇最多', color: '#f59e0b' }
             ],
             '报告': [
                 { value: '3,856', label: '报告总数', color: '#166534' },
@@ -1854,12 +1776,12 @@
                 { label: '活跃度趋势', value: '↗ 持续增长' }
             ],
             '植株': [
-                { label: '太和镇', value: '2,156株 (71.4%)' },
-                { label: '桑田镇', value: '2,847株 (75.0%)' },
-                { label: '白舍镇', value: '3,125株 (75.0%)' },
-                { label: '市山镇', value: '1,689株 (72.2%)' },
-                { label: '洽湾镇', value: '1,456株 (66.7%)' },
-                { label: '东坪乡', value: '1,583株 (58.3%)' }
+                { label: '太和镇', value: '4株' },
+                { label: '桑田镇', value: '3株' },
+                { label: '白舍镇', value: '2株' },
+                { label: '市山镇', value: '3株' },
+                { label: '洽湾镇', value: '2株' },
+                { label: '东坪乡', value: '2株' }
             ],
             '报告': [
                 { label: '本月生成', value: '567次' },

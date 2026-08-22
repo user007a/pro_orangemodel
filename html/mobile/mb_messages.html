@@ -343,47 +343,6 @@
     .msg-tab-content { display: none; }
     .msg-tab-content.active { display: block; }
 
-    .todo-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-    }
-    .todo-checkbox {
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      border: 2px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      flex-shrink: 0;
-      transition: all var(--transition-fast);
-      margin-top: 2px;
-    }
-    .todo-checkbox:active { transform: scale(0.9); }
-    .todo-checkbox.checked {
-      background: var(--primary);
-      border-color: var(--primary);
-    }
-    .todo-checkbox svg {
-      display: none;
-      width: 12px;
-      height: 12px;
-      color: #fff;
-    }
-    .todo-checkbox.checked svg { display: block; }
-    .msg-item.completed .msg-item-title,
-    .msg-item.completed .msg-item-desc {
-      opacity: 0.5;
-      text-decoration: line-through;
-    }
-    .msg-item.completed::before {
-      background: var(--border-light) !important;
-    }
-    .msg-item.completed {
-      opacity: 0.75;
-    }
     .msg-item-content { flex: 1; min-width: 0; }
 
     .msg-empty {
@@ -431,7 +390,7 @@
         <div class="msg-title">我的消息</div>
         <div class="msg-header-placeholder"></div>
       </div>
-      <div class="msg-subtitle">系统通知 · 农事提醒 · 事务待办</div>
+      <div class="msg-subtitle">系统通知 · 风险提醒 · 农事推荐</div>
     </div>
 
     <!-- Tab Bar -->
@@ -451,10 +410,10 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.3A7 7 0 0 0 12 2z"/></svg>
           推荐
         </div>
-        <div class="msg-tab" onclick="switchTab('todo', this)">
+        <div class="msg-tab" onclick="switchTab('farm', this)">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-          待办
-          <span class="msg-tab-badge">4</span>
+          农事
+          <span class="msg-tab-badge">3</span>
         </div>
       </div>
     </div>
@@ -489,8 +448,7 @@
                   32分钟前
                 </div>
                 <div class="msg-item-action">
-                  <div class="msg-action-btn outline" onclick="markRead(this)">忽略</div>
-                  <div class="msg-action-btn primary" onclick="navigateTo('mb_data_input.html')">立即处理</div>
+                  <div class="msg-action-btn outline" onclick="markRead(this)">已读</div>
                 </div>
               </div>
             </div>
@@ -514,8 +472,7 @@
                   1小时前
                 </div>
                 <div class="msg-item-action">
-                  <div class="msg-action-btn outline" onclick="markRead(this)">知道了</div>
-                  <div class="msg-action-btn primary" onclick="navigateTo('mb_data_input.html')">查看应对</div>
+                  <div class="msg-action-btn outline" onclick="markRead(this)">已读</div>
                 </div>
               </div>
             </div>
@@ -554,8 +511,7 @@
                   2小时前
                 </div>
                 <div class="msg-item-action">
-                  <div class="msg-action-btn outline" onclick="markRead(this)">稍后处理</div>
-                  <div class="msg-action-btn primary" onclick="navigateTo('mb_disease_knowledge.html')">查看详情</div>
+                  <div class="msg-action-btn outline" onclick="markRead(this)">已读</div>
                 </div>
               </div>
             </div>
@@ -579,8 +535,7 @@
                   5小时前
                 </div>
                 <div class="msg-item-action">
-                  <div class="msg-action-btn outline" onclick="markRead(this)">稍后处理</div>
-                  <div class="msg-action-btn primary" onclick="navigateTo('mb_data.html')">查看监测</div>
+                  <div class="msg-action-btn outline" onclick="markRead(this)">已读</div>
                 </div>
               </div>
             </div>
@@ -604,8 +559,7 @@
                   昨天
                 </div>
                 <div class="msg-item-action">
-                  <div class="msg-action-btn outline" onclick="markRead(this)">知道了</div>
-                  <div class="msg-action-btn primary" onclick="navigateTo('mb_data_input.html')">立即处理</div>
+                  <div class="msg-action-btn outline" onclick="markRead(this)">已读</div>
                 </div>
               </div>
             </div>
@@ -645,8 +599,7 @@
                   今日 06:00
                 </div>
                 <div class="msg-item-action">
-                  <div class="msg-action-btn outline" onclick="markRead(this)">不再提醒</div>
-                  <div class="msg-action-btn primary" onclick="navigateTo('mb_data_input.html')">加入计划</div>
+                  <div class="msg-action-btn outline" onclick="markRead(this)">已读</div>
                 </div>
               </div>
             </div>
@@ -670,8 +623,7 @@
                   昨日推送
                 </div>
                 <div class="msg-item-action">
-                  <div class="msg-action-btn outline" onclick="markRead(this)">已了解</div>
-                  <div class="msg-action-btn primary" onclick="navigateTo('mb_news.html')">查看方法</div>
+                  <div class="msg-action-btn outline" onclick="markRead(this)">已读</div>
                 </div>
               </div>
             </div>
@@ -680,110 +632,85 @@
       </div>
     </div>
 
-    <!-- 事务待办 -->
-    <div id="tab-todo" class="msg-tab-content">
+    <!-- 农事活动 -->
+    <div id="tab-farm" class="msg-tab-content">
       <div class="msg-content">
         <div class="filter-bar">
           <div class="filter-tabs">
-            <div class="filter-tab active" onclick="filterMessages('todo', 'all', this)">全部</div>
-            <div class="filter-tab" onclick="filterMessages('todo', 'pending', this)">待完成</div>
-            <div class="filter-tab" onclick="filterMessages('todo', 'done', this)">已完成</div>
+            <div class="filter-tab active" onclick="filterMessages('farm', 'all', this)">全部</div>
+            <div class="filter-tab" onclick="filterMessages('farm', 'unread', this)">未读</div>
           </div>
-          <div class="msg-count">共 4 条</div>
+          <div class="msg-count">共 3 条</div>
         </div>
 
         <div class="msg-list">
           <div class="msg-item priority-high unread">
-            <div class="todo-item">
-              <div class="todo-checkbox" onclick="toggleTodo(this)">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+            <div class="msg-item-head">
+              <div class="msg-item-icon todo">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
               </div>
-              <div class="msg-item-content">
-                <div class="msg-item-head">
-                  <span class="msg-type-tag todo">今日待办</span>
+              <div style="flex:1;">
+                <span class="msg-type-tag todo">农事安排</span>
+              </div>
+            </div>
+            <div class="msg-item-title">A2区灌溉作业</div>
+            <div class="msg-item-content">
+              <div class="msg-item-desc">土壤湿度 28%，需进行灌溉。建议灌溉量 30-40L/株，建议时段 06:00-09:00。</div>
+              <div class="msg-item-foot">
+                <div class="msg-item-time">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  32分钟前
                 </div>
-                <div class="msg-item-title">A2区灌溉作业</div>
-                <div class="msg-item-desc">土壤湿度 28%，需进行灌溉。建议灌溉量 30-40L/株。</div>
-                <div class="msg-item-foot">
-                  <div class="msg-item-time">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                    截止：今日 18:00
-                  </div>
-                  <div class="msg-item-action">
-                    <div class="msg-action-btn outline" onclick="markRead(this)">稍后提醒</div>
-                    <div class="msg-action-btn primary" onclick="navigateTo('mb_data_input.html')">去上报</div>
-                  </div>
+                <div class="msg-item-action">
+                  <div class="msg-action-btn outline" onclick="markRead(this)">已读</div>
                 </div>
               </div>
             </div>
           </div>
 
           <div class="msg-item priority-medium unread">
-            <div class="todo-item">
-              <div class="todo-checkbox" onclick="toggleTodo(this)">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+            <div class="msg-item-head">
+              <div class="msg-item-icon todo">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
               </div>
-              <div class="msg-item-content">
-                <div class="msg-item-head">
-                  <span class="msg-type-tag todo">明日待办</span>
+              <div style="flex:1;">
+                <span class="msg-type-tag todo">农事提醒</span>
+              </div>
+            </div>
+            <div class="msg-item-title">明日红蜘蛛防治作业</div>
+            <div class="msg-item-content">
+              <div class="msg-item-desc">建议喷施螺螨酯 24%SC 5000倍液，重点喷叶片背面。最佳作业时段：清晨或傍晚。</div>
+              <div class="msg-item-foot">
+                <div class="msg-item-time">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  3小时前
                 </div>
-                <div class="msg-item-title">红蜘蛛防治作业</div>
-                <div class="msg-item-desc">建议喷施 螺螨酯 24%SC 5000倍液，重点喷叶片背面。</div>
-                <div class="msg-item-foot">
-                  <div class="msg-item-time">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                    截止：明日 12:00
-                  </div>
-                  <div class="msg-item-action">
-                    <div class="msg-action-btn outline" onclick="markRead(this)">稍后提醒</div>
-                    <div class="msg-action-btn primary" onclick="navigateTo('mb_data_input.html')">去上报</div>
-                  </div>
+                <div class="msg-item-action">
+                  <div class="msg-action-btn outline" onclick="markRead(this)">已读</div>
                 </div>
               </div>
             </div>
           </div>
 
-          <div class="msg-item priority-medium unread">
-            <div class="todo-item">
-              <div class="todo-checkbox" onclick="toggleTodo(this)">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+          <div class="msg-item priority-low unread">
+            <div class="msg-item-head">
+              <div class="msg-item-icon todo">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
               </div>
-              <div class="msg-item-content">
-                <div class="msg-item-head">
-                  <span class="msg-type-tag todo">本周待办</span>
-                </div>
-                <div class="msg-item-title">完成本周数据上报</div>
-                <div class="msg-item-desc">本周的农事记录、施肥记录尚未完成上报，请及时提交。</div>
-                <div class="msg-item-foot">
-                  <div class="msg-item-time">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                    截止：本周五 17:00
-                  </div>
-                  <div class="msg-item-action">
-                    <div class="msg-action-btn outline" onclick="markRead(this)">稍后提醒</div>
-                    <div class="msg-action-btn primary" onclick="navigateTo('mb_data_input.html')">去上报</div>
-                  </div>
-                </div>
+              <div style="flex:1;">
+                <span class="msg-type-tag todo">本周农事</span>
               </div>
             </div>
-          </div>
-
-          <div class="msg-item priority-low">
-            <div class="todo-item">
-              <div class="todo-checkbox checked" onclick="toggleTodo(this)">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
-              </div>
-              <div class="msg-item-content">
-                <div class="msg-item-head">
-                  <span class="msg-type-tag done">已完成</span>
+            <div class="msg-item-title">本周数据上报</div>
+            <div class="msg-item-content">
+              <div class="msg-item-desc">本周的农事记录、施肥记录尚未完成上报，请及时在系统中提交，便于统计分析。</div>
+              <div class="msg-item-foot">
+                <div class="msg-item-time">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  昨日推送
                 </div>
-                <div class="msg-item-title">果园巡查打卡</div>
-                <div class="msg-item-desc">已完成今日果园巡查打卡作业。</div>
-                <div class="msg-item-foot">
-                  <div class="msg-item-time">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                    今日 08:30 完成
-                  </div>
+                <div class="msg-item-action">
+                  <div class="msg-action-btn outline" onclick="markRead(this)">已读</div>
                 </div>
               </div>
             </div>
@@ -875,22 +802,6 @@
         var item = btn.closest('.msg-item');
         if (item) {
           item.classList.remove('unread');
-        }
-      }
-
-      function toggleTodo(checkbox) {
-        var item = checkbox.closest('.msg-item');
-        var isChecked = checkbox.classList.toggle('checked');
-        if (item && isChecked) {
-          item.classList.add('completed');
-          item.classList.remove('unread');
-          var headTag = item.querySelector('.msg-type-tag');
-          if (headTag) {
-            headTag.textContent = '已完成';
-            headTag.className = 'msg-type-tag done';
-          }
-        } else if (item) {
-          item.classList.remove('completed');
         }
       }
     </script>

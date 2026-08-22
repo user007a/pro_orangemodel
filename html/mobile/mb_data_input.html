@@ -1,4 +1,4 @@
-﻿﻿<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
@@ -469,6 +469,7 @@
         <div class="mb-skeleton" style="flex:1;height:36px;border-radius:var(--radius-md);"></div>
         <div class="mb-skeleton" style="flex:1;height:36px;border-radius:var(--radius-md);"></div>
         <div class="mb-skeleton" style="flex:1;height:36px;border-radius:var(--radius-md);"></div>
+        <div class="mb-skeleton" style="flex:1;height:36px;border-radius:var(--radius-md);"></div>
       </div>
       <div class="card">
         <div class="mb-skeleton" style="width:80px;height:16px;margin-bottom:16px;"></div>
@@ -499,10 +500,11 @@
     </div>
 
     <div class="tab-bar">
-      <div class="tab-item active" onclick="switchTab('soil')">土壤数据</div>
-      <div class="tab-item" onclick="switchTab('weather')">气象数据</div>
-      <div class="tab-item" onclick="switchTab('farming')">农事记录</div>
-      <div class="tab-item" onclick="switchTab('disease')">病虫上报</div>
+      <div class="tab-item active" onclick="switchTab('soil', this)">土壤数据</div>
+      <div class="tab-item" onclick="switchTab('weather', this)">气象数据</div>
+      <div class="tab-item" onclick="switchTab('farming', this)">农事记录</div>
+      <div class="tab-item" onclick="switchTab('disease', this)">病虫上报</div>
+      <div class="tab-item" onclick="switchTab('sales', this)">蜜桔销售</div>
     </div>
 
     <div id="soilForm" class="content">
@@ -760,6 +762,59 @@
       </div>
     </div>
 
+    <div id="salesForm" class="content" style="display: none;">
+      <div class="card">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8" y1="2" x2="8" y2="6"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+          销售信息
+        </div>
+        <div class="form-item">
+          <label class="form-label">销售日期</label>
+          <input type="date" class="form-input" value="2026-07-23">
+        </div>
+        <div class="form-item">
+          <label class="form-label">销售数量(公斤)</label>
+          <input type="number" class="form-input" placeholder="请输入销售数量" step="0.1" min="0">
+        </div>
+        <div class="form-item">
+          <label class="form-label">销售单价(元/公斤)</label>
+          <input type="number" class="form-input" placeholder="请输入销售单价" step="0.01" min="0">
+        </div>
+        <div class="form-item">
+          <label class="form-label">销售总价(元)</label>
+          <input type="number" class="form-input" placeholder="根据数量×单价自动计算" readonly style="background: var(--gray-50);">
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/>
+            <circle cx="12" cy="10" r="3"/>
+          </svg>
+          销往地区
+        </div>
+        <div class="form-item">
+          <label class="form-label">省份</label>
+          <div class="form-select" onclick="showProvinceSelect()">
+            <span class="form-select-value" id="salesProvince">请选择省份</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </div>
+        </div>
+        <div class="form-item">
+          <label class="form-label">城市</label>
+          <div class="form-select" onclick="showCitySelect()">
+            <span class="form-select-value" id="salesCity">请先选择省份</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="submit-wrap">
       <button class="btn btn-primary btn-block" onclick="submitData()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;"><polyline points="20 6 9 17 4 12"/></svg>
@@ -829,6 +884,32 @@
       </div>
     </div>
 
+    <!-- 省份选择 -->
+    <div class="modal-overlay" id="provinceModal">
+      <div class="dr-modal-box">
+        <div class="dr-modal-header">
+          <div class="dr-modal-title">选择省份</div>
+          <div class="dr-modal-close" onclick="closeModal('provinceModal')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </div>
+        </div>
+        <div class="dr-modal-body" id="provinceList"></div>
+      </div>
+    </div>
+
+    <!-- 城市选择 -->
+    <div class="modal-overlay" id="cityModal">
+      <div class="dr-modal-box">
+        <div class="dr-modal-header">
+          <div class="dr-modal-title" id="cityModalTitle">选择城市</div>
+          <div class="dr-modal-close" onclick="closeModal('cityModal')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </div>
+        </div>
+        <div class="dr-modal-body" id="cityList"></div>
+      </div>
+    </div>
+
     <!-- 成功提示 -->
     <div class="modal-overlay" id="successModal">
       <div class="dr-modal-box">
@@ -869,14 +950,17 @@
 
     function goBack() { navigateTo('mb_home.html'); }
 
-    function switchTab(type) {
-      document.querySelectorAll('.tab-item').forEach(item => item.classList.remove('active'));
-      event.target.classList.add('active');
+    function switchTab(type, el) {
+      var tabs = document.querySelectorAll('.tab-item');
+      tabs.forEach(function(item) { item.classList.remove('active'); });
+      if (el) el.classList.add('active');
+      else if (event && event.target) event.target.classList.add('active');
 
       document.getElementById('soilForm').style.display = 'none';
       document.getElementById('weatherForm').style.display = 'none';
       document.getElementById('farmingForm').style.display = 'none';
       document.getElementById('diseaseForm').style.display = 'none';
+      document.getElementById('salesForm').style.display = 'none';
       document.getElementById(type + 'Form').style.display = 'block';
       currentTab = type;
     }
@@ -991,6 +1075,18 @@
           return;
         }
         document.getElementById('successDesc').textContent = '预警信息已提交，农技人员将尽快处理';
+      } else if (currentTab === 'sales') {
+        var form = document.getElementById('salesForm');
+        var inputs = form.querySelectorAll('input[type="number"]');
+        if (!inputs[0].value || !inputs[1].value) {
+          alert('请填写销售数量和销售单价');
+          return;
+        }
+        if (document.getElementById('salesProvince').textContent === '请选择省份') {
+          alert('请选择销往省份');
+          return;
+        }
+        document.getElementById('successDesc').textContent = '销售记录已提交，感谢您的记录';
       } else {
         document.getElementById('successDesc').textContent = '数据已提交，感谢您的记录';
       }
@@ -1001,6 +1097,92 @@
       document.getElementById('successModal').classList.remove('show');
       window.history.back();
     }
+
+    /* ===== 蜜桔销售相关 ===== */
+    var regionData = {
+      '北京': ['北京市'],
+      '上海': ['上海市'],
+      '广东': ['广州', '深圳', '东莞', '佛山', '珠海', '中山'],
+      '浙江': ['杭州', '宁波', '温州', '嘉兴', '绍兴', '金华', '台州'],
+      '江苏': ['南京', '苏州', '无锡', '常州', '南通', '扬州'],
+      '福建': ['福州', '厦门', '泉州', '漳州'],
+      '湖北': ['武汉', '宜昌', '襄阳'],
+      '湖南': ['长沙', '株洲', '湘潭', '衡阳'],
+      '四川': ['成都', '绵阳', '德阳', '南充'],
+      '江西': ['南昌', '赣州', '九江', '抚州', '吉安'],
+      '安徽': ['合肥', '芜湖', '蚌埠'],
+      '河南': ['郑州', '洛阳', '开封'],
+      '山东': ['济南', '青岛', '烟台', '潍坊'],
+      '河北': ['石家庄', '唐山', '保定'],
+      '陕西': ['西安', '咸阳', '宝鸡'],
+      '辽宁': ['沈阳', '大连', '鞍山']
+    };
+    var selectedProvince = '';
+
+    function showProvinceSelect() {
+      var list = document.getElementById('provinceList');
+      var html = '';
+      Object.keys(regionData).forEach(function(prov) {
+        html += '<div class="dr-modal-item" onclick="selectProvince(\'' + prov + '\')"><span>' + prov + '</span></div>';
+      });
+      list.innerHTML = html;
+      document.getElementById('provinceModal').classList.add('show');
+    }
+
+    function selectProvince(prov) {
+      selectedProvince = prov;
+      var el = document.getElementById('salesProvince');
+      el.textContent = prov;
+      el.style.color = 'var(--text)';
+      document.getElementById('salesCity').textContent = '请选择城市';
+      document.getElementById('salesCity').style.color = '';
+      closeModal('provinceModal');
+    }
+
+    function showCitySelect() {
+      if (!selectedProvince) {
+        showProvinceSelect();
+        return;
+      }
+      document.getElementById('cityModalTitle').textContent = '选择城市 - ' + selectedProvince;
+      var list = document.getElementById('cityList');
+      var html = '';
+      var cities = regionData[selectedProvince] || [];
+      cities.forEach(function(city) {
+        html += '<div class="dr-modal-item" onclick="selectCity(\'' + city + '\')"><span>' + city + '</span></div>';
+      });
+      list.innerHTML = html;
+      document.getElementById('cityModal').classList.add('show');
+    }
+
+    function selectCity(city) {
+      var el = document.getElementById('salesCity');
+      el.textContent = selectedProvince + ' · ' + city;
+      el.style.color = 'var(--text)';
+      closeModal('cityModal');
+    }
+
+    function calcSalesTotal() {
+      var form = document.getElementById('salesForm');
+      if (!form) return;
+      var inputs = form.querySelectorAll('input[type="number"]');
+      var qty = parseFloat(inputs[0].value) || 0;
+      var price = parseFloat(inputs[1].value) || 0;
+      var totalInput = inputs[2];
+      if (qty > 0 && price > 0) {
+        totalInput.value = (qty * price).toFixed(2);
+      } else {
+        totalInput.value = '';
+      }
+    }
+
+    (function() {
+      var form = document.getElementById('salesForm');
+      if (!form) return;
+      var inputs = form.querySelectorAll('input[type="number"]');
+      inputs[0].addEventListener('input', calcSalesTotal);
+      inputs[1].addEventListener('input', calcSalesTotal);
+    })();
 
     function navigateTo(url) {
       window.location.href = url;

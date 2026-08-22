@@ -427,7 +427,7 @@
               <circle cx="12" cy="7" r="4"/>
             </svg>
           </div>
-          <div class="avatar-edit" onclick="openProfile()">
+          <div class="avatar-edit">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
             </svg>
@@ -535,164 +535,21 @@
           </div>
         </div>
 
-        <div class="mb-list-item" onclick="navigateTo('mb_profile_settings.html')">
-          <div class="mb-list-icon menu-icon gray">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="3"/>
-              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-            </svg>
-          </div>
-          <div class="mb-list-content">
-            <div class="mb-list-title">设置</div>
-          </div>
-          <div class="mb-list-arrow">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M9 18l6-6-6-6"/>
-            </svg>
-          </div>
-        </div>
-      </div>
-
-      <div class="mb-list" style="margin: var(--space-4) 0;">
-        <div class="mb-list-item" onclick="showFeedbackModal()">
-          <div class="mb-list-icon menu-icon cyan">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"/>
-              <path d="M8 15s1.5-2 4-2 4 2 4 2"/>
-              <circle cx="12" cy="9" r="3"/>
-            </svg>
-          </div>
-          <div class="mb-list-content">
-            <div class="mb-list-title">帮助与反馈</div>
-          </div>
-          <div class="mb-list-arrow">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M9 18l6-6-6-6"/>
-            </svg>
-          </div>
         </div>
 
-        <div class="mb-list-item" onclick="showContactModal()">
-          <div class="mb-list-icon menu-icon blue">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-            </svg>
-          </div>
-          <div class="mb-list-content">
-            <div class="mb-list-title">联系客服</div>
-          </div>
-          <div class="mb-list-arrow">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M9 18l6-6-6-6"/>
-            </svg>
-          </div>
-        </div>
-      </div>
-
-      <button class="mb-btn mb-btn-secondary" style="margin: var(--space-4) auto; display: block; min-width: 180px;" onclick="confirmLogout()">退出登录</button>
+      <button class="mb-btn mb-btn-secondary" style="margin: var(--space-4) auto; display: block; min-width: 180px;" onclick="goHome()">返回南丰蜜桔助手首页</button>
     </div>
     </div><div class="modal-overlay" id="modal">
     <div class="modal-box">
       <div class="modal-title" id="modalTitle">操作提示</div>
-      <div class="modal-content" id="modalContent">确定要退出登录吗？</div>
+      <div class="modal-content" id="modalContent"></div>
       <div class="modal-btn-group">
-        <button class="modal-btn cancel" onclick="closeModal()">取消</button>
-        <button class="modal-btn confirm" onclick="doLogout()">确定</button>
+        <button class="modal-btn cancel" onclick="closeModal()">关闭</button>
       </div>
     </div>
   </div>
 
-  <!-- 帮助与反馈弹窗 -->
-  <div class="modal-overlay" id="feedbackModal">
-    <div class="info-modal-box">
-      <div class="info-modal-header">
-        <div class="info-modal-title">帮助与反馈</div>
-        <div class="info-modal-close" onclick="closeInfoModal('feedbackModal')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </div>
-      </div>
-      <div class="info-modal-body">
-        <div class="feedback-tags">
-          <div class="feedback-tag" data-type="bug" onclick="selectFeedbackType('bug')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-            <span>问题反馈</span>
-          </div>
-          <div class="feedback-tag" data-type="feature" onclick="selectFeedbackType('feature')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-            <span>功能建议</span>
-          </div>
-          <div class="feedback-tag" data-type="question" onclick="selectFeedbackType('question')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-            <span>使用疑问</span>
-          </div>
-          <div class="feedback-tag" data-type="other" onclick="selectFeedbackType('other')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-            <span>其他</span>
-          </div>
-        </div>
-        <textarea class="textarea-box" id="feedbackContent" placeholder="请详细描述您的问题或建议（至少5个字符）..."></textarea>
-        <button class="mb-btn mb-btn-primary mb-btn-block" onclick="submitFeedback()">提交反馈</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- 联系客服弹窗 -->
-  <div class="modal-overlay" id="contactModal">
-    <div class="info-modal-box">
-      <div class="info-modal-header">
-        <div class="info-modal-title">联系客服</div>
-        <div class="info-modal-close" onclick="closeInfoModal('contactModal')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </div>
-      </div>
-      <div class="info-modal-body">
-        <div class="info-contact-card">
-          <div class="info-contact-title">联系方式</div>
-          <div class="info-contact-item">
-            <div class="info-contact-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-            </div>
-            <div class="info-contact-content">
-              <div class="info-contact-label">客服电话</div>
-              <div class="info-contact-value">0794-3226027</div>
-            </div>
-          </div>
-          <div class="info-contact-item">
-            <div class="info-contact-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M8 2v4"/><path d="M16 2v4"/><path d="M3 10h18"/></svg>
-            </div>
-            <div class="info-contact-content">
-              <div class="info-contact-label">电子邮箱</div>
-              <div class="info-contact-value">service@junongtong.com</div>
-            </div>
-          </div>
-        </div>
-        <div class="info-section">
-          <div class="info-section-title">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-            服务时间
-          </div>
-          <div class="info-list">
-            <div class="info-list-item">工作日：09:00 - 17:30</div>
-            <div class="info-list-item">周末：10:00 - 16:00</div>
-            <div class="info-list-item">节假日：10:00 - 16:00</div>
-          </div>
-        </div>
-        <div class="info-section">
-          <div class="info-section-title">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/></svg>
-            在线服务
-          </div>
-          <div class="info-list">
-            <div class="info-list-item">微信公众号：蜜桔农业助手服务号</div>
-            <div class="info-list-item">QQ群：123456789</div>
-            <div class="info-list-item">在线时间：工作日 9:00-17:00</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-    <!-- 底部导航 -->
+  <!-- 底部导航 -->
     <div class="mb-tab-bar">
       <div class="mb-tab-item" onclick="navigateTo('mb_home.html')">
         <svg class="mb-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
@@ -722,64 +579,8 @@
 
     function closeModal() { document.getElementById('modal').classList.remove('show'); }
 
-    function confirmLogout() { openModal('退出登录', '确定要退出登录吗？'); }
-
-    function doLogout() {
-      sessionStorage.removeItem('isLoggedIn');
+    function goHome() {
       window.location.href = 'mb_home.html';
-    }
-
-    function openProfile() {
-      openModal('个人信息', '用户ID：NJ2026001\n角色：地块负责人\n负责区域：南丰县');
-    }
-
-    function showFeedbackModal() {
-      var modal = document.getElementById('feedbackModal');
-      modal.classList.add('show');
-      document.body.style.overflow = 'hidden';
-      modal.onclick = function(e) {
-        if (e.target === modal) {
-          closeInfoModal('feedbackModal');
-        }
-      };
-    }
-
-    function showContactModal() {
-      var modal = document.getElementById('contactModal');
-      modal.classList.add('show');
-      document.body.style.overflow = 'hidden';
-      modal.onclick = function(e) {
-        if (e.target === modal) {
-          closeInfoModal('contactModal');
-        }
-      };
-    }
-
-    function closeInfoModal(id) {
-      document.getElementById(id).classList.remove('show');
-      document.body.style.overflow = '';
-    }
-
-    function selectFeedbackType(type) {
-      document.querySelectorAll('.feedback-tag').forEach(el => {
-        el.classList.remove('active');
-      });
-      document.querySelector(`[data-type="${type}"]`).classList.add('active');
-    }
-
-    function submitFeedback() {
-      var content = document.getElementById('feedbackContent').value;
-      if (!content || content.trim().length < 5) {
-        alert('请输入详细的反馈内容（至少5个字符）');
-        return;
-      }
-      document.getElementById('feedbackContent').value = '';
-      document.querySelectorAll('.feedback-tag').forEach(el => {
-        el.classList.remove('active');
-      });
-      closeInfoModal('feedbackModal');
-      openModal('提交成功', '感谢您的宝贵意见，我们会尽快处理');
-      document.body.style.overflow = 'hidden';
     }
 
     (function() {

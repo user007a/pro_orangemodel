@@ -1,0 +1,461 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>蜜桔农业助手 - 病虫害详情</title>
+  <link rel="stylesheet" href="css/mobile-design-system.css">
+  <link rel="stylesheet" href="css/detail-page.css">
+  <style>
+    .symptom-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .symptom-img {
+      aspect-ratio: 1;
+      background: linear-gradient(135deg, var(--gray-50), var(--bg));
+      border-radius: var(--radius-md);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      font-size: var(--font-xs);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-light);
+    }
+    .symptom-img svg { width: 28px; height: 28px; color: var(--primary); opacity: 0.6; }
+  </style>
+</head>
+<body>
+  <div class="mb-app">
+    <!-- 顶部 Banner -->
+    <div class="detail-banner">
+      <div class="detail-banner-inner">
+        <div class="detail-banner-back" onclick="goBack()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M15 18l-6-6 6-6"/>
+          </svg>
+        </div>
+        <div class="detail-banner-content">
+          <div class="detail-banner-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/>
+            </svg>
+          </div>
+          <div class="detail-banner-info">
+            <div class="detail-banner-title" id="pestTitle">红蜘蛛</div>
+            <div class="detail-banner-subtitle" id="pestSubtitle">螨虫类 · 高度危害</div>
+            <div class="detail-banner-tags" id="pestTags"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 锚点 Tab -->
+    <div class="detail-tabs" id="detailTabs">
+      <div class="detail-tab active" data-anchor="symptom" onclick="scrollToAnchor('symptom')">典型症状</div>
+      <div class="detail-tab" data-anchor="pattern" onclick="scrollToAnchor('pattern')">发生规律</div>
+      <div class="detail-tab" data-anchor="control" onclick="scrollToAnchor('control')">防治方法</div>
+      <div class="detail-tab" data-anchor="drug" onclick="scrollToAnchor('drug')">推荐用药</div>
+      <div class="detail-tab" data-anchor="risk" onclick="scrollToAnchor('risk')">果园风险</div>
+    </div>
+
+    <!-- 我的果园风险评估 -->
+    <div class="risk-eval-card" id="riskSection">
+      <div class="risk-eval-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        我的果园风险评估
+      </div>
+      <div class="risk-env" id="riskEnv">环境数据加载中...</div>
+      <div id="riskList"></div>
+    </div>
+
+    <!-- 典型症状 -->
+    <div class="detail-section" id="symptom">
+      <div class="detail-section-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
+        典型症状
+      </div>
+      <div class="detail-section-content" id="symptomContent"></div>
+      <div class="symptom-grid" id="symptomImages" style="margin-top: 12px;"></div>
+    </div>
+
+    <!-- 发生规律 -->
+    <div class="detail-section" id="pattern">
+      <div class="detail-section-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
+        发生规律
+      </div>
+      <div class="detail-section-content" id="patternContent"></div>
+    </div>
+
+    <!-- 防治方法 -->
+    <div class="detail-section" id="control">
+      <div class="detail-section-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        防治方法
+      </div>
+      <div class="detail-list" id="controlContent"></div>
+    </div>
+
+    <!-- 推荐用药 -->
+    <div class="detail-section" id="drug">
+      <div class="detail-section-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.5 20H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h7l5 5v5"/><circle cx="14" cy="17" r="2"/></svg>
+        推荐用药
+      </div>
+      <div id="drugContent"></div>
+    </div>
+
+    <div style="height: 80px;"></div>
+
+    <!-- 底部操作栏 -->
+    <div class="detail-bottom-bar">
+      <button class="detail-bottom-btn" onclick="goBack()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        返回知识库
+      </button>
+      <button class="detail-bottom-btn" onclick="addToPlan()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><polyline points="9 5 12 2 15 5"/></svg>
+        加入用药计划
+      </button>
+      <button class="detail-bottom-btn primary" onclick="goDiseaseAI()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        拍照识别
+      </button>
+    </div>
+  </div>
+
+  <script src="js/pest-risk-engine.js"></script>
+  <script>
+    // 从 URL 取病虫害 key，默认红蜘蛛
+    function getQueryParam(name) {
+      var match = location.search.match(new RegExp('[?&]' + name + '=([^&]*)'));
+      return match ? decodeURIComponent(match[1]) : null;
+    }
+
+    var pestKey = getQueryParam('pest') || '红蜘蛛';
+    var pestInfo = (window.PestRiskEngine.PEST_DB || {})[pestKey] || {};
+
+    // 病虫害详细描述数据（按 key 索引）
+    var DETAIL_DATA = {
+      '红蜘蛛': {
+        symptom: '红蜘蛛主要为害叶片，受害叶片正面出现密集的黄白色小点，严重时整片叶子发黄、失去光泽。叶片背面可见红色或锈红色的细丝（即虫体和卵），并伴有细小的蛛网状丝。高发期集中在7-9月，每年可发生15-20代，世代重叠严重。',
+        symptomImages: [
+          { icon: 'circle', label: '初期叶斑' },
+          { icon: 'sun', label: '中期蛛丝' },
+          { icon: 'alert', label: '后期焦枯' }
+        ],
+        pattern: [
+          '适宜温度 25-32°C，最适 27-30°C',
+          '湿度低于 70% 时爆发，特别是干旱季节',
+          '高温干旱季节繁殖迅速，5-7天可完成一代',
+          '主要在叶背吸食汁液，群集为害',
+          '每年7-9月为爆发高峰期'
+        ],
+        control: [
+          { title: '农业防治', desc: '合理修剪，保持果园通风透光；清除落叶杂草，减少越冬虫源' },
+          { title: '生物防治', desc: '保护天敌如捕食螨、草蛉等；在果园边种植藿香蓟等植物涵养天敌' },
+          { title: '物理防治', desc: '使用黄色粘虫板诱杀；干旱季节果园喷雾增湿抑制繁殖' },
+          { title: '化学防治', desc: '在若螨盛发期喷施杀螨剂，注意轮换用药避免抗药性' }
+        ]
+      },
+      '蚧壳虫': {
+        symptom: '蚧壳虫成虫和若虫附着在枝干、叶片和果实上吸食汁液，造成叶片发黄、枝条枯死、果实品质下降。受害部位常覆盖一层灰白色或褐色的介壳，并伴有黏液（蜜露）引发煤污病。',
+        symptomImages: [
+          { icon: 'square', label: '枝干附着' },
+          { icon: 'cloud', label: '蜜露污染' },
+          { icon: 'leaf', label: '叶片危害' }
+        ],
+        pattern: [
+          '适宜温度 20-28°C',
+          '湿度 60-85% 时高发',
+          '多数种类一年发生 2-3 代',
+          '若虫孵化盛期是防治关键期',
+          '4-6 月和 9-10 月为高发期'
+        ],
+        control: [
+          { title: '农业防治', desc: '结合修剪剪除虫枝；合理施肥增强树势' },
+          { title: '生物防治', desc: '保护瓢虫、草蛉等天敌；引进澳洲瓢虫防治吹绵蚧' },
+          { title: '化学防治', desc: '若虫盛发期喷施毒死蜱或噻嗪酮，需连续防治2次' }
+        ]
+      },
+      '炭疽病': {
+        symptom: '炭疽病主要为害叶片、枝梢和果实。叶片病斑近圆形或不规则形，边缘深褐色，中央灰褐色并有小黑点（分生孢子盘）。果实发病后产生褐色凹陷病斑，俗称"花皮果"。',
+        symptomImages: [
+          { icon: 'circle', label: '叶斑' },
+          { icon: 'square', label: '果实凹陷' },
+          { icon: 'cloud', label: '小黑点' }
+        ],
+        pattern: [
+          '适宜温度 22-30°C',
+          '高湿（>80%）是发病关键',
+          '多雨季节易流行',
+          '病菌在病残体上越冬',
+          '5-9 月为流行期'
+        ],
+        control: [
+          { title: '农业防治', desc: '清除病枝病果并销毁；合理修剪改善通风' },
+          { title: '化学防治', desc: '发病初期喷施代森锰锌或咪鲜胺，7-10 天连续2-3次' }
+        ]
+      },
+      '黑点病': {
+        symptom: '黑点病主要为害果实和叶片。果实受害后表面散生或密生隆起的黑色小粒点（分生孢子器），病果品质严重下降，不耐贮藏。叶片病斑圆形，灰褐色。',
+        symptomImages: [
+          { icon: 'circle', label: '果实黑点' },
+          { icon: 'leaf', label: '叶片病斑' },
+          { icon: 'alert', label: '品质下降' }
+        ],
+        pattern: [
+          '适宜温度 18-26°C',
+          '湿度 >75% 时易发病',
+          '春末夏初（4-6 月）多雨时流行',
+          '病菌在病残体上越冬',
+          '弱树、密植园发病重'
+        ],
+        control: [
+          { title: '农业防治', desc: '加强栽培管理增强树势；合理负载避免大小年' },
+          { title: '化学防治', desc: '幼果期开始喷施代森锰锌或百菌清，雨前雨后各一次' }
+        ]
+      },
+      '木虱': {
+        symptom: '柑桔木虱是黄龙病的传播媒介昆虫。若虫和成虫在嫩梢上吸食汁液，被害嫩梢萎缩畸形。木虱本身危害不大，但携带黄龙病病原会造成毁灭性损失，必须重点防控。',
+        symptomImages: [
+          { icon: 'triangle', label: '成虫形态' },
+          { icon: 'leaf', label: '嫩梢危害' },
+          { icon: 'alert', label: '传播黄龙病' }
+        ],
+        pattern: [
+          '适宜温度 22-30°C',
+          '湿度 50-70% 时活跃',
+          '一年可发生 6-8 代',
+          '在新梢抽发期大量繁殖',
+          '4-10 月持续危害'
+        ],
+        control: [
+          { title: '农业防治', desc: '统一放梢切断食物链；挖除黄龙病树减少传播源' },
+          { title: '物理防治', desc: '使用黄色粘虫板监测和诱杀' },
+          { title: '化学防治', desc: '新梢期喷施吡虫啉或噻虫嗪，连续防治直至停梢' }
+        ]
+      },
+      '蚜虫': {
+        symptom: '蚜虫群集在嫩梢、嫩叶背面吸食汁液，造成叶片卷曲皱缩、新梢生长不良。蚜虫分泌的蜜露还会诱发煤污病，影响光合作用。',
+        symptomImages: [
+          { icon: 'leaf', label: '嫩梢危害' },
+          { icon: 'circle', label: '卷叶' },
+          { icon: 'cloud', label: '蜜露污染' }
+        ],
+        pattern: [
+          '适宜温度 16-26°C',
+          '春季新梢期爆发',
+          '一年发生 20-30 代',
+          '繁殖速度快，世代重叠',
+          '4-6 月和 9-10 月为害重'
+        ],
+        control: [
+          { title: '物理防治', desc: '黄板诱杀；修剪去除虫梢' },
+          { title: '生物防治', desc: '保护瓢虫、草蛉、食蚜蝇等天敌' },
+          { title: '化学防治', desc: '新梢期喷施吡虫啉或啶虫脒' }
+        ]
+      },
+      '锈壁虱': {
+        symptom: '锈壁虱主要为害果实和叶片。受害果实表面形成黑褐色锈斑，严重时整果变成黑褐色（俗称"黑皮果"），果实品质严重下降，无法销售。',
+        symptomImages: [
+          { icon: 'square', label: '果面锈斑' },
+          { icon: 'circle', label: '黑皮果' },
+          { icon: 'leaf', label: '叶片危害' }
+        ],
+        pattern: [
+          '适宜温度 24-32°C',
+          '高温干旱季节爆发',
+          '一年发生 20-30 代',
+          '果实膨大期为害严重',
+          '6-10 月持续危害'
+        ],
+        control: [
+          { title: '农业防治', desc: '合理灌溉保持果园湿度；修剪改善通风' },
+          { title: '化学防治', desc: '幼果期开始预防，喷施阿维菌素或丁硫克百威' }
+        ]
+      }
+    };
+
+    var data = DETAIL_DATA[pestKey] || DETAIL_DATA['红蜘蛛'];
+
+    // 渲染顶部信息
+    function renderHeader() {
+      document.getElementById('pestTitle').textContent = pestKey;
+      var severityText = pestInfo.severity === 'high' ? '高度危害' : pestInfo.severity === 'medium' ? '中度危害' : '低度危害';
+      document.getElementById('pestSubtitle').textContent = severityText;
+
+      var tagsHtml = '';
+      tagsHtml += '<span class="detail-banner-tag danger">危险性:' + (pestInfo.severity === 'high' ? '高' : '中') + '</span>';
+      if (pestInfo.tempOptimal) tagsHtml += '<span class="detail-banner-tag">最适温度 ' + pestInfo.tempOptimal.join('-') + '°C</span>';
+      if (pestInfo.seasonMonths) {
+        var months = pestInfo.seasonMonths.map(function(m){return m + '月'}).join('、');
+        tagsHtml += '<span class="detail-banner-tag">高发期 ' + months + '</span>';
+      }
+      document.getElementById('pestTags').innerHTML = tagsHtml;
+    }
+
+    // 渲染典型症状
+    function renderSymptom() {
+      document.getElementById('symptomContent').textContent = data.symptom;
+      var imgHtml = '';
+      (data.symptomImages || []).forEach(function(item) {
+        imgHtml += '<div class="symptom-img">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' +
+            (item.icon === 'circle' ? '<circle cx="12" cy="12" r="10"/>' :
+             item.icon === 'sun' ? '<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/>' :
+             item.icon === 'alert' ? '<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>' :
+             item.icon === 'square' ? '<rect x="3" y="3" width="18" height="18" rx="2"/>' :
+             item.icon === 'leaf' ? '<path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"/>' :
+             item.icon === 'triangle' ? '<path d="M12 2L2 22h20z"/>' :
+             item.icon === 'cloud' ? '<path d="M18 10h-1.26A8 8 0 1 0 9 20h9h0a5 5 0 0 0 0-10z"/>' :
+             '<circle cx="12" cy="12" r="10"/>') +
+          '</svg>' +
+          '<span>' + item.label + '</span>' +
+        '</div>';
+      });
+      document.getElementById('symptomImages').innerHTML = imgHtml;
+    }
+
+    // 渲染发生规律
+    function renderPattern() {
+      var html = '';
+      data.pattern.forEach(function(item) {
+        html += '<div style="display:flex;gap:8px;padding:6px 0;"><span style="color:var(--primary);">•</span><span>' + item + '</span></div>';
+      });
+      document.getElementById('patternContent').innerHTML = html;
+    }
+
+    // 渲染防治方法
+    function renderControl() {
+      var html = '';
+      data.control.forEach(function(item, idx) {
+        html += '<div class="detail-list-item">' +
+          '<div class="detail-list-num">' + (idx + 1) + '</div>' +
+          '<div><strong style="color:var(--text);">' + item.title + '</strong>：' + item.desc + '</div>' +
+        '</div>';
+      });
+      document.getElementById('controlContent').innerHTML = html;
+    }
+
+    // 渲染推荐用药
+    function renderDrugs() {
+      var drugs = window.PestRiskEngine.getDrugs(pestKey);
+      var html = '';
+      drugs.forEach(function(d) {
+        html += '<div class="drug-card">' +
+          '<div class="drug-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.5 20H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h7l5 5v5"/><circle cx="14" cy="17" r="2"/></svg></div>' +
+          '<div class="drug-info">' +
+            '<div class="drug-name">' + d.name + '</div>' +
+            '<div class="drug-spec">' + d.spec + ' · ' + d.period + '</div>' +
+          '</div>' +
+          '<div class="drug-action" onclick="addDrug(\'' + d.name + '\')">使用</div>' +
+        '</div>';
+      });
+      if (!html) html = '<div style="text-align:center;color:var(--text-tertiary);padding:20px;">暂无推荐用药</div>';
+      document.getElementById('drugContent').innerHTML = html;
+    }
+
+    // 渲染风险评估（基于引擎）
+    function renderRisk() {
+      // 模拟当前环境数据
+      var envData = {
+        temp: 35,
+        humidity: 45,
+        rainfall: 0
+      };
+      // 模拟历史数据
+      var historyData = {
+        dailyTemps: [22, 24, 26, 28, 30, 32, 34, 35, 33, 31],
+        captures: {
+          '红蜘蛛': { recent7day: 8 },
+          '蚧壳虫': { recent7day: 3 },
+          '炭疽病': { recent7day: 2 }
+        }
+      };
+
+      document.getElementById('riskEnv').innerHTML =
+        '当前环境：<strong>' + envData.temp + '°C</strong> · 湿度 <strong>' + envData.humidity + '%</strong> · 降雨 <strong>' + envData.rainfall + 'mm</strong>';
+
+      var results = window.PestRiskEngine.assess(envData, historyData);
+      // 只展示该病虫害自身 + Top 3 其它高风险
+      var related = results.filter(function(r) {
+        return r.key === pestKey || (r.score >= 30 && r.level !== 'low');
+      }).slice(0, 4);
+
+      var html = '';
+      related.forEach(function(r) {
+        var factorsHtml = '';
+        r.factors.forEach(function(f) {
+          factorsHtml += '<span class="risk-factor-tag">' + f.name + '</span>';
+        });
+        html += '<div class="risk-item">' +
+          '<div class="risk-item-head">' +
+            '<div class="risk-item-name">' + r.icon + ' ' + r.name + (r.key === pestKey ? ' (本病虫害)' : '') + '</div>' +
+            '<div class="risk-item-score">' +
+              '<span class="risk-item-level ' + r.level + '">' +
+                (r.level === 'high' ? '高风险' : r.level === 'medium' ? '中风险' : '低风险') +
+              '</span>' +
+              '<span style="font-size:var(--font-xs);color:var(--text-secondary);font-weight:600;">' + r.score + '</span>' +
+            '</div>' +
+          '</div>' +
+          '<div class="risk-bar"><div class="risk-bar-fill ' + r.level + '" style="width:' + r.score + '%;"></div></div>' +
+          (factorsHtml ? '<div class="risk-factors">' + factorsHtml + '</div>' : '') +
+        '</div>';
+      });
+      document.getElementById('riskList').innerHTML = html;
+    }
+
+    // 锚点滚动
+    function scrollToAnchor(anchor) {
+      var el = document.getElementById(anchor);
+      if (!el) return;
+      var offset = 70;
+      window.scrollTo({ top: el.offsetTop - offset, behavior: 'smooth' });
+      document.querySelectorAll('.detail-tab').forEach(function(t) { t.classList.remove('active'); });
+      var tab = document.querySelector('.detail-tab[data-anchor="' + anchor + '"]');
+      if (tab) tab.classList.add('active');
+    }
+
+    // 滚动联动高亮
+    var scrollTimer;
+    window.addEventListener('scroll', function() {
+      clearTimeout(scrollTimer);
+      scrollTimer = setTimeout(function() {
+        var sections = ['symptom', 'pattern', 'control', 'drug', 'risk'];
+        var active = sections[0];
+        sections.forEach(function(id) {
+          var el = document.getElementById(id);
+          if (!el) return;
+          var rect = el.getBoundingClientRect();
+          if (rect.top <= 100 && rect.bottom > 100) active = id;
+        });
+        document.querySelectorAll('.detail-tab').forEach(function(t) {
+          t.classList.toggle('active', t.getAttribute('data-anchor') === active);
+        });
+      }, 50);
+    });
+
+    function goBack() { history.back(); }
+    function goDiseaseAI() { navigateTo('mb_disease_ai.html?pest=' + encodeURIComponent(pestKey)); }
+    function addToPlan() {
+      navigateTo('mb_data_input.html?type=farming&pest=' + encodeURIComponent(pestKey));
+    }
+    function addDrug(name) {
+      alert('已加入用药计划：' + name);
+    }
+    function navigateTo(url) { window.location.href = url; }
+
+    renderHeader();
+    renderSymptom();
+    renderPattern();
+    renderControl();
+    renderDrugs();
+    renderRisk();
+  </script>
+</body>
+</html>

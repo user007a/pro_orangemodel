@@ -33,10 +33,6 @@
                     <iconify-icon icon="material-symbols:search" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2"></iconify-icon>
                     <input type="text" id="search-input" placeholder="搜索数据记录..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm w-64" oninput="filterData()">
                 </div>
-                <button onclick="openExportModal()" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 text-sm flex items-center">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                    导出数据
-                </button>
                 <button onclick="openAddModal()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm flex items-center">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                     录入数据
@@ -225,23 +221,6 @@
         </div>
     </div>
 
-    <!-- 导出数据弹窗 -->
-    <div id="export-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center">
-        <div style="background:#fff;border-radius:12px;width:90%;max-width:400px">
-            <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
-                <h3 style="font-size:18px;font-weight:600;color:#1f2937">导出数据</h3>
-                <button onclick="closeModal('export-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
-            </div>
-            <div style="padding:24px">
-                <div style="margin-bottom:16px"><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">导出格式</label><select id="export-format" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"><option value="Excel">Excel (.xlsx)</option><option value="CSV">CSV (.csv)</option><option value="PDF">PDF (.pdf)</option></select></div>
-            </div>
-            <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:12px">
-                <button onclick="closeModal('export-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
-                <button onclick="confirmExport()" style="padding:8px 16px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">确认导出</button>
-            </div>
-        </div>
-    </div>
-
     <!-- 查看详情弹窗 -->
     <div id="detail-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center">
         <div style="background:#fff;border-radius:16px;width:90%;max-width:560px;max-height:85vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.15)">
@@ -386,17 +365,6 @@
             document.getElementById('add-detail').value = '';
             document.getElementById('add-note').value = '';
             showModal('add-modal');
-        }
-
-        function openExportModal() {
-            document.getElementById('export-format').value = 'Excel';
-            showModal('export-modal');
-        }
-
-        function confirmExport() {
-            var format = document.getElementById('export-format').value;
-            alert('数据导出成功！\n导出格式: ' + format + '\n导出记录数: ' + document.getElementById('total-count').textContent + ' 条');
-            closeModal('export-modal');
         }
 
         // 上报数据字段映射（对应微信端 mb_data_input.html 各上报类型）
@@ -591,7 +559,7 @@
 
         // 点击遮罩关闭弹窗
         document.addEventListener('click', function(e) {
-            var ids = ['add-modal', 'export-modal', 'detail-modal', 'audit-modal', 'delete-modal'];
+            var ids = ['add-modal', 'detail-modal', 'audit-modal', 'delete-modal'];
             for (var i = 0; i < ids.length; i++) {
                 var m = document.getElementById(ids[i]);
                 if (m && m.style.display === 'flex') {

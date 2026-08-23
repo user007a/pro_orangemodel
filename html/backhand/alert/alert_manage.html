@@ -32,10 +32,6 @@
                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                     新增人工预警
                 </button>
-                <button onclick="openExportModal()" class="px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50 flex items-center transition">
-                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                    批量导出
-                </button>
             </div>
         </div>
 
@@ -480,44 +476,6 @@
         </div>
     </div>
 
-    <!-- 批量导出弹窗 -->
-    <div id="export-modal" class="modal-overlay">
-        <div class="modal-content" style="max-width: 500px;">
-            <div class="p-4 border-b border-gray-200 flex items-center justify-between">
-                <h3 class="text-lg font-semibold text-gray-800 flex items-center">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                    批量导出预警
-                </h3>
-                <button onclick="closeModal('export-modal')" class="p-1 hover:bg-gray-100 rounded">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
-            </div>
-            <div class="p-6">
-                <div class="mb-4">
-                    <p class="text-sm text-gray-500 mb-2">导出范围</p>
-                    <div class="space-y-2">
-                        <label class="flex items-center"><input type="radio" name="export-range" value="all" checked class="mr-2"> 全部预警数据（<span id="export-total-count">35</span> 条）</label>
-                        <label class="flex items-center"><input type="radio" name="export-range" value="filtered" class="mr-2"> 当前筛选结果（<span id="export-filtered-count">35</span> 条）</label>
-                    </div>
-                </div>
-                <div class="mb-4">
-                    <p class="text-sm text-gray-500 mb-2">导出格式</p>
-                    <div class="space-y-2">
-                        <label class="flex items-center"><input type="radio" name="export-format" value="csv" checked class="mr-2"> CSV 格式</label>
-                        <label class="flex items-center"><input type="radio" name="export-format" value="xlsx" class="mr-2"> Excel 格式 (.xlsx)</label>
-                    </div>
-                </div>
-                <div class="p-3 bg-green-50 rounded-lg">
-                    <p class="text-sm text-green-700">点击确认后将开始下载导出文件</p>
-                </div>
-            </div>
-            <div class="p-4 border-t border-gray-200 flex justify-end space-x-3">
-                <button onclick="closeModal('export-modal')" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm">取消</button>
-                <button onclick="submitExport()" class="px-4 py-2 text-white rounded-lg hover:bg-green-700 text-sm" style="background-color: #16A34A;">确认导出</button>
-            </div>
-        </div>
-    </div>
-
     <script>
         const LEVEL_STYLES = {
             '红色预警': 'bg-red-100 text-red-700',
@@ -587,7 +545,6 @@
             document.getElementById('stat-pending').textContent = alerts.filter(a => a.status === '待审核').length;
             document.getElementById('stat-published').textContent = alerts.filter(a => a.status === '已发布').length;
             document.getElementById('stat-disposed').textContent = alerts.filter(a => a.status === '已处置').length;
-            document.getElementById('export-total-count').textContent = alerts.length;
         }
 
         function renderTable() {
@@ -633,7 +590,6 @@
             }
 
             document.getElementById('page-info').textContent = total === 0 ? '共 0 条记录' : `第 ${start + 1}-${end} 条，共 ${total} 条记录`;
-            document.getElementById('export-filtered-count').textContent = filteredAlerts.length;
             renderPagination(totalPages);
         }
 
@@ -920,25 +876,6 @@
             alert('预警发布成功！');
         }
 
-        function openExportModal() {
-            document.getElementById('export-modal').classList.add('active');
-        }
-
-        function submitExport() {
-            const range = document.querySelector('input[name="export-range"]:checked').value;
-            const format = document.querySelector('input[name="export-format"]:checked').value;
-            const data = range === 'all' ? alerts : filteredAlerts;
-            const content = '预警编号,预警标题,预警级别,预警来源,影响区域,状态,创建时间\n' +
-                data.map(a => `${a.id},${a.title},${a.level},${a.source},${a.area},${a.status},${a.created}`).join('\n');
-            const blob = new Blob(['\ufeff' + content], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = '预警数据_' + new Date().toISOString().split('T')[0] + '.csv';
-            link.click();
-            closeModal('export-modal');
-            alert('导出成功！共导出 ' + data.length + ' 条预警数据。');
-        }
-
         document.querySelectorAll('input[name="publish-area"]').forEach(radio => {
             radio.addEventListener('change', function() {
                 document.getElementById('publish-custom-area').disabled = this.value !== 'custom';
@@ -946,7 +883,7 @@
         });
 
         document.addEventListener('click', (e) => {
-            ['detail-modal', 'edit-modal', 'delete-modal', 'add-alert-modal', 'audit-modal', 'publish-modal', 'export-modal'].forEach(id => {
+            ['detail-modal', 'edit-modal', 'delete-modal', 'add-alert-modal', 'audit-modal', 'publish-modal'].forEach(id => {
                 const modal = document.getElementById(id);
                 if (!modal) return;
                 if (e.target === modal) modal.classList.remove('active');

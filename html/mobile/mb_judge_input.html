@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
+﻿﻿﻿﻿﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -134,6 +134,167 @@
             flex: 1;
             height: 48px;
         }
+
+        /* 指标参考范围提示 */
+        .judge-hint {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            margin-top: 4px;
+            line-height: 1.4;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+        }
+        .judge-hint .range { color: var(--text-secondary); }
+        .judge-hint .level {
+            font-size: 10px;
+            padding: 1px 6px;
+            border-radius: 8px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        .judge-hint .level.low { background: var(--info-light); color: var(--info-dark); }
+        .judge-hint .level.normal { background: var(--success-bg); color: var(--success); }
+        .judge-hint .level.high { background: var(--warning-light); color: var(--warning-dark); }
+
+        /* 边框颜色反馈 */
+        .judge-form-input.low { border-color: var(--info); background: #f0f8ff; }
+        .judge-form-input.normal { border-color: var(--success); }
+        .judge-form-input.high { border-color: var(--warning); background: #fffbe6; }
+        .judge-form-input:focus.low,
+        .judge-form-input:focus.normal,
+        .judge-form-input:focus.high {
+            box-shadow: 0 0 0 3px rgba(46, 158, 90, 0.1);
+        }
+
+        /* 等级选择器 */
+        .judge-level-group {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+        }
+        .judge-level-option {
+            padding: 8px 4px;
+            text-align: center;
+            background: var(--gray-50);
+            border-radius: var(--radius-sm);
+            font-size: 12px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border: 1.5px solid transparent;
+            transition: all var(--transition-fast);
+        }
+        .judge-level-option.active {
+            background: var(--primary-light);
+            color: var(--primary-700);
+            border-color: var(--primary);
+            font-weight: 600;
+        }
+        .judge-level-option:active { transform: scale(0.96); }
+        .judge-level-hidden { display: none !important; }
+
+        /* 农事记录新增 */
+        .judge-add-btn {
+            margin-left: auto;
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+            padding: 3px 10px;
+            background: var(--primary-50);
+            color: var(--primary-700);
+            border-radius: var(--radius-full);
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .judge-add-btn:active { background: var(--primary-100); }
+        .judge-add-btn svg { width: 12px; height: 12px; }
+
+        .farm-record-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-light);
+        }
+        .farm-record-item:last-child { border-bottom: none; }
+        .farm-record-type {
+            flex-shrink: 0;
+            width: 56px;
+            padding: 5px 8px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--bg-white);
+            font-size: 12px;
+            color: var(--text);
+            text-align: center;
+        }
+        .farm-record-type:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        .farm-record-input {
+            flex: 1;
+            padding: 7px 10px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            color: var(--text);
+            background: var(--bg-white);
+        }
+        .farm-record-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(46, 158, 90, 0.08);
+        }
+        .farm-record-remove {
+            flex-shrink: 0;
+            width: 28px;
+            height: 28px;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-sm);
+            background: var(--bg-white);
+            color: var(--text-tertiary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .farm-record-remove:active { background: var(--error-light); color: var(--error); }
+        .farm-record-remove svg { width: 14px; height: 14px; }
+
+        .farm-record-empty {
+            padding: 16px;
+            text-align: center;
+            color: var(--text-tertiary);
+            font-size: 12px;
+            background: var(--gray-50);
+            border-radius: var(--radius-sm);
+        }
+
+        /* 模式切换 */
+        .judge-mode-switch {
+            display: inline-flex;
+            background: var(--gray-100);
+            border-radius: var(--radius-md);
+            padding: 2px;
+            margin-left: auto;
+        }
+        .judge-mode-btn {
+            padding: 4px 10px;
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+        }
+        .judge-mode-btn.active {
+            background: var(--bg-white);
+            color: var(--primary);
+            font-weight: 600;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
     </style>
 </head>
 <body>
@@ -224,6 +385,7 @@
                                 <input type="number" class="judge-form-input" id="input-temp" value="32">
                                 <span class="unit">°C</span>
                             </div>
+                            <div class="judge-hint"><span class="range">适宜：15-32°C；偏差：10-15 或 32-38</span><span class="level">—</span></div>
                         </div>
                         <div class="judge-form-item">
                             <label class="judge-form-label">空气湿度 <span class="core-tag">核心</span></label>
@@ -231,6 +393,7 @@
                                 <input type="number" class="judge-form-input" id="input-humidity" value="82">
                                 <span class="unit">%</span>
                             </div>
+                            <div class="judge-hint"><span class="range">适宜：60-80%；偏低：<40；偏高：>95</span><span class="level">—</span></div>
                         </div>
                         <div class="judge-form-item">
                             <label class="judge-form-label">土壤含水量 <span class="core-tag">核心</span></label>
@@ -238,6 +401,7 @@
                                 <input type="number" class="judge-form-input" id="input-soil-moisture" value="78">
                                 <span class="unit">%</span>
                             </div>
+                            <div class="judge-hint"><span class="range">适宜：50-70%；偏低：<30；偏高：>85</span><span class="level">—</span></div>
                         </div>
                         <div class="judge-form-item">
                             <label class="judge-form-label">光照适宜度 <span class="core-tag">核心</span></label>
@@ -245,10 +409,12 @@
                                 <input type="number" class="judge-form-input" id="input-light" value="68">
                                 <span class="unit">/100</span>
                             </div>
+                            <div class="judge-hint"><span class="range">适宜：70-100；中等：50-70；偏低：<50</span><span class="level">—</span></div>
                         </div>
                         <div class="judge-form-item">
                             <label class="judge-form-label">土壤 pH</label>
                             <input type="number" step="0.1" class="judge-form-input" id="input-ph" value="5.3">
+                            <div class="judge-hint"><span class="range">适宜：5.5-6.5；偏差：4.5-5.5 或 6.5-7.5</span><span class="level">—</span></div>
                         </div>
                         <div class="judge-form-item">
                             <label class="judge-form-label">土壤 EC</label>
@@ -256,6 +422,7 @@
                                 <input type="number" step="0.01" class="judge-form-input" id="input-ec" value="0.72">
                                 <span class="unit">mS/cm</span>
                             </div>
+                            <div class="judge-hint"><span class="range">适宜：0.8-1.6；盐害：>2.5；不足：<0.4</span><span class="level">—</span></div>
                         </div>
                         <div class="judge-form-item" style="grid-column: span 2;">
                             <label class="judge-form-label">钾营养适宜度</label>
@@ -263,6 +430,7 @@
                                 <input type="number" class="judge-form-input" id="input-k-potassium" value="72">
                                 <span class="unit">/100</span>
                             </div>
+                            <div class="judge-hint"><span class="range">适宜：70-100；中等：50-70；偏低：<50</span><span class="level">—</span></div>
                         </div>
                     </div>
                 </div>
@@ -273,90 +441,146 @@
                     <div class="judge-section-title">
                         <span class="judge-section-dot" style="background: var(--info);"></span>
                         <span>植株与果实</span>
+                        <div class="judge-mode-switch">
+                            <span class="judge-mode-btn active" onclick="switchJudgeMode('farmer', this)">农户模式</span>
+                            <span class="judge-mode-btn" onclick="switchJudgeMode('expert', this)">农技员模式</span>
+                        </div>
                     </div>
-                    <p class="judge-section-desc">请填写代表性株株或地块抽样平均值</p>
-                    <div class="judge-grid">
-                        <div class="judge-form-item">
-                            <label class="judge-form-label">整体树势</label>
-                            <div class="judge-input-row">
-                                <input type="number" class="judge-form-input" id="input-tree-health" value="86">
-                                <span class="unit">/100</span>
-                            </div>
+                    <p class="judge-section-desc">填写代表性植株或地块抽样平均值；带"🔬"标记的需专业仪器</p>
+
+                    <!-- 整体树势 -->
+                    <div class="judge-form-item">
+                        <label class="judge-form-label">整体树势</label>
+                        <input type="hidden" id="input-tree-health" value="86">
+                        <div class="judge-level-group" data-target="input-tree-health">
+                            <div class="judge-level-option" data-value="40">弱</div>
+                            <div class="judge-level-option" data-value="60">中</div>
+                            <div class="judge-level-option active" data-value="86">良</div>
+                            <div class="judge-level-option" data-value="95">优</div>
                         </div>
-                        <div class="judge-form-item">
-                            <label class="judge-form-label">新梢状态</label>
-                            <div class="judge-input-row">
-                                <input type="number" class="judge-form-input" id="input-shoot" value="82">
-                                <span class="unit">/100</span>
-                            </div>
+                        <div class="judge-hint"><span class="range">参考：弱<40 / 中40-70 / 良70-90 / 优>90</span><span class="level normal">良好</span></div>
+                    </div>
+
+                    <!-- 新梢状态 -->
+                    <div class="judge-form-item">
+                        <label class="judge-form-label">新梢状态</label>
+                        <input type="hidden" id="input-shoot" value="82">
+                        <div class="judge-level-group" data-target="input-shoot">
+                            <div class="judge-level-option" data-value="40">弱</div>
+                            <div class="judge-level-option" data-value="60">中</div>
+                            <div class="judge-level-option active" data-value="82">良</div>
+                            <div class="judge-level-option" data-value="95">优</div>
                         </div>
-                        <div class="judge-form-item">
-                            <label class="judge-form-label">叶片状态</label>
-                            <div class="judge-input-row">
-                                <input type="number" class="judge-form-input" id="input-leaf" value="78">
-                                <span class="unit">/100</span>
-                            </div>
+                        <div class="judge-hint"><span class="range">参考：齐整度+长度综合判断</span><span class="level normal">良好</span></div>
+                    </div>
+
+                    <!-- 叶片状态 -->
+                    <div class="judge-form-item">
+                        <label class="judge-form-label">叶片状态</label>
+                        <input type="hidden" id="input-leaf" value="78">
+                        <div class="judge-level-group" data-target="input-leaf">
+                            <div class="judge-level-option" data-value="40">差</div>
+                            <div class="judge-level-option" data-value="60">中</div>
+                            <div class="judge-level-option active" data-value="78">良</div>
+                            <div class="judge-level-option" data-value="95">优</div>
                         </div>
-                        <div class="judge-form-item">
-                            <label class="judge-form-label">叶片 SPAD</label>
-                            <input type="number" class="judge-form-input" id="input-spad" value="36">
+                        <div class="judge-hint"><span class="range">参考：色泽+完整性+无黄化</span><span class="level normal">良好</span></div>
+                    </div>
+
+                    <!-- 叶片 SPAD（农技员模式） -->
+                    <div class="judge-form-item judge-expert-only">
+                        <label class="judge-form-label">叶片 SPAD <span class="core-tag">🔬</span></label>
+                        <div class="judge-input-row">
+                            <input type="number" step="0.1" class="judge-form-input" id="input-spad" value="36">
+                            <span class="unit">叶绿素仪</span>
                         </div>
-                        <div class="judge-form-item">
-                            <label class="judge-form-label">根系活力</label>
-                            <div class="judge-input-row">
-                                <input type="number" class="judge-form-input" id="input-root" value="68">
-                                <span class="unit">/100</span>
-                            </div>
+                        <div class="judge-hint"><span class="range">参考：果实膨大期 40-55；成熟期 45-60</span><span class="level low">偏低</span></div>
+                    </div>
+
+                    <!-- 根系活力（农技员模式） -->
+                    <div class="judge-form-item judge-expert-only">
+                        <label class="judge-form-label">根系活力 <span class="core-tag">🔬</span></label>
+                        <div class="judge-input-row">
+                            <input type="number" class="judge-form-input" id="input-root" value="68">
+                            <span class="unit">/100</span>
                         </div>
-                        <div class="judge-form-item">
-                            <label class="judge-form-label">挂果负载</label>
-                            <div class="judge-input-row">
-                                <input type="number" class="judge-form-input" id="input-fruit-load" value="118">
-                                <span class="unit">%目标值</span>
-                            </div>
+                        <div class="judge-hint"><span class="range">参考：>80 良好，60-80 一般，<60 弱</span><span class="level normal">一般</span></div>
+                    </div>
+
+                    <!-- 挂果负载 -->
+                    <div class="judge-form-item">
+                        <label class="judge-form-label">挂果负载</label>
+                        <div class="judge-input-row">
+                            <input type="number" class="judge-form-input" id="input-fruit-load" value="118">
+                            <span class="unit">%目标值</span>
                         </div>
-                        <div class="judge-form-item">
-                            <label class="judge-form-label">坐果率</label>
-                            <div class="judge-input-row">
-                                <input type="number" class="judge-form-input" id="input-fruit-set" value="84">
-                                <span class="unit">%</span>
-                            </div>
+                        <div class="judge-hint"><span class="range">参考：80-110% 适宜，>120% 超负载</span><span class="level high">超负载</span></div>
+                    </div>
+
+                    <!-- 坐果率 -->
+                    <div class="judge-form-item">
+                        <label class="judge-form-label">坐果率</label>
+                        <div class="judge-input-row">
+                            <input type="number" class="judge-form-input" id="input-fruit-set" value="84">
+                            <span class="unit">%</span>
                         </div>
-                        <div class="judge-form-item">
-                            <label class="judge-form-label">落果率</label>
-                            <div class="judge-input-row">
-                                <input type="number" class="judge-form-input" id="input-fruit-drop" value="9">
-                                <span class="unit">%</span>
-                            </div>
+                        <div class="judge-hint"><span class="range">参考：>80% 优良，60-80% 中等，<60% 偏低</span><span class="level normal">优良</span></div>
+                    </div>
+
+                    <!-- 落果率 -->
+                    <div class="judge-form-item">
+                        <label class="judge-form-label">落果率</label>
+                        <div class="judge-input-row">
+                            <input type="number" class="judge-form-input" id="input-fruit-drop" value="9">
+                            <span class="unit">%</span>
                         </div>
-                        <div class="judge-form-item">
-                            <label class="judge-form-label">平均果径</label>
-                            <div class="judge-input-row">
-                                <input type="number" step="0.1" class="judge-form-input" id="input-fruit-size" value="48.6">
-                                <span class="unit">mm</span>
-                            </div>
+                        <div class="judge-hint"><span class="range">参考：<10% 正常，10-20% 偏高，>20% 异常</span><span class="level normal">正常</span></div>
+                    </div>
+
+                    <!-- 平均果径 -->
+                    <div class="judge-form-item">
+                        <label class="judge-form-label">平均果径</label>
+                        <div class="judge-input-row">
+                            <input type="number" step="0.1" class="judge-form-input" id="input-fruit-size" value="48.6">
+                            <span class="unit">mm</span>
                         </div>
-                        <div class="judge-form-item">
-                            <label class="judge-form-label">当前糖度</label>
-                            <div class="judge-input-row">
-                                <input type="number" step="0.1" class="judge-form-input" id="input-sugar" value="9.4">
-                                <span class="unit">°Brix</span>
-                            </div>
+                        <div class="judge-hint"><span class="range">参考：膨大期 30-50mm，成熟期 50-70mm</span><span class="level normal">膨大期</span></div>
+                    </div>
+
+                    <!-- 当前糖度 -->
+                    <div class="judge-form-item">
+                        <label class="judge-form-label">当前糖度</label>
+                        <div class="judge-input-row">
+                            <input type="number" step="0.1" class="judge-form-input" id="input-sugar" value="9.4">
+                            <span class="unit">°Brix</span>
                         </div>
-                        <div class="judge-form-item">
-                            <label class="judge-form-label">果实外观</label>
-                            <div class="judge-input-row">
-                                <input type="number" class="judge-form-input" id="input-fruit-appearance" value="88">
-                                <span class="unit">/100</span>
-                            </div>
+                        <div class="judge-hint"><span class="range">参考：>10 接近采收，>12 优质</span><span class="level normal">膨大中</span></div>
+                    </div>
+
+                    <!-- 果实外观 -->
+                    <div class="judge-form-item">
+                        <label class="judge-form-label">果实外观</label>
+                        <input type="hidden" id="input-fruit-appearance" value="88">
+                        <div class="judge-level-group" data-target="input-fruit-appearance">
+                            <div class="judge-level-option" data-value="40">差</div>
+                            <div class="judge-level-option" data-value="60">中</div>
+                            <div class="judge-level-option active" data-value="88">良</div>
+                            <div class="judge-level-option" data-value="95">优</div>
                         </div>
-                        <div class="judge-form-item">
-                            <label class="judge-form-label">病虫健康度</label>
-                            <div class="judge-input-row">
-                                <input type="number" class="judge-form-input" id="input-pest-health" value="92">
-                                <span class="unit">/100</span>
-                            </div>
+                        <div class="judge-hint"><span class="range">参考：色泽+光洁+大小均匀</span><span class="level normal">良好</span></div>
+                    </div>
+
+                    <!-- 病虫健康度 -->
+                    <div class="judge-form-item">
+                        <label class="judge-form-label">病虫健康度</label>
+                        <input type="hidden" id="input-pest-health" value="92">
+                        <div class="judge-level-group" data-target="input-pest-health">
+                            <div class="judge-level-option" data-value="40">严重</div>
+                            <div class="judge-level-option" data-value="60">一般</div>
+                            <div class="judge-level-option" data-value="80">良好</div>
+                            <div class="judge-level-option active" data-value="92">优秀</div>
                         </div>
+                        <div class="judge-hint"><span class="range">参考：综合病虫害危害程度</span><span class="level normal">优秀</span></div>
                     </div>
                 </div>
             </div>
@@ -366,18 +590,13 @@
                     <div class="judge-section-title">
                         <span class="judge-section-dot" style="background: var(--harvest-500);"></span>
                         <span>近期农事记录</span>
+                        <span class="judge-add-btn" onclick="addFarmRecord()">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            新增记录
+                        </span>
                     </div>
                     <p class="judge-section-desc">帮助模型判断问题是环境、营养还是管理造成</p>
-                    <div class="judge-grid" style="grid-template-columns: 1fr;">
-                        <div class="judge-form-item">
-                            <label class="judge-form-label">近期灌溉</label>
-                            <input type="text" class="judge-form-input" id="input-irrigation" value="近3日灌溉1次">
-                        </div>
-                        <div class="judge-form-item">
-                            <label class="judge-form-label">近期施肥</label>
-                            <input type="text" class="judge-form-input" id="input-fertilizer" value="10天前施用高钾水溶肥">
-                        </div>
-                    </div>
+                    <div id="farmRecordList"></div>
                 </div>
             </div>
         </div>
@@ -443,6 +662,144 @@
             'input-fertilizer': '10天前施用高钾水溶肥'
         };
 
+        // 指标参考范围与等级判定
+        const INDICATOR_RULES = {
+            'input-temp': { ranges: [[15, 32, 'normal', '适宜'], [10, 35, 'normal', '次适宜'], [5, 38, 'high', '偏差']], getLevel: function(v) {
+                if (v >= 15 && v <= 32) return { cls: 'normal', text: '适宜' };
+                if (v < 10 || v > 38) return { cls: 'high', text: '过高/低' };
+                return { cls: 'low', text: '偏差' };
+            }},
+            'input-humidity': { getLevel: function(v) {
+                if (v >= 60 && v <= 80) return { cls: 'normal', text: '适宜' };
+                if (v < 40) return { cls: 'low', text: '偏低' };
+                if (v > 95) return { cls: 'high', text: '过高' };
+                return { cls: 'normal', text: '次适宜' };
+            }},
+            'input-soil-moisture': { getLevel: function(v) {
+                if (v >= 50 && v <= 70) return { cls: 'normal', text: '适宜' };
+                if (v < 30) return { cls: 'low', text: '偏低' };
+                if (v > 85) return { cls: 'high', text: '偏高' };
+                return { cls: 'normal', text: '次适宜' };
+            }},
+            'input-ph': { getLevel: function(v) {
+                if (v >= 5.5 && v <= 6.5) return { cls: 'normal', text: '适宜' };
+                if (v < 4.5 || v > 7.5) return { cls: 'high', text: '偏差大' };
+                return { cls: 'low', text: '偏差' };
+            }},
+            'input-ec': { getLevel: function(v) {
+                if (v >= 0.8 && v <= 1.6) return { cls: 'normal', text: '适宜' };
+                if (v < 0.4 || v > 2.5) return { cls: 'high', text: '盐害风险' };
+                return { cls: 'low', text: '偏差' };
+            }},
+            'input-fruit-load': { getLevel: function(v) {
+                if (v >= 80 && v <= 110) return { cls: 'normal', text: '适宜' };
+                if (v > 110) return { cls: 'high', text: '偏高' };
+                if (v < 60) return { cls: 'low', text: '不足' };
+                return { cls: 'normal', text: '可接受' };
+            }},
+            'input-fruit-set': { getLevel: function(v) {
+                if (v >= 80) return { cls: 'normal', text: '优良' };
+                if (v >= 60) return { cls: 'normal', text: '中等' };
+                return { cls: 'low', text: '偏低' };
+            }},
+            'input-fruit-drop': { getLevel: function(v) {
+                if (v < 10) return { cls: 'normal', text: '正常' };
+                if (v < 20) return { cls: 'low', text: '偏高' };
+                return { cls: 'high', text: '异常' };
+            }},
+            'input-fruit-size': { getLevel: function(v) {
+                if (v >= 50) return { cls: 'normal', text: '成熟期' };
+                if (v >= 30) return { cls: 'normal', text: '膨大期' };
+                return { cls: 'low', text: '偏小' };
+            }},
+            'input-sugar': { getLevel: function(v) {
+                if (v >= 12) return { cls: 'normal', text: '优质' };
+                if (v >= 10) return { cls: 'normal', text: '近采收' };
+                return { cls: 'normal', text: '膨大中' };
+            }},
+            'input-spad': { getLevel: function(v) {
+                if (v >= 40 && v <= 60) return { cls: 'normal', text: '适宜' };
+                if (v < 40) return { cls: 'low', text: '偏低' };
+                return { cls: 'high', text: '偏高' };
+            }},
+            'input-root': { getLevel: function(v) {
+                if (v >= 80) return { cls: 'normal', text: '良好' };
+                if (v >= 60) return { cls: 'normal', text: '一般' };
+                return { cls: 'low', text: '弱' };
+            }},
+            'input-k-potassium': { getLevel: function(v) {
+                if (v >= 70) return { cls: 'normal', text: '充足' };
+                if (v >= 50) return { cls: 'normal', text: '中等' };
+                return { cls: 'low', text: '不足' };
+            }},
+            'input-light': { getLevel: function(v) {
+                if (v >= 70) return { cls: 'normal', text: '充足' };
+                if (v >= 50) return { cls: 'normal', text: '中等' };
+                return { cls: 'low', text: '不足' };
+            }}
+        };
+
+        // 模式切换
+        function switchJudgeMode(mode, el) {
+            document.querySelectorAll('.judge-mode-btn').forEach(function(b) { b.classList.remove('active'); });
+            el.classList.add('active');
+            var isExpert = mode === 'expert';
+            document.querySelectorAll('.judge-expert-only').forEach(function(el) {
+                if (isExpert) el.classList.remove('judge-level-hidden');
+                else el.classList.add('judge-level-hidden');
+            });
+        }
+
+        // 等级选择（4 选 1）
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('judge-level-option')) {
+                var group = e.target.parentElement;
+                group.querySelectorAll('.judge-level-option').forEach(function(o) { o.classList.remove('active'); });
+                e.target.classList.add('active');
+                var targetId = group.getAttribute('data-target');
+                var value = e.target.getAttribute('data-value');
+                var input = document.getElementById(targetId);
+                if (input) input.value = value;
+            }
+        });
+
+        // 数字输入实时反馈
+        document.addEventListener('input', function(e) {
+            if (!e.target.classList.contains('judge-form-input')) return;
+            var id = e.target.id;
+            if (!INDICATOR_RULES[id]) return;
+            var val = parseFloat(e.target.value);
+            if (isNaN(val)) return;
+            var rule = INDICATOR_RULES[id].getLevel(val);
+            e.target.classList.remove('low', 'normal', 'high');
+            e.target.classList.add(rule.cls);
+            var hint = e.target.parentElement.parentElement.querySelector('.judge-hint');
+            if (hint) {
+                var level = hint.querySelector('.level');
+                if (level) {
+                    level.className = 'level ' + rule.cls;
+                    level.textContent = rule.text;
+                }
+            }
+        });
+
+        // 初始状态：农户模式（隐藏农技员专属项）+ 触发反馈
+        function initJudgeMode() {
+            document.querySelectorAll('.judge-expert-only').forEach(function(el) {
+                el.classList.add('judge-level-hidden');
+            });
+            // 遍历所有有规则的输入，触发初始反馈
+            document.querySelectorAll('.judge-form-input').forEach(function(inp) {
+                if (inp.value) {
+                    var hint = inp.parentElement.parentElement.querySelector('.judge-hint');
+                    if (hint) {
+                        var evt = new Event('input', { bubbles: true });
+                        inp.dispatchEvent(evt);
+                    }
+                }
+            });
+        }
+
         function resetMockData() {
             Object.keys(mockData).forEach(key => {
                 const element = document.getElementById(key);
@@ -450,12 +807,73 @@
                     element.value = mockData[key];
                 }
             });
+            // 重新触发输入反馈
+            document.querySelectorAll('.judge-form-input').forEach(function(inp) {
+                inp.dispatchEvent(new Event('input'));
+            });
             alert('模拟数据已恢复');
         }
 
         function runEvaluation() {
             navigateTo('mb_judge_result.html');
         }
+
+        // ========== 农事记录动态管理 ==========
+        var FARM_TYPES = ['灌溉', '施肥', '喷药', '修剪', '疏果', '套袋', '采收', '除草', '其他'];
+
+        var farmRecords = [
+            { type: '灌溉', text: '近3日灌溉1次' },
+            { type: '施肥', text: '10天前施用高钾水溶肥' }
+        ];
+
+        function addFarmRecord() {
+            farmRecords.push({ type: '灌溉', text: '' });
+            renderFarmRecords();
+            // 自动聚焦到新加项的输入框
+            setTimeout(function() {
+                var items = document.querySelectorAll('.farm-record-input');
+                if (items.length) items[items.length - 1].focus();
+            }, 50);
+        }
+
+        function removeFarmRecord(idx) {
+            farmRecords.splice(idx, 1);
+            renderFarmRecords();
+        }
+
+        function renderFarmRecords() {
+            var container = document.getElementById('farmRecordList');
+            if (!container) return;
+            if (!farmRecords.length) {
+                container.innerHTML = '<div class="farm-record-empty">暂无农事记录，点击右上角"新增记录"添加</div>';
+                return;
+            }
+            var html = '';
+            farmRecords.forEach(function(rec, idx) {
+                var typeOptions = FARM_TYPES.map(function(t) {
+                    return '<option value="' + t + '"' + (t === rec.type ? ' selected' : '') + '>' + t + '</option>';
+                }).join('');
+                html += '<div class="farm-record-item">' +
+                          '<select class="farm-record-type" data-idx="' + idx + '" onchange="updateFarmRecordType(' + idx + ', this.value)">' + typeOptions + '</select>' +
+                          '<input type="text" class="farm-record-input" data-idx="' + idx + '" value="' + (rec.text || '').replace(/"/g, '&quot;') + '" placeholder="请输入描述，如：5天前滴灌2小时" oninput="updateFarmRecordText(' + idx + ', this.value)">' +
+                          '<div class="farm-record-remove" onclick="removeFarmRecord(' + idx + ')">' +
+                            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' +
+                          '</div>' +
+                        '</div>';
+            });
+            container.innerHTML = html;
+        }
+
+        function updateFarmRecordType(idx, value) {
+            if (farmRecords[idx]) farmRecords[idx].type = value;
+        }
+
+        function updateFarmRecordText(idx, value) {
+            if (farmRecords[idx]) farmRecords[idx].text = value;
+        }
+
+        initJudgeMode();
+        renderFarmRecords();
     </script>
 </body>
 </html>

@@ -77,6 +77,8 @@
     </div>
 
     <!-- 综合评分面板 -->
+    <div id="incoming-banner" style="display:none"></div>
+
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         <!-- 左侧：综合评分 -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
@@ -443,6 +445,7 @@ var highlightSuggestionId = null;  // 当前高亮的建议
 
 // 初始化
 window.onload = function() {
+    initFromIncoming();
     initDeductionTable();
     initChains();
     initSuggestions();
@@ -451,6 +454,38 @@ window.onload = function() {
     // 更新扣分项数等信息
     updateSummaryInfo();
 };
+
+function initFromIncoming(){
+    try {
+        var params = new URLSearchParams(window.location.search);
+        var plot = params.get('plot');
+        var date = params.get('date');
+        if(plot && document.getElementById('plotSelect')){
+            var sel = document.getElementById('plotSelect');
+            for(var i=0;i<sel.options.length;i++){
+                if(sel.options[i].value === plot || sel.options[i].text.indexOf(plot) === 0){
+                    sel.selectedIndex = i; break;
+                }
+            }
+        }
+        if(date && document.getElementById('dateSelect')){
+            document.getElementById('dateSelect').value = date;
+        }
+        var stored = JSON.parse(localStorage.getItem('currentReport') || 'null');
+        if(stored){
+            showIncomingBanner(stored);
+        }
+    } catch(e){}
+}
+
+function showIncomingBanner(report){
+    var banner = document.getElementById('incoming-banner');
+    if(!banner) return;
+    banner.innerHTML = '<div class="bg-purple-50 border-l-4 border-purple-400 text-purple-800 px-4 py-2 mb-4 rounded text-sm flex items-center justify-between">' +
+        '<div><span class="font-semibold">📄 从评价报告跳转：</span>' + (report.plotName || report.plot) + ' · 综合分 <span class="font-bold">' + report.score + '</span>（' + report.grade + '）· ' + report.date + '</div>' +
+        '<a href="report.html" class="text-purple-600 hover:underline text-xs">← 返回报告</a></div>';
+    banner.style.display = 'block';
+}
 
 function updateSummaryInfo() {
     var data = plotData[currentPlot];

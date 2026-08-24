@@ -511,9 +511,14 @@ function renderPlotTable() {
     if(filtered.length === 0){
         tbody.innerHTML = '<tr><td colspan="11" style="padding:40px;text-align:center;color:#9ca3af">暂无数据</td></tr>';
     } else {
+        var refs = getPlotReferences();
         tbody.innerHTML = filtered.map(function(p){
+            var usedIn = refs[p.id] || [];
+            var refBadge = usedIn.length > 0
+                ? '<span class="px-1.5 py-0.5 bg-blue-50 text-blue-700 rounded text-xs" title="' + usedIn.join('、') + '">已被 ' + usedIn.length + ' 处引用</span>'
+                : '<span class="px-1.5 py-0.5 bg-gray-50 text-gray-400 rounded text-xs">未引用</span>';
             return '<tr class="hover:bg-gray-50">' +
-                '<td class="px-4 py-3 font-mono text-xs text-gray-700">' + p.code + '</td>' +
+                '<td class="px-4 py-3 font-mono text-xs text-gray-700">' + p.code + ' ' + refBadge + '</td>' +
                 '<td class="px-4 py-3 text-gray-800">' + p.variety + '</td>' +
                 '<td class="px-4 py-3 text-gray-600">' + p.rootstock + '</td>' +
                 '<td class="px-4 py-3 text-gray-600">' + p.age + '年</td>' +
@@ -532,6 +537,34 @@ function renderPlotTable() {
         }).join('');
     }
     document.getElementById('plot-total-count').textContent = filtered.length;
+}
+
+function getPlotReferences(){
+    var refs = {};
+    try {
+        var fc = JSON.parse(localStorage.getItem('factorCollect.records') || '[]');
+        fc.forEach(function(r){
+            if(r.plotId){
+                if(!refs[r.plotId]) refs[r.plotId] = [];
+                if(refs[r.plotId].indexOf('因子采集') === -1) refs[r.plotId].push('因子采集');
+            }
+        });
+        var pd = JSON.parse(localStorage.getItem('pestData.records') || '[]');
+        pd.forEach(function(r){
+            if(r.plotId){
+                if(!refs[r.plotId]) refs[r.plotId] = [];
+                if(refs[r.plotId].indexOf('病虫害数据') === -1) refs[r.plotId].push('病虫害数据');
+            }
+        });
+        var cal = JSON.parse(localStorage.getItem('calibration.records') || '[]');
+        cal.forEach(function(r){
+            if(r.plotId){
+                if(!refs[r.plotId]) refs[r.plotId] = [];
+                if(refs[r.plotId].indexOf('数据校准') === -1) refs[r.plotId].push('数据校准');
+            }
+        });
+    } catch(e){}
+    return refs;
 }
 
 function buildAutoCode(variety, rootstock, age, code) {
@@ -637,6 +670,7 @@ function submitPlotForm() {
         alert('地块新增成功！');
     }
     closeModal('plot-add-modal');
+    savePlotsToStorage();
     renderPlotTable();
 }
 
@@ -653,6 +687,7 @@ function confirmPlotDelete() {
     if(idx >= 0) plotData.splice(idx, 1);
     closeModal('plot-delete-modal');
     plotDeleteId = null;
+    savePlotsToStorage();
     renderPlotTable();
 }
 
@@ -727,12 +762,29 @@ function closeModal(id) {
 }
 
 window.onload = function() {
+    loadPlotsFromStorage();
     renderVarietyTable();
     renderPlotVarietyFilter();
     renderPlotTable();
     renderStageButtons();
     renderStageTable();
 };
+
+function loadPlotsFromStorage(){
+    try {
+        var saved = JSON.parse(localStorage.getItem('baseArchive.plots') || 'null');
+        if(saved && Array.isArray(saved) && saved.length > 0){
+            plotData = saved;
+        }
+    } catch(e){}
+}
+
+function savePlotsToStorage(){
+    try {
+        localStorage.setItem('baseArchive.plots', JSON.stringify(plotData));
+        localStorage.setItem('baseArchive.plotsUpdatedAt', new Date().toISOString());
+    } catch(e){}
+}
 </script>
 </body>
 </html>

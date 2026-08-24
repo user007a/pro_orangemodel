@@ -36,6 +36,18 @@ body { margin: 0; padding: 0; background-color: #F0F2F5; font-family: -apple-sys
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
         <span>导出报告</span>
       </button>
+      <button onclick="gotoDiagnosis()" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm flex items-center gap-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        <span>去风险诊断</span>
+      </button>
+      <button onclick="gotoScheme()" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm flex items-center gap-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        <span>去生成方案</span>
+      </button>
+      <button onclick="publishAsAlerts()" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm flex items-center gap-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+        <span>一键发布预警</span>
+      </button>
       <span class="text-sm text-gray-600 bg-white border border-gray-200 rounded-lg px-3 py-2 whitespace-nowrap">报告日期：2026-08-04</span>
     </div>
   </div>
@@ -61,6 +73,8 @@ body { margin: 0; padding: 0; background-color: #F0F2F5; font-family: -apple-sys
   </div>
 
   <!-- 3. Tab Bar -->
+  <div id="phenology-summary" style="display:none"></div>
+
   <div class="bg-white rounded-xl shadow-sm border border-gray-100 mb-6">
     <div class="border-b border-gray-100 flex items-center px-6 overflow-x-auto">
       <div class="tab-item px-4 py-4 cursor-pointer text-sm mr-6 tab-active whitespace-nowrap" data-tab="3" onclick="switchTab('3')">3天预测</div>
@@ -298,7 +312,115 @@ window.onload=function(){
   renderPestTabs('3');renderPestTabs('7');
   renderForecast('3');renderForecast('7');
   renderHist();
+  showPhenologyContext();
 };
+
+function showPhenologyContext(){
+  try {
+    var records = JSON.parse(localStorage.getItem('pestData.records') || '[]');
+    var stages = {};
+    records.filter(function(r){ return r.tab === 'pt' && r.stage; }).forEach(function(r){
+      stages[r.town] = r.stage;
+    });
+    var obj = JSON.parse(localStorage.getItem('currentObject') || 'null');
+    var headerBanner = document.getElementById('phenology-summary');
+    if(!headerBanner) return;
+    var keys = Object.keys(stages);
+    if(keys.length > 0){
+      var summary = keys.slice(0,4).map(function(k){ return k + '：' + stages[k]; }).join(' · ');
+      var more = keys.length > 4 ? ' 等 ' + keys.length + ' 个乡镇' : '';
+      headerBanner.innerHTML = '<div class="bg-emerald-50 border-l-4 border-emerald-400 text-emerald-800 px-4 py-2 mb-4 rounded text-sm">' +
+        '<span class="font-semibold">🌱 当前物候（Pt）：</span>' + summary + more +
+        '</div>';
+      headerBanner.style.display = 'block';
+    } else {
+      headerBanner.style.display = 'none';
+    }
+  } catch(e){}
+}
+
+/* ============ 一键发布预警 ============ */
+function publishAsAlerts(){
+  if(!confirm('确认将本报告中的所有高/极高风险条目发布为预警？\n将自动写入预警管理、推送至移动端待办。')) return;
+  var arr = curPer==='7' ? P7[curPest] : P3[curPest];
+  var rows = TOWNS.map(function(t,i){return {t:t,p:arr[i]};}).sort(function(a,b){return b.p-a.p;});
+  var alerts = [];
+  var now = new Date();
+  var ymd = now.getFullYear()+''+String(now.getMonth()+1).padStart(2,'0')+String(now.getDate()).padStart(2,'0');
+  var seq = 1;
+  rows.forEach(function(r){
+    if(r.p >= 0.6){
+      var lv = r.p >= 0.8 ? '红色预警' : '橙色预警';
+      var level = r.p >= 0.8 ? '极高' : '高';
+      alerts.push({
+        id: 'ALT' + ymd + String(seq).padStart(3,'0'),
+        title: curPest + '·' + r.t + '·' + level + '风险',
+        level: lv,
+        source: '模型自动生成',
+        pest: curPest,
+        town: r.t,
+        prob: r.p,
+        area: r.t + '全乡镇',
+        content: '基于' + curPer + '天' + curPest + '预测模型，' + r.t + '发生概率为 ' + (r.p*100).toFixed(0) + '%，风险等级' + level + '。建议：' + advOf(curPest, level) + '。',
+        status: '已发布',
+        createdAt: now.toISOString().substring(0,19).replace('T',' '),
+        publishedAt: now.toISOString().substring(0,19).replace('T',' '),
+        period: curPer + '天',
+        suggestions: (SUG[curPest][0] || []).slice(0,3).join(' / ')
+      });
+      seq++;
+    }
+  });
+  if(alerts.length === 0){ alert('本报告无高/极高风险条目，无需发布。'); return; }
+  try {
+    var existing = JSON.parse(localStorage.getItem('alerts') || '[]');
+    var newOnes = alerts.filter(function(a){
+      return !existing.some(function(e){ return e.id === a.id; });
+    });
+    var merged = existing.concat(newOnes);
+    localStorage.setItem('alerts', JSON.stringify(merged));
+    localStorage.setItem('alerts.lastPublishedAt', now.toISOString());
+    localStorage.setItem('alerts.lastReportPest', curPest);
+    localStorage.setItem('alerts.lastReportPeriod', curPer);
+    showToast('已发布 ' + newOnes.length + ' 条预警（去重跳过 ' + (alerts.length - newOnes.length) + ' 条）');
+  } catch(e){
+    alert('发布失败：' + e.message);
+  }
+}
+
+window.addAlertFromPestReport = publishAsAlerts;
+
+function gotoDiagnosis(){
+  try {
+    var rows = TOWNS.map(function(t,i){
+      var arr = curPer==='7' ? P7[curPest] : P3[curPest];
+      return { t: t, p: arr[i] };
+    }).sort(function(a,b){ return b.p - a.p; });
+    var payload = {
+      pest: curPest,
+      period: curPer,
+      generatedAt: new Date().toISOString(),
+      towns: rows.slice(0, 12),
+      highRisk: rows.filter(function(r){ return r.p >= 0.6; }).slice(0, 5)
+    };
+    localStorage.setItem('pestReport.summary', JSON.stringify(payload));
+    localStorage.setItem('currentObject', JSON.stringify({ pest: curPest, period: curPer, type: 'pestReport' }));
+  } catch(e){}
+  window.location.href = 'pest_diagnosis.html?pest=' + encodeURIComponent(curPest) + '&period=' + curPer;
+}
+
+function gotoScheme(){
+  try {
+    var payload = {
+      pest: curPest,
+      period: curPer,
+      suggestions: SUG[curPest] || [],
+      generatedAt: new Date().toISOString()
+    };
+    localStorage.setItem('pestReport.forScheme', JSON.stringify(payload));
+  } catch(e){}
+  window.location.href = 'pest_scheme.html?pest=' + encodeURIComponent(curPest) + '&period=' + curPer;
+}
 </script>
 </body>
 </html>

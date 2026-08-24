@@ -535,6 +535,35 @@
         let deleteTargetId = null;
         let detailTargetId = null;
 
+        function syncAlertsFromStorage(){
+            try {
+                var stored = JSON.parse(localStorage.getItem('alerts') || '[]');
+                if(!Array.isArray(stored) || stored.length === 0) return;
+                var existingIds = {};
+                alerts.forEach(function(a){ existingIds[a.id] = true; });
+                stored.forEach(function(s){
+                    if(!existingIds[s.id]){
+                        alerts.push({
+                            id: s.id,
+                            title: s.title || (s.pest ? s.pest + '·' + s.town + '·风险' : '模型预警'),
+                            level: s.level || '黄色预警',
+                            source: s.source || '模型自动生成',
+                            area: s.area || (s.town || '全县'),
+                            status: s.status || '已发布',
+                            created: s.createdAt || (new Date()).toISOString().substring(0,19).replace('T',' '),
+                            published: s.publishedAt || (new Date()).toISOString().substring(0,19).replace('T',' '),
+                            content: s.content || '',
+                            pest: s.pest || '',
+                            town: s.town || '',
+                            prob: s.prob || null,
+                            period: s.period || '',
+                            fromReport: true
+                        });
+                    }
+                });
+            } catch(e){}
+        }
+
         function escapeHtml(str) {
             if (str === null || str === undefined) return '';
             return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
@@ -566,10 +595,11 @@
                 tbody.innerHTML = pageData.map(a => {
                     const levelStyle = LEVEL_STYLES[a.level] || 'bg-gray-100 text-gray-700';
                     const statusStyle = STATUS_STYLES[a.status] || 'bg-gray-100 text-gray-700';
+                    const reportTag = a.fromReport ? '<span class="ml-1 px-1.5 py-0.5 bg-red-50 text-red-600 rounded text-xs">报告生成</span>' : '';
                     return `
                         <tr class="hover:bg-gray-50">
                             <td class="px-6 py-4 text-sm text-gray-500">${escapeHtml(a.id)}</td>
-                            <td class="px-6 py-4"><span class="font-medium text-gray-900">${escapeHtml(a.title)}</span></td>
+                            <td class="px-6 py-4"><span class="font-medium text-gray-900">${escapeHtml(a.title)}</span>${reportTag}</td>
                             <td class="px-6 py-4"><span class="px-2 py-1 ${levelStyle} text-xs rounded-full">${escapeHtml(a.level)}</span></td>
                             <td class="px-6 py-4 text-sm text-gray-600">${escapeHtml(a.source)}</td>
                             <td class="px-6 py-4 text-sm text-gray-600">${escapeHtml(a.area)}</td>
@@ -890,6 +920,8 @@
             });
         });
 
+        syncAlertsFromStorage();
+        filteredAlerts = alerts.slice();
         updateStats();
         renderTable();
     </script>

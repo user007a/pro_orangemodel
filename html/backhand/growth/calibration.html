@@ -27,6 +27,20 @@
                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
                 重新计算模型
             </button>
+            <button onclick="applyParamsToModel()" id="apply-params-btn" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm flex items-center">
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                应用到模型计算
+            </button>
+        </div>
+    </div>
+
+    <div id="unapplied-banner" style="display:none" class="bg-yellow-50 border-l-4 border-yellow-400 text-yellow-800 px-4 py-3 mb-4 rounded">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium">⚠ 当前有 <span id="unapplied-count">0</span> 项参数未应用到模型计算</p>
+                <p class="text-xs mt-1">上次应用：<span id="last-applied-time">从未</span></p>
+            </div>
+            <button onclick="applyParamsToModel()" class="px-3 py-1 bg-yellow-600 text-white text-xs rounded hover:bg-yellow-700">立即应用</button>
         </div>
     </div>
 
@@ -326,6 +340,51 @@ function switchTab(tab) {
     document.getElementById('tab-log').className = 'px-6 py-4 text-sm ' + (tab === 'log' ? 'tab-active' : 'tab-inactive');
 }
 
+function applyParamsToModel() {
+    var summary = {};
+    var count = 0;
+    for (var stageId in paramConfig) {
+        for (var factorId in paramConfig[stageId]) {
+            var cfg = paramConfig[stageId][factorId];
+            summary[stageId + '_' + factorId] = { w: cfg.w, r: cfg.r, Zmax: cfg.Zmax };
+            count++;
+        }
+    }
+    var applied = {
+        params: summary,
+        paramCount: count,
+        appliedAt: new Date().toISOString(),
+        appliedBy: '当前用户'
+    };
+    localStorage.setItem('growthModel.appliedParams', JSON.stringify(applied));
+    updateUnappliedBanner();
+    var msg = '本次应用 ' + count + ' 项校准参数版本。\n\n生效时间：' + applied.appliedAt.replace('T',' ').substring(0,16) + '\n\n后续每日 02:00 的定时计算将使用此参数版本。可在【模型计算中心】查看当前生效版本。';
+    showNotificationModal('已应用到模型计算', 'success', msg);
+}
+
+function updateUnappliedBanner() {
+    var applied = JSON.parse(localStorage.getItem('growthModel.appliedParams') || 'null');
+    var banner = document.getElementById('unapplied-banner');
+    var countEl = document.getElementById('unapplied-count');
+    var timeEl = document.getElementById('last-applied-time');
+    if (!applied) {
+        countEl.textContent = '40';
+        timeEl.textContent = '从未';
+        banner.style.display = 'block';
+        return;
+    }
+    var appliedDate = new Date(applied.appliedAt);
+    var diffDays = Math.floor((Date.now() - appliedDate.getTime()) / 86400000);
+    var timeStr = applied.appliedAt.replace('T', ' ').substring(0, 16);
+    if (diffDays >= 7) {
+        countEl.textContent = '0';
+        timeEl.textContent = timeStr + '（已 ' + diffDays + ' 天，建议重新校准）';
+        banner.style.display = 'block';
+    } else {
+        banner.style.display = 'none';
+    }
+}
+
 function renderCompareTable() {
     var tbody = document.getElementById('compare-table-body');
     tbody.innerHTML = compareData.map(function(item) {
@@ -495,7 +554,7 @@ function saveParams() {
     renderParamHistory();
     renderLogTable();
 
-    alert('参数修改成功！\n\n修改后需点击「重新计算模型」才能生效。');
+    showNotificationModal('参数修改成功', 'success', '参数已保存到校准日志，状态为"待计算"。\n\n下一步：点击"重新计算模型"将修改并入模型；最后点击"应用到模型计算"使其参与定时计算。');
 }
 
 function resetParams() {
@@ -629,9 +688,12 @@ function recalculateModel() {
             });
             filteredLogs = calibrationLogs.slice();
             renderLogTable();
-            alert('模型重新计算完成！\n\n' + pendingCount + ' 条待计算的参数修改已生效。');
+            var now = new Date();
+            var timeStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0') + ' ' + String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+            var msg = '本次计算共合并 ' + pendingCount + ' 条待生效参数。\n\n完成时间：' + timeStr + '\n\n校准结果仅在校准日志中可见，真正生效还需点击右侧"应用到模型计算"。';
+            showNotificationModal('模型重新计算完成', 'success', msg);
         } else {
-            alert('模型重新计算完成！\n\n当前没有待生效的参数修改。');
+            showNotificationModal('模型重新计算完成', 'info', '当前没有待生效的参数修改。\n\n如有新校准数据，请先在【参数微调】Tab 中编辑并保存。');
         }
     }, 2000);
 }
@@ -645,7 +707,64 @@ window.onload = function() {
     renderParamHistory();
     filteredLogs = calibrationLogs.slice();
     renderLogTable();
+    updateUnappliedBanner();
 };
+</script>
+
+<!-- 通知模态框 -->
+<div id="notification-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center">
+    <div style="background:#fff;border-radius:12px;max-width:420px;width:90%;box-shadow:0 10px 40px rgba(0,0,0,0.2);overflow:hidden">
+        <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+            <h3 id="notification-title" style="font-size:18px;font-weight:600;color:#1f2937;margin:0">系统通知</h3>
+            <button onclick="hideNotificationModal()" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px;color:#9ca3af">&times;</button>
+        </div>
+        <div style="padding:24px;display:flex;align-items:flex-start;gap:12px">
+            <div id="notification-icon" style="flex-shrink:0;width:40px;height:40px;border-radius:50%;background:#dcfce7;display:flex;align-items:center;justify-content:center">
+                <svg id="notification-svg" style="width:24px;height:24px;color:#16a34a" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <div style="flex:1">
+                <p id="notification-message" style="font-size:14px;color:#374151;line-height:1.7;white-space:pre-wrap;margin:0"></p>
+            </div>
+        </div>
+        <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:12px">
+            <button onclick="hideNotificationModal()" style="padding:8px 20px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">我知道了</button>
+        </div>
+    </div>
+</div>
+
+<script>
+function showNotificationModal(title, type, message){
+    var modal = document.getElementById('notification-modal');
+    if(!modal){ alert(message); return; }
+    document.getElementById('notification-title').textContent = title;
+    document.getElementById('notification-message').textContent = message;
+    var iconWrap = document.getElementById('notification-icon');
+    var iconSvg = document.getElementById('notification-svg');
+    if(type === 'success'){
+        iconWrap.style.background = '#dcfce7';
+        iconSvg.style.color = '#16a34a';
+        iconSvg.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>';
+    } else if(type === 'warning'){
+        iconWrap.style.background = '#fef3c7';
+        iconSvg.style.color = '#d97706';
+        iconSvg.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M5.07 19h13.86c1.54 0 2.5-1.67 1.73-3L13.73 4c-.77-1.33-2.69-1.33-3.46 0L3.34 16c-.77 1.33.19 3 1.73 3z"/>';
+    } else {
+        iconWrap.style.background = '#dbeafe';
+        iconSvg.style.color = '#2563eb';
+        iconSvg.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>';
+    }
+    modal.style.display = 'flex';
+}
+function hideNotificationModal(){
+    var modal = document.getElementById('notification-modal');
+    if(modal) modal.style.display = 'none';
+}
+document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape') hideNotificationModal();
+});
+document.getElementById('notification-modal') && document.getElementById('notification-modal').addEventListener('click', function(e){
+    if(e.target === this) hideNotificationModal();
+});
 </script>
 </body>
 </html>

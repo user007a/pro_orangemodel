@@ -98,7 +98,9 @@ function renderHistory() {
             <td class="px-4 py-3 text-center">
                 <button onclick="viewHistory(${idx})" class="text-blue-600 hover:text-blue-800 text-xs mr-3">查看</button>
                 <button onclick="window.print()" class="text-green-600 hover:text-green-800 text-xs mr-3">导出</button>
-                <button onclick="deleteHistory(${idx})" class="text-red-500 hover:text-red-700 text-xs">删除</button>
+                <button onclick="gotoDiagnosis(${idx})" class="text-purple-600 hover:text-purple-800 text-xs mr-3">去诊断</button>
+                <button onclick="publishReportAsAlert(${idx})" class="text-red-600 hover:text-red-800 text-xs mr-3">发预警</button>
+                <button onclick="deleteHistory(${idx})" class="text-gray-500 hover:text-gray-700 text-xs">删除</button>
             </td>
         </tr>
     `).join('');
@@ -108,6 +110,52 @@ function viewHistory(idx) {
     const item = historyData[idx];
     if (!item) return;
     window.location.href = 'report_detail.html?plot=' + item.id + '&date=' + item.date;
+}
+
+function gotoDiagnosis(idx){
+    var item = historyData[idx];
+    if(!item) return;
+    try {
+        localStorage.setItem('currentReport', JSON.stringify({ plot: item.id, plotName: item.name, date: item.date, score: item.score, grade: item.grade, ts: new Date().toISOString() }));
+        localStorage.setItem('currentObject', JSON.stringify({ id: item.id, name: item.name, score: item.score, grade: item.grade, date: item.date }));
+    } catch(e){}
+    window.location.href = 'diagnosis.html?plot=' + encodeURIComponent(item.id) + '&date=' + encodeURIComponent(item.date);
+}
+
+function publishReportAsAlert(idx){
+    var item = historyData[idx];
+    if(!item) return;
+    if(!confirm('确认将该报告的低分项发布为预警？\n分数低于 70 将被标记为黄色预警，60 以下标记为橙色预警。')) return;
+    var lv = item.score < 60 ? '橙色预警' : '黄色预警';
+    var now = new Date();
+    var ymd = now.getFullYear()+''+String(now.getMonth()+1).padStart(2,'0')+String(now.getDate()).padStart(2,'0');
+    var id = 'ALT'+ymd+String(Math.floor(Math.random()*999)+1).padStart(3,'0');
+    var alert = {
+        id: id,
+        title: item.name + '·长势' + item.grade + '·报告生成预警',
+        level: lv,
+        source: '生长模型报告',
+        pest: '',
+        town: item.name,
+        prob: null,
+        area: item.name,
+        content: '生长模型评价报告：' + item.name + ' 综合分 ' + item.score + '（' + item.grade + '），建议赴现场诊断并制定干预措施。',
+        status: '已发布',
+        createdAt: now.toISOString().substring(0,19).replace('T',' '),
+        publishedAt: now.toISOString().substring(0,19).replace('T',' '),
+        period: '即时',
+        fromReport: true,
+        score: item.score
+    };
+    try {
+        var list = JSON.parse(localStorage.getItem('alerts') || '[]');
+        list.push(alert);
+        localStorage.setItem('alerts', JSON.stringify(list));
+        localStorage.setItem('alerts.lastReportSource', '生长报告');
+        alert('已发布为预警：' + id + '（' + lv + '）');
+    } catch(e){
+        alert('发布失败：' + e.message);
+    }
 }
 
 function deleteHistory(idx) {

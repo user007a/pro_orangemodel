@@ -164,6 +164,139 @@
       color: var(--primary);
     }
 
+    /* 环境适宜性评估 */
+    .env-fit-card {
+      background: linear-gradient(135deg, #f0fff4, #f6ffed);
+      border: 1px solid #b7eb8f;
+    }
+    .env-fit-badge {
+      font-size: 10px;
+      padding: 3px 10px;
+      border-radius: var(--radius-full);
+      font-weight: 600;
+    }
+    .env-fit-badge.fit {
+      background: var(--success);
+      color: #fff;
+    }
+    .env-fit-badge.risk {
+      background: var(--error);
+      color: #fff;
+    }
+    .env-fit-summary {
+      font-size: var(--font-sm);
+      color: var(--text-secondary);
+      margin: -4px 0 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px dashed #b7eb8f;
+      line-height: 1.5;
+    }
+
+    /* 风险分组 */
+    .env-fit-risk-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .env-fit-risk-card {
+      background: var(--error-light);
+      border-left: 3px solid var(--error);
+      border-radius: var(--radius-md);
+      padding: 10px 12px;
+    }
+    .env-fit-risk-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+    .env-fit-risk-name {
+      font-size: var(--font-sm);
+      font-weight: 600;
+      color: var(--text);
+    }
+    .env-fit-risk-value {
+      font-family: var(--font-family-number);
+      font-weight: 700;
+      font-size: var(--font-sm);
+      color: var(--error);
+    }
+    .env-fit-risk-advice {
+      font-size: var(--font-xs);
+      color: var(--error-dark);
+      line-height: 1.5;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .env-fit-risk-advice::before {
+      content: '💡';
+      font-size: 12px;
+    }
+
+    /* 适合分组折叠 */
+    .env-fit-group {
+      background: var(--gray-50);
+      border-radius: var(--radius-md);
+      padding: 0;
+      overflow: hidden;
+    }
+    .env-fit-group-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .env-fit-group-title {
+      font-size: var(--font-sm);
+      font-weight: 600;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .env-fit-group-title .num {
+      color: var(--success);
+      font-weight: 700;
+    }
+    .env-fit-group-arrow {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      transition: transform var(--transition-fast);
+    }
+    .env-fit-group.open .env-fit-group-arrow {
+      transform: rotate(180deg);
+    }
+    .env-fit-fit-grid {
+      display: none;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      padding: 0 10px 10px;
+    }
+    .env-fit-group.open .env-fit-fit-grid {
+      display: grid;
+    }
+    .env-fit-fit-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 10px;
+      background: var(--bg-white);
+      border-radius: var(--radius-sm);
+      font-size: var(--font-xs);
+    }
+    .env-fit-fit-name {
+      color: var(--text-secondary);
+    }
+    .env-fit-fit-value {
+      font-family: var(--font-family-number);
+      font-weight: 600;
+      color: var(--text);
+    }
+
     .weather-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -407,6 +540,63 @@
       flex-direction: column;
       gap: 10px;
     }
+
+    /* 风险评估 */
+    .risk-badge {
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+      font-weight: 600;
+    }
+    .risk-badge.high { background: var(--error-light); color: var(--error); }
+    .risk-badge.medium { background: var(--warning-light); color: var(--warning-dark); }
+    .risk-badge.low { background: var(--success-bg); color: var(--success); }
+    .risk-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border-light);
+      cursor: pointer;
+    }
+    .risk-row:last-child { border-bottom: none; }
+    .risk-row-icon { font-size: 20px; flex-shrink: 0; }
+    .risk-row-info { flex: 1; min-width: 0; }
+    .risk-row-name {
+      font-size: var(--font-sm);
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .risk-row-bar-wrap { display: flex; align-items: center; gap: 8px; }
+    .risk-row-bar {
+      flex: 1;
+      height: 4px;
+      background: var(--gray-200);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .risk-row-bar-fill { height: 100%; border-radius: 2px; }
+    .risk-row-bar-fill.high { background: linear-gradient(90deg, #ff7875, #ff4d4f); }
+    .risk-row-bar-fill.medium { background: linear-gradient(90deg, #ffd666, #faad14); }
+    .risk-row-bar-fill.low { background: linear-gradient(90deg, #95de64, #52c41a); }
+    .risk-row-score {
+      font-size: var(--font-xs);
+      font-weight: 600;
+      color: var(--text-secondary);
+      min-width: 32px;
+      text-align: right;
+    }
+    .risk-row-level {
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: var(--radius-sm);
+      font-weight: 500;
+      flex-shrink: 0;
+    }
+    .risk-row-level.high { background: var(--error-light); color: var(--error); }
+    .risk-row-level.medium { background: var(--warning-light); color: var(--warning-dark); }
+    .risk-row-level.low { background: var(--success-bg); color: var(--success); }
 
     .pest-item {
       display: flex;
@@ -679,14 +869,26 @@
 
       <!-- 环境指标 Tab -->
       <div id="tab-env" class="tab-content">
+        <!-- 环境适宜性评估 -->
+        <div class="card env-fit-card" id="envFitCard">
+          <div class="card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2z"/>
+              <path d="M12 6v6l4 2"/>
+            </svg>
+            当前环境适宜性评估
+            <span id="envFitBadge" class="env-fit-badge fit" style="margin-left:auto;">加载中</span>
+          </div>
+          <div class="env-fit-summary" id="envFitSummary">正在分析环境与土壤数据...</div>
+          <div id="envFitList"></div>
+        </div>
+
         <!-- 气象数据 -->
         <div class="card">
           <div class="card-title">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="4"/>
-              <path d="M12 2v2"/><path d="M12 20v2"/>
-              <path d="m4.93 4.93 2.83 2.83"/><path d="m16.24 16.24 2.83 2.83"/>
-              <path d="M2 12h2"/><path d="M20 12h2"/>
+              <path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 2.83 2.83"/><path d="m16.24 16.24 2.83 2.83"/><path d="M2 12h2"/><path d="M20 12h2"/>
             </svg>
             气象数据
           </div>
@@ -874,6 +1076,24 @@
           </div>
         </div>
 
+        <!-- 病虫害风险评估 -->
+        <div class="card" id="riskCard">
+          <div class="card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+            病虫害风险评估
+            <span id="riskBadge" class="risk-badge high" style="margin-left:auto;">加载中</span>
+          </div>
+          <div style="font-size: var(--font-xs); color: var(--text-secondary); margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px dashed var(--border-light);" id="riskEnv">环境加载中...</div>
+          <div id="riskList"></div>
+          <div style="text-align:center; margin-top: 10px;">
+            <a href="mb_disease_knowledge.html" style="font-size: var(--font-xs); color: var(--primary);">查看详细病虫害知识 ›</a>
+          </div>
+        </div>
+
         <!-- 主要虫害列表 -->
         <div class="card">
           <div class="card-title">
@@ -1040,6 +1260,8 @@
       </div>
     </div>
 
+    <script src="js/pest-risk-engine.js"></script>
+
     <script>
       function goBack() {
         navigateTo('mb_home.html');
@@ -1198,11 +1420,131 @@
         });
       }
 
+      function renderPestRisk() {
+        if (!window.PestRiskEngine) return;
+        // 模拟环境数据（实际应来自后端/传感器）
+        var envData = { temp: 35, humidity: 45, rainfall: 0 };
+        var historyData = {
+          dailyTemps: [22, 24, 26, 28, 30, 32, 34, 35, 33, 31],
+          captures: {
+            '红蜘蛛': { recent7day: 8 },
+            '蚧壳虫': { recent7day: 3 },
+            '炭疽病': { recent7day: 2 },
+            '黑点病': { recent7day: 1 }
+          }
+        };
+        var overall = window.PestRiskEngine.getOverallRisk(window.PestRiskEngine.assess(envData, historyData));
+        document.getElementById('riskEnv').innerHTML = '当前环境：<strong>' + envData.temp + '°C</strong> · 湿度 <strong>' + envData.humidity + '%</strong> · 降雨 <strong>' + envData.rainfall + 'mm</strong>';
+        var badge = document.getElementById('riskBadge');
+        badge.textContent = overall.text;
+        badge.className = 'risk-badge ' + overall.level;
+
+        var results = window.PestRiskEngine.assess(envData, historyData);
+        // 取 Top 5 中风险以上的
+        var top = results.filter(function(r) { return r.score >= 20; }).slice(0, 5);
+        var html = '';
+        top.forEach(function(r) {
+          html += '<div class="risk-row" onclick="navigateTo(\'mb_disease_detail.html?pest=' + encodeURIComponent(r.name) + '\')">' +
+            '<div class="risk-row-icon">' + r.icon + '</div>' +
+            '<div class="risk-row-info">' +
+              '<div class="risk-row-name">' + r.name + '</div>' +
+              '<div class="risk-row-bar-wrap">' +
+                '<div class="risk-row-bar"><div class="risk-row-bar-fill ' + r.level + '" style="width:' + r.score + '%;"></div></div>' +
+                '<div class="risk-row-score">' + r.score + '分</div>' +
+              '</div>' +
+            '</div>' +
+            '<div class="risk-row-level ' + r.level + '">' + (r.level === 'high' ? '高' : r.level === 'medium' ? '中' : '低') + '</div>' +
+          '</div>';
+        });
+        if (!html) html = '<div style="padding:20px;text-align:center;color:var(--text-tertiary);">暂无风险</div>';
+        document.getElementById('riskList').innerHTML = html;
+      }
+
+      function navigateTo(url) { window.location.href = url; }
+
+      function renderEnvFit() {
+        if (!window.PestRiskEngine || !window.PestRiskEngine.assessGrowth) return;
+        // 当前站点下的环境与土壤数据（实际应来自传感器接口）
+        var envData = {
+          temp: 35.8,
+          humidity: 45,
+          windSpeed: 3.2,
+          rainfall: 0,
+          light: 1250,
+          soilMoisture: 52,
+          soilTemp: 32.1,
+          soilPh: 5.8,
+          soilEC: 1.2
+        };
+
+        var result = window.PestRiskEngine.assessGrowth(envData);
+        var riskItems = result.items.filter(function(i) { return i.status === 'risk'; });
+        var fitItems = result.items.filter(function(i) { return i.status === 'fit'; });
+
+        // 整体徽章
+        var badge = document.getElementById('envFitBadge');
+        badge.textContent = result.overall === 'fit' ? '适合' : '风险';
+        badge.className = 'env-fit-badge ' + result.overall;
+
+        // 摘要
+        var summaryText;
+        if (result.overall === 'fit') {
+          summaryText = '当前 ' + fitItems.length + ' 项指标均适合南丰蜜桔生长';
+        } else {
+          summaryText = riskItems.length + ' 项指标需关注 · ' + fitItems.length + ' 项适合';
+        }
+        document.getElementById('envFitSummary').textContent = summaryText;
+
+        // 渲染内容
+        var html = '';
+
+        // 风险组（默认展开）
+        if (riskItems.length > 0) {
+          html += '<div class="env-fit-risk-list">';
+          riskItems.forEach(function(it) {
+            html += '<div class="env-fit-risk-card">' +
+                      '<div class="env-fit-risk-head">' +
+                        '<span class="env-fit-risk-name">' + it.name + '</span>' +
+                        '<span class="env-fit-risk-value">' + it.valueText + '</span>' +
+                      '</div>' +
+                      (it.advice ? '<div class="env-fit-risk-advice">' + it.advice + '</div>' : '') +
+                    '</div>';
+          });
+          html += '</div>';
+        }
+
+        // 适合组（默认折叠）
+        if (fitItems.length > 0) {
+          html += '<div class="env-fit-group" id="envFitFitGroup">' +
+                    '<div class="env-fit-group-head" onclick="toggleEnvFitGroup()">' +
+                      '<span class="env-fit-group-title">✓ 适合指标 <span class="num">' + fitItems.length + '</span></span>' +
+                      '<span class="env-fit-group-arrow">▼</span>' +
+                    '</div>' +
+                    '<div class="env-fit-fit-grid">';
+          fitItems.forEach(function(it) {
+            html += '<div class="env-fit-fit-item">' +
+                      '<span class="env-fit-fit-name">' + it.name + '</span>' +
+                      '<span class="env-fit-fit-value">' + it.valueText + '</span>' +
+                    '</div>';
+          });
+          html += '</div></div>';
+        }
+
+        document.getElementById('envFitList').innerHTML = html;
+      }
+
+      function toggleEnvFitGroup() {
+        var group = document.getElementById('envFitFitGroup');
+        if (group) group.classList.toggle('open');
+      }
+
       (function() {
         var app = document.querySelector('.mb-app');
         setTimeout(function() {
           app.classList.remove('loading');
           renderPestChart();
+          renderPestRisk();
+          renderEnvFit();
         }, 600);
       })();
     </script>

@@ -837,11 +837,12 @@ function submitManualForm() {
     } else {
         var newId = manualData.length > 0 ? Math.max.apply(null, manualData.map(function (d) { return d.id; })) + 1 : 1;
         manualData.push({
-            id: newId, plot: plot, date: date,
+            id: newId, plot: plot, plotId: plot.split('|')[0], date: date,
             diameter: diameter || 0, sugar: sugar || 0, spad: spad || 0,
             ph: ph || 0, ec: ec || 0, n: n || 0, p: p || 0, k: k || 0,
             yield: yieldVal || 0, pest: pest || '无'
         });
+        persistFactorCollectRecords();
         showToast('采样数据提交成功', 'success');
     }
     closeModal('manual-edit-modal');
@@ -1132,12 +1133,50 @@ function confirmDelete() {
 
 // ============ 初始化 ============
 window.addEventListener('load', function () {
+    syncPlotSelectorsFromArchive();
     updateLastUpdateTime();
     renderIotTable();
     // Render manual and farm tabs in background
     renderManualTable();
     renderFarmTable();
+    persistFactorCollectRecords();
 });
+
+function getPlotsFromArchive(){
+    try {
+        var plots = JSON.parse(localStorage.getItem('baseArchive.plots') || 'null');
+        if(plots && Array.isArray(plots) && plots.length > 0) return plots;
+    } catch(e){}
+    return null;
+}
+
+function syncPlotSelectorsFromArchive(){
+    var plots = getPlotsFromArchive();
+    if(!plots) return;
+    var options = plots.map(function(p){
+        var label = p.code || ('地块-' + p.id);
+        return '<option value="' + p.id + '|' + label + '">' + label + '</option>';
+    }).join('');
+    ['iot-plot-filter', 'manual-plot-filter', 'farm-plot-filter'].forEach(function(id){
+        var el = document.getElementById(id);
+        if(el){
+            el.innerHTML = '<option value="">全部地块</option>' + options;
+        }
+    });
+    ['m-plot', 'f-plot'].forEach(function(id){
+        var el = document.getElementById(id);
+        if(el){
+            el.innerHTML = '<option value="">请选择地块</option>' + options;
+        }
+    });
+}
+
+function persistFactorCollectRecords(){
+    try {
+        var records = manualData.map(function(d){ return { id: d.id, plotId: d.plotId, plot: d.plot, date: d.date }; });
+        localStorage.setItem('factorCollect.records', JSON.stringify(records));
+    } catch(e){}
+}
 </script>
 </body>
 </html>

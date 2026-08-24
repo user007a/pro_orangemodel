@@ -289,12 +289,109 @@ window.PestRiskEngine = (function() {
     return DRUG_DB[pestKey] || [];
   }
 
+  // ========== 蜜桔生长环境适宜性评估 ==========
+
+  // 南丰蜜桔生长环境适宜范围（综合农艺学文献）
+  var GROWTH_RULES = [
+    { key: 'temp', name: '气温', valueKey: 'temp', unit: '°C',
+      range: [15, 32],
+      advice: { low: '气温偏低，需注意防寒', high: '气温偏高，建议果园喷水降温' } },
+    { key: 'humidity', name: '空气湿度', valueKey: 'humidity', unit: '%',
+      range: [60, 80],
+      advice: { low: '空气干燥，建议叶面喷水增湿', high: '湿度过高，加强通风排湿' } },
+    { key: 'windSpeed', name: '风速', valueKey: 'windSpeed', unit: ' m/s',
+      range: [0, 8],
+      advice: { low: null, high: '风速较大，注意防风防落果' } },
+    { key: 'rainfall', name: '降雨量', valueKey: 'rainfall', unit: ' mm',
+      range: [0, 50],
+      advice: { low: null, high: '降雨量较大，及时排涝防积水' } },
+    { key: 'light', name: '光照', valueKey: 'light', unit: ' lux',
+      range: [10000, 50000],
+      advice: { low: '光照不足，影响光合作用', high: null } },
+    { key: 'soilMoisture', name: '土壤湿度', valueKey: 'soilMoisture', unit: '%',
+      range: [50, 70],
+      advice: { low: '土壤偏干，建议灌溉', high: '土壤过湿，注意排涝' } },
+    { key: 'soilTemp', name: '土壤温度', valueKey: 'soilTemp', unit: '°C',
+      range: [18, 28],
+      advice: { low: '土温偏低，影响根系活性', high: '土温偏高，建议覆盖降温' } },
+    { key: 'soilPh', name: '土壤pH', valueKey: 'soilPh', unit: '',
+      range: [5.5, 6.5],
+      advice: { low: 'pH偏低，建议施用石灰改良', high: 'pH偏高，建议施用硫磺粉改良' } },
+    { key: 'soilEC', name: '土壤EC', valueKey: 'soilEC', unit: ' mS/cm',
+      range: [0.8, 1.6],
+      advice: { low: 'EC偏低，注意补充养分', high: 'EC偏高，注意盐害风险' } }
+  ];
+
+  /**
+   * 蜜桔生长环境适宜性评估
+   * @param {Object} envData - { temp, humidity, windSpeed, rainfall, light, soilMoisture, soilTemp, soilPh, soilEC }
+   * @returns {Object} { overall: 'fit'|'risk', items: [{name, valueText, status, advice}] }
+   */
+  function assessGrowth(envData) {
+    envData = envData || {};
+    var items = [];
+
+    GROWTH_RULES.forEach(function(rule) {
+      var raw = envData[rule.valueKey];
+      if (raw === undefined || raw === null || raw === '') return;
+
+      // 风向特殊处理：字符串不参与数值判断
+      if (typeof raw === 'string' && isNaN(parseFloat(raw))) return;
+
+      var num = parseFloat(raw);
+      var min = rule.range[0];
+      var max = rule.range[1];
+      var status = (num >= min && num <= max) ? 'fit' : 'risk';
+      var direction = num < min ? 'low' : 'high';
+      var advice = null;
+      if (status === 'risk' && rule.advice) {
+        advice = rule.advice[direction] || null;
+      }
+
+      // 数值格式化
+      var valueText;
+      if (rule.unit === '') {
+        valueText = num.toFixed(1);
+      } else if (rule.key === 'temp' || rule.key === 'soilTemp') {
+        valueText = num.toFixed(1) + rule.unit;
+      } else if (rule.key === 'soilPh') {
+        valueText = num.toFixed(1);
+      } else if (rule.key === 'soilEC') {
+        valueText = num.toFixed(2) + rule.unit;
+      } else if (rule.key === 'windSpeed') {
+        valueText = num.toFixed(1) + rule.unit;
+      } else {
+        valueText = num.toFixed(1) + rule.unit;
+      }
+
+      items.push({
+        key: rule.key,
+        name: rule.name,
+        valueText: valueText,
+        status: status,
+        advice: advice
+      });
+    });
+
+    var riskCount = items.filter(function(i) { return i.status === 'risk'; }).length;
+    return {
+      overall: riskCount === 0 ? 'fit' : 'risk',
+      riskCount: riskCount,
+      items: items,
+      summary: riskCount === 0
+        ? '南丰蜜桔当前生长条件整体良好'
+        : '存在 ' + riskCount + ' 项指标超出适宜范围，建议关注'
+    };
+  }
+
   return {
     assess: assess,
     calcAccumulatedTemp: calcAccumulatedTemp,
     getOverallRisk: getOverallRisk,
     getPestDetail: getPestDetail,
     getDrugs: getDrugs,
+    assessGrowth: assessGrowth,
+    GROWTH_RULES: GROWTH_RULES,
     PEST_DB: PEST_DB,
     DRUG_DB: DRUG_DB
   };

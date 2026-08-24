@@ -430,7 +430,7 @@
         </div>
 
         <div class="msg-list">
-          <div class="msg-item priority-high unread">
+          <div class="msg-item priority-high unread" data-alert-id="ALT-MOBILE-001" data-alert-level="黄色预警" data-alert-area="A2区">
             <div class="msg-item-head">
               <div class="msg-item-icon alert">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
@@ -454,7 +454,7 @@
             </div>
           </div>
 
-          <div class="msg-item priority-high unread">
+          <div class="msg-item priority-high unread" data-alert-id="ALT-MOBILE-002" data-alert-level="橙色预警" data-alert-area="全县">
             <div class="msg-item-head">
               <div class="msg-item-icon alert">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
@@ -804,6 +804,69 @@
           item.classList.remove('unread');
         }
       }
+
+      function submitAlertFeedback(alertId, alertTitle, level, area){
+        var measure = prompt('请输入处置措施（将保存到后台【处置记录】）：', '已完成现场查看，正在按建议方案处置');
+        if(measure === null) return;
+        var result = prompt('处置结果（可留空，回车默认"待观察"）：', '');
+        if(result === null) result = '';
+        var now = new Date();
+        var timeStr = now.toISOString().substring(0,19).replace('T',' ');
+        var fb = {
+          alertId: alertId,
+          alertTitle: alertTitle,
+          level: level || '黄色预警',
+          area: area || '-',
+          handler: '移动端用户',
+          status: '处置中',
+          measure: measure || '（移动端反馈）',
+          result: result || '待观察',
+          feedback: (measure || '') + (result ? ' / ' + result : ''),
+          start: timeStr,
+          end: '-',
+          submittedAt: timeStr
+        };
+        try {
+          var list = JSON.parse(localStorage.getItem('alertFeedback') || '[]');
+          list.push(fb);
+          localStorage.setItem('alertFeedback', JSON.stringify(list));
+          var alerts = JSON.parse(localStorage.getItem('alerts') || '[]');
+          var idx = alerts.findIndex(function(a){ return a.id === alertId; });
+          if(idx >= 0){
+            alerts[idx].status = '已处置';
+            alerts[idx].feedbackAt = timeStr;
+            alerts[idx].feedbackNote = fb.feedback;
+            localStorage.setItem('alerts', JSON.stringify(alerts));
+          }
+          alert('已提交处置反馈，PC 端【预警管理】与【处置记录】将自动同步。');
+        } catch(e){
+          alert('提交失败：' + e.message);
+        }
+      }
+
+      window.submitAlertFeedback = submitAlertFeedback;
+
+      function attachFeedbackButtons(){
+        document.querySelectorAll('.msg-item[data-alert-id]').forEach(function(item){
+          if(item.querySelector('.mb-feedback-btn')) return;
+          var actionArea = item.querySelector('.msg-item-action');
+          if(!actionArea) return;
+          var alertId = item.getAttribute('data-alert-id');
+          var title = item.querySelector('.msg-item-title') ? item.querySelector('.msg-item-title').textContent : '';
+          var level = item.getAttribute('data-alert-level') || '黄色预警';
+          var area = item.getAttribute('data-alert-area') || '-';
+          var btn = document.createElement('div');
+          btn.className = 'msg-action-btn outline mb-feedback-btn';
+          btn.style.marginLeft = '4px';
+          btn.style.color = '#16a34a';
+          btn.style.borderColor = '#16a34a';
+          btn.textContent = '反馈处置';
+          btn.onclick = function(){ submitAlertFeedback(alertId, title, level, area); };
+          actionArea.appendChild(btn);
+        });
+      }
+
+      document.addEventListener('DOMContentLoaded', attachFeedbackButtons);
     </script>
   </div>
 </body>

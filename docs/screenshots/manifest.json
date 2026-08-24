@@ -1,0 +1,16 @@
+{
+  "backhand/growth/growth_model.html": ["模型总览", "模型说明"],
+  "backhand/growth/base_archive.html": ["品系管理", "地块档案", "阶段参数"],
+  "backhand/growth/factor_collect.html": ["物联网实时数据", "人工采样录入", "农事记录录入"],
+  "backhand/growth/farm_scheme_config.html": ["方案列表", "方案测试", "因子映射"],
+  "backhand/growth/calibration.html": ["历史数据对比", "参数微调", "校准日志"],
+  "backhand/pest/pest_data.html": ["气象数据 (Wt)", "物候数据 (Pt)", "病情虫情 (Dt)", "虫源基数 (It)", "历史数据 (Ht)"],
+  "backhand/pest/pest_report.html": ["3天预测", "7天预测", "历史报告"],
+  "backhand/pest/pest_diagnosis.html": ["因子归因", "耦合分析", "传播追踪"],
+  "backhand/pest/pest_params.html": ["因子权重 (w)", "耦合系数 (β/γ)", "时间窗口 (L/h)", "θ权重 (θ1-θ5)"],
+  "mobile/mb_data.html": ["环境指标", "虫情测报"],
+  "mobile/mb_data_input.html": ["土壤数据", "气象数据", "农事记录", "病虫上报", "蜜桔销售"],
+  "mobile/mb_messages.html": ["预警", "风险", "推荐", "农事"],
+  "mobile/mb_profile_records.html": ["全部", "土壤数据", "气象数据", "农事记录", "病虫上报", "蜜桔销售"],
+  "__growth_dashboard_modal": ["主体", "活跃度", "植株", "报告", "评分", "农事", "采纳率", "学习"]
+}

@@ -3,12 +3,29 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>微信后台 - 资讯管理</title>
+  <title>资讯管理 - 南丰蜜桔模型管理系统</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: {
+      green: { DEFAULT: '#16a34a' },
+      blue: { DEFAULT: '#2563eb' },
+      red: { DEFAULT: '#dc2626' },
+      yellow: { DEFAULT: '#ca8a04' },
+      purple: { DEFAULT: '#9333ea' },
+      orange: { DEFAULT: '#ea580c' }
+    }}}}
+  </script>
+  <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+  <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
   <style>
+    @keyframes modalSlideIn {
+        from { opacity: 0; transform: translateY(-20px) scale(0.98); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .modal-overlay.active .modal-content { animation: modalSlideIn 0.3s ease; }
     body { margin: 0; padding: 0; background: #f0f2f5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; }
     .page-header { padding: 20px 24px; background: #fff; border-bottom: 1px solid #e8ecf1; display: flex; justify-content: space-between; align-items: center; }
-    .page-title { font-size: 18px; font-weight: 600; color: #1b2a41; }
+    .page-title { font-size: 20px; font-weight: 600; color: #1b2a41; }
     .page-subtitle { font-size: 14px; color: #8898aa; margin-top: 4px; }
     
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
@@ -78,6 +95,14 @@
     .stat-icon.learning { background: #dcfce7; color: #16a34a; }
     .stat-icon.law { background: #fce7f3; color: #db2777; }
     .stat-icon.video { background: #fef3c7; color: #d97706; }
+
+    .ql-toolbar.ql-snow { border-radius: 6px 6px 0 0; border-color: #e6ebf1; }
+    .ql-container.ql-snow { border-radius: 0 0 6px 6px; border-color: #e6ebf1; }
+    .ql-editor { min-height: 120px; font-size: 14px; color: #1b2a41; }
+    #content-editor .ql-editor { min-height: 180px; }
+    .image-upload-area { border: 1px dashed #cbd5e1; border-radius: 6px; padding: 16px; text-align: center; cursor: pointer; background: #f7f8fc; transition: border-color 0.2s; }
+    .image-upload-area:hover { border-color: #22a84a; }
+    .image-placeholder { color: #8898aa; font-size: 14px; }
   </style>
 </head>
 <body>
@@ -153,12 +178,24 @@
           </select>
         </div>
         <div class="form-item">
+          <label class="form-label">资讯图片</label>
+          <div class="image-upload-area" onclick="document.getElementById('add-image').click()">
+            <img id="image-preview" src="" alt="预览" style="display:none; max-width:100%; max-height:200px; border-radius:6px; margin:0 auto;">
+            <div id="image-placeholder" class="image-placeholder">点击上传图片</div>
+          </div>
+          <input type="file" id="add-image" accept="image/*" style="display:none;" onchange="handleImageUpload(this)">
+          <div style="margin-top:8px; display:flex; gap:8px;">
+            <button class="btn btn-secondary" type="button" onclick="document.getElementById('add-image').click()">选择图片</button>
+            <button class="btn btn-secondary" type="button" onclick="clearImage()">移除图片</button>
+          </div>
+        </div>
+        <div class="form-item">
           <label class="form-label">摘要</label>
-          <textarea class="form-textarea" id="add-summary" placeholder="请输入资讯摘要"></textarea>
+          <div id="summary-editor"></div>
         </div>
         <div class="form-item">
           <label class="form-label">内容 *</label>
-          <textarea class="form-textarea" id="add-content" placeholder="请输入资讯内容"></textarea>
+          <div id="content-editor"></div>
         </div>
         <div class="form-item">
           <label class="form-label">状态</label>
@@ -249,11 +286,70 @@
       { id: 'nw-020', title: '生态种植模式探讨', category: '资讯', summary: '探讨蜜桔生态种植的新模式和方法。', content: '探讨蜜桔生态种植的新模式和方法，包括生物防治、有机种植、循环农业等方面的内容。', publishTime: '2026-07-03 16:15', views: '1456', status: '已发布' }
     ];
 
+    var NEWS_IMG = 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Nanfeng%20tangerine%20orchard%20with%20ripe%20orange%20fruits%20on%20trees%2C%20agricultural%20farm%20photograph&image_size=landscape_16_9';
+    newsData.forEach(function(n) { n.image = NEWS_IMG; });
+
     var originalNews = JSON.parse(JSON.stringify(newsData));
     var currentPage = 1;
     var pageSize = 10;
     var deleteTargetId = null;
     var publishTargetId = null;
+    var currentImage = '';
+    var quillSummary = null;
+    var quillContent = null;
+
+    function initEditors() {
+      if (quillSummary && quillContent) return;
+      quillSummary = new Quill('#summary-editor', {
+        theme: 'snow',
+        modules: { toolbar: [['bold', 'italic', 'underline'], [{ 'list': 'ordered' }, { 'list': 'bullet' }], ['link'], ['clean']] },
+        placeholder: '请输入资讯摘要'
+      });
+      quillContent = new Quill('#content-editor', {
+        theme: 'snow',
+        modules: { toolbar: [['bold', 'italic', 'underline'], [{ 'list': 'ordered' }, { 'list': 'bullet' }], ['link', 'image'], ['clean']] },
+        placeholder: '请输入资讯内容'
+      });
+    }
+
+    function setEditorHTML(selector, html) {
+      document.querySelector(selector + ' .ql-editor').innerHTML = html || '';
+    }
+    function getEditorHTML(selector) {
+      return document.querySelector(selector + ' .ql-editor').innerHTML;
+    }
+    function isEditorEmpty(selector) {
+      var text = document.querySelector(selector + ' .ql-editor').innerText.trim();
+      return !text;
+    }
+
+    function showImagePreview(src) {
+      var img = document.getElementById('image-preview');
+      var ph = document.getElementById('image-placeholder');
+      if (src) {
+        img.src = src;
+        img.style.display = 'block';
+        ph.style.display = 'none';
+      } else {
+        img.style.display = 'none';
+        ph.style.display = 'block';
+      }
+    }
+    function handleImageUpload(input) {
+      var file = input.files[0];
+      if (!file) return;
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        currentImage = e.target.result;
+        showImagePreview(currentImage);
+      };
+      reader.readAsDataURL(file);
+    }
+    function clearImage() {
+      currentImage = '';
+      document.getElementById('add-image').value = '';
+      showImagePreview('');
+    }
 
     function renderStats() {
       var newsCount = originalNews.filter(function(n) { return n.category === '资讯'; }).length;
@@ -323,7 +419,6 @@
       displayNews.forEach(function(n) {
         var categoryClass = getCategoryClass(n.category);
         var statusClass = n.status === '已发布' ? 'status-published' : 'status-draft';
-        var publishBtn = n.status === '草稿' ? `<button class="btn btn-publish" onclick="openPublishModal('${n.id}', '${n.title}')">发布</button>` : '';
         tbody.innerHTML += `
           <tr>
             <td>${n.title}</td>
@@ -332,10 +427,10 @@
             <td>${n.views}</td>
             <td><span class="status-badge ${statusClass}">${n.status}</span></td>
             <td>
-              <button class="btn btn-secondary" onclick="openDetailModal('${n.id}')">查看</button>
-              <button class="btn btn-secondary" onclick="openEditModal('${n.id}')">编辑</button>
-              ${publishBtn}
-              <button class="btn btn-secondary" onclick="openDeleteModal('${n.id}', '${n.title}')">删除</button>
+              <button onclick="openDetailModal('${n.id}')" class="px-3 py-1 text-green hover:bg-green-50 rounded text-xs font-medium transition-colors">查看</button>
+              <button onclick="openEditModal('${n.id}')" class="px-3 py-1 text-blue hover:bg-blue-50 rounded text-xs font-medium transition-colors">编辑</button>
+              <button onclick="openPublishModal('${n.id}', '${n.title}')" class="px-3 py-1 text-orange hover:bg-orange-50 rounded text-xs font-medium transition-colors">发布</button>
+              <button onclick="openDeleteModal('${n.id}', '${n.title}')" class="px-3 py-1 text-red hover:bg-red-50 rounded text-xs font-medium transition-colors">删除</button>
             </td>
           </tr>
         `;
@@ -393,12 +488,16 @@
     }
 
     function openAddModal() {
+      initEditors();
       document.getElementById('add-modal-title').textContent = '新增资讯';
       document.getElementById('edit-id').value = '';
       document.getElementById('add-title').value = '';
       document.getElementById('add-category').value = '资讯';
-      document.getElementById('add-summary').value = '';
-      document.getElementById('add-content').value = '';
+      currentImage = '';
+      document.getElementById('add-image').value = '';
+      showImagePreview('');
+      setEditorHTML('#summary-editor', '');
+      setEditorHTML('#content-editor', '');
       document.getElementById('add-status').value = '草稿';
       document.getElementById('add-modal').classList.add('active');
     }
@@ -406,12 +505,16 @@
     function openEditModal(id) {
       var n = newsData.find(function(item) { return item.id === id; });
       if (!n) return;
+      initEditors();
       document.getElementById('add-modal-title').textContent = '编辑资讯';
       document.getElementById('edit-id').value = n.id;
       document.getElementById('add-title').value = n.title;
       document.getElementById('add-category').value = n.category;
-      document.getElementById('add-summary').value = n.summary;
-      document.getElementById('add-content').value = n.content;
+      currentImage = n.image || '';
+      document.getElementById('add-image').value = '';
+      showImagePreview(currentImage);
+      setEditorHTML('#summary-editor', n.summary);
+      setEditorHTML('#content-editor', n.content);
       document.getElementById('add-status').value = n.status;
       document.getElementById('add-modal').classList.add('active');
     }
@@ -420,27 +523,27 @@
       var id = document.getElementById('edit-id').value;
       var title = document.getElementById('add-title').value.trim();
       var category = document.getElementById('add-category').value;
-      var summary = document.getElementById('add-summary').value.trim();
-      var content = document.getElementById('add-content').value.trim();
+      var summary = getEditorHTML('#summary-editor');
+      var content = getEditorHTML('#content-editor');
       var status = document.getElementById('add-status').value;
-      
-      if (!title || !content) {
+
+      if (!title || isEditorEmpty('#content-editor')) {
         alert('请填写必填项');
         return;
       }
-      
+
       if (id) {
         var index = originalNews.findIndex(function(item) { return item.id === id; });
         if (index > -1) {
-          originalNews[index] = { ...originalNews[index], title, category, summary, content, status };
+          originalNews[index] = { ...originalNews[index], title, category, summary, content, image: currentImage, status };
         }
       } else {
         var newId = 'nw-' + String(originalNews.length + 1).padStart(3, '0');
         var now = new Date();
         var timeStr = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0') + ' ' + String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
-        originalNews.unshift({ id: newId, title, category, summary, content, publishTime: timeStr, views: '0', status });
+        originalNews.unshift({ id: newId, title, category, summary, content, image: currentImage, publishTime: timeStr, views: '0', status });
       }
-      
+
       closeModal('add-modal');
       renderStats();
       filterNews();
@@ -462,8 +565,12 @@
           <div class="detail-item"><div class="detail-label">状态</div><div class="detail-value"><span class="status-badge ${statusClass}">${n.status}</span></div></div>
         </div>
         <div class="detail-content">
+          <div style="font-size:12px;color:#8898aa;margin-bottom:8px;">资讯图片</div>
+          ${n.image ? `<img src="${n.image}" alt="资讯图片" style="max-width:100%; max-height:320px; border-radius:6px; display:block;">` : '<div style="font-size:14px;color:#8898aa;">暂无图片</div>'}
+        </div>
+        <div class="detail-content">
           <div style="font-size:12px;color:#8898aa;margin-bottom:8px;">摘要</div>
-          <div style="font-size:14px;color:#1b2a41;">${n.summary}</div>
+          <div style="font-size:14px;color:#1b2a41;line-height:1.6;">${n.summary}</div>
         </div>
         <div class="detail-content">
           <div style="font-size:12px;color:#8898aa;margin-bottom:8px;">内容</div>

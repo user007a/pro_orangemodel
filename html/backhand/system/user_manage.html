@@ -1,12 +1,26 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>用户管理 - 南丰蜜桔模型管理系统</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    
+    <script>
+      tailwind.config = { theme: { extend: { colors: {
+        green: { DEFAULT: '#16a34a' },
+        blue: { DEFAULT: '#2563eb' },
+        red: { DEFAULT: '#dc2626' },
+        yellow: { DEFAULT: '#ca8a04' },
+        purple: { DEFAULT: '#9333ea' }
+      }}}}
+    </script>
+
     <style>
+        @keyframes modalSlideIn {
+            from { opacity: 0; transform: translateY(-20px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .modal-overlay.active .modal-content { animation: modalSlideIn 0.3s ease; }
         body { margin: 0; padding: 0; background-color: #F0F2F5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans SC', sans-serif; }
         .content-wrapper { padding: 24px; height: 100vh; overflow-y: auto; }
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.5); z-index: 1000; align-items: center; justify-content: center; }
@@ -19,77 +33,26 @@
     <div class="content-wrapper">
         <div class="flex items-center justify-between mb-6">
             <div>
-                <h1 class="text-2xl font-bold text-gray-800">用户管理</h1>
-                <p class="text-gray-500 mt-1">管理系统用户账号和权限</p>
+                <h1 class="text-xl font-bold text-gray-800">用户管理</h1>
+                <p class="text-gray-500 text-sm mt-1">管理系统用户账号和权限</p>
             </div>
             <div class="flex items-center space-x-3">
                 <input type="text" id="search-input" placeholder="搜索用户名/姓名/手机号..." class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 w-64">
                 <select id="role-filter" class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
                     <option value="">全部角色</option>
                     <option value="管理员">管理员</option>
-                    <option value="操作员">操作员</option>
-                    <option value="查看员">查看员</option>
+                    <option value="农技员">农技员</option>
+                    <option value="数据管理员">数据管理员</option>
                 </select>
                 <button onclick="searchUsers()" class="px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition flex items-center">
                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                     查询
-                </button>
-                <button onclick="resetSearch()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm hover:bg-gray-50 transition flex items-center">
-                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-                    重置
                 </button>
 
                 <button onclick="openAddModal()" class="px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition flex items-center">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
                     新增用户
                 </button>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-500 text-sm">总用户数</p>
-                        <h3 class="text-2xl font-bold text-gray-800 mt-1" id="stat-total">35</h3>
-                    </div>
-                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-500 text-sm">管理员</p>
-                        <h3 class="text-2xl font-bold text-green-600 mt-1" id="stat-admin">5</h3>
-                    </div>
-                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-500 text-sm">操作员</p>
-                        <h3 class="text-2xl font-bold text-blue-600 mt-1" id="stat-operator">15</h3>
-                    </div>
-                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-500 text-sm">查看员</p>
-                        <h3 class="text-2xl font-bold text-gray-600 mt-1" id="stat-viewer">15</h3>
-                    </div>
-                    <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                    </div>
-                </div>
             </div>
         </div>
 
@@ -107,7 +70,7 @@
                             <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">用户名</th>
                             <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">姓名</th>
                             <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">手机号</th>
-                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">所属部门</th>
+                            <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">所在乡镇</th>
                             <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">角色</th>
                             <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">创建时间</th>
                             <th class="text-center px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">状态</th>
@@ -162,23 +125,24 @@
                     <input type="text" id="add-phone" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="请输入手机号">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">所属部门</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">所在乡镇</label>
                     <select id="add-department" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
-                        <option>技术服务部</option>
-                        <option>生产指导部</option>
-                        <option>质量监测部</option>
-                        <option>市场销售部</option>
-                        <option>系统运维部</option>
-                        <option>种植管理部</option>
-                        <option>品控部</option>
+                        <option>太和镇</option>
+                        <option>白舍镇</option>
+                        <option>市山镇</option>
+                        <option>紫霄镇</option>
+                        <option>洽湾镇</option>
+                        <option>傅坊乡</option>
+                        <option>莱溪乡</option>
+                        <option>三溪乡</option>
                     </select>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">角色</label>
                     <select id="add-role" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
                         <option>管理员</option>
-                        <option>操作员</option>
-                        <option>查看员</option>
+                        <option>农技员</option>
+                        <option>数据管理员</option>
                     </select>
                 </div>
                 <div>
@@ -218,23 +182,24 @@
                     <input type="text" id="edit-phone" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">所属部门</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">所在乡镇</label>
                     <select id="edit-department" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
-                        <option>技术服务部</option>
-                        <option>生产指导部</option>
-                        <option>质量监测部</option>
-                        <option>市场销售部</option>
-                        <option>系统运维部</option>
-                        <option>种植管理部</option>
-                        <option>品控部</option>
+                        <option>太和镇</option>
+                        <option>白舍镇</option>
+                        <option>市山镇</option>
+                        <option>紫霄镇</option>
+                        <option>洽湾镇</option>
+                        <option>傅坊乡</option>
+                        <option>莱溪乡</option>
+                        <option>三溪乡</option>
                     </select>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">角色</label>
                     <select id="edit-role" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
                         <option>管理员</option>
-                        <option>操作员</option>
-                        <option>查看员</option>
+                        <option>农技员</option>
+                        <option>数据管理员</option>
                     </select>
                 </div>
                 <div>
@@ -331,41 +296,41 @@
     <script>
         // ===== 35条Mock数据 =====
         const usersData = [
-            { username: 'admin',    name: '管理员',   phone: '138****0001', department: '技术服务部', role: '管理员', time: '2026-01-01 10:00', status: '启用' },
-            { username: 'admin02',  name: '刘天明',   phone: '138****0002', department: '系统运维部', role: '管理员', time: '2026-01-15 09:30', status: '启用' },
-            { username: 'admin03',  name: '张华',     phone: '138****0003', department: '技术服务部', role: '管理员', time: '2026-02-10 14:00', status: '启用' },
-            { username: 'admin04',  name: '陈志远',   phone: '138****0004', department: '品控部',     role: '管理员', time: '2026-03-05 11:20', status: '启用' },
-            { username: 'admin05',  name: '王丽',     phone: '138****0005', department: '系统运维部', role: '管理员', time: '2026-04-20 08:00', status: '启用' },
-            { username: 'user001',  name: '张三',     phone: '139****0006', department: '生产指导部', role: '操作员', time: '2026-06-15 09:30', status: '启用' },
-            { username: 'user003',  name: '王五',     phone: '136****0007', department: '市场销售部', role: '操作员', time: '2026-07-05 11:20', status: '启用' },
-            { username: 'nf001',    name: '陈建国',   phone: '135****0008', department: '种植管理部', role: '操作员', time: '2026-05-10 08:30', status: '启用' },
-            { username: 'nf002',    name: '刘桂芳',   phone: '135****0009', department: '种植管理部', role: '操作员', time: '2026-05-12 10:00', status: '启用' },
-            { username: 'nf003',    name: '吴志强',   phone: '135****0010', department: '品控部',     role: '操作员', time: '2026-05-20 14:20', status: '启用' },
-            { username: 'nf004',    name: '孙明辉',   phone: '135****0011', department: '生产指导部', role: '操作员', time: '2026-05-25 09:00', status: '启用' },
-            { username: 'nf005',    name: '郑海龙',   phone: '135****0012', department: '市场销售部', role: '操作员', time: '2026-06-01 16:00', status: '启用' },
-            { username: 'nf006',    name: '林小红',   phone: '135****0013', department: '品控部',     role: '操作员', time: '2026-06-05 10:30', status: '禁用' },
-            { username: 'nf007',    name: '杨建军',   phone: '135****0014', department: '种植管理部', role: '操作员', time: '2026-06-10 08:00', status: '启用' },
-            { username: 'nf008',    name: '马丽娟',   phone: '135****0015', department: '生产指导部', role: '操作员', time: '2026-06-12 14:10', status: '启用' },
-            { username: 'nf009',    name: '胡伟',     phone: '135****0016', department: '市场销售部', role: '操作员', time: '2026-06-18 11:30', status: '禁用' },
-            { username: 'nf010',    name: '何秀英',   phone: '135****0017', department: '品控部',     role: '操作员', time: '2026-06-22 09:50', status: '启用' },
-            { username: 'nf011',    name: '罗志明',   phone: '135****0018', department: '种植管理部', role: '操作员', time: '2026-07-01 08:20', status: '启用' },
-            { username: 'nf012',    name: '高玉兰',   phone: '135****0019', department: '生产指导部', role: '操作员', time: '2026-07-05 15:00', status: '启用' },
-            { username: 'nf013',    name: '梁永强',   phone: '135****0020', department: '市场销售部', role: '操作员', time: '2026-07-10 10:10', status: '启用' },
-            { username: 'user002',  name: '李四',     phone: '137****0021', department: '质量监测部', role: '查看员', time: '2026-07-10 14:00', status: '禁用' },
-            { username: 'user004',  name: '赵六',     phone: '135****0022', department: '系统运维部', role: '查看员', time: '2026-07-18 09:00', status: '启用' },
-            { username: 'nf014',    name: '黄大明',   phone: '134****0023', department: '种植管理部', role: '查看员', time: '2026-04-05 08:00', status: '启用' },
-            { username: 'nf015',    name: '周美华',   phone: '134****0024', department: '种植管理部', role: '查看员', time: '2026-04-10 09:30', status: '启用' },
-            { username: 'nf016',    name: '谢文斌',   phone: '134****0025', department: '质量监测部', role: '查看员', time: '2026-04-18 10:45', status: '启用' },
-            { username: 'nf017',    name: '唐桂花',   phone: '134****0026', department: '种植管理部', role: '查看员', time: '2026-04-22 14:00', status: '启用' },
-            { username: 'nf018',    name: '韩磊',     phone: '134****0027', department: '质量监测部', role: '查看员', time: '2026-05-08 11:20', status: '禁用' },
-            { username: 'nf019',    name: '冯秀珍',   phone: '134****0028', department: '种植管理部', role: '查看员', time: '2026-05-15 09:00', status: '启用' },
-            { username: 'nf020',    name: '曹建国',   phone: '134****0029', department: '质量监测部', role: '查看员', time: '2026-05-20 16:30', status: '启用' },
-            { username: 'nf021',    name: '许丽华',   phone: '134****0030', department: '种植管理部', role: '查看员', time: '2026-06-02 10:00', status: '启用' },
-            { username: 'nf022',    name: '邓伟',     phone: '134****0031', department: '质量监测部', role: '查看员', time: '2026-06-08 13:40', status: '启用' },
-            { username: 'nf023',    name: '彭玉英',   phone: '134****0032', department: '种植管理部', role: '查看员', time: '2026-06-15 08:50', status: '启用' },
-            { username: 'nf024',    name: '沈志强',   phone: '134****0033', department: '质量监测部', role: '查看员', time: '2026-06-22 09:10', status: '启用' },
-            { username: 'nf025',    name: '蒋明芳',   phone: '134****0034', department: '种植管理部', role: '查看员', time: '2026-07-02 15:30', status: '禁用' },
-            { username: 'nf026',    name: '范学军',   phone: '134****0035', department: '质量监测部', role: '查看员', time: '2026-07-12 10:00', status: '启用' }
+            { username: 'admin',    name: '管理员',   phone: '138****0001', department: '太和镇', role: '管理员', time: '2026-01-01 10:00', status: '启用' },
+            { username: 'admin02',  name: '刘天明',   phone: '138****0002', department: '白舍镇', role: '管理员', time: '2026-01-15 09:30', status: '启用' },
+            { username: 'admin03',  name: '张华',     phone: '138****0003', department: '太和镇', role: '管理员', time: '2026-02-10 14:00', status: '启用' },
+            { username: 'admin04',  name: '陈志远',   phone: '138****0004', department: '市山镇',     role: '管理员', time: '2026-03-05 11:20', status: '启用' },
+            { username: 'admin05',  name: '王丽',     phone: '138****0005', department: '白舍镇', role: '管理员', time: '2026-04-20 08:00', status: '启用' },
+            { username: 'user001',  name: '张三',     phone: '139****0006', department: '紫霄镇', role: '农技员', time: '2026-06-15 09:30', status: '启用' },
+            { username: 'user003',  name: '王五',     phone: '136****0007', department: '洽湾镇', role: '农技员', time: '2026-07-05 11:20', status: '启用' },
+            { username: 'nf001',    name: '陈建国',   phone: '135****0008', department: '傅坊乡', role: '农技员', time: '2026-05-10 08:30', status: '启用' },
+            { username: 'nf002',    name: '刘桂芳',   phone: '135****0009', department: '傅坊乡', role: '农技员', time: '2026-05-12 10:00', status: '启用' },
+            { username: 'nf003',    name: '吴志强',   phone: '135****0010', department: '市山镇',     role: '农技员', time: '2026-05-20 14:20', status: '启用' },
+            { username: 'nf004',    name: '孙明辉',   phone: '135****0011', department: '紫霄镇', role: '农技员', time: '2026-05-25 09:00', status: '启用' },
+            { username: 'nf005',    name: '郑海龙',   phone: '135****0012', department: '洽湾镇', role: '农技员', time: '2026-06-01 16:00', status: '启用' },
+            { username: 'nf006',    name: '林小红',   phone: '135****0013', department: '市山镇',     role: '农技员', time: '2026-06-05 10:30', status: '禁用' },
+            { username: 'nf007',    name: '杨建军',   phone: '135****0014', department: '傅坊乡', role: '农技员', time: '2026-06-10 08:00', status: '启用' },
+            { username: 'nf008',    name: '马丽娟',   phone: '135****0015', department: '紫霄镇', role: '农技员', time: '2026-06-12 14:10', status: '启用' },
+            { username: 'nf009',    name: '胡伟',     phone: '135****0016', department: '洽湾镇', role: '农技员', time: '2026-06-18 11:30', status: '禁用' },
+            { username: 'nf010',    name: '何秀英',   phone: '135****0017', department: '市山镇',     role: '农技员', time: '2026-06-22 09:50', status: '启用' },
+            { username: 'nf011',    name: '罗志明',   phone: '135****0018', department: '傅坊乡', role: '农技员', time: '2026-07-01 08:20', status: '启用' },
+            { username: 'nf012',    name: '高玉兰',   phone: '135****0019', department: '紫霄镇', role: '农技员', time: '2026-07-05 15:00', status: '启用' },
+            { username: 'nf013',    name: '梁永强',   phone: '135****0020', department: '洽湾镇', role: '农技员', time: '2026-07-10 10:10', status: '启用' },
+            { username: 'user002',  name: '李四',     phone: '137****0021', department: '莱溪乡', role: '数据管理员', time: '2026-07-10 14:00', status: '禁用' },
+            { username: 'user004',  name: '赵六',     phone: '135****0022', department: '白舍镇', role: '数据管理员', time: '2026-07-18 09:00', status: '启用' },
+            { username: 'nf014',    name: '黄大明',   phone: '134****0023', department: '傅坊乡', role: '数据管理员', time: '2026-04-05 08:00', status: '启用' },
+            { username: 'nf015',    name: '周美华',   phone: '134****0024', department: '傅坊乡', role: '数据管理员', time: '2026-04-10 09:30', status: '启用' },
+            { username: 'nf016',    name: '谢文斌',   phone: '134****0025', department: '莱溪乡', role: '数据管理员', time: '2026-04-18 10:45', status: '启用' },
+            { username: 'nf017',    name: '唐桂花',   phone: '134****0026', department: '傅坊乡', role: '数据管理员', time: '2026-04-22 14:00', status: '启用' },
+            { username: 'nf018',    name: '韩磊',     phone: '134****0027', department: '莱溪乡', role: '数据管理员', time: '2026-05-08 11:20', status: '禁用' },
+            { username: 'nf019',    name: '冯秀珍',   phone: '134****0028', department: '傅坊乡', role: '数据管理员', time: '2026-05-15 09:00', status: '启用' },
+            { username: 'nf020',    name: '曹建国',   phone: '134****0029', department: '莱溪乡', role: '数据管理员', time: '2026-05-20 16:30', status: '启用' },
+            { username: 'nf021',    name: '许丽华',   phone: '134****0030', department: '傅坊乡', role: '数据管理员', time: '2026-06-02 10:00', status: '启用' },
+            { username: 'nf022',    name: '邓伟',     phone: '134****0031', department: '莱溪乡', role: '数据管理员', time: '2026-06-08 13:40', status: '启用' },
+            { username: 'nf023',    name: '彭玉英',   phone: '134****0032', department: '傅坊乡', role: '数据管理员', time: '2026-06-15 08:50', status: '启用' },
+            { username: 'nf024',    name: '沈志强',   phone: '134****0033', department: '莱溪乡', role: '数据管理员', time: '2026-06-22 09:10', status: '启用' },
+            { username: 'nf025',    name: '蒋明芳',   phone: '134****0034', department: '傅坊乡', role: '数据管理员', time: '2026-07-02 15:30', status: '禁用' },
+            { username: 'nf026',    name: '范学军',   phone: '134****0035', department: '莱溪乡', role: '数据管理员', time: '2026-07-12 10:00', status: '启用' }
         ];
 
         let currentPage = 1;
@@ -376,8 +341,8 @@
         // 角色徽章样式
         function getRoleBadge(role) {
             if (role === '管理员') return '<span class="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">管理员</span>';
-            if (role === '操作员') return '<span class="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full">操作员</span>';
-            return '<span class="px-2 py-0.5 bg-gray-100 text-gray-700 text-xs rounded-full">查看员</span>';
+            if (role === '农技员') return '<span class="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full">农技员</span>';
+            return '<span class="px-2 py-0.5 bg-gray-100 text-gray-700 text-xs rounded-full">数据管理员</span>';
         }
 
         // 状态样式
@@ -407,16 +372,10 @@
                     <td class="px-6 py-4 text-sm text-gray-500">${u.time}</td>
                     <td class="px-6 py-4">${getStatusHtml(u.status)}</td>
                     <td class="px-6 py-4">
-                        <div class="flex items-center justify-center space-x-1">
-                            <button onclick="openEditModal('${u.username}')" class="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded" title="编辑">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                            </button>
-                            <button onclick="openResetPasswordModal('${u.username}', '${u.name}')" class="p-1.5 text-gray-500 hover:text-yellow-600 hover:bg-yellow-50 rounded" title="重置密码">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-                            </button>
-                            <button onclick="openDeleteModal('${u.username}', '${u.name}')" class="p-1.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded" title="删除">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                            </button>
+                        <div class="flex items-center justify-center space-x-3">
+                            <button onclick="openEditModal('${u.username}')" class="px-3 py-1 text-blue hover:bg-blue-50 rounded text-xs font-medium transition-colors">编辑</button>
+                            <button onclick="openResetPasswordModal('${u.username}', '${u.name}')" class="px-3 py-1 text-purple hover:bg-purple-50 rounded text-xs font-medium transition-colors">重置密码</button>
+                            <button onclick="openDeleteModal('${u.username}', '${u.name}')" class="px-3 py-1 text-red hover:bg-red-50 rounded text-xs font-medium transition-colors">删除</button>
                         </div>
                     </td>
                 </tr>
@@ -426,12 +385,6 @@
             const end = Math.min(start + pageSize, filteredData.length);
             document.getElementById('page-info').textContent = filteredData.length > 0 ? `${start + 1}-${end}` : '0-0';
             document.getElementById('total-count').textContent = filteredData.length;
-
-            // 更新统计
-            document.getElementById('stat-total').textContent = filteredData.length;
-            document.getElementById('stat-admin').textContent = filteredData.filter(u => u.role === '管理员').length;
-            document.getElementById('stat-operator').textContent = filteredData.filter(u => u.role === '操作员').length;
-            document.getElementById('stat-viewer').textContent = filteredData.filter(u => u.role === '查看员').length;
 
             // 渲染页码按钮
             renderPageButtons(totalPages);
@@ -512,22 +465,13 @@
             renderTable();
         }
 
-        // 重置
-        function resetSearch() {
-            document.getElementById('search-input').value = '';
-            document.getElementById('role-filter').value = '';
-            filteredData = [...usersData];
-            currentPage = 1;
-            renderTable();
-        }
-
         // ===== Modal操作 =====
         function openAddModal() {
             document.getElementById('add-username').value = '';
             document.getElementById('add-name').value = '';
             document.getElementById('add-phone').value = '';
-            document.getElementById('add-department').value = '技术服务部';
-            document.getElementById('add-role').value = '操作员';
+            document.getElementById('add-department').value = '太和镇';
+            document.getElementById('add-role').value = '农技员';
             document.getElementById('add-password').value = '';
             document.getElementById('add-modal').classList.add('active');
         }

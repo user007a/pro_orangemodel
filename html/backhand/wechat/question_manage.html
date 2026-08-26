@@ -3,96 +3,121 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>微信后台 - 用户提问</title>
+  <title>农户采纳 - 南丰蜜桔模型管理系统</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: {
+      green: { DEFAULT: '#16a34a' },
+      blue: { DEFAULT: '#2563eb' },
+      red: { DEFAULT: '#dc2626' },
+      yellow: { DEFAULT: '#ca8a04' },
+      purple: { DEFAULT: '#9333ea' }
+    }}}}
+  </script>
   <style>
+    @keyframes modalSlideIn {
+        from { opacity: 0; transform: translateY(-20px) scale(0.98); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .modal-overlay.active .modal-content { animation: modalSlideIn 0.3s ease; }
     body { margin: 0; padding: 0; background: #f0f2f5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; }
-    .page-header { padding: 20px 24px; background: #fff; border-bottom: 1px solid #e8ecf1; display: flex; justify-content: space-between; align-items: center; }
-    .page-title { font-size: 18px; font-weight: 600; color: #1b2a41; }
+    .page-header { padding: 20px 24px; background: #fff; border-bottom: 1px solid #e8ecf1; }
+    .page-title { font-size: 20px; font-weight: 600; color: #1b2a41; }
     .page-subtitle { font-size: 14px; color: #8898aa; margin-top: 4px; }
-    
+
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
     .modal-overlay.active { display: flex; }
-    .modal-content { background: #fff; border-radius: 8px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
+    .modal-content { background: #fff; border-radius: 8px; width: 90%; max-width: 600px; max-height: 85vh; overflow-y: auto; }
     .modal-header { padding: 16px 20px; border-bottom: 1px solid #e8ecf1; display: flex; justify-content: space-between; align-items: center; }
     .modal-title { font-size: 16px; font-weight: 600; color: #1b2a41; }
     .modal-body { padding: 20px; }
     .modal-footer { padding: 16px 20px; border-top: 1px solid #e8ecf1; display: flex; justify-content: flex-end; gap: 12px; }
-    
-    .form-item { margin-bottom: 16px; }
-    .form-label { display: block; font-size: 14px; font-weight: 500; color: #525f7f; margin-bottom: 6px; }
-    .form-input { width: 100%; padding: 10px 12px; border: 1px solid #e6ebf1; border-radius: 6px; font-size: 14px; outline: none; }
-    .form-input:focus { border-color: #22a84a; }
-    .form-select { width: 100%; padding: 10px 12px; border: 1px solid #e6ebf1; border-radius: 6px; font-size: 14px; outline: none; }
-    .form-select:focus { border-color: #22a84a; }
-    .form-textarea { width: 100%; padding: 10px 12px; border: 1px solid #e6ebf1; border-radius: 6px; font-size: 14px; outline: none; min-height: 120px; resize: vertical; }
-    
+
     .btn { padding: 8px 16px; border-radius: 6px; font-size: 14px; cursor: pointer; border: none; transition: all 0.2s; }
     .btn-primary { background: #22a84a; color: #fff; }
     .btn-primary:hover { background: #1e9441; }
     .btn-secondary { background: #fff; color: #525f7f; border: 1px solid #e6ebf1; }
     .btn-secondary:hover { background: #f7f8fc; }
-    
+    .btn-danger { background: #ef4444; color: #fff; }
+    .btn-danger:hover { background: #dc2626; }
+
     .card { background: #fff; border-radius: 8px; margin: 24px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
-    
-    .search-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-    .search-input { flex: 1; max-width: 300px; padding: 8px 12px; border: 1px solid #e6ebf1; border-radius: 6px; font-size: 14px; }
-    
+
+    .search-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 12px; flex-wrap: wrap; }
+    .search-input { flex: 1; max-width: 300px; padding: 8px 12px; border: 1px solid #e6ebf1; border-radius: 6px; font-size: 14px; outline: none; }
+    .search-input:focus { border-color: #22a84a; }
+    .filter-select { padding: 8px 12px; border: 1px solid #e6ebf1; border-radius: 6px; font-size: 14px; outline: none; }
+    .filter-select:focus { border-color: #22a84a; }
+
     .table-wrapper { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; }
     th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid #f0f2f5; }
     th { background: #f7f8fc; font-weight: 600; color: #525f7f; font-size: 13px; }
     td { font-size: 14px; color: #1b2a41; }
-    
+
     .pagination { display: flex; justify-content: flex-end; align-items: center; gap: 8px; margin-top: 20px; }
     .page-btn { padding: 6px 12px; border: 1px solid #e6ebf1; border-radius: 4px; cursor: pointer; font-size: 13px; }
     .page-btn.active { background: #22a84a; color: #fff; border-color: #22a84a; }
-    
+
     .detail-info { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .detail-item { padding: 10px; background: #f7f8fc; border-radius: 6px; }
     .detail-label { font-size: 12px; color: #8898aa; margin-bottom: 4px; }
     .detail-value { font-size: 14px; color: #1b2a41; }
-    
-    .stats-card { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin: 24px; }
-    .stat-item { background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); display: flex; align-items: center; justify-content: space-between; }
+
+    .stats-card { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 24px; }
+    .stat-item { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); display: flex; align-items: center; justify-content: space-between; }
     .stat-info { text-align: left; }
-    .stat-number { font-size: 24px; font-weight: 700; color: #1b2a41; margin-bottom: 2px; }
-    .stat-label { font-size: 12px; color: #8898aa; }
-    .stat-icon { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-    .stat-icon svg { width: 20px; height: 20px; }
+    .stat-number { font-size: 28px; font-weight: 700; color: #1b2a41; margin-bottom: 2px; }
+    .stat-label { font-size: 13px; color: #8898aa; }
+    .stat-icon { width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .stat-icon svg { width: 24px; height: 24px; }
     .stat-icon.total { background: #e6f7ee; color: #22a84a; }
-    .stat-icon.general { background: #dbeafe; color: #3b82f6; }
-    .stat-icon.soil { background: #fef3c7; color: #f59e0b; }
-    .stat-icon.water { background: #f3e8ff; color: #8b5cf6; }
-    .stat-icon.climate { background: #fce7f3; color: #ec4899; }
-    .stat-icon.pest { background: #dcfce7; color: #10b981; }
-    .stat-icon.agritech { background: #fed7aa; color: #ea580c; }
-    
-    .type-badge { padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 500; }
-    .type-general { background: #e0e7ff; color: #6366f1; }
-    .type-soil { background: #fef3c7; color: #d97706; }
-    .type-water { background: #dbeafe; color: #2563eb; }
-    .type-climate { background: #fce7f3; color: #db2777; }
+    .stat-icon.adopt { background: #dbeafe; color: #3b82f6; }
+    .stat-icon.dispute { background: #fef3c7; color: #f59e0b; }
+    .stat-icon.rate { background: #f3e8ff; color: #8b5cf6; }
+
+    .type-badge { padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 500; white-space: nowrap; }
+    .type-alert { background: #fee2e2; color: #dc2626; }
+    .type-risk { background: #fef3c7; color: #d97706; }
+    .type-recommend { background: #dbeafe; color: #2563eb; }
     .type-pest { background: #d1fae5; color: #059669; }
-    .type-agri { background: #f3e8ff; color: #9333ea; }
-    .type-tech { background: #fed7aa; color: #ea580c; }
+
+    .result-badge { padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 500; white-space: nowrap; }
+    .result-adopt { background: #d1fae5; color: #059669; }
+    .result-dispute { background: #fef3c7; color: #d97706; }
+
+    .action-link { padding: 4px 8px; font-size: 14px; cursor: pointer; background: none; border: none; }
+    .action-view { color: #22a84a; }
+    .action-view:hover { color: #1e9441; }
+    .action-delete { color: #ef4444; }
+    .action-delete:hover { color: #dc2626; }
   </style>
 </head>
 <body>
   <div class="page-header">
     <div>
-      <div class="page-title">用户提问</div>
-      <div class="page-subtitle">管理微信端用户提交的咨询问题</div>
+      <div class="page-title">农户采纳</div>
+      <div class="page-subtitle">管理用户建议/预警采纳情况</div>
     </div>
-    <button class="btn btn-primary" onclick="openAddModal()">+ 新增提问</button>
   </div>
 
-  <div class="stats-card" id="statsCard">
-  </div>
+  <div class="stats-card" id="statsCard"></div>
 
   <div class="card">
     <div class="search-bar">
-      <input type="text" class="search-input" id="searchInput" placeholder="搜索用户名、问题关键词..." oninput="searchQuestions()">
+      <input type="text" class="search-input" id="searchInput" placeholder="搜索用户名、消息内容..." oninput="searchRecords()">
+      <select class="filter-select" id="typeFilter" onchange="searchRecords()">
+        <option value="">全部类型</option>
+        <option value="预警">预警</option>
+        <option value="风险">风险</option>
+        <option value="推荐">推荐</option>
+        <option value="防治">防治</option>
+      </select>
+      <select class="filter-select" id="resultFilter" onchange="searchRecords()">
+        <option value="">全部结果</option>
+        <option value="采纳">采纳</option>
+        <option value="异议">异议</option>
+      </select>
     </div>
 
     <div class="table-wrapper">
@@ -101,78 +126,29 @@
           <tr>
             <th>序号</th>
             <th>用户</th>
-            <th>咨询类型</th>
-            <th>问题标题</th>
-            <th>提问时间</th>
-            <th>状态</th>
+            <th>类型</th>
+            <th>采纳结果</th>
+            <th>异议内容</th>
+            <th>联系电话</th>
+            <th>采纳时间</th>
             <th>操作</th>
           </tr>
         </thead>
-        <tbody id="questionTable">
-        </tbody>
+        <tbody id="dataTable"></tbody>
       </table>
     </div>
 
-    <div class="pagination" id="pagination">
-    </div>
-  </div>
-
-  <!-- 新增弹窗 -->
-  <div id="add-modal" class="modal-overlay">
-    <div class="modal-content">
-      <div class="modal-header">
-        <div class="modal-title">新增提问</div>
-        <button class="btn btn-secondary" onclick="closeModal('add-modal')">关闭</button>
-      </div>
-      <div class="modal-body">
-        <div class="form-item">
-          <label class="form-label">用户 *</label>
-          <select class="form-select" id="add-user">
-            <option value="张三">张三</option>
-            <option value="李四">李四</option>
-            <option value="王五">王五</option>
-            <option value="赵六">赵六</option>
-            <option value="孙七">孙七</option>
-            <option value="周八">周八</option>
-          </select>
-        </div>
-        <div class="form-item">
-          <label class="form-label">咨询类型 *</label>
-          <select class="form-select" id="add-type">
-            <option value="综合">综合</option>
-            <option value="土壤">土壤</option>
-            <option value="水份">水份</option>
-            <option value="气候">气候</option>
-            <option value="病虫害">病虫害</option>
-            <option value="农资">农资</option>
-            <option value="科技">科技</option>
-          </select>
-        </div>
-        <div class="form-item">
-          <label class="form-label">问题标题 *</label>
-          <input type="text" class="form-input" id="add-title" placeholder="请输入问题标题">
-        </div>
-        <div class="form-item">
-          <label class="form-label">问题描述 *</label>
-          <textarea class="form-textarea" id="add-content" placeholder="请输入问题详细描述"></textarea>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="closeModal('add-modal')">取消</button>
-        <button class="btn btn-primary" onclick="submitAdd()">确认</button>
-      </div>
-    </div>
+    <div class="pagination" id="pagination"></div>
   </div>
 
   <!-- 查看弹窗 -->
   <div id="detail-modal" class="modal-overlay">
     <div class="modal-content">
       <div class="modal-header">
-        <div class="modal-title">问题详情</div>
+        <div class="modal-title">采纳详情</div>
         <button class="btn btn-secondary" onclick="closeModal('detail-modal')">关闭</button>
       </div>
-      <div class="modal-body" id="detail-content">
-      </div>
+      <div class="modal-body" id="detail-content"></div>
       <div class="modal-footer">
         <button class="btn btn-secondary" onclick="closeModal('detail-modal')">关闭</button>
       </div>
@@ -181,261 +157,163 @@
 
   <!-- 删除弹窗 -->
   <div id="delete-modal" class="modal-overlay">
-    <div class="modal-content">
+    <div class="modal-content" style="max-width: 420px;">
       <div class="modal-header">
         <div class="modal-title">确认删除</div>
         <button class="btn btn-secondary" onclick="closeModal('delete-modal')">关闭</button>
       </div>
       <div class="modal-body">
-        <p>确定要删除用户 <span id="delete-user" style="font-weight:bold;"></span> 的提问吗？</p>
+        <p style="font-size: 14px; color: #525f7f;">确定要删除用户 <span id="delete-user" style="font-weight: 600; color: #1b2a41;"></span> 的采纳记录吗？此操作不可撤销。</p>
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary" onclick="closeModal('delete-modal')">取消</button>
-        <button class="btn btn-primary" onclick="submitDelete()">确认删除</button>
+        <button class="btn btn-danger" onclick="submitDelete()">确认删除</button>
       </div>
     </div>
   </div>
 
   <script>
-    var questions = [
-      { id: 'q-001', user: '张三', type: '病虫害', title: '蜜桔叶片发黄怎么办？', content: '最近发现果园里的蜜桔树叶片开始发黄，尤其是老叶子，新叶也有轻微发黄现象。请问是什么原因，应该怎么处理？', time: '2026-07-24 10:30', status: '已回复', aiAnswer: '蜜桔叶片发黄可能是缺氮、缺铁或根系问题导致的。建议：1.检查根系是否有积水或烂根现象；2.喷施0.3%尿素+0.2%硫酸亚铁溶液；3.增施有机肥，改善土壤结构。' },
-      { id: 'q-002', user: '李四', type: '土壤', title: '土壤pH值偏低如何调整？', content: '测土结果显示我家果园土壤pH值只有5.2，明显偏低。想请教如何有效调整土壤酸碱度，有没有什么好的方法推荐？', time: '2026-07-24 09:15', status: '待回复', aiAnswer: '' },
-      { id: 'q-003', user: '王五', type: '气候', title: '高温干旱天气如何抗旱？', content: '连续半个月高温少雨，果园水分蒸发很快，部分果树已经出现萎蔫现象。请问有什么有效的抗旱措施？', time: '2026-07-23 16:45', status: '已回复', aiAnswer: '高温干旱天气建议采取以下措施：1.早晚浇水，避开中午高温时段；2.树盘覆盖杂草或地膜，减少水分蒸发；3.喷施抗旱保水剂；4.适当修剪，减少叶片蒸腾面积。' },
-      { id: 'q-004', user: '赵六', type: '农资', title: '推荐什么肥料？', content: '现在是蜜桔膨大期，想给果树补充肥料，请问这个时期应该用什么类型的肥料比较合适？用量大概是多少？', time: '2026-07-23 14:20', status: '待回复', aiAnswer: '' },
-      { id: 'q-005', user: '孙七', type: '综合', title: '蜜桔成熟期如何管理？', content: '蜜桔快成熟了，想请教一下成熟期间的管理要点，包括水肥管理、病虫害防治等方面的注意事项。', time: '2026-07-22 11:00', status: '已回复', aiAnswer: '成熟期管理要点：1.控制氮肥，增施磷钾肥，促进果实着色；2.保持土壤湿润，避免忽干忽湿；3.注意防治红蜘蛛、吸果夜蛾等害虫；4.适时采收，避免过早或过晚采摘。' },
-      { id: 'q-006', user: '周八', type: '科技', title: '如何使用智能灌溉系统？', content: '刚安装了智能灌溉系统，但是不太会操作，请问如何设置浇水时间和频率比较合适？', time: '2026-07-22 08:30', status: '待回复', aiAnswer: '' },
-      { id: 'q-007', user: '张三', type: '水份', title: '浇水过多怎么办？', content: '前段时间连续下雨，果园积水比较严重，担心根系会出问题。请问应该怎么处理？', time: '2026-07-21 15:30', status: '已回复', aiAnswer: '浇水过多导致积水时应及时排水：1.开沟排水，降低地下水位；2.疏松土壤，增加透气性；3.严重时可适当修剪根系并消毒；4.恢复期间控制浇水，避免再次积水。' },
-      { id: 'q-008', user: '李四', type: '病虫害', title: '发现蚜虫怎么办？', content: '今天巡查发现果树上有不少蚜虫，特别是新梢部位比较严重。想知道用什么药效果好，有没有生物防治的方法？', time: '2026-07-21 10:45', status: '待回复', aiAnswer: '' },
-      { id: 'q-009', user: '王五', type: '土壤', title: '土壤板结改良方法', content: '果园土壤板结比较严重，透气性差，影响根系生长。请问有什么好的改良方法吗？', time: '2026-07-20 13:20', status: '已回复', aiAnswer: '土壤板结改良方法：1.增施腐熟有机肥，改善土壤结构；2.实行生草栽培，增加土壤有机质；3.合理耕作，避免过度翻耕；4.使用土壤改良剂，如腐植酸类产品。' },
-      { id: 'q-010', user: '赵六', type: '综合', title: '蜜桔种植密度问题', content: '想重新规划果园，请问蜜桔的合理种植密度是多少？株行距应该怎么安排？', time: '2026-07-20 09:00', status: '已回复', aiAnswer: '南丰蜜桔合理种植密度：常规种植株行距3m×4m，每亩约55株；密植可采用2m×3m，每亩约110株。具体根据土壤肥力、管理水平和树形选择确定。' },
-      { id: 'q-011', user: '孙七', type: '气候', title: '台风来临前准备工作', content: '天气预报说有台风要来，请问台风来临前应该做哪些准备工作来保护果园？', time: '2026-07-19 17:00', status: '已回复', aiAnswer: '台风来临前准备：1.加固果树支架，防止倒伏；2.修剪过密枝条，减少风阻；3.疏通排水系统；4.准备应急物资，如沙袋、抽水设备；5.关注天气预报，及时采取措施。' },
-      { id: 'q-012', user: '周八', type: '农资', title: '叶面肥怎么选择？', content: '想给果树喷施叶面肥，但是市面上种类太多了，不知道怎么选择。请问不同时期应该选择什么类型的叶面肥？', time: '2026-07-19 11:30', status: '待回复', aiAnswer: '' },
-      { id: 'q-013', user: '张三', type: '科技', title: '测土配方施肥是什么？', content: '听说测土配方施肥效果很好，想了解一下具体是什么意思，怎么操作？', time: '2026-07-18 14:00', status: '已回复', aiAnswer: '测土配方施肥是根据土壤检测结果和作物需肥规律，科学制定施肥方案的方法。步骤：1.采集土壤样本；2.检测土壤养分含量；3.根据目标产量计算施肥量；4.选择合适肥料种类和施用时间。' },
-      { id: 'q-014', user: '李四', type: '病虫害', title: '溃疡病怎么防治？', content: '发现几棵树有溃疡病症状，叶子和果实上都有病斑。请问怎么防治效果最好？', time: '2026-07-18 10:15', status: '待回复', aiAnswer: '' },
-      { id: 'q-015', user: '王五', type: '水份', title: '滴灌和漫灌哪个好？', content: '准备升级灌溉系统，请问滴灌和漫灌各有什么优缺点，哪种更适合南丰蜜桔种植？', time: '2026-07-17 16:30', status: '已回复', aiAnswer: '滴灌优点：节水、精准施肥、减少病害；缺点：设备成本高、易堵塞。漫灌优点：操作简单、成本低；缺点：浪费水、易导致土壤板结。南丰蜜桔建议采用滴灌或微喷灌，更有利于根系健康。' },
-      { id: 'q-016', user: '赵六', type: '综合', title: '蜜桔采摘后管理', content: '蜜桔采摘后应该怎么管理？需要施肥吗？', time: '2026-07-17 08:45', status: '待回复', aiAnswer: '' },
-      { id: 'q-017', user: '孙七', type: '土壤', title: '如何增加土壤有机质？', content: '土壤有机质含量偏低，想知道怎么有效增加土壤有机质，除了施有机肥还有什么方法？', time: '2026-07-16 13:00', status: '已回复', aiAnswer: '增加土壤有机质的方法：1.大量施用腐熟有机肥；2.实行生草栽培或间作绿肥；3.秸秆还田；4.施用有机无机复合肥；5.采用覆盖栽培，利用杂草落叶。' },
-      { id: 'q-018', user: '周八', type: '气候', title: '低温寒潮应对措施', content: '冬季低温寒潮来临前，应该做好哪些防护措施来保护果树？', time: '2026-07-16 09:20', status: '已回复', aiAnswer: '低温寒潮防护措施：1.树干涂白，反射阳光；2.树盘覆盖，保温保湿；3.搭建防风防寒棚；4.寒潮来临前浇水，增加土壤湿度；5.喷施抗冻剂，增强抗寒能力。' }
+    var records = [
+      { id: 'a-001', user: '张三', phone: '13812345671', type: '预警', title: '高温干旱预警', message: '预计未来3天最高温度将持续超过35°C，请做好抗旱保水措施。', result: '采纳', dispute: '', time: '2026-07-31 08:30' },
+      { id: 'a-002', user: '李四', phone: '13812345672', type: '防治', title: '红蜘蛛防治建议', message: '识别到红蜘蛛活动，建议使用阿维菌素或螺螨酯进行防治，注意喷施叶背。', result: '异议', dispute: '已使用过螺螨酯，效果不佳，希望更换药剂方案', time: '2026-07-30 16:20' },
+      { id: 'a-003', user: '王五', phone: '13812345673', type: '推荐', title: '膨大期施肥推荐', message: '当前处于果实膨大期，建议追施高钾水溶肥，每亩5-8公斤，配合叶面喷施磷酸二氢钾。', result: '采纳', dispute: '', time: '2026-07-30 10:15' },
+      { id: 'a-004', user: '赵六', phone: '13812345674', type: '风险', title: '土壤缺水风险', message: '监测到土壤含水量降至22%，存在干旱风险，建议立即灌溉。', result: '采纳', dispute: '', time: '2026-07-29 14:00' },
+      { id: 'a-005', user: '孙七', phone: '13812345675', type: '防治', title: '炭疽病防治建议', message: '识别到炭疽病症状，建议喷施咪鲜胺防治，同时注意修剪通风、清理落叶。', result: '采纳', dispute: '', time: '2026-07-29 09:45' },
+      { id: 'a-006', user: '周八', phone: '13812345676', type: '预警', title: '暴雨台风预警', message: '预计48小时内有暴雨及大风天气，请提前加固果树支架、疏通排水沟。', result: '异议', dispute: '果园排水系统已完善，认为无需额外疏通', time: '2026-07-28 17:30' },
+      { id: 'a-007', user: '张三', phone: '13812345671', type: '推荐', title: '叶面肥喷施推荐', message: '建议叶面喷施0.3%尿素+0.2%硫酸亚铁溶液，补充氮素和铁元素，改善叶片褪绿。', result: '采纳', dispute: '', time: '2026-07-28 11:00' },
+      { id: 'a-008', user: '李四', phone: '13812345672', type: '风险', title: '红蜘蛛爆发风险', message: '虫情监测点捕获量持续上升，存在红蜘蛛爆发风险，建议预防性喷施杀螨剂。', result: '采纳', dispute: '', time: '2026-07-27 15:20' },
+      { id: 'a-009', user: '王五', phone: '13812345673', type: '防治', title: '溃疡病防治建议', message: '识别到溃疡病病斑，建议喷施氢氧化铜防治，同时剪除病枝并集中销毁。', result: '异议', dispute: '已使用铜制剂多次，担心产生抗药性，请求替代方案', time: '2026-07-27 10:30' },
+      { id: 'a-010', user: '赵六', phone: '13812345674', type: '预警', title: '低温寒潮预警', message: '预计未来一周夜间最低温度降至5°C以下，请做好防寒保暖措施。', result: '采纳', dispute: '', time: '2026-07-26 18:00' },
+      { id: 'a-011', user: '孙七', phone: '13812345675', type: '推荐', title: '灌溉频次调整推荐', message: '根据土壤墒情数据，建议将灌溉频次调整为每3天一次，每次持续2小时。', result: '采纳', dispute: '', time: '2026-07-26 13:45' },
+      { id: 'a-012', user: '周八', phone: '13812345676', type: '防治', title: '潜叶蛾防治建议', message: '夏梢期检测到潜叶蛾虫道，建议喷施氯氰菊酯，重点喷施嫩梢。', result: '采纳', dispute: '', time: '2026-07-25 16:10' },
+      { id: 'a-013', user: '张三', phone: '13812345671', type: '风险', title: '果实日灼风险', message: '高温强光天气下果实日灼风险较高，建议遮阳防晒或喷施防晒剂。', result: '异议', dispute: '果园有自然遮阴，认为日灼风险不大', time: '2026-07-25 09:30' },
+      { id: 'a-014', user: '李四', phone: '13812345672', type: '预警', title: '土壤酸化预警', message: '检测到土壤pH值降至5.5，存在酸化风险，建议施用石灰改良。', result: '采纳', dispute: '', time: '2026-07-24 14:20' },
+      { id: 'a-015', user: '王五', phone: '13812345673', type: '推荐', title: '疏果减载推荐', message: '当前挂果量偏大，建议疏除小果、密果，每枝保留2-3个果，减轻树体负载。', result: '采纳', dispute: '', time: '2026-07-24 10:00' },
+      { id: 'a-016', user: '赵六', phone: '13812345674', type: '防治', title: '介壳虫防治建议', message: '枝条检测到介壳虫寄生，建议喷施矿物油或毒死蜱防治，注意喷施枝干。', result: '采纳', dispute: '', time: '2026-07-23 15:30' },
+      { id: 'a-017', user: '孙七', phone: '13812345675', type: '风险', title: '养分失衡风险', message: '叶片SPAD值持续偏低，存在氮素不足风险，建议追施氮肥并检查根系。', result: '采纳', dispute: '', time: '2026-07-23 11:15' },
+      { id: 'a-018', user: '周八', phone: '13812345676', type: '预警', title: '病虫害高发预警', message: '当前温湿度条件有利于红蜘蛛和炭疽病发生，建议加强巡查并做好预防。', result: '采纳', dispute: '', time: '2026-07-22 17:00' },
+      { id: 'a-019', user: '张三', phone: '13812345671', type: '推荐', title: '有机肥施用推荐', message: '建议在秋梢前施用腐熟有机肥每亩1000公斤，改善土壤结构，促进根系发育。', result: '采纳', dispute: '', time: '2026-07-22 09:45' },
+      { id: 'a-020', user: '李四', phone: '13812345672', type: '防治', title: '锈壁虱防治建议', message: '果实表面检测到锈壁虱危害，建议立即喷施螺螨酯，注意喷施果实和叶背。', result: '异议', dispute: '前期已喷施螺螨酯两次，虫害仍在蔓延，请求更换药剂', time: '2026-07-21 14:30' }
     ];
 
-    var originalQuestions = JSON.parse(JSON.stringify(questions));
-
+    var originalRecords = JSON.parse(JSON.stringify(records));
     var currentPage = 1;
     var pageSize = 10;
     var deleteTargetId = null;
 
-    function renderStats() {
-      var total = originalQuestions.length;
-      var general = originalQuestions.filter(function(q) { return q.type === '综合'; }).length;
-      var soil = originalQuestions.filter(function(q) { return q.type === '土壤'; }).length;
-      var water = originalQuestions.filter(function(q) { return q.type === '水份'; }).length;
-      var climate = originalQuestions.filter(function(q) { return q.type === '气候'; }).length;
-      var pest = originalQuestions.filter(function(q) { return q.type === '病虫害'; }).length;
-      var agri = originalQuestions.filter(function(q) { return q.type === '农资'; }).length;
-      var tech = originalQuestions.filter(function(q) { return q.type === '科技'; }).length;
-      
-      var statsCard = document.getElementById('statsCard');
-      statsCard.innerHTML = `
-        <div class="stat-item">
-          <div class="stat-info">
-            <div class="stat-number">${total}</div>
-            <div class="stat-label">总咨询数</div>
-          </div>
-          <div class="stat-icon total">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-          </div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-info">
-            <div class="stat-number">${general}</div>
-            <div class="stat-label">综合</div>
-          </div>
-          <div class="stat-icon general">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-          </div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-info">
-            <div class="stat-number">${soil}</div>
-            <div class="stat-label">土壤</div>
-          </div>
-          <div class="stat-icon soil">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0116 0z"/><circle cx="12" cy="10" r="3"/></svg>
-          </div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-info">
-            <div class="stat-number">${water}</div>
-            <div class="stat-label">水份</div>
-          </div>
-          <div class="stat-icon water">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z"/></svg>
-          </div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-info">
-            <div class="stat-number">${climate}</div>
-            <div class="stat-label">气候</div>
-          </div>
-          <div class="stat-icon climate">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
-          </div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-info">
-            <div class="stat-number">${pest}</div>
-            <div class="stat-label">病虫害</div>
-          </div>
-          <div class="stat-icon pest">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-          </div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-info">
-            <div class="stat-number">${agri + tech}</div>
-            <div class="stat-label">农资/科技</div>
-          </div>
-          <div class="stat-icon agritech">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-          </div>
-        </div>
-      `;
+    function getTypeClass(type) {
+      var classes = { '预警': 'type-alert', '风险': 'type-risk', '推荐': 'type-recommend', '防治': 'type-pest' };
+      return classes[type] || 'type-recommend';
     }
 
-    function getTypeClass(type) {
-      var classes = {
-        '综合': 'type-general',
-        '土壤': 'type-soil',
-        '水份': 'type-water',
-        '气候': 'type-climate',
-        '病虫害': 'type-pest',
-        '农资': 'type-agri',
-        '科技': 'type-tech'
-      };
-      return classes[type] || 'type-general';
+    function getResultClass(result) {
+      return result === '采纳' ? 'result-adopt' : 'result-dispute';
+    }
+
+    function renderStats() {
+      var total = originalRecords.length;
+      var adopt = originalRecords.filter(function(r) { return r.result === '采纳'; }).length;
+      var dispute = originalRecords.filter(function(r) { return r.result === '异议'; }).length;
+      var rate = total ? Math.round(adopt / total * 100) : 0;
+
+      document.getElementById('statsCard').innerHTML =
+        '<div class="stat-item">' +
+          '<div class="stat-info"><div class="stat-number">' + total + '</div><div class="stat-label">总采纳记录</div></div>' +
+          '<div class="stat-icon total"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></div>' +
+        '</div>' +
+        '<div class="stat-item">' +
+          '<div class="stat-info"><div class="stat-number">' + adopt + '</div><div class="stat-label">已采纳</div></div>' +
+          '<div class="stat-icon adopt"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>' +
+        '</div>' +
+        '<div class="stat-item">' +
+          '<div class="stat-info"><div class="stat-number">' + dispute + '</div><div class="stat-label">提出异议</div></div>' +
+          '<div class="stat-icon dispute"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg></div>' +
+        '</div>' +
+        '<div class="stat-item">' +
+          '<div class="stat-info"><div class="stat-number">' + rate + '%</div><div class="stat-label">采纳率</div></div>' +
+          '<div class="stat-icon rate"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg></div>' +
+        '</div>';
     }
 
     function renderTable() {
-      var tbody = document.getElementById('questionTable');
+      var tbody = document.getElementById('dataTable');
       tbody.innerHTML = '';
-      
       var start = (currentPage - 1) * pageSize;
       var end = start + pageSize;
-      var displayQuestions = questions.slice(start, end);
-      
-      displayQuestions.forEach(function(q, index) {
-        var typeClass = getTypeClass(q.type);
-        var statusClass = q.status === '已回复' ? 'type-pest' : 'type-soil';
-        tbody.innerHTML += `
-          <tr>
-            <td>${start + index + 1}</td>
-            <td>${q.user}</td>
-            <td><span class="type-badge ${typeClass}">${q.type}</span></td>
-            <td>${q.title}</td>
-            <td>${q.time}</td>
-            <td><span class="type-badge ${statusClass}">${q.status}</span></td>
-            <td>
-              <button class="btn btn-secondary" onclick="openDetailModal('${q.id}')">查看</button>
-              <button class="btn btn-secondary" onclick="openDeleteModal('${q.id}', '${q.user}')">删除</button>
-            </td>
-          </tr>
-        `;
+      var displayRecords = records.slice(start, end);
+
+      displayRecords.forEach(function(r, index) {
+        var typeClass = getTypeClass(r.type);
+        var resultClass = getResultClass(r.result);
+        var disputeText = r.dispute || '<span style="color:#c0c4cc;">—</span>';
+        tbody.innerHTML +=
+          '<tr>' +
+            '<td>' + (start + index + 1) + '</td>' +
+            '<td>' + r.user + '</td>' +
+            '<td><span class="type-badge ' + typeClass + '">' + r.type + '</span></td>' +
+            '<td><span class="result-badge ' + resultClass + '">' + r.result + '</span></td>' +
+            '<td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">' + disputeText + '</td>' +
+            '<td><a href="tel:' + r.phone + '" style="color: #22a84a;">' + r.phone + '</a></td>' +
+            '<td>' + r.time + '</td>' +
+            '<td>' +
+              '<button onclick="openDetailModal(\'' + r.id + '\')" class="px-3 py-1 text-green hover:bg-green-50 rounded text-xs font-medium transition-colors">查看</button>' +
+              '<button onclick="openDeleteModal(\'' + r.id + '\', \'' + r.user + '\')" class="px-3 py-1 text-red hover:bg-red-50 rounded text-xs font-medium transition-colors">删除</button>' +
+            '</td>' +
+          '</tr>';
       });
-      
+
       renderPagination();
     }
 
     function renderPagination() {
-      var totalPages = Math.ceil(questions.length / pageSize);
+      var totalPages = Math.ceil(records.length / pageSize);
       var pagination = document.getElementById('pagination');
       pagination.innerHTML = '';
-      
+
       if (currentPage > 1) {
-        pagination.innerHTML += `<button class="page-btn" onclick="goPage(${currentPage - 1})">上一页</button>`;
+        pagination.innerHTML += '<button class="page-btn" onclick="goPage(' + (currentPage - 1) + ')">上一页</button>';
       }
-      
       for (var i = 1; i <= totalPages; i++) {
         var active = i === currentPage ? 'active' : '';
-        pagination.innerHTML += `<button class="page-btn ${active}" onclick="goPage(${i})">${i}</button>`;
+        pagination.innerHTML += '<button class="page-btn ' + active + '" onclick="goPage(' + i + ')">' + i + '</button>';
       }
-      
       if (currentPage < totalPages) {
-        pagination.innerHTML += `<button class="page-btn" onclick="goPage(${currentPage + 1})">下一页</button>`;
+        pagination.innerHTML += '<button class="page-btn" onclick="goPage(' + (currentPage + 1) + ')">下一页</button>';
       }
     }
 
-    function goPage(page) {
-      currentPage = page;
-      renderTable();
-    }
+    function goPage(page) { currentPage = page; renderTable(); }
 
-    function searchQuestions() {
+    function searchRecords() {
       var keyword = document.getElementById('searchInput').value.toLowerCase();
-      questions = originalQuestions.filter(function(q) {
-        return q.user.toLowerCase().includes(keyword) || q.title.toLowerCase().includes(keyword) || q.content.toLowerCase().includes(keyword);
+      var type = document.getElementById('typeFilter').value;
+      var result = document.getElementById('resultFilter').value;
+      records = originalRecords.filter(function(r) {
+        var matchKeyword = !keyword || r.user.toLowerCase().includes(keyword) || r.title.toLowerCase().includes(keyword) || r.message.toLowerCase().includes(keyword);
+        var matchType = !type || r.type === type;
+        var matchResult = !result || r.result === result;
+        return matchKeyword && matchType && matchResult;
       });
       currentPage = 1;
       renderTable();
     }
 
-    function openAddModal() {
-      document.getElementById('add-user').value = '张三';
-      document.getElementById('add-type').value = '综合';
-      document.getElementById('add-title').value = '';
-      document.getElementById('add-content').value = '';
-      document.getElementById('add-modal').classList.add('active');
-    }
-
-    function submitAdd() {
-      var user = document.getElementById('add-user').value;
-      var type = document.getElementById('add-type').value;
-      var title = document.getElementById('add-title').value.trim();
-      var content = document.getElementById('add-content').value.trim();
-      
-      if (!title || !content) {
-        alert('请填写必填项');
-        return;
-      }
-      
-      var now = new Date();
-      var timeStr = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0') + ' ' + String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
-      
-      var newId = 'q-' + String(originalQuestions.length + 1).padStart(3, '0');
-      originalQuestions.unshift({ id: newId, user, type, title, content, time: timeStr, status: '待回复' });
-      
-      closeModal('add-modal');
-      questions = JSON.parse(JSON.stringify(originalQuestions));
-      renderStats();
-      renderTable();
-      alert('新增成功');
-    }
-
     function openDetailModal(id) {
-      var q = questions.find(function(item) { return item.id === id; });
-      if (!q) return;
-      var typeClass = getTypeClass(q.type);
-      var statusClass = q.status === '已回复' ? 'type-pest' : 'type-soil';
-      document.getElementById('detail-content').innerHTML = `
-        <div class="detail-info">
-          <div class="detail-item"><div class="detail-label">问题ID</div><div class="detail-value">${q.id}</div></div>
-          <div class="detail-item"><div class="detail-label">用户</div><div class="detail-value">${q.user}</div></div>
-          <div class="detail-item"><div class="detail-label">咨询类型</div><div class="detail-value"><span class="type-badge ${typeClass}">${q.type}</span></div></div>
-          <div class="detail-item"><div class="detail-label">提问时间</div><div class="detail-value">${q.time}</div></div>
-          <div class="detail-item"><div class="detail-label">状态</div><div class="detail-value"><span class="type-badge ${statusClass}">${q.status}</span></div></div>
-        </div>
-        <div style="margin-top: 16px;">
-          <div class="detail-label">问题标题</div>
-          <div class="detail-value" style="font-weight:500;">${q.title}</div>
-        </div>
-        <div style="margin-top: 16px;">
-          <div class="detail-label">问题描述</div>
-          <div class="detail-value" style="white-space:pre-wrap;">${q.content}</div>
-        </div>
-        <div style="margin-top: 16px;">
-          <div class="detail-label">AI回答</div>
-          <div class="detail-value" style="white-space:pre-wrap; background: #f7f8fc; padding: 12px; border-radius: 6px;">${q.aiAnswer || '暂无AI回答'}</div>
-        </div>
-      `;
+      var r = records.find(function(item) { return item.id === id; });
+      if (!r) return;
+      var typeClass = getTypeClass(r.type);
+      var resultClass = getResultClass(r.result);
+      document.getElementById('detail-content').innerHTML =
+        '<div class="detail-info">' +
+          '<div class="detail-item"><div class="detail-label">用户</div><div class="detail-value">' + r.user + '</div></div>' +
+          '<div class="detail-item"><div class="detail-label">联系电话</div><div class="detail-value"><a href="tel:' + r.phone + '" style="color: #22a84a;">' + r.phone + '</a></div></div>' +
+          '<div class="detail-item"><div class="detail-label">类型</div><div class="detail-value"><span class="type-badge ' + typeClass + '">' + r.type + '</span></div></div>' +
+          '<div class="detail-item"><div class="detail-label">采纳结果</div><div class="detail-value"><span class="result-badge ' + resultClass + '">' + r.result + '</span></div></div>' +
+          '<div class="detail-item"><div class="detail-label">采纳时间</div><div class="detail-value">' + r.time + '</div></div>' +
+        '</div>' +
+        '<div style="margin-top: 16px;"><div class="detail-label">消息标题</div><div class="detail-value" style="font-weight: 500;">' + r.title + '</div></div>' +
+        '<div style="margin-top: 16px;"><div class="detail-label">消息内容</div><div class="detail-value" style="white-space: pre-wrap;">' + r.message + '</div></div>' +
+        (r.dispute ? '<div style="margin-top: 16px;"><div class="detail-label">异议内容</div><div class="detail-value" style="white-space: pre-wrap; background: #fffbeb; padding: 12px; border-radius: 6px; border-left: 3px solid #f59e0b;">' + r.dispute + '</div></div>' : '');
       document.getElementById('detail-modal').classList.add('active');
     }
 
@@ -447,8 +325,8 @@
 
     function submitDelete() {
       if (!deleteTargetId) return;
-      originalQuestions = originalQuestions.filter(function(item) { return item.id !== deleteTargetId; });
-      questions = JSON.parse(JSON.stringify(originalQuestions));
+      originalRecords = originalRecords.filter(function(item) { return item.id !== deleteTargetId; });
+      records = JSON.parse(JSON.stringify(originalRecords));
       closeModal('delete-modal');
       renderStats();
       renderTable();
@@ -456,9 +334,14 @@
       deleteTargetId = null;
     }
 
-    function closeModal(id) {
-      document.getElementById(id).classList.remove('active');
-    }
+    function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+    document.addEventListener('click', function(e) {
+      var detailModal = document.getElementById('detail-modal');
+      if (detailModal && e.target === detailModal) detailModal.classList.remove('active');
+      var deleteModal = document.getElementById('delete-modal');
+      if (deleteModal && e.target === deleteModal) deleteModal.classList.remove('active');
+    });
 
     renderStats();
     renderTable();

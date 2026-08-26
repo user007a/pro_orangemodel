@@ -827,12 +827,6 @@
             <a href="growth_dashboard.html" class="platform-entry" title="生长模型监测">
                 <i class="fas fa-leaf"></i> 生长模型
             </a>
-            <a href="../backhand/index.html" class="platform-entry" title="进入电脑端系统">
-                <i class="fas fa-desktop"></i> 电脑端
-            </a>
-            <a href="../mobile/mb_home.html" class="platform-entry" title="进入微信小程序">
-                <i class="fas fa-mobile-alt"></i> 移动端
-            </a>
             <button class="platform-entry" onclick="toggleFullscreen()" title="全屏显示" style="cursor:pointer;">
                 <i class="fas fa-expand"></i> 全屏
             </button>
@@ -859,7 +853,7 @@
         </div>
         <div class="kpi-card animate-fade-in-up" style="animation-delay: 0.3s;" onclick="openModal('准确率')">
             <div class="kpi-info">
-                <h4>病虫害识别准确率</h4>
+                <h4>识别准确率</h4>
                 <div class="kpi-number" data-value="96.8">0</div>
                 <span class="trend-badge">%</span>
             </div>
@@ -1238,13 +1232,13 @@
         var container = document.getElementById('pestScrollingContainer');
         if (!container) return;
         var data = [
-            { name: '溃疡病', type: 'disease', area: '太和镇', severity: '高', person: '李医生', status: '预警中' },
+            { name: '溃疡病', type: 'disease', area: '太和镇', severity: '高', person: '李农技员', status: '预警中' },
             { name: '红蜘蛛', type: 'pest', area: '桑田镇', severity: '高', person: '王技术员', status: '预警中' },
-            { name: '黄龙病', type: 'disease', area: '白舍镇', severity: '高', person: '吴医生', status: '紧急处理' },
+            { name: '黄龙病', type: 'disease', area: '白舍镇', severity: '高', person: '吴农技员', status: '紧急处理' },
             { name: '木虱', type: 'pest', area: '市山镇', severity: '高', person: '郑技术员', status: '紧急处理' },
             { name: '锈壁虱', type: 'pest', area: '市山镇', severity: '高', person: '宋农艺师', status: '预警中' },
             { name: '食心虫', type: 'pest', area: '桑田镇', severity: '高', person: '唐农艺师', status: '预警中' },
-            { name: '线虫病', type: 'disease', area: '白舍镇', severity: '高', person: '罗医生', status: '紧急处理' },
+            { name: '线虫病', type: 'disease', area: '白舍镇', severity: '高', person: '罗农技员', status: '紧急处理' },
             { name: '炭疽病', type: 'disease', area: '白舍镇', severity: '中', person: '张植保', status: '监测中' },
             { name: '潜叶蛾', type: 'pest', area: '市山镇', severity: '中', person: '刘农艺师', status: '监测中' },
             { name: '树脂病', type: 'disease', area: '洽湾镇', severity: '中', person: '陈专家', status: '监测中' },
@@ -1261,7 +1255,7 @@
             { name: '介壳虫', type: 'pest', area: '桑田镇', severity: '低', person: '周农艺师', status: '正常' },
             { name: '流胶病', type: 'disease', area: '太和镇', severity: '低', person: '何技术员', status: '正常' },
             { name: '卷叶蛾', type: 'pest', area: '桑田镇', severity: '低', person: '梁植保', status: '正常' },
-            { name: '裂皮病', type: 'disease', area: '白舍镇', severity: '低', person: '邓医生', status: '正常' },
+            { name: '裂皮病', type: 'disease', area: '白舍镇', severity: '低', person: '邓农技员', status: '正常' },
             { name: '煤污病', type: 'disease', area: '洽湾镇', severity: '低', person: '袁植保', status: '正常' },
             { name: '天牛', type: 'pest', area: '东坪乡', severity: '低', person: '许技术员', status: '正常' },
             { name: '象鼻虫', type: 'pest', area: '东坪乡', severity: '低', person: '史农艺师', status: '正常' },
@@ -1387,9 +1381,9 @@
     });
 
     var scatterData = [
-        { name: '溃疡病', value: [110, 78], type: 'disease', severity: '高', area: '太和镇', count: 15, person: '李医生', status: '预警中', desc: '叶片出现隆起病斑，严重影响光合作用' },
+        { name: '溃疡病', value: [110, 78], type: 'disease', severity: '高', area: '太和镇', count: 15, person: '李农技员', status: '预警中', desc: '叶片出现隆起病斑，严重影响光合作用' },
         { name: '红蜘蛛', value: [215, 72], type: 'pest', severity: '高', area: '桑田镇', count: 28, person: '王技术员', status: '预警中', desc: '叶片失绿发白，严重时导致落叶' },
-        { name: '黄龙病', value: [325, 68], type: 'disease', severity: '高', area: '白舍镇', count: 12, person: '吴医生', status: '紧急处理', desc: '毁灭性病害，需严格防控' },
+        { name: '黄龙病', value: [325, 68], type: 'disease', severity: '高', area: '白舍镇', count: 12, person: '吴农技员', status: '紧急处理', desc: '毁灭性病害，需严格防控' },
         { name: '木虱', value: [435, 92], type: 'pest', severity: '高', area: '市山镇', count: 22, person: '郑技术员', status: '紧急处理', desc: '黄龙病传播媒介' },
         { name: '锈壁虱', value: [445, 115], type: 'pest', severity: '高', area: '市山镇', count: 18, person: '宋农艺师', status: '预警中', desc: '果实表面变黑，失去商品价值' },
         { name: '食心虫', value: [225, 82], type: 'pest', severity: '高', area: '桑田镇', count: 14, person: '唐农艺师', status: '预警中', desc: '幼虫蛀食果实，造成落果' },
@@ -1410,7 +1404,7 @@
         { name: '象鼻虫', value: [30, 220], type: 'pest', severity: '低', area: '东坪乡', count: 1, person: '史农艺师', status: '正常', desc: '取食叶片' },
         { name: '卷叶蛾', value: [165, 140], type: 'pest', severity: '低', area: '琴城镇', count: 1, person: '梁植保', status: '正常', desc: '卷叶取食' },
         { name: '流胶病', value: [105, 85], type: 'disease', severity: '低', area: '太和镇', count: 2, person: '何技术员', status: '正常', desc: '枝干流胶' },
-        { name: '裂皮病', value: [315, 70], type: 'disease', severity: '低', area: '白舍镇', count: 1, person: '邓医生', status: '正常', desc: '树皮开裂' },
+        { name: '裂皮病', value: [315, 70], type: 'disease', severity: '低', area: '白舍镇', count: 1, person: '邓农技员', status: '正常', desc: '树皮开裂' },
         { name: '煤污病', value: [395, 195], type: 'disease', severity: '低', area: '洽湾镇', count: 1, person: '袁植保', status: '正常', desc: '叶片煤烟状覆盖' },
         { name: '凤蝶', value: [150, 165], type: 'pest', severity: '低', area: '琴城镇', count: 1, person: '魏技术员', status: '正常', desc: '幼虫取食叶片' }
     ];

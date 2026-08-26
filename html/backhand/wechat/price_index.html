@@ -5,10 +5,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>价格数据库 - 南丰蜜桔模型管理系统</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: {
+      green: { DEFAULT: '#16a34a' },
+      blue: { DEFAULT: '#2563eb' },
+      red: { DEFAULT: '#dc2626' },
+      yellow: { DEFAULT: '#ca8a04' },
+      purple: { DEFAULT: '#9333ea' }
+    }}}}
+  </script>
   <style>
+    @keyframes modalSlideIn {
+        from { opacity: 0; transform: translateY(-20px) scale(0.98); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .modal-overlay.active .modal-content { animation: modalSlideIn 0.3s ease; }
     body { margin: 0; padding: 0; background: #f0f2f5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; }
     .page-header { padding: 20px 24px; background: #fff; border-bottom: 1px solid #e8ecf1; display: flex; justify-content: space-between; align-items: center; }
-    .page-title { font-size: 18px; font-weight: 600; color: #1b2a41; }
+    .page-title { font-size: 20px; font-weight: 600; color: #1b2a41; }
     .page-subtitle { font-size: 14px; color: #8898aa; margin-top: 4px; }
     
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
@@ -71,7 +85,7 @@
   <div class="page-header">
     <div>
       <div class="page-title">价格数据库</div>
-      <div class="page-subtitle">管理南丰蜜桔价格数据</div>
+      <div class="page-subtitle">南丰蜜桔市场价格监测</div>
     </div>
     <button class="btn btn-primary" onclick="openAddModal()">+ 新增数据</button>
   </div>
@@ -232,8 +246,8 @@
     function renderStats() {
       var totalDays = originalPrices.length;
       var markets = new Set(originalPrices.map(function(p) { return p.market; })).size;
-      var maxPrice = Math.max.apply(null, originalPrices.map(function(p) { return parseFloat(p.highPrice); }));
-      var minPrice = Math.min.apply(null, originalPrices.map(function(p) { return parseFloat(p.lowPrice); }));
+      var totalRecords = 27658;
+      var varieties = new Set(originalPrices.map(function(p) { return p.variety; })).size;
       
       var statsCard = document.getElementById('statsCard');
       statsCard.innerHTML = `
@@ -257,20 +271,20 @@
         </div>
         <div class="stat-item">
           <div class="stat-info">
-            <div class="stat-number">${maxPrice.toFixed(2)}</div>
-            <div class="stat-label">历史最高价</div>
+            <div class="stat-number">${totalRecords}</div>
+            <div class="stat-label">价格记录数据(条)</div>
           </div>
           <div class="stat-icon max">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="21 10 17 10 14 21 10 7 6 10 3 10"/></svg>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
           </div>
         </div>
         <div class="stat-item">
           <div class="stat-info">
-            <div class="stat-number">${minPrice.toFixed(2)}</div>
-            <div class="stat-label">历史最低价</div>
+            <div class="stat-number">${varieties}</div>
+            <div class="stat-label">监测品种(个)</div>
           </div>
           <div class="stat-icon min">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 14 7 14 10 3 14 17 18 14 21 14"/></svg>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
           </div>
         </div>
       `;
@@ -294,9 +308,9 @@
             <td>${p.lowPrice}</td>
             <td>${p.bulkPrice}</td>
             <td>
-              <button class="btn btn-secondary" onclick="openDetailModal('${p.id}')">查看</button>
-              <button class="btn btn-secondary" onclick="openEditModal('${p.id}')">编辑</button>
-              <button class="btn btn-secondary" onclick="openDeleteModal('${p.id}', '${p.date}')">删除</button>
+              <button onclick="openDetailModal('${p.id}')" class="px-3 py-1 text-green hover:bg-green-50 rounded text-xs font-medium transition-colors">查看</button>
+              <button onclick="openEditModal('${p.id}')" class="px-3 py-1 text-blue hover:bg-blue-50 rounded text-xs font-medium transition-colors">编辑</button>
+              <button onclick="openDeleteModal('${p.id}', '${p.date}')" class="px-3 py-1 text-red hover:bg-red-50 rounded text-xs font-medium transition-colors">删除</button>
             </td>
           </tr>
         `;

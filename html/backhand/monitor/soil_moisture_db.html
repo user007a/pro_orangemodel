@@ -48,6 +48,7 @@
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">负责人员</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">联系电话</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">当前状态</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">模型监测点</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
                         </tr>
                     </thead>
@@ -106,6 +107,13 @@
                             在线状态
                         </label>
                         <div class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm font-semibold" id="detail-status">-</div>
+                    </div>
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <label class="block text-sm font-medium text-gray-600 mb-2 flex items-center">
+                            <iconify-icon icon="material-symbols:verified" class="w-4 h-4 mr-2 text-blue-500"></iconify-icon>
+                            是否模型监测点位
+                        </label>
+                        <div class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm font-semibold" id="detail-isModelMonitor">-</div>
                     </div>
                     <div class="bg-gray-50 rounded-xl p-4">
                         <label class="block text-sm font-medium text-gray-600 mb-2 flex items-center">
@@ -212,6 +220,16 @@
                     </div>
                     <div class="bg-gray-50 rounded-xl p-4">
                         <label class="block text-sm font-medium text-gray-600 mb-2 flex items-center">
+                            <iconify-icon icon="material-symbols:verified" class="w-4 h-4 mr-2 text-green-500"></iconify-icon>
+                            是否模型监测点位
+                        </label>
+                        <select id="edit-isModelMonitor" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all">
+                            <option value="是">是</option>
+                            <option value="否">否</option>
+                        </select>
+                    </div>
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <label class="block text-sm font-medium text-gray-600 mb-2 flex items-center">
                             <iconify-icon icon="material-symbols:person" class="w-4 h-4 mr-2 text-purple-500"></iconify-icon>
                             负责人员
                         </label>
@@ -279,6 +297,16 @@
                     </div>
                     <div class="bg-gray-50 rounded-xl p-4">
                         <label class="block text-sm font-medium text-gray-600 mb-2 flex items-center">
+                            <iconify-icon icon="material-symbols:verified" class="w-4 h-4 mr-2 text-green-500"></iconify-icon>
+                            是否模型监测点位
+                        </label>
+                        <select id="add-isModelMonitor" class="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-all">
+                            <option value="是">是</option>
+                            <option value="否">否</option>
+                        </select>
+                    </div>
+                    <div class="bg-gray-50 rounded-xl p-4">
+                        <label class="block text-sm font-medium text-gray-600 mb-2 flex items-center">
                             <iconify-icon icon="material-symbols:person" class="w-4 h-4 mr-2 text-purple-500"></iconify-icon>
                             负责人员
                         </label>
@@ -302,18 +330,18 @@
 
     <script>
         const mockStations = [
-            { id: 1, name: '太和镇监测站', location: '太和镇太和村', moisture: 35, level: '偏干', soilType: '壤土', ph: 6.5, organic: 2.1, nitrogen: 1.2, phosphorus: 0.8, potassium: 150, sampleTime: '2026-07-25 14:30:00', deviceId: 'SM-NF-001', status: '在线', manager: '李建国', phone: '13879421001' },
-            { id: 2, name: '桑田镇监测站', location: '桑田镇桑田村', moisture: 48, level: '正常', soilType: '砂壤土', ph: 6.8, organic: 2.5, nitrogen: 1.5, phosphorus: 1.0, potassium: 180, sampleTime: '2026-07-25 14:25:00', deviceId: 'SM-NF-002', status: '在线', manager: '王志强', phone: '13879421002' },
-            { id: 3, name: '市山镇监测站', location: '市山镇市山村', moisture: 55, level: '正常', soilType: '黏土', ph: 6.2, organic: 3.0, nitrogen: 1.8, phosphorus: 1.2, potassium: 200, sampleTime: '2026-07-25 14:20:00', deviceId: 'SM-NF-003', status: '在线', manager: '张明华', phone: '13879421003' },
-            { id: 4, name: '白舍镇监测站', location: '白舍镇白舍村', moisture: 28, level: '干旱', soilType: '砂土', ph: 7.0, organic: 1.8, nitrogen: 1.0, phosphorus: 0.6, potassium: 120, sampleTime: '2026-07-25 14:15:00', deviceId: 'SM-NF-004', status: '离线', manager: '陈永福', phone: '13879421004' },
-            { id: 5, name: '三溪乡监测站', location: '三溪乡三溪村', moisture: 62, level: '正常', soilType: '壤土', ph: 6.6, organic: 2.8, nitrogen: 2.0, phosphorus: 1.5, potassium: 220, sampleTime: '2026-07-25 14:10:00', deviceId: 'SM-NF-005', status: '在线', manager: '刘文斌', phone: '13879421005' },
-            { id: 6, name: '洽湾镇监测站', location: '洽湾镇洽湾村', moisture: 70, level: '偏湿', soilType: '黏土', ph: 6.4, organic: 3.2, nitrogen: 2.2, phosphorus: 1.8, potassium: 250, sampleTime: '2026-07-25 14:05:00', deviceId: 'SM-NF-006', status: '在线', manager: '黄德林', phone: '13879421006' },
-            { id: 7, name: '东坪乡监测站', location: '东坪乡东坪村', moisture: 42, level: '正常', soilType: '砂壤土', ph: 6.7, organic: 2.3, nitrogen: 1.4, phosphorus: 0.9, potassium: 160, sampleTime: '2026-07-25 14:00:00', deviceId: 'SM-NF-007', status: '在线', manager: '吴国平', phone: '13879421007' },
-            { id: 8, name: '莱溪乡监测站', location: '莱溪乡莱溪村', moisture: 38, level: '偏干', soilType: '壤土', ph: 6.3, organic: 2.0, nitrogen: 1.3, phosphorus: 0.7, potassium: 140, sampleTime: '2026-07-25 13:55:00', deviceId: 'SM-NF-008', status: '离线', manager: '赵长青', phone: '13879421008' },
-            { id: 9, name: '太源乡监测站', location: '太源乡太源村', moisture: 50, level: '正常', soilType: '黏土', ph: 6.9, organic: 2.6, nitrogen: 1.6, phosphorus: 1.1, potassium: 190, sampleTime: '2026-07-25 13:50:00', deviceId: 'SM-NF-009', status: '在线', manager: '孙宝山', phone: '13879421009' },
-            { id: 10, name: '傅坊乡监测站', location: '傅坊乡傅坊村', moisture: 25, level: '干旱', soilType: '砂土', ph: 7.2, organic: 1.5, nitrogen: 0.8, phosphorus: 0.5, potassium: 100, sampleTime: '2026-07-25 13:45:00', deviceId: 'SM-NF-010', status: '离线', manager: '周建辉', phone: '13879421010' },
-            { id: 11, name: '紫霄镇监测站', location: '紫霄镇紫霄村', moisture: 58, level: '正常', soilType: '壤土', ph: 6.5, organic: 2.7, nitrogen: 1.9, phosphorus: 1.4, potassium: 210, sampleTime: '2026-07-25 13:40:00', deviceId: 'SM-NF-011', status: '在线', manager: '胡兴邦', phone: '13879421011' },
-            { id: 12, name: '南丰县监测站', location: '南丰县琴城镇', moisture: 65, level: '偏湿', soilType: '砂壤土', ph: 6.6, organic: 2.9, nitrogen: 2.1, phosphorus: 1.6, potassium: 230, sampleTime: '2026-07-25 13:35:00', deviceId: 'SM-NF-012', status: '在线', manager: '徐龙华', phone: '13879421012' }
+            { id: 1, name: '太和镇监测站', location: '太和镇太和村', moisture: 35, level: '偏干', soilType: '壤土', ph: 6.5, organic: 2.1, nitrogen: 1.2, phosphorus: 0.8, potassium: 150, sampleTime: '2026-07-25 14:30:00', deviceId: 'SM-NF-001', status: '在线', manager: '李建国', phone: '13879421001', isModelMonitor: '是' },
+            { id: 2, name: '桑田镇监测站', location: '桑田镇桑田村', moisture: 48, level: '正常', soilType: '砂壤土', ph: 6.8, organic: 2.5, nitrogen: 1.5, phosphorus: 1.0, potassium: 180, sampleTime: '2026-07-25 14:25:00', deviceId: 'SM-NF-002', status: '在线', manager: '王志强', phone: '13879421002', isModelMonitor: '否' },
+            { id: 3, name: '市山镇监测站', location: '市山镇市山村', moisture: 55, level: '正常', soilType: '黏土', ph: 6.2, organic: 3.0, nitrogen: 1.8, phosphorus: 1.2, potassium: 200, sampleTime: '2026-07-25 14:20:00', deviceId: 'SM-NF-003', status: '在线', manager: '张明华', phone: '13879421003', isModelMonitor: '是' },
+            { id: 4, name: '白舍镇监测站', location: '白舍镇白舍村', moisture: 28, level: '干旱', soilType: '砂土', ph: 7.0, organic: 1.8, nitrogen: 1.0, phosphorus: 0.6, potassium: 120, sampleTime: '2026-07-25 14:15:00', deviceId: 'SM-NF-004', status: '离线', manager: '陈永福', phone: '13879421004', isModelMonitor: '否' },
+            { id: 5, name: '三溪乡监测站', location: '三溪乡三溪村', moisture: 62, level: '正常', soilType: '壤土', ph: 6.6, organic: 2.8, nitrogen: 2.0, phosphorus: 1.5, potassium: 220, sampleTime: '2026-07-25 14:10:00', deviceId: 'SM-NF-005', status: '在线', manager: '刘文斌', phone: '13879421005', isModelMonitor: '是' },
+            { id: 6, name: '洽湾镇监测站', location: '洽湾镇洽湾村', moisture: 70, level: '偏湿', soilType: '黏土', ph: 6.4, organic: 3.2, nitrogen: 2.2, phosphorus: 1.8, potassium: 250, sampleTime: '2026-07-25 14:05:00', deviceId: 'SM-NF-006', status: '在线', manager: '黄德林', phone: '13879421006', isModelMonitor: '否' },
+            { id: 7, name: '东坪乡监测站', location: '东坪乡东坪村', moisture: 42, level: '正常', soilType: '砂壤土', ph: 6.7, organic: 2.3, nitrogen: 1.4, phosphorus: 0.9, potassium: 160, sampleTime: '2026-07-25 14:00:00', deviceId: 'SM-NF-007', status: '在线', manager: '吴国平', phone: '13879421007', isModelMonitor: '是' },
+            { id: 8, name: '莱溪乡监测站', location: '莱溪乡莱溪村', moisture: 38, level: '偏干', soilType: '壤土', ph: 6.3, organic: 2.0, nitrogen: 1.3, phosphorus: 0.7, potassium: 140, sampleTime: '2026-07-25 13:55:00', deviceId: 'SM-NF-008', status: '离线', manager: '赵长青', phone: '13879421008', isModelMonitor: '否' },
+            { id: 9, name: '太源乡监测站', location: '太源乡太源村', moisture: 50, level: '正常', soilType: '黏土', ph: 6.9, organic: 2.6, nitrogen: 1.6, phosphorus: 1.1, potassium: 190, sampleTime: '2026-07-25 13:50:00', deviceId: 'SM-NF-009', status: '在线', manager: '孙宝山', phone: '13879421009', isModelMonitor: '是' },
+            { id: 10, name: '傅坊乡监测站', location: '傅坊乡傅坊村', moisture: 25, level: '干旱', soilType: '砂土', ph: 7.2, organic: 1.5, nitrogen: 0.8, phosphorus: 0.5, potassium: 100, sampleTime: '2026-07-25 13:45:00', deviceId: 'SM-NF-010', status: '离线', manager: '周建辉', phone: '13879421010', isModelMonitor: '否' },
+            { id: 11, name: '紫霄镇监测站', location: '紫霄镇紫霄村', moisture: 58, level: '正常', soilType: '壤土', ph: 6.5, organic: 2.7, nitrogen: 1.9, phosphorus: 1.4, potassium: 210, sampleTime: '2026-07-25 13:40:00', deviceId: 'SM-NF-011', status: '在线', manager: '胡兴邦', phone: '13879421011', isModelMonitor: '是' },
+            { id: 12, name: '南丰县监测站', location: '南丰县琴城镇', moisture: 65, level: '偏湿', soilType: '砂壤土', ph: 6.6, organic: 2.9, nitrogen: 2.1, phosphorus: 1.6, potassium: 230, sampleTime: '2026-07-25 13:35:00', deviceId: 'SM-NF-012', status: '在线', manager: '徐龙华', phone: '13879421012', isModelMonitor: '否' }
         ];
 
         let currentPage = 1;
@@ -358,6 +386,9 @@
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         <span class="px-2 py-1 rounded-full text-xs font-medium ${station.status === '在线' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}">${station.status}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 py-1 rounded-full text-xs font-medium ${station.isModelMonitor === '是' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}">${station.isModelMonitor}</span>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm">
                         <button onclick="viewStation(${station.id})" class="text-blue-600 hover:text-blue-900 mr-3">查看</button>
@@ -420,6 +451,11 @@
             statusEl.textContent = station.status;
             statusEl.className = 'w-full px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm font-semibold ' +
                 (station.status === '在线' ? 'text-green-600' : 'text-red-600');
+
+            const isModelMonitorEl = document.getElementById('detail-isModelMonitor');
+            isModelMonitorEl.textContent = station.isModelMonitor;
+            isModelMonitorEl.className = 'w-full px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm font-semibold ' +
+                (station.isModelMonitor === '是' ? 'text-green-600' : 'text-gray-600');
 
             document.getElementById('detail-modal').classList.add('active');
         }
@@ -517,6 +553,7 @@
             document.getElementById('edit-status').value = station.status;
             document.getElementById('edit-manager').value = station.manager;
             document.getElementById('edit-phone').value = station.phone;
+            document.getElementById('edit-isModelMonitor').value = station.isModelMonitor;
 
             document.getElementById('edit-modal').classList.add('active');
         }
@@ -532,6 +569,7 @@
             document.getElementById('add-status').value = '在线';
             document.getElementById('add-manager').value = '';
             document.getElementById('add-phone').value = '';
+            document.getElementById('add-isModelMonitor').value = '否';
             document.getElementById('add-modal').classList.add('active');
         }
 
@@ -565,6 +603,7 @@
                 potassium: 150,
                 deviceId: document.getElementById('add-device-id').value.trim(),
                 status: document.getElementById('add-status').value,
+                isModelMonitor: document.getElementById('add-isModelMonitor').value,
                 manager: document.getElementById('add-manager').value.trim(),
                 phone: document.getElementById('add-phone').value.trim(),
                 sampleTime: sampleTime
@@ -594,6 +633,7 @@
             station.status = document.getElementById('edit-status').value;
             station.manager = document.getElementById('edit-manager').value.trim();
             station.phone = document.getElementById('edit-phone').value.trim();
+            station.isModelMonitor = document.getElementById('edit-isModelMonitor').value;
 
             closeEditModal();
             renderTable();

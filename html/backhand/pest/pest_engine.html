@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>预测计算 - 南丰蜜桔模型管理系统</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+@keyframes modalSlideIn { from { opacity: 0; transform: translateY(-20px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+.modal-overlay.active .modal-content { animation: modalSlideIn 0.3s ease; }
+body { margin: 0; padding: 0; background-color: #F0F2F5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans SC', sans-serif; }
+.content-wrapper { padding: 24px; height: 100vh; overflow-y: auto; }
+.modal-overlay { display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center }
+.modal-content { background:#fff;border-radius:12px;width:90%;max-width:600px;max-height:85vh;overflow-y:auto }
+.tab-active{color:#16a34a;border-bottom:2px solid #16a34a;font-weight:600}
+.tab-inactive{color:#6b7280;border-bottom:2px solid transparent}
+.tab-inactive:hover{color:#374151}
+.text-green{color:#16a34a} .text-blue{color:#2563eb} .text-red{color:#dc2626} .text-yellow{color:#d97706} .text-purple{color:#7c3aed}
+.form-input{width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box;outline:none}
+.form-input:focus{border-color:#16a34a;box-shadow:0 0 0 2px rgba(22,163,74,0.1)}
+.toggle-switch{position:relative;display:inline-block;width:48px;height:26px}
+.toggle-switch input{opacity:0;width:0;height:0}
+.toggle-slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background-color:#cbd5e1;transition:.3s;border-radius:26px}
+.toggle-slider:before{position:absolute;content:"";height:20px;width:20px;left:3px;bottom:3px;background-color:#fff;transition:.3s;border-radius:50%}
+input:checked+.toggle-slider{background-color:#16a34a}
+input:checked+.toggle-slider:before{transform:translateX(22px)}
+@keyframes pulseRing{0%{box-shadow:0 0 0 0 rgba(37,99,235,.4)}70%{box-shadow:0 0 0 8px rgba(37,99,235,0)}100%{box-shadow:0 0 0 0 rgba(37,99,235,0)}}
+.step-running .step-num{animation:pulseRing 1.2s infinite}
+#toast{display:none;position:fixed;top:24px;left:50%;transform:translateX(-50%);background:#16a34a;color:#fff;padding:10px 20px;border-radius:8px;font-size:14px;z-index:100000;box-shadow:0 4px 12px rgba(0,0,0,0.15)}
+</style>
+</head>
+<body>
+<div class="content-wrapper">
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-xl font-bold text-gray-800">预测计算</h1>
+      <p class="text-gray-500 text-sm mt-1">病虫害多因子耦合时序风险预测模型 · 计算调度与执行</p>
+    </div>
+    <button onclick="switchTab('manual')" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium flex items-center">
+      <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>手动计算
+    </button>
+  </div>
+
+  <!-- Tab Bar -->
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 mb-6">
+    <div class="border-b border-gray-100 flex items-center px-6">
+      <div class="tab-item px-4 py-4 cursor-pointer text-sm mr-6 tab-active" data-tab="schedule" onclick="switchTab('schedule')">计算调度</div>
+      <div class="tab-item px-4 py-4 cursor-pointer text-sm mr-6 tab-inactive" data-tab="manual" onclick="switchTab('manual')">手动计算</div>
+      <div class="tab-item px-4 py-4 cursor-pointer text-sm mr-6 tab-inactive" data-tab="log" onclick="switchTab('log')">计算日志</div>
+    </div>
+  </div>
+
+  <!-- ===== Tab 1: 计算调度 ===== -->
+  <div id="tab-schedule" class="tab-content">
+    <!-- 每日自动计算任务 -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6">
+      <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+        <h3 class="text-sm font-semibold text-gray-700">每日自动计算任务</h3>
+        <span id="schedule-status" class="px-2.5 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium flex items-center"><span class="w-1.5 h-1.5 bg-green-500 rounded-full mr-1.5 animate-pulse"></span>运行中</span>
+      </div>
+      <div class="p-5 grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-3 gap-4">
+          <div><p class="text-xs text-gray-500 mb-1">任务状态</p><p class="text-sm font-bold text-green-600">运行中</p></div>
+          <div><p class="text-xs text-gray-500 mb-1">下次执行时间</p><p class="text-sm font-bold text-gray-800">2026-08-04 06:00</p></div>
+          <div><p class="text-xs text-gray-500 mb-1">最近执行时间</p><p class="text-sm font-bold text-gray-800">2026-08-03 06:00</p></div>
+        </div>
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-sm text-gray-600">自动计算开关</span>
+            <label class="toggle-switch"><input type="checkbox" checked onchange="toggleAuto(this)"><span class="toggle-slider"></span></label>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="text-sm text-gray-600 whitespace-nowrap">预测周期</span>
+            <select class="form-input text-sm py-1.5"><option>3天</option><option>7天</option><option selected>3+7天</option></select>
+          </div>
+        </div>
+        <div>
+          <p class="text-xs text-gray-500 mb-2">预警阈值（风险等级概率划分，%）</p>
+          <div class="grid grid-cols-4 gap-2">
+            <div><label class="block text-xs text-gray-500 mb-1">低 &lt;60</label><input class="form-input text-center py-1.5" value="60"></div>
+            <div><label class="block text-xs text-gray-500 mb-1">中 60~75</label><input class="form-input text-center py-1.5" value="75"></div>
+            <div><label class="block text-xs text-gray-500 mb-1">高 75~90</label><input class="form-input text-center py-1.5" value="90"></div>
+            <div><label class="block text-xs text-gray-500 mb-1">极高 ≥90</label><input class="form-input text-center py-1.5 bg-gray-100" value="90" disabled></div>
+          </div>
+        </div>
+      </div>
+      <div class="px-5 pb-5 flex justify-end">
+        <button onclick="saveSchedule()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium">保存调度设置</button>
+      </div>
+    </div>
+
+    <!-- 7步计算流程 -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6">
+      <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+        <h3 class="text-sm font-semibold text-gray-700">7步计算流程</h3>
+        <span class="text-xs text-gray-400">最近一次执行：2026-08-03 06:00</span>
+      </div>
+      <div class="p-5"><div id="pipeline-list"></div></div>
+    </div>
+
+    <!-- 最近运行统计 -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center">
+        <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3"><span class="text-lg font-bold text-green-600">86</span></div>
+        <div><p class="text-lg font-bold text-gray-800">86</p><p class="text-xs text-gray-500">累计计算次数</p></div>
+      </div>
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center">
+        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3"><span class="text-lg font-bold text-blue">1</span></div>
+        <div><p class="text-lg font-bold text-gray-800">1</p><p class="text-xs text-gray-500">今日计算</p></div>
+      </div>
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex items-center">
+        <div class="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center mr-3"><span class="text-lg font-bold text-yellow">12.5s</span></div>
+        <div><p class="text-lg font-bold text-gray-800">12.5s</p><p class="text-xs text-gray-500">平均耗时</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Tab 2: 手动计算 ===== -->
+  <div id="tab-manual" class="tab-content" style="display:none">
+    <!-- 计算参数 -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6">
+      <div class="px-4 py-3 border-b border-gray-100"><h3 class="text-sm font-semibold text-gray-700">计算参数</h3></div>
+      <div class="p-5 grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div>
+          <p class="text-sm text-gray-600 mb-2">病虫害多选</p>
+          <div class="flex flex-wrap gap-2">
+            <label class="flex items-center px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg cursor-pointer hover:border-green-400 text-sm text-gray-700"><input type="checkbox" id="pest-红蜘蛛" checked class="mr-1.5 accent-green-600">红蜘蛛</label>
+            <label class="flex items-center px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg cursor-pointer hover:border-green-400 text-sm text-gray-700"><input type="checkbox" id="pest-黄龙病" checked class="mr-1.5 accent-green-600">黄龙病</label>
+            <label class="flex items-center px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg cursor-pointer hover:border-green-400 text-sm text-gray-700"><input type="checkbox" id="pest-炭疽病" checked class="mr-1.5 accent-green-600">炭疽病</label>
+            <label class="flex items-center px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg cursor-pointer hover:border-green-400 text-sm text-gray-700"><input type="checkbox" id="pest-潜叶蛾" checked class="mr-1.5 accent-green-600">潜叶蛾</label>
+            <label class="flex items-center px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg cursor-pointer hover:border-green-400 text-sm text-gray-700"><input type="checkbox" id="pest-溃疡病" checked class="mr-1.5 accent-green-600">溃疡病</label>
+            <label class="flex items-center px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg cursor-pointer hover:border-green-400 text-sm text-gray-700"><input type="checkbox" id="pest-疮痂病" checked class="mr-1.5 accent-green-600">疮痂病</label>
+          </div>
+        </div>
+        <div>
+          <p class="text-sm text-gray-600 mb-2">预测周期</p>
+          <select id="calc-cyc" class="form-input"><option>3天</option><option>7天</option><option selected>3+7天</option></select>
+        </div>
+        <div>
+          <p class="text-sm text-gray-600 mb-2">乡镇范围</p>
+          <select id="calc-town" class="form-input">
+            <option selected>全部乡镇</option><option>琴城镇</option><option>市山镇</option><option>洽湾镇</option><option>太和镇</option><option>桑田镇</option><option>白舍镇</option><option>紫霄镇</option><option>三溪乡</option><option>傅坊乡</option><option>太源乡</option><option>莱溪乡</option><option>东坪乡</option>
+          </select>
+        </div>
+      </div>
+      <div class="px-5 pb-5 flex justify-end">
+        <button onclick="startCalc()" class="px-5 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium flex items-center">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>开始计算
+        </button>
+      </div>
+    </div>
+
+    <!-- 7步计算进度 -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-6">
+      <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+        <h3 class="text-sm font-semibold text-gray-700">7步计算进度</h3>
+        <span id="progress-info" class="text-xs text-gray-400">等待开始</span>
+      </div>
+      <div class="p-5">
+        <div id="manual-progress"></div>
+        <div id="calc-done-card" class="hidden bg-green-50 border border-green-100 rounded-xl p-4 flex items-start">
+          <svg class="w-5 h-5 text-green-600 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <div>
+            <p class="text-sm font-semibold text-green-700">计算完成</p>
+            <p id="done-summary" class="text-sm text-green-700 mt-1"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 计算结果预览 -->
+    <div id="result-card" class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden" style="display:none">
+      <div class="px-4 py-3 border-b border-gray-100"><h3 class="text-sm font-semibold text-gray-700">计算结果预览</h3></div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead><tr class="bg-gray-50 border-b border-gray-100">
+            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500">乡镇</th>
+            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500">病虫害</th>
+            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500">3天概率</th>
+            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500">7天概率</th>
+            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500">风险等级</th>
+          </tr></thead>
+          <tbody id="result-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Tab 3: 计算日志 ===== -->
+  <div id="tab-log" class="tab-content" style="display:none">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+        <h3 class="text-sm font-semibold text-gray-700">计算日志</h3>
+        <span class="text-xs text-gray-400">共 <span id="log-total">0</span> 条记录</span>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead><tr class="bg-gray-50 border-b border-gray-100">
+            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500">执行时间</th>
+            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500">类型</th>
+            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500">病虫害范围</th>
+            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500">预测周期</th>
+            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500">状态</th>
+            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500">耗时</th>
+            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500">输出预警数</th>
+            <th class="text-center px-4 py-3 text-xs font-semibold text-gray-500">操作</th>
+          </tr></thead>
+          <tbody id="log-tbody"></tbody>
+        </table>
+      </div>
+      <div class="px-4 py-3 border-t border-gray-100 flex items-center justify-between">
+        <p class="text-sm text-gray-500">第 <span id="log-page">1</span> / <span id="log-pages">1</span> 页</p>
+        <div class="flex items-center space-x-2">
+          <button onclick="logPage(-1)" class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50">上一页</button>
+          <button onclick="logPage(1)" class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50">下一页</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 日志详情模态框 -->
+<div id="log-modal" class="modal-overlay">
+  <div class="modal-content">
+    <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+      <h3 style="font-size:16px;font-weight:600;color:#1f2937">计算日志详情</h3>
+      <button onclick="hideLogModal()" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px;color:#9ca3af">&times;</button>
+    </div>
+    <div id="log-detail" style="padding:20px"></div>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script>
+var PESTS=['红蜘蛛','黄龙病','炭疽病','潜叶蛾','溃疡病','疮痂病'];
+var STEPS=[
+ {n:'数据读取与校验',d:'输入最近14～30天监测数据及未来3～7天天气预报',t:'1.8s',r:'已读取 5 类数据，共 1,240 条记录'},
+ {n:'因子适宜度计算',d:'计算温度、湿度、降雨、物候等因子的0～1适宜度',t:'2.5s',r:'计算 6 种病虫害 × 5 因子适宜度，共 30 项'},
+ {n:'耦合作用计算',d:'计算单因子、两因子和三因子耦合作用',t:'2.2s',r:'计算耦合作用，检出 8 个有效耦合组合'},
+ {n:'时间累积',d:'按照时间权重累积每天的多因子耦合结果',t:'1.8s',r:'完成 14-30 天时间累积'},
+ {n:'虫源与空间压力',d:'加入各乡镇虫源、县域历史发生和相邻区域空间传播压力',t:'1.6s',r:'加入 12 乡镇虫源与传播压力'},
+ {n:'概率校准',d:'使用当地历史真实调查数据进行概率校准',t:'1.4s',r:'概率校准完成，校准系数 0.94'},
+ {n:'结果输出',d:'逐病种输出县域及乡镇未来3天、7天发生概率和风险等级',t:'1.2s',r:'输出 12 乡镇 × 6 病虫害预测结果'}
+];
+var ST_DONE=STEPS.map(function(s){return s.t;});
+var LOGS=[
+ {t:'2026-08-04 06:00',tp:'自动',sc:'6种病虫害',cy:'3+7天',ok:1,d:'12.4s',w:45,st:ST_DONE},
+ {t:'2026-08-03 06:00',tp:'自动',sc:'6种病虫害',cy:'3+7天',ok:1,d:'12.5s',w:41,st:ST_DONE},
+ {t:'2026-08-02 06:00',tp:'自动',sc:'6种病虫害',cy:'3+7天',ok:1,d:'13.1s',w:38,st:ST_DONE},
+ {t:'2026-08-01 06:00',tp:'自动',sc:'6种病虫害',cy:'3+7天',ok:0,d:'5.2s',w:0,st:['1.8s','2.5s','2.2s','失败','','',''],err:'气象数据接口超时（超时阈值 5s），数据读取中断，本次计算终止'},
+ {t:'2026-07-31 06:00',tp:'自动',sc:'6种病虫害',cy:'3+7天',ok:1,d:'12.0s',w:44,st:ST_DONE},
+ {t:'2026-07-30 14:20',tp:'手动',sc:'3种病虫害',cy:'7天',ok:1,d:'8.6s',w:12,st:ST_DONE},
+ {t:'2026-07-30 06:00',tp:'自动',sc:'6种病虫害',cy:'3+7天',ok:1,d:'12.8s',w:39,st:ST_DONE},
+ {t:'2026-07-29 09:15',tp:'手动',sc:'6种病虫害',cy:'3天',ok:0,d:'3.1s',w:0,st:['1.8s','失败','','','','',''],err:'乡镇虫源数据缺失（太源乡、东坪乡未上传），虫源压力计算中断'},
+ {t:'2026-07-29 06:00',tp:'自动',sc:'6种病虫害',cy:'3+7天',ok:1,d:'12.2s',w:36,st:ST_DONE},
+ {t:'2026-07-28 06:00',tp:'自动',sc:'6种病虫害',cy:'3+7天',ok:1,d:'12.6s',w:42,st:ST_DONE}
+];
+var LOG_PAGE=1,LOG_SIZE=8,calcTimer=null;
+
+function switchTab(tab){
+  document.querySelectorAll('.tab-item').forEach(function(el){
+    el.className='tab-item px-4 py-4 cursor-pointer text-sm mr-6 '+(el.getAttribute('data-tab')===tab?'tab-active':'tab-inactive');
+  });
+  ['schedule','manual','log'].forEach(function(t){ document.getElementById('tab-'+t).style.display=t===tab?'':'none'; });
+}
+function td(c,v){ return '<td class="px-4 py-3 '+c+'">'+v+'</td>'; }
+function badge(txt,c){ return '<span class="px-2 py-0.5 rounded-full text-xs font-medium '+c+'">'+txt+'</span>'; }
+function showToast(msg){ var t=document.getElementById('toast'); t.textContent=msg; t.style.display='block'; setTimeout(function(){t.style.display='none';},2000); }
+function nowStr(){ var d=new Date(),p=function(n){return n<10?'0'+n:n;}; return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds()); }
+
+/* ---- Tab1: 计算调度 ---- */
+function toggleAuto(el){
+  var b=document.getElementById('schedule-status');
+  if(el.checked){ b.className='px-2.5 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium flex items-center'; b.innerHTML='<span class="w-1.5 h-1.5 bg-green-500 rounded-full mr-1.5 animate-pulse"></span>运行中'; }
+  else { b.className='px-2.5 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-medium flex items-center'; b.innerHTML='<span class="w-1.5 h-1.5 bg-gray-400 rounded-full mr-1.5"></span>已停用'; }
+}
+function saveSchedule(){ showToast('调度设置已保存'); }
+function renderPipeline(){
+  var h='';
+  STEPS.forEach(function(s,i){
+    h+='<div class="flex"><div class="flex flex-col items-center mr-4"><div class="step-num w-8 h-8 rounded-full bg-green-600 text-white text-xs font-bold flex items-center justify-center">'+(i+1)+'</div><div class="w-px bg-green-200 flex-1 '+(i===6?'hidden':'')+'"></div></div><div class="pb-5 flex-1"><div class="flex items-center justify-between"><p class="text-sm font-medium text-gray-800">'+s.n+'</p>'+badge('已完成','bg-green-100 text-green-600')+'</div><p class="text-xs text-gray-500 mt-1">'+s.d+'</p><p class="text-xs text-gray-400 mt-1">耗时 '+s.t+'</p></div></div>';
+  });
+  document.getElementById('pipeline-list').innerHTML=h;
+}
+
+/* ---- Tab2: 手动计算 ---- */
+function resetProgress(){
+  var h='';
+  STEPS.forEach(function(s,i){
+    h+='<div class="flex" data-idx="'+i+'"><div class="flex flex-col items-center mr-4"><div class="step-num w-8 h-8 rounded-full bg-gray-300 text-white text-xs font-bold flex items-center justify-center">'+(i+1)+'</div><div class="w-px bg-gray-200 flex-1 '+(i===6?'hidden':'')+'"></div></div><div class="pb-5 flex-1"><div class="flex items-center justify-between"><p class="text-sm font-medium text-gray-800">'+s.n+'</p>'+badge('待执行','bg-gray-100 text-gray-500')+'</div><p class="text-xs text-gray-500 mt-1">'+s.d+'</p><div class="result text-xs text-green-600 mt-1 hidden"></div></div></div>';
+  });
+  document.getElementById('manual-progress').innerHTML=h;
+}
+function setStep(i,state){
+  var row=document.querySelector('#manual-progress [data-idx="'+i+'"]'); if(!row) return;
+  var num=row.querySelector('.step-num'),badgeEl=row.querySelector('.badge'),res=row.querySelector('.result');
+  if(state==='running'){
+    row.classList.add('step-running');
+    num.className='step-num w-8 h-8 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center';
+    badgeEl.className='badge px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-600';
+    badgeEl.innerHTML='<span class="inline-block w-1.5 h-1.5 bg-blue-500 rounded-full mr-1 animate-pulse"></span>运行中';
+  }else{
+    row.classList.remove('step-running');
+    num.className='step-num w-8 h-8 rounded-full bg-green-600 text-white text-xs font-bold flex items-center justify-center';
+    badgeEl.className='badge px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-600';
+    badgeEl.textContent='已完成';
+    res.textContent=STEPS[i].r; res.classList.remove('hidden');
+  }
+}
+function riskOf(p){
+  if(p>=90) return {t:'极高',c:'bg-purple-100 text-purple-600'};
+  if(p>=75) return {t:'高',c:'bg-red-100 text-red-600'};
+  if(p>=60) return {t:'中',c:'bg-yellow-100 text-yellow-600'};
+  return {t:'低',c:'bg-green-100 text-green-600'};
+}
+function renderResult(pests,town){
+  var towns=town==='全部乡镇'?['琴城镇','市山镇','洽湾镇']:[town];
+  var ps=pests.slice(0,2),h='',w=0;
+  towns.forEach(function(t){ ps.forEach(function(p){
+    var p3=+(45+Math.random()*45).toFixed(1);
+    var p7=Math.min(96,+(p3+2+Math.random()*8).toFixed(1));
+    var r=riskOf(p7); if(r.t==='高'||r.t==='极高') w++;
+    h+='<tr class="border-b border-gray-100">'+td('text-gray-800',t)+td('text-gray-700',p)+td('font-medium text-blue',p3+'%')+td('font-medium text-blue',p7+'%')+'<td class="px-4 py-3">'+badge(r.t,r.c)+'</td></tr>';
+  });});
+  document.getElementById('result-tbody').innerHTML=h; return w;
+}
+function finishCalc(pests,cyc,town){
+  document.getElementById('progress-info').textContent='计算完成';
+  document.getElementById('calc-done-card').classList.remove('hidden');
+  var w=renderResult(pests,town);
+  document.getElementById('done-summary').textContent='共执行 7 步，总耗时约 4.2s；范围：'+(town==='全部乡镇'?'全部乡镇(12个)':town)+' · 周期 '+cyc+' · '+pests.length+' 种病虫害，输出高及以上风险预警 '+w+' 项';
+  document.getElementById('result-card').style.display='';
+  LOGS.unshift({t:nowStr(),tp:'手动',sc:pests.length+'种病虫害',cy:cyc,ok:1,d:'4.2s',w:w,st:ST_DONE});
+  renderLogs(); showToast('计算完成，7 步全部执行成功');
+}
+function startCalc(){
+  var checked=PESTS.filter(function(p){ return document.getElementById('pest-'+p).checked; });
+  if(!checked.length){ showToast('请至少选择一种病虫害'); return; }
+  if(calcTimer) clearTimeout(calcTimer);
+  var cyc=document.getElementById('calc-cyc').value, town=document.getElementById('calc-town').value;
+  document.getElementById('result-card').style.display='none';
+  document.getElementById('calc-done-card').classList.add('hidden');
+  document.getElementById('progress-info').textContent='正在计算：'+checked.length+' 种病虫害 · '+cyc+' · '+town;
+  resetProgress();
+  var i=0;
+  function run(){
+    if(i>=STEPS.length){ finishCalc(checked,cyc,town); return; }
+    setStep(i,'running');
+    calcTimer=setTimeout(function(){ setStep(i,'done'); i++; calcTimer=setTimeout(run,600); },600);
+  }
+  calcTimer=setTimeout(run,400);
+}
+
+/* ---- Tab3: 计算日志 ---- */
+function renderLogs(){
+  var total=LOGS.length,pages=Math.max(1,Math.ceil(total/LOG_SIZE));
+  if(LOG_PAGE>pages) LOG_PAGE=pages;
+  var list=LOGS.slice((LOG_PAGE-1)*LOG_SIZE,(LOG_PAGE-1)*LOG_SIZE+LOG_SIZE),h='';
+  list.forEach(function(l,i){
+    h+='<tr class="border-b border-gray-100 hover:bg-gray-50"><td class="px-4 py-3 text-gray-700">'+l.t+'</td><td class="px-4 py-3">'+badge(l.tp,l.tp==='自动'?'bg-blue-100 text-blue-600':'bg-purple-100 text-purple-600')+'</td><td class="px-4 py-3 text-gray-700">'+l.sc+'</td><td class="px-4 py-3 text-gray-700">'+l.cy+'</td><td class="px-4 py-3">'+badge(l.ok?'成功':'失败',l.ok?'bg-green-100 text-green-600':'bg-red-100 text-red-600')+'</td><td class="px-4 py-3 text-gray-700">'+l.d+'</td><td class="px-4 py-3 '+(l.w?'font-medium text-red':'text-gray-400')+'">'+l.w+'</td><td class="px-4 py-3 text-center"><button onclick="showLog('+LOGS.indexOf(l)+')" class="text-green hover:bg-green-50 rounded px-2 py-1 text-xs">查看</button></td></tr>';
+  });
+  document.getElementById('log-tbody').innerHTML=h;
+  document.getElementById('log-total').textContent=total;
+  document.getElementById('log-page').textContent=LOG_PAGE;
+  document.getElementById('log-pages').textContent=pages;
+}
+function logPage(d){
+  var pages=Math.max(1,Math.ceil(LOGS.length/LOG_SIZE));
+  var np=LOG_PAGE+d; if(np>=1&&np<=pages){ LOG_PAGE=np; renderLogs(); }
+}
+function detail(k,v){ return '<div><p class="text-xs text-gray-400 mb-1">'+k+'</p><p class="text-sm font-medium text-gray-800">'+v+'</p></div>'; }
+function showLog(i){
+  var l=LOGS[i],stepsHtml='';
+  STEPS.forEach(function(s,j){
+    var v=l.st[j],cls,label;
+    if(v==='失败'){ cls='bg-red-100 text-red-600'; label='失败'; }
+    else if(v){ cls='bg-green-100 text-green-600'; label='耗时 '+v; }
+    else { cls='bg-gray-100 text-gray-500'; label='未执行'; }
+    stepsHtml+='<div class="flex items-center justify-between py-1.5 border-b border-gray-50"><span class="text-sm text-gray-600">'+(j+1)+'. '+s.n+'</span>'+badge(label,cls)+'</div>';
+  });
+  var errHtml=l.err?'<div class="mt-3 bg-red-50 border border-red-100 rounded-lg p-3"><p class="text-xs font-semibold text-red-600 mb-1">异常信息</p><p class="text-sm text-red-700">'+l.err+'</p></div>':'<div class="mt-3 bg-green-50 border border-green-100 rounded-lg p-3 text-sm text-green-700">计算执行成功，未发生异常</div>';
+  document.getElementById('log-detail').innerHTML=
+    '<div class="grid grid-cols-2 gap-4 mb-4">'+detail('执行时间',l.t)+detail('执行类型',l.tp)+detail('执行范围',l.sc)+detail('预测周期',l.cy)+'<div><p class="text-xs text-gray-400 mb-1">计算状态</p>'+badge(l.ok?'成功':'失败',l.ok?'bg-green-100 text-green-600':'bg-red-100 text-red-600')+'</div>'+detail('输出预警数',l.w)+'</div>'
+    +'<p class="text-xs font-semibold text-gray-500 mb-2">各步骤耗时明细</p>'+stepsHtml+errHtml;
+  var m=document.getElementById('log-modal'); m.style.display='flex'; m.classList.add('active');
+}
+function hideLogModal(){ var m=document.getElementById('log-modal'); m.style.display='none'; m.classList.remove('active'); }
+
+document.addEventListener('click',function(e){
+  var m=document.getElementById('log-modal');
+  if(m.style.display==='flex'&&e.target===m) hideLogModal();
+});
+window.onload=function(){ renderPipeline(); renderLogs(); };
+</script>
+</body>
+</html>

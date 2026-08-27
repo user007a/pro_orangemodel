@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>评价报告 - 南丰蜜桔生长模型系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body{margin:0;padding:0;background-color:#F0F2F5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,'Noto Sans SC',sans-serif}
+        .content-wrapper{padding:24px;min-height:100vh}
+    </style>
+</head>
+<body>
+<div class="content-wrapper">
+    <div class="flex items-center justify-between mb-6 no-print">
+        <div>
+            <h1 class="text-xl font-bold text-gray-800">评价报告</h1>
+            <p class="text-gray-500 text-sm mt-1">南丰蜜桔植株综合评价报告生成与查看</p>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 mb-5 no-print">
+            <div class="flex flex-wrap items-center gap-3">
+                <div class="flex items-center gap-2">
+                    <label class="text-sm text-gray-600">地块:</label>
+                    <select class="px-3 py-2 border border-gray-300 rounded-lg text-sm w-56">
+                        <option>NF-001 东坡A-03地块</option>
+                        <option>NF-002 东坡A-05地块</option>
+                        <option>NF-003 南塘B-01地块</option>
+                        <option>NF-004 南塘B-07地块</option>
+                    </select>
+                </div>
+                <div class="flex items-center gap-2">
+                    <label class="text-sm text-gray-600">日期:</label>
+                    <input type="date" value="2026-08-04" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                </div>
+                <div class="flex items-center gap-2 ml-auto">
+                    <button onclick="openReportDetail()" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition">
+                        <span class="inline-flex items-center gap-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                            生成报告
+                        </span>
+                    </button>
+                    <button onclick="window.print()" class="px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition">
+                        <span class="inline-flex items-center gap-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                            导出PDF
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 no-print">
+        <div class="p-4 border-b border-gray-100 flex items-center justify-between no-print">
+            <div class="flex items-center space-x-3">
+                <input type="text" placeholder="搜索地块编号/名称..." class="px-4 py-2 border border-gray-300 rounded-lg text-sm w-56">
+                <select class="px-4 py-2 border border-gray-300 rounded-lg text-sm">
+                    <option>全部地块</option>
+                    <option>NF-001</option>
+                    <option>NF-002</option>
+                </select>
+            </div>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="bg-gray-50">
+                        <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">地块编号</th>
+                        <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">地块名称</th>
+                        <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">评价日期</th>
+                        <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">综合分</th>
+                        <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">等级</th>
+                        <th class="text-center px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">操作</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100" id="history-tbody"></tbody>
+            </table>
+        </div>
+        <div class="p-4 border-t border-gray-100 flex items-center justify-between no-print">
+            <p class="text-sm text-gray-500">共 8 条记录</p>
+            <div class="flex items-center space-x-2">
+                <button class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50">上一页</button>
+                <span class="text-sm text-gray-600">1 / 1</span>
+                <button class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50">下一页</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const historyData = [
+    { id: 'NF-001', name: '东坡A-03地块', date: '2026-08-04', score: 78, grade: '良好', gradeColor: 'bg-green-100 text-green-700' },
+    { id: 'NF-001', name: '东坡A-03地块', date: '2026-07-15', score: 81, grade: '良好', gradeColor: 'bg-green-100 text-green-700' },
+    { id: 'NF-001', name: '东坡A-03地块', date: '2026-06-20', score: 83, grade: '良好', gradeColor: 'bg-green-100 text-green-700' },
+    { id: 'NF-002', name: '东坡A-05地块', date: '2026-08-04', score: 86, grade: '优秀', gradeColor: 'bg-blue-100 text-blue-700' },
+    { id: 'NF-002', name: '东坡A-05地块', date: '2026-07-15', score: 85, grade: '优秀', gradeColor: 'bg-blue-100 text-blue-700' },
+    { id: 'NF-003', name: '南塘B-01地块', date: '2026-08-04', score: 72, grade: '一般', gradeColor: 'bg-yellow-100 text-yellow-700' },
+    { id: 'NF-003', name: '南塘B-01地块', date: '2026-07-15', score: 75, grade: '良好', gradeColor: 'bg-green-100 text-green-700' },
+    { id: 'NF-004', name: '南塘B-07地块', date: '2026-08-04', score: 65, grade: '需改进', gradeColor: 'bg-orange-100 text-orange-700' },
+];
+
+function renderHistory() {
+    const tbody = document.getElementById('history-tbody');
+    tbody.innerHTML = historyData.map((item, idx) => `
+        <tr class="hover:bg-gray-50">
+            <td class="px-4 py-3 text-gray-800 font-medium">${item.id}</td>
+            <td class="px-4 py-3 text-gray-700">${item.name}</td>
+            <td class="px-4 py-3 text-gray-700">${item.date}</td>
+            <td class="px-4 py-3 font-semibold ${item.score >= 85 ? 'text-green-600' : item.score >= 75 ? 'text-blue-600' : item.score >= 60 ? 'text-yellow-600' : 'text-red-600'}">${item.score}</td>
+            <td class="px-4 py-3"><span class="inline-block px-2 py-0.5 rounded text-xs ${item.gradeColor}">${item.grade}</span></td>
+            <td class="px-4 py-3 text-center">
+                <button onclick="viewHistory(${idx})" class="text-blue-600 hover:text-blue-800 text-xs mr-3">查看</button>
+                <button onclick="deleteHistory(${idx})" class="text-red-500 hover:text-red-700 text-xs">删除</button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function viewHistory(idx) {
+    const item = historyData[idx];
+    if (!item) return;
+    window.location.href = 'report_detail.html?plot=' + item.id + '&date=' + item.date;
+}
+
+function openReportDetail() {
+    const plotId = document.querySelector('select').value.split(' ')[0];
+    const date = document.querySelector('input[type="date"]').value;
+    window.location.href = 'report_detail.html?plot=' + plotId + '&date=' + date;
+}
+
+function deleteHistory(idx) {
+    if (confirm('确定要删除该报告吗？此操作不可恢复。')) {
+        historyData.splice(idx, 1);
+        renderHistory();
+    }
+}
+
+renderHistory();
+</script>
+</body>
+</html>

@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>风险诊断 - 南丰蜜桔模型管理系统</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+@keyframes modalSlideIn {
+    from { opacity: 0; transform: translateY(-20px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.modal-overlay.active .modal-content { animation: modalSlideIn 0.3s ease; }
+body { margin: 0; padding: 0; background-color: #F0F2F5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans SC', sans-serif; }
+.content-wrapper { padding: 24px; height: 100vh; overflow-y: auto; }
+.modal-overlay { display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center }
+.modal-content { background:#fff;border-radius:12px;width:90%;max-width:600px;max-height:85vh;overflow-y:auto }
+.tab-active{color:#16a34a;border-bottom:2px solid #16a34a;font-weight:600}
+.tab-inactive{color:#6b7280;border-bottom:2px solid transparent}
+.tab-inactive:hover{color:#374151}
+.text-green{color:#16a34a} .text-blue{color:#2563eb} .text-red{color:#dc2626} .text-yellow{color:#d97706} .text-purple{color:#7c3aed}
+.form-input{width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box;outline:none}
+.form-input:focus{border-color:#16a34a;box-shadow:0 0 0 2px rgba(22,163,74,0.1)}
+#toast{display:none;position:fixed;top:24px;left:50%;transform:translateX(-50%);background:#16a34a;color:#fff;padding:10px 20px;border-radius:8px;font-size:14px;z-index:100000;box-shadow:0 4px 12px rgba(0,0,0,0.15)}
+</style>
+</head>
+<body>
+<div class="content-wrapper">
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+    <div>
+      <h1 class="text-xl font-bold text-gray-800">风险诊断</h1>
+      <p class="text-gray-500 text-sm mt-1">病虫害预测模型 · 风险因子归因 / 耦合贡献 / 空间传播分析</p>
+    </div>
+    <div class="flex items-center gap-3">
+      <select id="pest-select" class="form-input" style="width:auto;min-width:150px" onchange="setPest()">
+        <option>红蜘蛛</option><option>黄龙病</option><option>炭疽病</option><option>潜叶蛾</option><option>溃疡病</option><option>疮痂病</option>
+      </select>
+      <select id="town-select" class="form-input" style="width:auto;min-width:120px" onchange="setTown()">
+        <option selected>全部乡镇</option><option>琴城镇</option><option>市山镇</option><option>洽湾镇</option><option>太和镇</option><option>桑田镇</option><option>白舍镇</option><option>紫霄镇</option><option>三溪乡</option><option>傅坊乡</option><option>太源乡</option><option>莱溪乡</option><option>东坪乡</option>
+      </select>
+      <button id="run-btn" onclick="runAnalysis()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium flex items-center">
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>执行分析
+      </button>
+    </div>
+  </div>
+
+  <!-- Overview Stats -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+      <p class="text-xs text-gray-500 mb-2">综合风险指数</p><div id="stat-risk"></div>
+    </div>
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+      <p class="text-xs text-gray-500 mb-2">主要风险因子数</p><div id="stat-main"></div>
+    </div>
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+      <p class="text-xs text-gray-500 mb-2">有效耦合组合</p><div id="stat-coup"></div>
+    </div>
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+      <p class="text-xs text-gray-500 mb-2">传播来源乡镇</p><div id="stat-src"></div>
+    </div>
+  </div>
+
+  <!-- Tab Bar -->
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 mb-6">
+    <div class="border-b border-gray-100 flex items-center px-6 overflow-x-auto">
+      <div class="tab-item px-4 py-4 cursor-pointer text-sm mr-6 tab-active whitespace-nowrap" data-tab="factor" onclick="switchTab('factor')">因子归因</div>
+      <div class="tab-item px-4 py-4 cursor-pointer text-sm mr-6 tab-inactive whitespace-nowrap" data-tab="couple" onclick="switchTab('couple')">耦合分析</div>
+      <div class="tab-item px-4 py-4 cursor-pointer text-sm mr-6 tab-inactive whitespace-nowrap" data-tab="spread" onclick="switchTab('spread')">传播追踪</div>
+    </div>
+  </div>
+
+  <!-- ===== Tab 1: 因子归因 ===== -->
+  <div id="tab-factor" class="tab-content">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden lg:col-span-2">
+        <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+          <h3 class="text-sm font-semibold text-gray-700">主要风险因子排名</h3>
+          <span class="text-xs text-gray-400">按贡献度降序，权重合计 1.0</span>
+        </div>
+        <div class="overflow-x-auto"><table class="w-full text-sm">
+          <thead><tr class="bg-gray-50">
+            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 whitespace-nowrap">排名</th>
+            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 whitespace-nowrap">风险因子</th>
+            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 whitespace-nowrap">适宜度</th>
+            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 whitespace-nowrap">权重(w)</th>
+            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 whitespace-nowrap">贡献度</th>
+            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 whitespace-nowrap">影响等级</th>
+          </tr></thead><tbody id="factor-tbody"></tbody>
+        </table></div>
+      </div>
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+        <h3 class="text-sm font-semibold text-gray-700 mb-3">因子贡献度分布</h3>
+        <div style="height:280px"><canvas id="bar-chart"></canvas></div>
+      </div>
+    </div>
+
+    <!-- 4c 历史累积影响分析 -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+        <h3 class="text-sm font-semibold text-gray-700">历史累积影响分析</h3>
+        <span class="text-xs text-gray-400">按时间衰减系数 a 加权累积历史耦合结果</span>
+      </div>
+      <div class="p-5 grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+        <div class="grid grid-cols-3 gap-3">
+          <div><p class="text-xs text-gray-500 mb-1">历史累积指数</p><p id="hist-acc" class="text-xl font-bold text-gray-800"></p></div>
+          <div><p class="text-xs text-gray-500 mb-1">时间窗口</p><p id="hist-win" class="text-xl font-bold text-gray-800"></p></div>
+          <div><p class="text-xs text-gray-500 mb-1">近期趋势</p><p id="hist-trend" class="mt-1.5"></p></div>
+        </div>
+        <p id="hist-desc" class="text-sm text-gray-600 md:col-span-2 leading-relaxed"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Tab 2: 耦合分析 ===== -->
+  <div id="tab-couple" class="tab-content" style="display:none">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden lg:col-span-2">
+        <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+          <h3 class="text-sm font-semibold text-gray-700">耦合贡献分析</h3>
+          <span class="text-xs text-gray-400">β 两因子耦合 / γ 三因子耦合</span>
+        </div>
+        <div class="overflow-x-auto"><table class="w-full text-sm">
+          <thead><tr class="bg-gray-50">
+            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 whitespace-nowrap">耦合类型</th>
+            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 whitespace-nowrap">耦合组合</th>
+            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 whitespace-nowrap">耦合系数(β/γ)</th>
+            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 whitespace-nowrap">当前耦合值</th>
+            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 whitespace-nowrap">贡献度</th>
+            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 whitespace-nowrap">作用方向</th>
+          </tr></thead><tbody id="coup-tbody"></tbody>
+        </table></div>
+      </div>
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+        <h3 class="text-sm font-semibold text-gray-700 mb-3">耦合贡献分布</h3>
+        <div style="height:280px"><canvas id="dough-chart"></canvas></div>
+      </div>
+    </div>
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div class="px-4 py-3 border-b border-gray-100"><h3 class="text-sm font-semibold text-gray-700">耦合解读</h3></div>
+      <div class="p-5"><p id="coup-text" class="text-sm text-gray-600 leading-relaxed"></p></div>
+    </div>
+  </div>
+
+  <!-- ===== Tab 3: 传播追踪 ===== -->
+  <div id="tab-spread" class="tab-content" style="display:none">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-4">
+      <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+        <h3 class="text-sm font-semibold text-gray-700">空间传播来源追踪</h3>
+        <span class="text-xs text-gray-400">受夏季东南季风主导</span>
+      </div>
+      <div class="overflow-x-auto"><table class="w-full text-sm">
+        <thead><tr class="bg-gray-50">
+          <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 whitespace-nowrap">目标乡镇</th>
+          <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 whitespace-nowrap">来源乡镇</th>
+          <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 whitespace-nowrap">距离(km)</th>
+          <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 whitespace-nowrap">主导风向</th>
+          <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 whitespace-nowrap">传播压力</th>
+          <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 whitespace-nowrap">风险等级</th>
+        </tr></thead><tbody id="spread-tbody"></tbody>
+      </table></div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-4">
+      <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+        <h3 class="text-sm font-semibold text-gray-700">乡镇风险等级列表</h3>
+        <span class="text-xs text-gray-400">共 12 个乡镇 · 点击行查看风险详情</span>
+      </div>
+      <div class="overflow-x-auto"><table class="w-full text-sm">
+        <thead><tr class="bg-gray-50">
+          <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 whitespace-nowrap">乡镇</th>
+          <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 whitespace-nowrap">综合风险</th>
+          <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 whitespace-nowrap">风险等级</th>
+          <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 whitespace-nowrap">主要风险因子</th>
+          <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 whitespace-nowrap">建议</th>
+        </tr></thead><tbody id="town-tbody"></tbody>
+      </table></div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div class="px-4 py-3 border-b border-gray-100"><h3 class="text-sm font-semibold text-gray-700">传播压力示意图说明</h3></div>
+      <div class="p-5">
+        <div class="bg-green-50 border border-green-100 rounded-lg px-4 py-3 mb-4">
+          <p class="text-sm font-mono text-green">P<sub>ij</sub> = α · I<sub>j</sub> · e<sup>−β·d<sub>ij</sub></sup> · cos(θ)</p>
+        </div>
+        <p id="spread-note" class="text-sm text-gray-600 leading-relaxed"></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 乡镇风险详情模态框 -->
+<div id="town-modal" class="modal-overlay">
+  <div class="modal-content">
+    <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+      <h3 id="town-modal-title" style="font-size:18px;font-weight:600;color:#1f2937">乡镇风险详情</h3>
+      <button onclick="hideModal()" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px;color:#9ca3af">&times;</button>
+    </div>
+    <div id="town-modal-body" style="padding:20px"></div>
+    <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end">
+      <button onclick="hideModal()" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">关闭</button>
+    </div>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script>
+var PESTS=['红蜘蛛','黄龙病','炭疽病','潜叶蛾','溃疡病','疮痂病'];
+var WIND='东南风';
+var RL={'低':'bg-green-100 text-green-600','中':'bg-yellow-100 text-yellow-600','高':'bg-orange-100 text-orange-600','极高':'bg-red-100 text-red-600'};
+var LV={'低':'bg-green-100 text-green-600','中':'bg-yellow-100 text-yellow-600','高':'bg-orange-100 text-orange-600'};
+var TRD={'上升':'bg-red-100 text-red-600','平稳':'bg-blue-100 text-blue-600','下降':'bg-green-100 text-green-600'};
+var ADV={'极高':'立即组织统防统治，加密监测频次，必要时连片施药','高':'加强巡查监测，尽快安排防治作业，防止向外扩散','中':'关注天气变化，做好预防性防治与物资储备','低':'保持常规监测，维持果园清洁与通风管理'};
+var CH_COLORS=['#16a34a','#2563eb','#d97706','#7c3aed','#dc2626'];
+var barChart=null,doughChart=null,curPest='红蜘蛛';
+
+/* ============ Mock 数据 ============ */
+var F={
+'红蜘蛛':[{f:'温度',fit:.85,w:.25,c:32,l:'高'},{f:'湿度',fit:.78,w:.20,c:27,l:'高'},{f:'叶面湿润',fit:.65,w:.15,c:15,l:'中'},{f:'降雨',fit:.40,w:.20,c:11,l:'低'},{f:'虫口基数',fit:.60,w:.12,c:9,l:'中'},{f:'风速',fit:.35,w:.08,c:6,l:'低'}],
+'黄龙病':[{f:'木虱密度',fit:.90,w:.35,c:40,l:'高'},{f:'嫩梢物候',fit:.75,w:.25,c:24,l:'高'},{f:'温度',fit:.70,w:.20,c:18,l:'中'},{f:'虫源基数',fit:.55,w:.10,c:8,l:'中'},{f:'降雨',fit:.35,w:.06,c:6,l:'低'},{f:'风速',fit:.45,w:.04,c:4,l:'低'}],
+'炭疽病':[{f:'湿度',fit:.88,w:.30,c:34,l:'高'},{f:'温度',fit:.72,w:.22,c:22,l:'高'},{f:'降雨',fit:.60,w:.18,c:16,l:'中'},{f:'叶面湿润',fit:.55,w:.14,c:12,l:'中'},{f:'菌源量',fit:.50,w:.10,c:10,l:'中'},{f:'风速',fit:.35,w:.06,c:6,l:'低'}],
+'潜叶蛾':[{f:'嫩梢比例',fit:.82,w:.32,c:38,l:'高'},{f:'温度',fit:.70,w:.22,c:24,l:'高'},{f:'虫口基数',fit:.65,w:.20,c:18,l:'中'},{f:'湿度',fit:.50,w:.12,c:10,l:'中'},{f:'降雨',fit:.40,w:.08,c:6,l:'低'},{f:'风速',fit:.30,w:.06,c:4,l:'低'}],
+'溃疡病':[{f:'降雨',fit:.85,w:.28,c:32,l:'高'},{f:'风速',fit:.78,w:.22,c:23,l:'高'},{f:'湿度',fit:.70,w:.20,c:19,l:'中'},{f:'温度',fit:.60,w:.16,c:13,l:'中'},{f:'叶面湿润',fit:.50,w:.08,c:8,l:'中'},{f:'菌源量',fit:.40,w:.06,c:5,l:'低'}],
+'疮痂病':[{f:'湿度',fit:.86,w:.28,c:33,l:'高'},{f:'幼果期',fit:.78,w:.24,c:24,l:'高'},{f:'温度',fit:.65,w:.18,c:17,l:'中'},{f:'降雨',fit:.55,w:.12,c:11,l:'中'},{f:'菌源量',fit:.45,w:.10,c:9,l:'中'},{f:'风速',fit:.30,w:.08,c:6,l:'低'}]
+};
+var C={
+'红蜘蛛':[{t:'两因子耦合 β',c:'温度 × 湿度',k:.25,v:.62,ct:18,d:'增强'},{t:'三因子耦合 γ',c:'温度 × 湿度 × 降雨',k:.30,v:.45,ct:12,d:'增强'},{t:'两因子耦合 β',c:'温度 × 叶面湿润',k:.15,v:.38,ct:9,d:'增强'},{t:'三因子耦合 γ',c:'温度 × 叶面湿润 × 虫口',k:.20,v:.31,ct:8,d:'增强'},{t:'两因子耦合 β',c:'降雨 × 湿度',k:.10,v:.22,ct:5,d:'抑制'}],
+'黄龙病':[{t:'两因子耦合 β',c:'木虱密度 × 嫩梢',k:.35,v:.70,ct:22,d:'增强'},{t:'三因子耦合 γ',c:'木虱 × 嫩梢 × 温度',k:.28,v:.52,ct:14,d:'增强'},{t:'两因子耦合 β',c:'木虱密度 × 温度',k:.18,v:.45,ct:10,d:'增强'},{t:'三因子耦合 γ',c:'木虱 × 虫源 × 湿度',k:.20,v:.33,ct:7,d:'增强'},{t:'两因子耦合 β',c:'温度 × 降雨',k:.08,v:.18,ct:3,d:'抑制'}],
+'炭疽病':[{t:'两因子耦合 β',c:'湿度 × 温度',k:.20,v:.58,ct:16,d:'增强'},{t:'三因子耦合 γ',c:'温度 × 湿度 × 降雨',k:.30,v:.48,ct:13,d:'增强'},{t:'两因子耦合 β',c:'降雨 × 叶面湿润',k:.15,v:.36,ct:9,d:'增强'},{t:'三因子耦合 γ',c:'湿度 × 菌源 × 温度',k:.18,v:.28,ct:6,d:'增强'},{t:'两因子耦合 β',c:'温度 × 风速',k:.06,v:.15,ct:2,d:'抑制'}],
+'潜叶蛾':[{t:'两因子耦合 β',c:'嫩梢比例 × 虫口基数',k:.30,v:.60,ct:20,d:'增强'},{t:'两因子耦合 β',c:'温度 × 嫩梢比例',k:.18,v:.44,ct:12,d:'增强'},{t:'三因子耦合 γ',c:'嫩梢 × 温度 × 湿度',k:.22,v:.35,ct:9,d:'增强'},{t:'三因子耦合 γ',c:'虫口 × 嫩梢 × 降雨',k:.15,v:.24,ct:5,d:'增强'},{t:'两因子耦合 β',c:'降雨 × 湿度',k:.05,v:.12,ct:2,d:'抑制'}],
+'溃疡病':[{t:'两因子耦合 β',c:'降雨 × 风速',k:.28,v:.66,ct:21,d:'增强'},{t:'三因子耦合 γ',c:'降雨 × 风速 × 湿度',k:.25,v:.50,ct:14,d:'增强'},{t:'两因子耦合 β',c:'温度 × 湿度',k:.16,v:.40,ct:10,d:'增强'},{t:'两因子耦合 β',c:'降雨 × 叶面湿润',k:.12,v:.30,ct:7,d:'增强'},{t:'三因子耦合 γ',c:'菌源 × 降雨 × 温度',k:.14,v:.20,ct:4,d:'抑制'}],
+'疮痂病':[{t:'两因子耦合 β',c:'湿度 × 幼果期',k:.25,v:.60,ct:19,d:'增强'},{t:'三因子耦合 γ',c:'温度 × 湿度 × 幼果期',k:.28,v:.46,ct:13,d:'增强'},{t:'两因子耦合 β',c:'温度 × 湿度',k:.15,v:.38,ct:9,d:'增强'},{t:'两因子耦合 β',c:'降雨 × 湿度',k:.10,v:.26,ct:5,d:'增强'},{t:'三因子耦合 γ',c:'菌源 × 湿度 × 温度',k:.12,v:.18,ct:3,d:'抑制'}]
+};
+var S={ /* [目标乡镇, 来源乡镇, 距离km, 传播压力, 风险等级] */
+'红蜘蛛':[['桑田镇','琴城镇',12,.68,'高'],['太和镇','市山镇',9,.72,'高'],['三溪乡','琴城镇',15,.55,'中'],['洽湾镇','琴城镇',8,.48,'中'],['白舍镇','太和镇',14,.35,'低'],['东坪乡','莱溪乡',11,.30,'低']],
+'黄龙病':[['市山镇','太和镇',16,.78,'高'],['琴城镇','太和镇',20,.66,'高'],['洽湾镇','琴城镇',8,.60,'中'],['桑田镇','市山镇',10,.52,'中'],['白舍镇','太和镇',14,.42,'中'],['紫霄镇','白舍镇',18,.30,'低']],
+'炭疽病':[['白舍镇','市山镇',13,.65,'高'],['洽湾镇','桑田镇',12,.58,'中'],['紫霄镇','白舍镇',18,.50,'中'],['莱溪乡','洽湾镇',10,.44,'中'],['东坪乡','太源乡',9,.35,'低'],['傅坊乡','太源乡',16,.28,'低']],
+'潜叶蛾':[['洽湾镇','琴城镇',8,.60,'中'],['桑田镇','琴城镇',12,.55,'中'],['太和镇','市山镇',9,.50,'中'],['三溪乡','桑田镇',11,.42,'低'],['白舍镇','紫霄镇',15,.32,'低'],['东坪乡','莱溪乡',11,.26,'低']],
+'溃疡病':[['太和镇','市山镇',9,.75,'高'],['白舍镇','太和镇',14,.68,'高'],['琴城镇','市山镇',12,.60,'中'],['桑田镇','琴城镇',12,.52,'中'],['傅坊乡','太源乡',16,.38,'低'],['东坪乡','莱溪乡',11,.30,'低']],
+'疮痂病':[['洽湾镇','琴城镇',8,.62,'中'],['三溪乡','桑田镇',11,.56,'中'],['紫霄镇','白舍镇',18,.48,'中'],['莱溪乡','洽湾镇',10,.42,'低'],['傅坊乡','太源乡',16,.34,'低'],['东坪乡','太源乡',13,.28,'低']]
+};
+var TOWN_RISK=[['太和镇',.91,'极高'],['市山镇',.88,'极高'],['琴城镇',.82,'高'],['桑田镇',.78,'高'],['三溪乡',.70,'中'],['莱溪乡',.66,'中'],['洽湾镇',.62,'中'],['白舍镇',.55,'中'],['紫霄镇',.42,'低'],['傅坊乡',.35,'低'],['太源乡',.30,'低'],['东坪乡',.28,'低']];
+var META={
+'红蜘蛛':{risk:.72,lvl:'高',main:3,acc:.68,win:14,trend:'上升',h:'近14天持续高温干旱，日平均气温30.2℃、湿度低于60%，历史累积指数由0.52升至0.68，螨量呈加速上升趋势。',tx:'当前以 <b class="text-green">温度 × 湿度</b> 两因子耦合为主导（贡献18%），高温低湿相互叠加显著放大螨类发育与繁殖风险；三因子耦合 温度×湿度×降雨 在降雨后闷热天气下呈增强态势，需警惕雨后虫口激增。'},
+'黄龙病':{risk:.81,lvl:'极高',main:3,acc:.74,win:30,trend:'上升',h:'近30天木虱监测密度持续偏高，夏梢抽发期与木虱高峰叠加，历史同期偏重，传播扩散压力进一步加大。',tx:'<b class="text-green">木虱密度 × 嫩梢</b> 耦合贡献最高（22%），木虱数量与嫩梢抽发期高度同步，是决定传毒扩散的关键；建议在夏梢抽发期集中防控木虱，切断传播链。'},
+'炭疽病':{risk:.65,lvl:'高',main:2,acc:.61,win:21,trend:'平稳',h:'近21天降雨偏多、田间湿度维持高位，孢子萌发条件充足，历史累积指数小幅上升后趋于平稳。',tx:'<b class="text-green">湿度 × 温度</b> 耦合贡献领先（16%），高温高湿协同促进菌丝生长与产孢；近期降雨频繁使三因子耦合 温度×湿度×降雨 保持活跃，果园通风降湿是防控重点。'},
+'潜叶蛾':{risk:.58,lvl:'中',main:2,acc:.52,win:7,trend:'下降',h:'近7天新梢抽发量明显下降，虫口基数同步回落，历史累积指数缓慢走低，整体风险趋于缓解。',tx:'<b class="text-green">嫩梢比例 × 虫口基数</b> 耦合贡献最大（20%），新梢抽发与虫源基数同高时危害显著；当前虫源基数回落，耦合贡献随之收窄，总体处于可控区间。'},
+'溃疡病':{risk:.74,lvl:'高',main:3,acc:.66,win:14,trend:'上升',h:'近14天受台风外围影响出现强降雨和大风天气，叶片伤口增多，历史累积指数明显抬升。',tx:'<b class="text-green">降雨 × 风速</b> 耦合贡献领先（21%），台风暴雨造成伤口并借风远距离传播，是溃疡病暴发的主要耦合机制；未来需重点关注强对流天气过程。'},
+'疮痂病':{risk:.61,lvl:'中',main:2,acc:.57,win:21,trend:'平稳',h:'近21天多雨高湿，正值幼果感病期，历史累积指数平稳略升，需持续关注幼果侵染窗口。',tx:'<b class="text-green">湿度 × 幼果期</b> 耦合主导（19%），多雨高湿叠加幼果感病期使侵染风险集中；建议雨后及时补喷保护性药剂，压低病源基数。'}
+};
+
+/* ============ 渲染 ============ */
+function th(l){return '<th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 whitespace-nowrap">'+l+'</th>';}
+function td(c,v){return '<td class="px-4 py-3 '+c+'">'+v+'</td>';}
+function badge(t,c){return '<span class="px-2 py-0.5 rounded-full text-xs font-medium '+c+'">'+t+'</span>';}
+function showToast(m){var t=document.getElementById('toast');t.textContent=m;t.style.display='block';setTimeout(function(){t.style.display='none';},2000);}
+function showModal(){var m=document.getElementById('town-modal');m.style.display='flex';m.classList.add('active');}
+function hideModal(){var m=document.getElementById('town-modal');m.style.display='none';m.classList.remove('active');}
+
+function renderStats(){
+  var m=META[curPest],srcs={};
+  S[curPest].forEach(function(r){srcs[r[1]]=1;});
+  document.getElementById('stat-risk').innerHTML='<span class="text-2xl font-bold text-gray-800">'+m.risk.toFixed(2)+'</span> '+badge(m.lvl,RL[m.lvl]);
+  document.getElementById('stat-main').innerHTML='<span class="text-2xl font-bold text-gray-800">'+m.main+'</span> <span class="text-xs text-gray-400">个</span>';
+  document.getElementById('stat-coup').innerHTML='<span class="text-2xl font-bold text-gray-800">'+C[curPest].length+'</span> <span class="text-xs text-gray-400">组</span>';
+  document.getElementById('stat-src').innerHTML='<span class="text-2xl font-bold text-gray-800">'+Object.keys(srcs).length+'</span> <span class="text-xs text-gray-400">个</span>';
+}
+function renderFactors(){
+  var arr=F[curPest].slice().sort(function(a,b){return b.c-a.c;}),h='';
+  arr.forEach(function(x,i){
+    h+='<tr class="border-b border-gray-100 hover:bg-gray-50">'+td('text-gray-400',i+1)+td('font-medium text-gray-800',x.f)+td('text-gray-700',x.fit.toFixed(2))+td('text-gray-700',x.w.toFixed(2))+td('font-medium text-blue',x.c+'%')+td('',badge(x.l,LV[x.l]))+'</tr>';
+  });
+  document.getElementById('factor-tbody').innerHTML=h;
+}
+function renderBar(){
+  var p=curPest,arr=F[p].slice().sort(function(a,b){return b.c-a.c;}),cols={'高':'#dc2626','中':'#f59e0b','低':'#22c55e'};
+  if(barChart)barChart.destroy();
+  barChart=new Chart(document.getElementById('bar-chart'),{
+    type:'bar',
+    data:{labels:arr.map(function(x){return x.f;}),datasets:[{data:arr.map(function(x){return x.c;}),backgroundColor:arr.map(function(x){return cols[x.l];}),borderRadius:4}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,scales:{x:{beginAtZero:true,max:40,ticks:{callback:function(v){return v+'%';}}},y:{ticks:{font:{size:11}}}},plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return ' 贡献度 '+c.parsed.x+'%';}}}}}
+  });
+}
+function renderHist(){
+  var m=META[curPest];
+  document.getElementById('hist-acc').textContent=m.acc.toFixed(2);
+  document.getElementById('hist-win').textContent=m.win+'天';
+  document.getElementById('hist-trend').innerHTML=badge(m.trend,TRD[m.trend]);
+  document.getElementById('hist-desc').textContent=m.h;
+}
+function renderCouplings(){
+  var arr=C[curPest],h='';
+  arr.forEach(function(x){
+    var tc=x.t.indexOf('β')>-1?'text-blue':'text-purple',dc=x.d==='增强'?'text-green':'text-blue';
+    h+='<tr class="border-b border-gray-100 hover:bg-gray-50">'+td('text-gray-600',x.t)+td('font-medium text-gray-800',x.c)+td(tc+' font-medium',x.k.toFixed(2))+td('text-gray-700',x.v.toFixed(2))+td('font-medium text-blue',x.ct+'%')+td(dc,x.d)+'</tr>';
+  });
+  document.getElementById('coup-tbody').innerHTML=h;
+}
+function renderDough(){
+  var arr=C[curPest];
+  if(doughChart)doughChart.destroy();
+  doughChart=new Chart(document.getElementById('dough-chart'),{
+    type:'doughnut',
+    data:{labels:arr.map(function(x){return x.c;}),datasets:[{data:arr.map(function(x){return x.ct;}),backgroundColor:CH_COLORS.slice(0,arr.length),borderWidth:2,borderColor:'#fff'}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:12,font:{size:11}}},tooltip:{callbacks:{label:function(c){return ' '+c.label+'：'+c.parsed+'%';}}}}}
+  });
+}
+function renderCoupText(){ document.getElementById('coup-text').innerHTML=META[curPest].tx; }
+function renderSpread(){
+  var tw=document.getElementById('town-select').value;
+  var rows=S[curPest].filter(function(r){return tw==='全部乡镇'||r[0]===tw||r[1]===tw;}),h='';
+  rows.forEach(function(r){
+    h+='<tr class="border-b border-gray-100 hover:bg-gray-50">'+td('font-medium text-gray-800',r[0])+td('text-green',r[1])+td('text-gray-700',r[2]+' km')+td('text-gray-700',WIND)+td('font-medium text-blue',r[3].toFixed(2))+td('',badge(r[4],RL[r[4]]))+'</tr>';
+  });
+  document.getElementById('spread-tbody').innerHTML=h||'<tr><td colspan="6" class="text-center py-8 text-gray-400">该乡镇暂无传播追踪记录</td></tr>';
+}
+function renderTownship(){
+  var tw=document.getElementById('town-select').value;
+  var top=F[curPest][0].f+'、'+F[curPest][1].f;
+  var rows=TOWN_RISK.filter(function(t){return tw==='全部乡镇'||t[0]===tw;}),h='';
+  rows.forEach(function(t){
+    h+='<tr class="border-b border-gray-100 hover:bg-gray-50 cursor-pointer" onclick="openTown(\''+t[0]+'\')">'+td('font-medium text-gray-800',t[0])+td('text-gray-700',t[1].toFixed(2))+td('',badge(t[2],RL[t[2]]))+td('text-gray-700',top)+td('text-gray-500 text-xs',ADV[t[2]])+'</tr>';
+  });
+  document.getElementById('town-tbody').innerHTML=h;
+}
+function renderNote(){
+  var p=curPest,cnt={};
+  S[p].forEach(function(r){cnt[r[1]]=(cnt[r[1]]||0)+r[3];});
+  var tops=Object.keys(cnt).sort(function(a,b){return cnt[b]-cnt[a];}).slice(0,2).join('、');
+  document.getElementById('spread-note').innerHTML='根据乡镇邻接关系、距离、主导风向和监测值计算空间传播压力：相邻乡镇处于高风险状态（源强度 I<sub>j</sub> 大）、距离较近且位于主导风向（东南风）下风向时，传播压力显著增强。当前 <b class="text-green">'+tops+'</b> 为县域主要传播来源乡镇，受夏季东南季风影响，处于其下风向且距离较近的乡镇传入压力明显升高，需结合邻接关系提前布防。';
+}
+function renderAll(){ renderStats();renderFactors();renderBar();renderHist();renderCouplings();renderDough();renderCoupText();renderSpread();renderTownship();renderNote(); }
+
+/* ============ 交互 ============ */
+function switchTab(tab){
+  document.querySelectorAll('.tab-item').forEach(function(el){
+    el.className='tab-item px-4 py-4 cursor-pointer text-sm mr-6 whitespace-nowrap '+(el.getAttribute('data-tab')===tab?'tab-active':'tab-inactive');
+  });
+  ['factor','couple','spread'].forEach(function(t){document.getElementById('tab-'+t).style.display=t===tab?'':'none';});
+  setTimeout(function(){if(tab==='factor'&&barChart)barChart.resize();if(tab==='couple'&&doughChart)doughChart.resize();},60);
+}
+function setPest(){ curPest=document.getElementById('pest-select').value; renderAll(); }
+function setTown(){ renderSpread(); renderTownship(); }
+function runAnalysis(){
+  var b=document.getElementById('run-btn'),o=b.innerHTML;
+  b.disabled=true;b.innerHTML='<svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>分析中…';
+  setTimeout(function(){ b.disabled=false;b.innerHTML=o;renderAll();showToast('分析完成：'+curPest); },700);
+}
+function openTown(t){
+  var row=null;TOWN_RISK.forEach(function(x){if(x[0]===t)row=x;});
+  var m=META[curPest],top=F[curPest][0].f+'、'+F[curPest][1].f;
+  var sp=S[curPest].filter(function(r){return r[0]===t;});
+  var spH=sp.length?sp.map(function(r){
+    return '<div class="flex items-center justify-between py-1.5 border-b border-gray-50 text-sm"><span class="text-gray-700">'+r[1]+'</span><span class="text-gray-400 text-xs">'+r[2]+'km · '+WIND+' · 压力 '+r[3].toFixed(2)+'</span>'+badge(r[4],RL[r[4]])+'</div>';
+  }).join(''):'<p class="text-sm text-gray-400 py-2">无直接传播来源记录</p>';
+  document.getElementById('town-modal-title').textContent=t+' · 风险详情';
+  document.getElementById('town-modal-body').innerHTML=
+    '<div class="grid grid-cols-2 gap-4 mb-4">'
+    +'<div><p class="text-xs text-gray-400 mb-1">综合风险</p><p class="text-lg font-bold text-gray-800">'+row[1].toFixed(2)+'</p></div>'
+    +'<div><p class="text-xs text-gray-400 mb-1">风险等级</p>'+badge(row[2],RL[row[2]])+'</div>'
+    +'<div><p class="text-xs text-gray-400 mb-1">主要风险因子</p><p class="text-sm font-medium text-gray-800">'+top+'</p></div>'
+    +'<div><p class="text-xs text-gray-400 mb-1">全县综合风险指数</p><p class="text-sm font-medium text-gray-800">'+m.risk.toFixed(2)+'（'+m.lvl+'）</p></div>'
+    +'</div>'
+    +'<div class="bg-gray-50 rounded-lg p-3 mb-4"><p class="text-xs font-semibold text-gray-500 mb-1">防控建议</p><p class="text-sm text-gray-700">'+ADV[row[2]]+'</p></div>'
+    +'<p class="text-xs font-semibold text-gray-500 mb-2">传播来源（目标乡镇：'+t+'）</p>'+spH;
+  showModal();
+}
+document.addEventListener('click',function(e){var m=document.getElementById('town-modal');if(m.style.display==='flex'&&e.target===m)hideModal();});
+window.onload=function(){ renderAll(); };
+</script>
+</body>
+</html>

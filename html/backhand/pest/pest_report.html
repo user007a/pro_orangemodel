@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>预测报告 - 南丰蜜桔模型管理系统</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+@keyframes modalSlideIn {
+    from { opacity: 0; transform: translateY(-20px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.modal-overlay.active .modal-content { animation: modalSlideIn 0.3s ease; }
+body { margin: 0; padding: 0; background-color: #F0F2F5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans SC', sans-serif; }
+.content-wrapper { padding: 24px; height: 100vh; overflow-y: auto; }
+.modal-overlay { display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center }
+.modal-content { background:#fff;border-radius:12px;width:90%;max-width:600px;max-height:85vh;overflow-y:auto }
+.tab-active{color:#16a34a;border-bottom:2px solid #16a34a;font-weight:600}
+.tab-inactive{color:#6b7280;border-bottom:2px solid transparent}
+.tab-inactive:hover{color:#374151}
+.text-green{color:#16a34a} .text-blue{color:#2563eb} .text-red{color:#dc2626} .text-yellow{color:#d97706} .text-orange{color:#ea580c} .text-purple{color:#7c3aed}
+#toast{display:none;position:fixed;top:24px;left:50%;transform:translateX(-50%);background:#16a34a;color:#fff;padding:10px 20px;border-radius:8px;font-size:14px;z-index:100000;box-shadow:0 4px 12px rgba(0,0,0,0.15)}
+</style>
+</head>
+<body>
+<div class="content-wrapper">
+  <!-- 1. Header -->
+  <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+    <div>
+      <h1 class="text-xl font-bold text-gray-800">预测报告</h1>
+      <p class="text-gray-500 text-sm mt-1">病虫害未来发生概率 · 风险等级 · 重点风险区域 · 防控建议</p>
+    </div>
+    <div class="flex items-center gap-3">
+      <button onclick="exportReport()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm flex items-center gap-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+        <span>导出报告</span>
+      </button>
+      <span class="text-sm text-gray-600 bg-white border border-gray-200 rounded-lg px-3 py-2 whitespace-nowrap">报告日期：2026-08-04</span>
+    </div>
+  </div>
+
+  <!-- 2. Summary Statistics Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+      <p class="text-xs text-gray-500 mb-2">县域综合风险指数</p>
+      <p><span class="text-2xl font-bold text-gray-800">0.72</span> <span class="px-2 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-600">高</span></p>
+    </div>
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+      <p class="text-xs text-gray-500 mb-2">极高风险乡镇数</p>
+      <p><span class="text-2xl font-bold text-red-600">2</span> <span class="text-xs text-gray-400">个</span></p>
+    </div>
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+      <p class="text-xs text-gray-500 mb-2">高风险乡镇数</p>
+      <p><span class="text-2xl font-bold text-orange-600">4</span> <span class="text-xs text-gray-400">个</span></p>
+    </div>
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+      <p class="text-xs text-gray-500 mb-2">今日预警数</p>
+      <p><span class="text-2xl font-bold text-red-600">18</span> <span class="text-xs text-gray-400">条</span></p>
+    </div>
+  </div>
+
+  <!-- 3. Tab Bar -->
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 mb-6">
+    <div class="border-b border-gray-100 flex items-center px-6 overflow-x-auto">
+      <div class="tab-item px-4 py-4 cursor-pointer text-sm mr-6 tab-active whitespace-nowrap" data-tab="3" onclick="switchTab('3')">3天预测</div>
+      <div class="tab-item px-4 py-4 cursor-pointer text-sm mr-6 tab-inactive whitespace-nowrap" data-tab="7" onclick="switchTab('7')">7天预测</div>
+      <div class="tab-item px-4 py-4 cursor-pointer text-sm mr-6 tab-inactive whitespace-nowrap" data-tab="history" onclick="switchTab('history')">历史报告</div>
+    </div>
+  </div>
+
+  <!-- 4. Forecast Tabs (3天/7天) -->
+  <div id="fc-3"></div>
+  <div id="fc-7" style="display:none"></div>
+
+  <!-- 5. History Tab -->
+  <div id="tab-history" style="display:none">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-4">
+      <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+        <h3 class="text-sm font-semibold text-gray-700">历史报告列表</h3>
+        <span class="text-xs text-gray-400">共 8 条记录</span>
+      </div>
+      <div class="overflow-x-auto"><table class="w-full text-sm">
+        <thead><tr class="bg-gray-50">
+          <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 whitespace-nowrap">报告编号</th>
+          <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 whitespace-nowrap">生成日期</th>
+          <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 whitespace-nowrap">预测周期</th>
+          <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 whitespace-nowrap">极高风险乡镇数</th>
+          <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 whitespace-nowrap">高风险乡镇数</th>
+          <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 whitespace-nowrap">报告状态</th>
+          <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 whitespace-nowrap">操作</th>
+        </tr></thead><tbody id="htb"></tbody>
+      </table></div>
+    </div>
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+        <h3 class="text-sm font-semibold text-gray-700">历史预警趋势图</h3>
+        <span class="text-xs text-gray-400">近 8 周预警数量变化</span>
+      </div>
+      <div class="p-5" style="height:280px"><canvas id="line-chart"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- 6. Report Detail Modal -->
+<div id="report-modal" class="modal-overlay">
+  <div class="modal-content">
+    <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+      <h3 style="font-size:18px;font-weight:600;color:#1f2937">预测报告详情</h3>
+      <button onclick="hideModal()" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px;color:#9ca3af">&times;</button>
+    </div>
+    <div id="rm-body" style="padding:20px"></div>
+    <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end">
+      <button onclick="hideModal()" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">关闭</button>
+    </div>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script>
+var PESTS=['红蜘蛛','黄龙病','炭疽病','潜叶蛾','溃疡病','疮痂病'];
+var TOWNS=['琴城镇','市山镇','洽湾镇','太和镇','桑田镇','白舍镇','紫霄镇','三溪乡','傅坊乡','太源乡','莱溪乡','东坪乡'];
+var RL={'低':'bg-green-100 text-green-600','中':'bg-yellow-100 text-yellow-600','高':'bg-orange-100 text-orange-600','极高':'bg-red-100 text-red-600'};
+var PB={'一级·紧急':'bg-red-100 text-red-600','二级·重要':'bg-orange-100 text-orange-600','三级·常规':'bg-yellow-100 text-yellow-600'};
+var BAR={'低':'#22c55e','中':'#f59e0b','高':'#f97316','极高':'#dc2626'};
+var META={
+'红蜘蛛':{f:['高温干旱','虫口基数高','叶面受损'],c:['温度×湿度','温度×降雨','湿度×叶面湿润'],m:'喷施阿维菌素'},
+'黄龙病':{f:['木虱密度高','嫩梢抽发','虫源基数大'],c:['木虱密度×嫩梢','木虱×温度×湿度'],m:'释放捕食螨'},
+'炭疽病':{f:['高温高湿','降雨偏多','菌源量大'],c:['湿度×温度','温度×湿度×降雨'],m:'剪除病枝'},
+'潜叶蛾':{f:['嫩梢比例高','虫口基数高','气温回升'],c:['嫩梢比例×虫口基数','温度×嫩梢比例'],m:'释放捕食螨'},
+'溃疡病':{f:['台风降雨','叶面伤口','大风天气'],c:['降雨×风速','降雨×风速×湿度'],m:'剪除病枝'},
+'疮痂病':{f:['多雨高湿','幼果感病','菌源量大'],c:['湿度×幼果期','温度×湿度×幼果期'],m:'涂白树干'}
+};
+/* 12 乡镇发生概率，与 TOWNS 顺序一致 */
+var P3={
+'红蜘蛛':[.92,.88,.78,.72,.65,.58,.52,.46,.40,.38,.32,.22],
+'黄龙病':[.95,.90,.85,.72,.68,.58,.50,.42,.35,.30,.25,.20],
+'炭疽病':[.88,.80,.75,.70,.62,.55,.48,.40,.36,.28,.24,.18],
+'潜叶蛾':[.82,.75,.68,.60,.55,.48,.42,.38,.32,.28,.22,.18],
+'溃疡病':[.90,.84,.78,.70,.62,.52,.45,.40,.32,.26,.20,.15],
+'疮痂病':[.85,.76,.70,.64,.56,.50,.44,.40,.34,.28,.22,.16]
+};
+var P7={
+'红蜘蛛':[.95,.90,.84,.76,.68,.62,.55,.50,.42,.35,.30,.25],
+'黄龙病':[.96,.92,.88,.76,.70,.60,.52,.45,.38,.32,.28,.22],
+'炭疽病':[.90,.84,.78,.72,.65,.58,.50,.44,.38,.30,.26,.20],
+'潜叶蛾':[.85,.78,.72,.64,.58,.52,.45,.40,.35,.30,.25,.20],
+'溃疡病':[.92,.88,.82,.74,.66,.56,.48,.42,.35,.28,.22,.18],
+'疮痂病':[.88,.80,.74,.68,.60,.54,.48,.42,.36,.30,.25,.20]
+};
+/* [优先级, 防控区域, 防控措施, 复查周期] */
+var SUG={
+'红蜘蛛':[['一级·紧急','太和镇、市山镇','喷施阿维菌素，连片统防统治','3天'],['一级·紧急','琴城镇、桑田镇','释放捕食螨，压低螨口基数','5天'],['二级·重要','洽湾镇、白舍镇','加强叶面巡查，挑治中心虫株','7天'],['二级·重要','三溪乡、傅坊乡','剪除受害枝叶，集中销毁','7天'],['三级·常规','全县','保持果园通风，合理灌溉降温','10天']],
+'黄龙病':[['一级·紧急','琴城镇、洽湾镇','释放捕食螨，集中防治木虱','3天'],['一级·紧急','市山镇、太和镇','夏梢统一抹芽，切断传播链','7天'],['二级·重要','桑田镇、白舍镇','监测木虱密度，及时喷药','7天'],['二级·重要','紫霄镇、三溪乡','清除病株，防止扩散','14天'],['三级·常规','全县','加强苗木检疫，规范田间操作','30天']],
+'炭疽病':[['一级·紧急','白舍镇、桑田镇','剪除病枝病叶，集中烧毁','3天'],['二级·重要','洽湾镇、莱溪乡','雨后补喷保护性杀菌剂','7天'],['二级·重要','紫霄镇、傅坊乡','加强通风降湿，降低田间湿度','7天'],['三级·常规','全县','合理施肥，增强树势抗病','15天']],
+'潜叶蛾':[['二级·重要','洽湾镇、桑田镇','夏梢统一抹芽控梢','7天'],['二级·重要','太和镇、三溪乡','释放捕食螨，压低虫口','10天'],['三级·常规','全县','悬挂黄板监测虫情','14天'],['三级·常规','全县','结合修剪去除虫梢','20天']],
+'溃疡病':[['一级·紧急','太和镇、白舍镇','雨后剪除病枝，涂保护药剂','3天'],['一级·紧急','琴城镇、市山镇','台风后及时清园，处理伤口','7天'],['二级·重要','桑田镇、洽湾镇','喷施铜制剂预防','7天'],['三级·常规','全县','加强果园排水，减少伤口','15天']],
+'疮痂病':[['一级·紧急','洽湾镇、三溪乡','幼果期喷施保护性杀菌剂','3天'],['二级·重要','紫霄镇、莱溪乡','剪除病梢病果，集中销毁','7天'],['二级·重要','傅坊乡、东坪乡','雨后及时补喷药剂','7天'],['三级·常规','全县','保持果园清洁，清除病残体','15天']]
+};
+var GADV=['对重点区域开展连片统防统治，加密监测频次','剪除病枝病叶并集中销毁，减少田间病源','释放捕食螨等天敌，压低虫口基数','雨后及时补喷保护性药剂，防止再次侵染','加强果园通风降湿，规范田间农事操作'];
+var HIST=[
+{r:'PR2026072701',d:'2026-07-27',p:'7天',ex:3,hi:3,st:'已查看',pr:[.92,.88,.82,.75,.68,.62,.55,.48,.42,.36,.30,.24]},
+{r:'PR2026072401',d:'2026-07-24',p:'3天',ex:3,hi:2,st:'已查看',pr:[.90,.86,.80,.72,.66,.58,.50,.44,.38,.32,.26,.20]},
+{r:'PR2026072001',d:'2026-07-20',p:'7天',ex:2,hi:3,st:'已查看',pr:[.88,.80,.74,.68,.60,.55,.48,.42,.36,.30,.25,.20]},
+{r:'PR2026071301',d:'2026-07-13',p:'7天',ex:1,hi:3,st:'已查看',pr:[.84,.78,.70,.64,.58,.50,.44,.38,.34,.28,.22,.18]},
+{r:'PR2026070601',d:'2026-07-06',p:'7天',ex:1,hi:3,st:'未查看',pr:[.80,.74,.68,.60,.54,.48,.42,.36,.30,.26,.20,.16]},
+{r:'PR2026062901',d:'2026-06-29',p:'7天',ex:0,hi:3,st:'已查看',pr:[.74,.68,.62,.55,.50,.44,.38,.34,.28,.24,.20,.16]},
+{r:'PR2026062201',d:'2026-06-22',p:'7天',ex:0,hi:2,st:'已查看',pr:[.68,.62,.56,.50,.44,.40,.36,.32,.28,.22,.18,.15]},
+{r:'PR2026060101',d:'2026-06-01',p:'7天',ex:0,hi:1,st:'未查看',pr:[.62,.55,.50,.44,.40,.36,.32,.28,.24,.20,.16,.12]}
+];
+var WEEKS=['06-08','06-15','06-22','06-29','07-06','07-13','07-20','07-27'];
+var WCNT=[6,9,13,11,15,18,22,18];
+var curPest='红蜘蛛',curPer='3',doughs={3:null,7:null},lineChart=null;
+
+/* ============ 工具函数 ============ */
+function lvl(p){return p>=.8?'极高':p>=.6?'高':p>=.4?'中':'低';}
+function th(l){return '<th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 whitespace-nowrap">'+l+'</th>';}
+function td(c,v){return '<td class="px-4 py-3 '+c+'">'+v+'</td>';}
+function badge(t,c){return '<span class="px-2 py-0.5 rounded-full text-xs font-medium '+c+'">'+t+'</span>';}
+function infoItem(k,v){return '<div class="bg-gray-50 rounded-lg p-2.5"><p class="text-xs text-gray-400 mb-1">'+k+'</p><p class="text-sm font-medium text-gray-800">'+v+'</p></div>';}
+function keyAdv(l){return l==='极高'?'立即统防统治，加密监测频次':'加强巡查监测，尽快安排防治作业';}
+function advOf(p,l){return l==='极高'?'立即'+META[p].m+'，加密监测':l==='高'?'尽快'+META[p].m+'，防止扩散':l==='中'?'关注天气，'+META[p].m+'预防':'常规监测，维持果园管理';}
+function probCell(p){var l=lvl(p);return '<div class="flex items-center gap-2"><span class="text-sm font-bold text-gray-800 w-10">'+p.toFixed(2)+'</span><div class="flex-1 bg-gray-100 rounded-full h-2"><div class="h-2 rounded-full" style="width:'+Math.round(p*100)+'%;background:'+BAR[l]+'"></div></div></div>';}
+function showToast(m){var t=document.getElementById('toast');t.textContent=m;t.style.display='block';setTimeout(function(){t.style.display='none';},2000);}
+function showModal(){var m=document.getElementById('report-modal');m.style.display='flex';m.classList.add('active');}
+function hideModal(){var m=document.getElementById('report-modal');m.style.display='none';m.classList.remove('active');}
+
+/* ============ 预测 Tab 结构（3天/7天共用） ============ */
+function fcHTML(s){
+  return '<div class="bg-white rounded-xl shadow-sm border border-gray-100 mb-4">'
+  +'<div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between"><h3 class="text-sm font-semibold text-gray-700">病虫害类型</h3><span class="text-xs text-gray-400">点击切换病虫害</span></div>'
+  +'<div class="px-4 py-3 flex gap-2 overflow-x-auto" id="pstabs-'+s+'"></div></div>'
+  +'<div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">'
+  +'<div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden lg:col-span-2">'
+  +'<div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between"><h3 class="text-sm font-semibold text-gray-700">各乡镇发生概率列表</h3><span class="text-xs text-gray-400">按概率降序 · ≥0.8 极高 / ≥0.6 高 / ≥0.4 中 / &lt;0.4 低</span></div>'
+  +'<div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="bg-gray-50">'+th('乡镇')+th('发生概率')+th('风险等级')+th('主要风险因子')+th('防控建议')+'</tr></thead><tbody id="ptb-'+s+'"></tbody></table></div></div>'
+  +'<div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4"><h3 class="text-sm font-semibold text-gray-700 mb-3">风险等级分布图</h3><div style="height:280px"><canvas id="dg-'+s+'"></canvas></div></div></div>'
+  +'<div class="bg-white rounded-xl shadow-sm border-2 border-red-100 mb-4 overflow-hidden">'
+  +'<div class="px-4 py-3 border-b border-red-100 flex items-center justify-between"><h3 class="text-sm font-semibold text-red-600">重点风险乡镇列表</h3><span class="text-xs text-gray-400">发生概率 &gt; 0.7 · 需重点关注</span></div>'
+  +'<div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="bg-red-50">'+th('乡镇')+th('发生概率')+th('主要耦合作用')+th('建议防控措施')+'</tr></thead><tbody id="ktb-'+s+'"></tbody></table></div></div>'
+  +'<div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">'
+  +'<div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between"><h3 class="text-sm font-semibold text-gray-700">防控建议清单</h3><span class="text-xs text-gray-400">按优先级排序</span></div>'
+  +'<div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="bg-gray-50">'+th('优先级')+th('病虫害')+th('防控区域')+th('防控措施')+th('复查周期')+'</tr></thead><tbody id="stb-'+s+'"></tbody></table></div></div>';
+}
+
+/* ============ 渲染：病虫害子页签 ============ */
+function renderPestTabs(s){
+  var h='';
+  PESTS.forEach(function(p){
+    h+='<button onclick="setPest(\''+p+'\')" class="px-4 py-1.5 rounded-full text-sm whitespace-nowrap font-medium '+(p===curPest?'bg-green-600 text-white shadow':'bg-gray-100 text-gray-600 hover:bg-gray-200')+'">'+p+'</button>';
+  });
+  document.getElementById('pstabs-'+s).innerHTML=h;
+}
+
+/* ============ 渲染：预测内容（3天/7天共用） ============ */
+function renderForecast(s){
+  var arr=s==='3'?P3:P7,p=curPest,meta=META[p];
+  var rows=TOWNS.map(function(t,i){return {t:t,p:arr[p][i],i:i};}).sort(function(a,b){return b.p-a.p;});
+  var h='';
+  rows.forEach(function(r){
+    var l=lvl(r.p);
+    h+='<tr class="border-b border-gray-100 hover:bg-gray-50">'+td('font-medium text-gray-800',r.t)+td('',probCell(r.p))+td('',badge(l,RL[l]))+td('text-gray-600',meta.f[r.i%meta.f.length])+td('text-gray-500 text-xs',advOf(p,l))+'</tr>';
+  });
+  document.getElementById('ptb-'+s).innerHTML=h;
+  renderDough(s,rows);
+  var keys=rows.filter(function(r){return r.p>.7;}),kh='';
+  keys.forEach(function(r,i){
+    var l=lvl(r.p),col=l==='极高'?'#dc2626':'#fb923c';
+    kh+='<tr class="border-b border-gray-100 hover:bg-gray-50" style="border-left:4px solid '+col+'">'+td('font-medium text-gray-800',r.t)+td('',probCell(r.p))+td('text-gray-600',meta.c[i%meta.c.length])+td('text-gray-500 text-xs',meta.m+'，'+keyAdv(l))+'</tr>';
+  });
+  document.getElementById('ktb-'+s).innerHTML=kh||'<tr><td colspan="4" class="text-center py-6 text-gray-400">当前病虫害暂无概率大于 0.7 的重点乡镇</td></tr>';
+  var sh='';
+  SUG[p].forEach(function(x){
+    sh+='<tr class="border-b border-gray-100">'+td('',badge(x[0],PB[x[0]]))+td('font-medium text-gray-800',p)+td('text-gray-700',x[1])+td('text-gray-700',x[2])+td('text-gray-500 text-xs',x[3])+'</tr>';
+  });
+  document.getElementById('stb-'+s).innerHTML=sh;
+}
+function renderDough(s,rows){
+  var cnt={'低':0,'中':0,'高':0,'极高':0};
+  rows.forEach(function(r){cnt[lvl(r.p)]++;});
+  if(doughs[s])doughs[s].destroy();
+  doughs[s]=new Chart(document.getElementById('dg-'+s),{
+    type:'doughnut',
+    data:{labels:['低','中','高','极高'],datasets:[{data:['低','中','高','极高'].map(function(k){return cnt[k];}),backgroundColor:['#22c55e','#f59e0b','#f97316','#dc2626'],borderWidth:2,borderColor:'#fff'}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:12,font:{size:11}}},tooltip:{callbacks:{label:function(c){return ' '+c.label+'风险：'+c.parsed+' 个乡镇';}}}}}
+  });
+}
+
+/* ============ 渲染：历史报告 ============ */
+function renderHist(){
+  var h='';
+  HIST.forEach(function(x,i){
+    h+='<tr class="border-b border-gray-100 hover:bg-gray-50">'+td('font-medium text-gray-800',x.r)+td('text-gray-600',x.d)+td('text-gray-600',x.p)+td('text-gray-700',x.ex)+td('text-gray-700',x.hi)+td('',badge(x.st,x.st==='已查看'?'bg-green-100 text-green-600':'bg-yellow-100 text-yellow-600'))+td('','<button class="text-green hover:underline" onclick="openReport('+i+')">查看</button>')+'</tr>';
+  });
+  document.getElementById('htb').innerHTML=h;
+}
+function renderLine(){
+  lineChart=new Chart(document.getElementById('line-chart'),{
+    type:'line',
+    data:{labels:WEEKS,datasets:[{label:'预警数量',data:WCNT,borderColor:'#16a34a',backgroundColor:'rgba(22,163,74,0.1)',fill:true,tension:.35,pointRadius:4,pointBackgroundColor:'#16a34a'}]},
+    options:{responsive:true,maintainAspectRatio:false,scales:{y:{beginAtZero:true,ticks:{precision:0}}},plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return ' 预警 '+c.parsed.y+' 条';}}}}}
+  });
+}
+
+/* ============ 交互 ============ */
+function switchTab(tab){
+  document.querySelectorAll('.tab-item').forEach(function(el){
+    el.className='tab-item px-4 py-4 cursor-pointer text-sm mr-6 whitespace-nowrap '+(el.getAttribute('data-tab')===tab?'tab-active':'tab-inactive');
+  });
+  document.getElementById('fc-3').style.display=tab==='3'?'':'none';
+  document.getElementById('fc-7').style.display=tab==='7'?'':'none';
+  document.getElementById('tab-history').style.display=tab==='history'?'':'none';
+  if(tab==='3'||tab==='7')curPer=tab;
+  if(tab==='history'&&!lineChart)renderLine();
+  setTimeout(function(){if(tab!=='history'&&doughs[tab])doughs[tab].resize();if(tab==='history'&&lineChart)lineChart.resize();},60);
+}
+function setPest(p){curPest=p;renderPestTabs('3');renderPestTabs('7');renderForecast('3');renderForecast('7');}
+function openReport(i){
+  var x=HIST[i];
+  var rows=TOWNS.map(function(t,j){return {t:t,p:x.pr[j]};}).sort(function(a,b){return b.p-a.p;});
+  var probsH=rows.map(function(r){return '<div class="flex items-center justify-between py-1.5 border-b border-gray-50 text-sm"><span class="text-gray-700">'+r.t+'</span><span class="text-gray-400 text-xs">'+(r.p*100).toFixed(0)+'%</span>'+badge(lvl(r.p),RL[lvl(r.p)])+'</div>';}).join('');
+  var keys=rows.filter(function(r){return r.p>.7;});
+  var keysH=keys.length?keys.map(function(r){return '<div class="flex items-center justify-between py-1.5 border-b border-gray-50 text-sm"><span class="font-medium text-gray-800">'+r.t+'</span>'+badge(lvl(r.p),RL[lvl(r.p)])+'<span class="text-gray-400 text-xs">'+keyAdv(lvl(r.p))+'</span></div>';}).join(''):'<p class="text-sm text-gray-400 py-2">无重点风险乡镇</p>';
+  var sugH=['一级·紧急','一级·紧急','二级·重要','二级·重要','三级·常规'].map(function(pr,j){return '<div class="flex items-center justify-between py-1.5 border-b border-gray-50 text-sm">'+badge(pr,PB[pr])+'<span class="text-gray-700 flex-1 ml-3">'+GADV[j]+'</span></div>';}).join('');
+  document.getElementById('rm-body').innerHTML=
+    '<div class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">'
+    +infoItem('报告编号',x.r)+infoItem('生成日期',x.d)+infoItem('预测周期',x.p)
+    +infoItem('极高风险乡镇',x.ex+' 个')+infoItem('高风险乡镇',x.hi+' 个')+infoItem('报告状态',badge(x.st,x.st==='已查看'?'bg-green-100 text-green-600':'bg-yellow-100 text-yellow-600'))
+    +'</div>'
+    +'<p class="text-xs font-semibold text-gray-500 mb-2">各乡镇发生概率列表</p>'+probsH
+    +'<p class="text-xs font-semibold text-gray-500 mb-2 mt-4">重点风险乡镇</p>'+keysH
+    +'<p class="text-xs font-semibold text-gray-500 mb-2 mt-4">防控建议清单</p>'+sugH;
+  showModal();
+}
+
+/* ============ 导出报告 ============ */
+function exportReport(){
+  var p=curPest,per=curPer==='7'?'7天':'3天',arr=P3[p];
+  if(curPer==='7')arr=P7[p];
+  var rows=TOWNS.map(function(t,i){return {t:t,p:arr[i]};}).sort(function(a,b){return b.p-a.p;});
+  var txt='南丰蜜桔病虫害预测报告\n========================================\n';
+  txt+='报告日期：2026-08-04\n';
+  txt+='预测周期：'+per+'\n';
+  txt+='病虫害类型：'+p+'\n';
+  txt+='县域综合风险指数：0.72（高）\n';
+  txt+='极高风险乡镇：2 个 | 高风险乡镇：4 个 | 今日预警：18 条\n\n';
+  txt+='【各乡镇发生概率】\n';
+  rows.forEach(function(r,i){txt+=(i+1)+'. '+r.t+'：'+(r.p*100).toFixed(0)+'%（'+lvl(r.p)+'）\n';});
+  txt+='\n【重点风险乡镇】\n';
+  rows.filter(function(r){return r.p>.7;}).forEach(function(r){txt+='- '+r.t+'：'+(r.p*100).toFixed(0)+'%（'+lvl(r.p)+'）\n';});
+  txt+='\n【防控建议清单】\n';
+  SUG[p].forEach(function(s,i){txt+=(i+1)+'. ['+s[0]+'] 区域：'+s[1]+' 措施：'+s[2]+' 复查周期：'+s[3]+'\n';});
+  var blob=new Blob([txt],{type:'text/plain;charset=utf-8'});
+  var link=document.createElement('a');
+  link.href=URL.createObjectURL(blob);
+  link.download='预测报告_'+p+'_2026-08-04.txt';
+  link.click();
+  showToast('预测报告已导出');
+}
+document.addEventListener('click',function(e){var m=document.getElementById('report-modal');if(m.style.display==='flex'&&e.target===m)hideModal();});
+window.onload=function(){
+  document.getElementById('fc-3').innerHTML=fcHTML('3');
+  document.getElementById('fc-7').innerHTML=fcHTML('7');
+  renderPestTabs('3');renderPestTabs('7');
+  renderForecast('3');renderForecast('7');
+  renderHist();
+};
+</script>
+</body>
+</html>

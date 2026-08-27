@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>基础档案 - 南丰蜜桔生长模型系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body{margin:0;padding:0;background-color:#F0F2F5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,'Noto Sans SC',sans-serif}
+        .content-wrapper{padding:24px;height:100vh;overflow-y:auto}
+        .tab-btn{padding:10px 24px;font-size:14px;font-weight:500;border:none;background:none;cursor:pointer;color:#6b7280;border-bottom:2px solid transparent;transition:all 0.2s}
+        .tab-btn:hover{color:#1f2937}
+        .tab-btn.active{color:#16a34a;border-bottom-color:#16a34a}
+        .tab-content{display:none}
+        .tab-content.active{display:block}
+        .stage-btn{padding:10px 16px;font-size:13px;font-weight:500;border:1px solid #d1d5db;border-radius:8px;background:#fff;color:#374151;cursor:pointer;transition:all 0.2s}
+        .stage-btn:hover{border-color:#16a34a;color:#16a34a}
+        .stage-btn.active{background:#16a34a;color:#fff;border-color:#16a34a}
+        .inline-input{width:100%;padding:4px 8px;border:1px solid #d1d5db;border-radius:4px;font-size:13px;text-align:center;background:#fff;box-sizing:border-box}
+        .inline-input:focus{outline:none;border-color:#16a34a;box-shadow:0 0 0 2px rgba(22,163,74,0.1)}
+        .inline-input.editing{background:#f0fdf4;border-color:#16a34a}
+        .modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center}
+        .modal-overlay.active{display:flex}
+    </style>
+</head>
+<body>
+<div class="content-wrapper">
+
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h1 class="text-xl font-bold text-gray-800">基础档案</h1>
+            <p class="text-gray-500 text-sm mt-1">管理南丰蜜桔生长模型的品系信息、地块档案和阶段参数配置</p>
+        </div>
+        <div class="flex items-center space-x-3">
+            <button onclick="exportArchive()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm">导出档案</button>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 mb-6">
+        <div class="flex items-center border-b border-gray-200 px-6">
+            <button class="tab-btn active" onclick="switchTab('variety', this)">品系管理</button>
+            <button class="tab-btn" onclick="switchTab('plot', this)">地块档案</button>
+            <button class="tab-btn" onclick="switchTab('stage', this)">阶段参数</button>
+        </div>
+
+        <div class="p-6">
+            <div id="tab-variety" class="tab-content active">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center space-x-3">
+                        <input type="text" id="variety-search" placeholder="搜索品系名称..." class="pl-3 pr-4 py-2 border border-gray-300 rounded-lg text-sm w-56" oninput="renderVarietyTable()">
+                    </div>
+                    <button onclick="openVarietyAddModal()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm flex items-center">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        新增品系
+                    </button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="bg-gray-50">
+                                <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">品系名称</th>
+                                <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">砧木修正系数</th>
+                                <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">树龄修正系数</th>
+                                <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">特征备注</th>
+                                <th class="text-center px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider w-40">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="variety-tbody" class="divide-y divide-gray-100"></tbody>
+                    </table>
+                </div>
+                <div class="pt-4 border-t border-gray-100 flex items-center justify-between">
+                    <p class="text-sm text-gray-500">共 <span id="variety-total-count">0</span> 条记录</p>
+                </div>
+            </div>
+
+            <div id="tab-plot" class="tab-content">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center space-x-3">
+                        <input type="text" id="plot-search" placeholder="搜索对象编码/品系..." class="pl-3 pr-4 py-2 border border-gray-300 rounded-lg text-sm w-56" oninput="renderPlotTable()">
+                        <select id="plot-variety-filter" class="px-3 py-2 border border-gray-300 rounded-lg text-sm" onchange="renderPlotTable()">
+                            <option value="">全部品系</option>
+                        </select>
+                    </div>
+                    <button onclick="openPlotAddModal()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm flex items-center">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        新增地块
+                    </button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="bg-gray-50">
+                                <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">对象编码</th>
+                                <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">品系</th>
+                                <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">砧木</th>
+                                <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">树龄</th>
+                                <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">面积(亩)</th>
+                                <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">海拔(m)</th>
+                                <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">坡度(°)</th>
+                                <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">栽培方式</th>
+                                <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">负责人</th>
+                                <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">联系电话</th>
+                                <th class="text-center px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider w-40">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="plot-tbody" class="divide-y divide-gray-100"></tbody>
+                    </table>
+                </div>
+                <div class="pt-4 border-t border-gray-100 flex items-center justify-between">
+                    <p class="text-sm text-gray-500">共 <span id="plot-total-count">0</span> 条记录</p>
+                </div>
+            </div>
+
+            <div id="tab-stage" class="tab-content">
+                <div class="flex items-center justify-between mb-5">
+                    <div class="text-sm text-gray-600">点击选择生长阶段，查看并编辑各因子的参数配置</div>
+                    <button onclick="resetStageParams()" class="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-xs">重置为默认值</button>
+                </div>
+                <div id="stage-buttons" class="flex flex-wrap gap-2 mb-6"></div>
+                <div id="stage-info" class="bg-blue-50 border border-blue-100 rounded-lg p-3 mb-4 text-sm text-blue-700"></div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm" id="stage-table">
+                        <thead>
+                            <tr class="bg-gray-50">
+                                <th class="text-left px-3 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">因子类型</th>
+                                <th class="text-center px-3 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">最适下限</th>
+                                <th class="text-center px-3 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">最适上限</th>
+                                <th class="text-center px-3 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">致命下限</th>
+                                <th class="text-center px-3 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">致命上限</th>
+                                <th class="text-center px-3 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">权重 w</th>
+                                <th class="text-center px-3 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">最大扣分 Pk</th>
+                                <th class="text-center px-3 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">日生长速度 r</th>
+                                <th class="text-center px-3 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">生长上限 Zmax</th>
+                            </tr>
+                        </thead>
+                        <tbody id="stage-tbody" class="divide-y divide-gray-100"></tbody>
+                    </table>
+                </div>
+                <div class="mt-4 flex items-center justify-between">
+                    <p class="text-xs text-gray-500">提示：所有参数支持点击单元格直接编辑，修改后自动保存</p>
+                    <button onclick="saveStageParams()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">保存参数</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div id="variety-add-modal" class="modal-overlay">
+    <div style="background:#fff;border-radius:12px;width:90%;max-width:520px;max-height:85vh;overflow-y:auto">
+        <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+            <h3 id="variety-modal-title" style="font-size:18px;font-weight:600;color:#1f2937">新增品系</h3>
+            <button onclick="closeModal('variety-add-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px;color:#6b7280">&times;</button>
+        </div>
+        <div style="padding:24px;display:flex;flex-direction:column;gap:16px">
+            <div>
+                <label style="font-size:13px;font-weight:500;color:#374151;display:block;margin-bottom:4px">品系名称 <span style="color:#ef4444">*</span></label>
+                <input type="text" id="var-name" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box" placeholder="如：小果系">
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <div>
+                    <label style="font-size:13px;font-weight:500;color:#374151;display:block;margin-bottom:4px">砧木修正系数 <span style="color:#ef4444">*</span></label>
+                    <input type="number" id="var-rootstock-coef" step="0.01" min="0.5" max="2.0" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box" placeholder="如：1.00">
+                </div>
+                <div>
+                    <label style="font-size:13px;font-weight:500;color:#374151;display:block;margin-bottom:4px">树龄修正系数 <span style="color:#ef4444">*</span></label>
+                    <input type="number" id="var-age-coef" step="0.01" min="0.5" max="2.0" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box" placeholder="如：1.00">
+                </div>
+            </div>
+            <div>
+                <label style="font-size:13px;font-weight:500;color:#374151;display:block;margin-bottom:4px">特征备注</label>
+                <textarea id="var-remark" rows="3" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box;resize:vertical" placeholder="描述该品系的特征特点"></textarea>
+            </div>
+        </div>
+        <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:12px">
+            <button onclick="closeModal('variety-add-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
+            <button onclick="submitVarietyForm()" style="padding:8px 16px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">确认</button>
+        </div>
+    </div>
+</div>
+
+<div id="variety-delete-modal" class="modal-overlay">
+    <div style="background:#fff;border-radius:12px;width:90%;max-width:400px">
+        <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+            <h3 style="font-size:18px;font-weight:600;color:#1f2937">删除确认</h3>
+            <button onclick="closeModal('variety-delete-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px;color:#6b7280">&times;</button>
+        </div>
+        <div style="padding:24px;text-align:center">
+            <div style="width:60px;height:60px;background:#fee2e2;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
+                <span style="font-size:28px;color:#dc2626">!</span>
+            </div>
+            <h3 style="font-size:18px;font-weight:600;color:#1f2937;margin-bottom:8px">确认删除</h3>
+            <p style="font-size:14px;color:#6b7280;margin-bottom:24px">确定要删除品系"<span id="delete-var-name" style="font-weight:500;color:#1f2937"></span>"吗？此操作不可恢复。</p>
+            <div style="display:flex;justify-content:center;gap:12px">
+                <button onclick="closeModal('variety-delete-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
+                <button onclick="confirmVarietyDelete()" style="padding:8px 16px;background:#dc2626;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">确认删除</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="plot-add-modal" class="modal-overlay">
+    <div style="background:#fff;border-radius:12px;width:90%;max-width:620px;max-height:85vh;overflow-y:auto">
+        <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+            <h3 id="plot-modal-title" style="font-size:18px;font-weight:600;color:#1f2937">新增地块</h3>
+            <button onclick="closeModal('plot-add-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px;color:#6b7280">&times;</button>
+        </div>
+        <div style="padding:24px">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+                <div>
+                    <label style="font-size:13px;font-weight:500;color:#374151;display:block;margin-bottom:4px">品系 <span style="color:#ef4444">*</span></label>
+                    <select id="plot-variety" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box" onchange="updateAutoCode()"></select>
+                </div>
+                <div>
+                    <label style="font-size:13px;font-weight:500;color:#374151;display:block;margin-bottom:4px">砧木 <span style="color:#ef4444">*</span></label>
+                    <select id="plot-rootstock" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box" onchange="updateAutoCode()">
+                        <option value="枳砧">枳砧</option>
+                        <option value="红桔砧">红桔砧</option>
+                        <option value="酸橙砧">酸橙砧</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="font-size:13px;font-weight:500;color:#374151;display:block;margin-bottom:4px">树龄 <span style="color:#ef4444">*</span></label>
+                    <input type="number" id="plot-age" min="1" max="50" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box" placeholder="如：6" oninput="updateAutoCode()">
+                </div>
+                <div>
+                    <label style="font-size:13px;font-weight:500;color:#374151;display:block;margin-bottom:4px">地块编码 <span style="color:#ef4444">*</span></label>
+                    <input type="text" id="plot-code" maxlength="6" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box" placeholder="6位编码，如：A001" oninput="updateAutoCode()">
+                </div>
+                <div>
+                    <label style="font-size:13px;font-weight:500;color:#374151;display:block;margin-bottom:4px">面积(亩)</label>
+                    <input type="number" id="plot-area" step="0.1" min="0" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box" placeholder="如：50.5">
+                </div>
+                <div>
+                    <label style="font-size:13px;font-weight:500;color:#374151;display:block;margin-bottom:4px">海拔(m)</label>
+                    <input type="number" id="plot-altitude" min="0" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box" placeholder="如：85">
+                </div>
+                <div>
+                    <label style="font-size:13px;font-weight:500;color:#374151;display:block;margin-bottom:4px">坡度(°)</label>
+                    <input type="number" id="plot-slope" step="0.1" min="0" max="60" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box" placeholder="如：15">
+                </div>
+                <div>
+                    <label style="font-size:13px;font-weight:500;color:#374151;display:block;margin-bottom:4px">栽培方式</label>
+                    <select id="plot-cultivation" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box">
+                        <option value="露天栽培">露天栽培</option>
+                        <option value="设施栽培">设施栽培</option>
+                        <option value="避雨栽培">避雨栽培</option>
+                        <option value="滴灌栽培">滴灌栽培</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="font-size:13px;font-weight:500;color:#374151;display:block;margin-bottom:4px">负责人</label>
+                    <input type="text" id="plot-manager" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box" placeholder="如：张明">
+                </div>
+                <div>
+                    <label style="font-size:13px;font-weight:500;color:#374151;display:block;margin-bottom:4px">联系电话</label>
+                    <input type="text" id="plot-phone" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box" placeholder="如：13800138000">
+                </div>
+            </div>
+            <div style="margin-top:16px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px">
+                <p style="font-size:12px;font-weight:500;color:#166534;margin-bottom:4px">自动生成对象编码</p>
+                <p id="auto-code-preview" style="font-size:14px;font-weight:600;color:#16a34a;font-family:monospace">南丰蜜桔-{品系}-{砧木}-{树龄}-{地块编码}</p>
+            </div>
+        </div>
+        <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:12px">
+            <button onclick="closeModal('plot-add-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
+            <button onclick="submitPlotForm()" style="padding:8px 16px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">确认</button>
+        </div>
+    </div>
+</div>
+
+<div id="plot-delete-modal" class="modal-overlay">
+    <div style="background:#fff;border-radius:12px;width:90%;max-width:400px">
+        <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+            <h3 style="font-size:18px;font-weight:600;color:#1f2937">删除确认</h3>
+            <button onclick="closeModal('plot-delete-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px;color:#6b7280">&times;</button>
+        </div>
+        <div style="padding:24px;text-align:center">
+            <div style="width:60px;height:60px;background:#fee2e2;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
+                <span style="font-size:28px;color:#dc2626">!</span>
+            </div>
+            <h3 style="font-size:18px;font-weight:600;color:#1f2937;margin-bottom:8px">确认删除</h3>
+            <p style="font-size:14px;color:#6b7280;margin-bottom:24px">确定要删除地块"<span id="delete-plot-name" style="font-weight:500;color:#1f2937"></span>"吗？此操作不可恢复。</p>
+            <div style="display:flex;justify-content:center;gap:12px">
+                <button onclick="closeModal('plot-delete-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
+                <button onclick="confirmPlotDelete()" style="padding:8px 16px;background:#dc2626;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">确认删除</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+var varietyData = [
+    { id: 'v1', name: '小果系', rootstockCoef: 1.00, ageCoef: 1.00, remark: '果实较小，单果重约50-80g，皮薄多汁，品质优良' },
+    { id: 'v2', name: '桂花蒂', rootstockCoef: 0.95, ageCoef: 1.05, remark: '果蒂带有桂花香气，单果重约60-90g，风味浓郁' },
+    { id: 'v3', name: '桂月红', rootstockCoef: 1.00, ageCoef: 1.00, remark: '果皮偏红色，单果重约70-100g，糖度高' }
+];
+
+var plotData = [
+    { id: 'p1', code: '南丰蜜桔-小果系-枳砧-6-A001', variety: '小果系', rootstock: '枳砧', age: 6, area: 52.5, altitude: 85, slope: 15, cultivation: '露天栽培', manager: '张明', phone: '13800138001' },
+    { id: 'p2', code: '南丰蜜桔-桂花蒂-枳砧-8-B002', variety: '桂花蒂', rootstock: '枳砧', age: 8, area: 38.0, altitude: 110, slope: 20, cultivation: '避雨栽培', manager: '李伟', phone: '13800138002' },
+    { id: 'p3', code: '南丰蜜桔-桂月红-红桔砧-5-C003', variety: '桂月红', rootstock: '红桔砧', age: 5, area: 65.2, altitude: 78, slope: 10, cultivation: '滴灌栽培', manager: '王芳', phone: '13800138003' },
+    { id: 'p4', code: '南丰蜜桔-小果系-枳砧-10-D004', variety: '小果系', rootstock: '枳砧', age: 10, area: 45.8, altitude: 92, slope: 25, cultivation: '露天栽培', manager: '陈强', phone: '13800138004' }
+];
+
+var stages = [
+    { key: 'seedling', name: '幼苗期', desc: '定植后1-2年，以根系生长和树冠形成为主' },
+    { key: 'vegetative', name: '生长期', desc: '树冠快速生长，新梢萌发与叶片扩展高峰期' },
+    { key: 'flowering', name: '开花期', desc: '花芽分化完成，进入开花坐果关键时期' },
+    { key: 'fruit_drop', name: '落果期', desc: '生理落果期，决定最终坐果率' },
+    { key: 'enlargement', name: '膨大期', desc: '果实细胞迅速膨大，水分与养分需求量最大' },
+    { key: 'ripening', name: '成熟期', desc: '果实糖分积累与色泽转变，品质形成关键期' }
+];
+
+var stageParams = {
+    seedling: {
+        temp:    { name: '温度',      optMin: 20, optMax: 28, killMin: 10, killMax: 38, w: 0.25, pk: 20, r: 0.15, zmax: 1.2 },
+        humidity:{ name: '湿度',      optMin: 70, optMax: 90, killMin: 40, killMax: 95, w: 0.20, pk: 15, r: 0.10, zmax: 1.0 },
+        soil:    { name: '土壤水',    optMin: 60, optMax: 85, killMin: 35, killMax: 95, w: 0.20, pk: 15, r: 0.12, zmax: 1.0 },
+        light:   { name: '光照',      optMin: 15, optMax: 30, killMin: 5,  killMax: 45, w: 0.15, pk: 12, r: 0.08, zmax: 0.8 },
+        k:       { name: '钾',        optMin: 150,optMax: 250,killMin: 80, killMax: 350,w: 0.08, pk: 10, r: 0.05, zmax: 0.5 },
+        ph:      { name: 'PH',        optMin: 5.5,optMax: 7.0,killMin: 4.5,killMax: 8.0,w: 0.07, pk: 8,  r: 0.03, zmax: 0.3 },
+        root:    { name: '根系',      optMin: 20, optMax: 40, killMin: 10, killMax: 60, w: 0.05, pk: 6,  r: 0.02, zmax: 0.2 }
+    },
+    vegetative: {
+        temp:    { name: '温度',      optMin: 22, optMax: 30, killMin: 12, killMax: 40, w: 0.25, pk: 20, r: 0.20, zmax: 1.5 },
+        humidity:{ name: '湿度',      optMin: 65, optMax: 85, killMin: 35, killMax: 95, w: 0.18, pk: 14, r: 0.12, zmax: 1.2 },
+        soil:    { name: '土壤水',    optMin: 55, optMax: 80, killMin: 30, killMax: 95, w: 0.22, pk: 16, r: 0.15, zmax: 1.2 },
+        light:   { name: '光照',      optMin: 20, optMax: 35, killMin: 8,  killMax: 50, w: 0.15, pk: 12, r: 0.10, zmax: 1.0 },
+        k:       { name: '钾',        optMin: 180,optMax: 280,killMin: 100,killMax: 400,w: 0.08, pk: 10, r: 0.06, zmax: 0.6 },
+        ph:      { name: 'PH',        optMin: 5.5,optMax: 7.0,killMin: 4.5,killMax: 8.0,w: 0.07, pk: 8,  r: 0.04, zmax: 0.4 },
+        root:    { name: '根系',      optMin: 30, optMax: 50, killMin: 15, killMax: 70, w: 0.05, pk: 6,  r: 0.03, zmax: 0.3 }
+    },
+    flowering: {
+        temp:    { name: '温度',      optMin: 18, optMax: 25, killMin: 8,  killMax: 32, w: 0.30, pk: 25, r: 0.18, zmax: 1.3 },
+        humidity:{ name: '湿度',      optMin: 55, optMax: 75, killMin: 30, killMax: 90, w: 0.20, pk: 16, r: 0.10, zmax: 1.0 },
+        soil:    { name: '土壤水',    optMin: 45, optMax: 70, killMin: 25, killMax: 90, w: 0.18, pk: 14, r: 0.08, zmax: 0.8 },
+        light:   { name: '光照',      optMin: 25, optMax: 40, killMin: 10, killMax: 55, w: 0.12, pk: 10, r: 0.08, zmax: 0.8 },
+        k:       { name: '钾',        optMin: 160,optMax: 260,killMin: 90, killMax: 380,w: 0.08, pk: 10, r: 0.05, zmax: 0.5 },
+        ph:      { name: 'PH',        optMin: 5.5,optMax: 7.0,killMin: 4.5,killMax: 8.0,w: 0.07, pk: 8,  r: 0.03, zmax: 0.3 },
+        root:    { name: '根系',      optMin: 35, optMax: 55, killMin: 18, killMax: 75, w: 0.05, pk: 6,  r: 0.03, zmax: 0.3 }
+    },
+    fruit_drop: {
+        temp:    { name: '温度',      optMin: 20, optMax: 28, killMin: 10, killMax: 36, w: 0.28, pk: 22, r: 0.16, zmax: 1.2 },
+        humidity:{ name: '湿度',      optMin: 60, optMax: 80, killMin: 35, killMax: 95, w: 0.20, pk: 16, r: 0.10, zmax: 1.0 },
+        soil:    { name: '土壤水',    optMin: 50, optMax: 75, killMin: 28, killMax: 92, w: 0.20, pk: 15, r: 0.10, zmax: 0.9 },
+        light:   { name: '光照',      optMin: 22, optMax: 38, killMin: 10, killMax: 52, w: 0.12, pk: 10, r: 0.07, zmax: 0.8 },
+        k:       { name: '钾',        optMin: 200,optMax: 320,killMin: 120,killMax: 450,w: 0.08, pk: 10, r: 0.06, zmax: 0.6 },
+        ph:      { name: 'PH',        optMin: 5.5,optMax: 7.0,killMin: 4.5,killMax: 8.0,w: 0.07, pk: 8,  r: 0.03, zmax: 0.3 },
+        root:    { name: '根系',      optMin: 40, optMax: 60, killMin: 20, killMax: 80, w: 0.05, pk: 6,  r: 0.03, zmax: 0.3 }
+    },
+    enlargement: {
+        temp:    { name: '温度',      optMin: 22, optMax: 30, killMin: 12, killMax: 38, w: 0.22, pk: 18, r: 0.22, zmax: 1.8 },
+        humidity:{ name: '湿度',      optMin: 70, optMax: 90, killMin: 40, killMax: 98, w: 0.22, pk: 18, r: 0.14, zmax: 1.5 },
+        soil:    { name: '土壤水',    optMin: 60, optMax: 85, killMin: 35, killMax: 98, w: 0.25, pk: 20, r: 0.18, zmax: 1.5 },
+        light:   { name: '光照',      optMin: 25, optMax: 40, killMin: 12, killMax: 55, w: 0.10, pk: 8,  r: 0.06, zmax: 0.7 },
+        k:       { name: '钾',        optMin: 220,optMax: 350,killMin: 130,killMax: 500,w: 0.08, pk: 10, r: 0.07, zmax: 0.7 },
+        ph:      { name: 'PH',        optMin: 5.5,optMax: 7.0,killMin: 4.5,killMax: 8.0,w: 0.07, pk: 8,  r: 0.04, zmax: 0.4 },
+        root:    { name: '根系',      optMin: 45, optMax: 65, killMin: 22, killMax: 85, w: 0.06, pk: 7,  r: 0.04, zmax: 0.4 }
+    },
+    ripening: {
+        temp:    { name: '温度',      optMin: 18, optMax: 26, killMin: 8,  killMax: 34, w: 0.25, pk: 20, r: 0.12, zmax: 1.0 },
+        humidity:{ name: '湿度',      optMin: 55, optMax: 75, killMin: 30, killMax: 92, w: 0.22, pk: 18, r: 0.10, zmax: 0.8 },
+        soil:    { name: '土壤水',    optMin: 40, optMax: 65, killMin: 22, killMax: 85, w: 0.15, pk: 12, r: 0.06, zmax: 0.5 },
+        light:   { name: '光照',      optMin: 30, optMax: 45, killMin: 15, killMax: 60, w: 0.15, pk: 12, r: 0.08, zmax: 0.9 },
+        k:       { name: '钾',        optMin: 180,optMax: 300,killMin: 100,killMax: 420,w: 0.10, pk: 12, r: 0.05, zmax: 0.6 },
+        ph:      { name: 'PH',        optMin: 5.5,optMax: 7.0,killMin: 4.5,killMax: 8.0,w: 0.07, pk: 8,  r: 0.03, zmax: 0.3 },
+        root:    { name: '根系',      optMin: 45, optMax: 65, killMin: 22, killMax: 85, w: 0.06, pk: 7,  r: 0.04, zmax: 0.4 }
+    }
+};
+
+var varietyEditId = null;
+var varietyDeleteId = null;
+var plotEditId = null;
+var plotDeleteId = null;
+var currentStage = 'seedling';
+var originalStageParams = JSON.parse(JSON.stringify(stageParams));
+
+function switchTab(tabId, btn) {
+    document.querySelectorAll('.tab-content').forEach(function(el){ el.classList.remove('active'); });
+    document.querySelectorAll('.tab-btn').forEach(function(el){ el.classList.remove('active'); });
+    document.getElementById('tab-' + tabId).classList.add('active');
+    if(btn) btn.classList.add('active');
+}
+
+function renderVarietyTable() {
+    var searchTerm = (document.getElementById('variety-search').value || '').toLowerCase();
+    var filtered = varietyData.filter(function(v){
+        return !searchTerm || v.name.toLowerCase().indexOf(searchTerm) !== -1;
+    });
+    var tbody = document.getElementById('variety-tbody');
+    if(filtered.length === 0){
+        tbody.innerHTML = '<tr><td colspan="5" style="padding:40px;text-align:center;color:#9ca3af">暂无数据</td></tr>';
+    } else {
+        tbody.innerHTML = filtered.map(function(v){
+            return '<tr class="hover:bg-gray-50">' +
+                '<td class="px-4 py-3 font-medium text-gray-800">' + v.name + '</td>' +
+                '<td class="px-4 py-3 text-gray-600 text-center">' + v.rootstockCoef.toFixed(2) + '</td>' +
+                '<td class="px-4 py-3 text-gray-600 text-center">' + v.ageCoef.toFixed(2) + '</td>' +
+                '<td class="px-4 py-3 text-gray-500 text-xs">' + v.remark + '</td>' +
+                '<td class="px-4 py-3 text-center">' +
+                    '<div style="display:flex;gap:4px;justify-content:center">' +
+                        '<button onclick="editVariety(\'' + v.id + '\')" style="padding:4px 8px;font-size:12px;color:#f59e0b;background:none;border:none;cursor:pointer;border-radius:4px">编辑</button>' +
+                        '<button onclick="deleteVariety(\'' + v.id + '\')" style="padding:4px 8px;font-size:12px;color:#ef4444;background:none;border:none;cursor:pointer;border-radius:4px">删除</button>' +
+                    '</div>' +
+                '</td></tr>';
+        }).join('');
+    }
+    document.getElementById('variety-total-count').textContent = filtered.length;
+}
+
+function openVarietyAddModal() {
+    varietyEditId = null;
+    document.getElementById('variety-modal-title').textContent = '新增品系';
+    document.getElementById('var-name').value = '';
+    document.getElementById('var-rootstock-coef').value = '1.00';
+    document.getElementById('var-age-coef').value = '1.00';
+    document.getElementById('var-remark').value = '';
+    showModal('variety-add-modal');
+}
+
+function editVariety(id) {
+    var v = varietyData.find(function(x){ return x.id === id; });
+    if(!v) return;
+    varietyEditId = id;
+    document.getElementById('variety-modal-title').textContent = '编辑品系 - ' + v.name;
+    document.getElementById('var-name').value = v.name;
+    document.getElementById('var-rootstock-coef').value = v.rootstockCoef;
+    document.getElementById('var-age-coef').value = v.ageCoef;
+    document.getElementById('var-remark').value = v.remark;
+    showModal('variety-add-modal');
+}
+
+function submitVarietyForm() {
+    var name = document.getElementById('var-name').value.trim();
+    var rootstockCoef = parseFloat(document.getElementById('var-rootstock-coef').value);
+    var ageCoef = parseFloat(document.getElementById('var-age-coef').value);
+    var remark = document.getElementById('var-remark').value.trim();
+
+    if(!name){ alert('请填写品系名称'); return; }
+    if(isNaN(rootstockCoef) || rootstockCoef <= 0){ alert('请填写有效的砧木修正系数'); return; }
+    if(isNaN(ageCoef) || ageCoef <= 0){ alert('请填写有效的树龄修正系数'); return; }
+
+    if(varietyEditId){
+        var v = varietyData.find(function(x){ return x.id === varietyEditId; });
+        if(v){
+            v.name = name;
+            v.rootstockCoef = rootstockCoef;
+            v.ageCoef = ageCoef;
+            v.remark = remark;
+        }
+        renderVarietyTable();
+        renderPlotVarietyFilter();
+        updatePlotVarietyOptions();
+        alert('品系修改成功！');
+    } else {
+        var newId = 'v' + (Date.now());
+        varietyData.push({ id: newId, name: name, rootstockCoef: rootstockCoef, ageCoef: ageCoef, remark: remark });
+        renderVarietyTable();
+        renderPlotVarietyFilter();
+        updatePlotVarietyOptions();
+        alert('品系新增成功！');
+    }
+    closeModal('variety-add-modal');
+}
+
+function deleteVariety(id) {
+    var v = varietyData.find(function(x){ return x.id === id; });
+    if(!v) return;
+    if(plotData.some(function(p){ return p.variety === v.name })){
+        alert('该品系已被地块档案引用，无法删除。请先删除相关地块。');
+        return;
+    }
+    varietyDeleteId = id;
+    document.getElementById('delete-var-name').textContent = v.name;
+    showModal('variety-delete-modal');
+}
+
+function confirmVarietyDelete() {
+    var idx = varietyData.findIndex(function(x){ return x.id === varietyDeleteId; });
+    if(idx >= 0) varietyData.splice(idx, 1);
+    closeModal('variety-delete-modal');
+    varietyDeleteId = null;
+    renderVarietyTable();
+    renderPlotVarietyFilter();
+    updatePlotVarietyOptions();
+}
+
+function renderPlotVarietyFilter() {
+    var sel = document.getElementById('plot-variety-filter');
+    sel.innerHTML = '<option value="">全部品系</option>' +
+        varietyData.map(function(v){ return '<option value="' + v.name + '">' + v.name + '</option>'; }).join('');
+}
+
+function updatePlotVarietyOptions() {
+    var sel = document.getElementById('plot-variety');
+    var currentVal = sel.value;
+    sel.innerHTML = varietyData.map(function(v){ return '<option value="' + v.name + '">' + v.name + '</option>'; }).join('');
+    if(currentVal && varietyData.some(function(v){ return v.name === currentVal })){
+        sel.value = currentVal;
+    }
+    updateAutoCode();
+}
+
+function renderPlotTable() {
+    var searchTerm = (document.getElementById('plot-search').value || '').toLowerCase();
+    var varietyFilter = document.getElementById('plot-variety-filter').value;
+    var filtered = plotData.filter(function(p){
+        var matchSearch = !searchTerm || p.code.toLowerCase().indexOf(searchTerm) !== -1 || p.variety.toLowerCase().indexOf(searchTerm) !== -1;
+        var matchVariety = !varietyFilter || p.variety === varietyFilter;
+        return matchSearch && matchVariety;
+    });
+    var tbody = document.getElementById('plot-tbody');
+    if(filtered.length === 0){
+        tbody.innerHTML = '<tr><td colspan="11" style="padding:40px;text-align:center;color:#9ca3af">暂无数据</td></tr>';
+    } else {
+        tbody.innerHTML = filtered.map(function(p){
+            return '<tr class="hover:bg-gray-50">' +
+                '<td class="px-4 py-3 font-mono text-xs text-gray-700">' + p.code + '</td>' +
+                '<td class="px-4 py-3 text-gray-800">' + p.variety + '</td>' +
+                '<td class="px-4 py-3 text-gray-600">' + p.rootstock + '</td>' +
+                '<td class="px-4 py-3 text-gray-600">' + p.age + '年</td>' +
+                '<td class="px-4 py-3 text-gray-600 text-right">' + p.area.toFixed(1) + '</td>' +
+                '<td class="px-4 py-3 text-gray-600 text-right">' + p.altitude + '</td>' +
+                '<td class="px-4 py-3 text-gray-600 text-right">' + p.slope.toFixed(1) + '</td>' +
+                '<td class="px-4 py-3"><span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">' + p.cultivation + '</span></td>' +
+                '<td class="px-4 py-3 text-gray-700">' + p.manager + '</td>' +
+                '<td class="px-4 py-3 text-gray-500">' + p.phone + '</td>' +
+                '<td class="px-4 py-3 text-center">' +
+                    '<div style="display:flex;gap:4px;justify-content:center">' +
+                        '<button onclick="editPlot(\'' + p.id + '\')" style="padding:4px 8px;font-size:12px;color:#f59e0b;background:none;border:none;cursor:pointer;border-radius:4px">编辑</button>' +
+                        '<button onclick="deletePlot(\'' + p.id + '\')" style="padding:4px 8px;font-size:12px;color:#ef4444;background:none;border:none;cursor:pointer;border-radius:4px">删除</button>' +
+                    '</div>' +
+                '</td></tr>';
+        }).join('');
+    }
+    document.getElementById('plot-total-count').textContent = filtered.length;
+}
+
+function buildAutoCode(variety, rootstock, age, code) {
+    if(!variety || !rootstock || !age || !code) return '南丰蜜桔-{品系}-{砧木}-{树龄}-{地块编码}';
+    return '南丰蜜桔-' + variety + '-' + rootstock + '-' + age + '-' + code;
+}
+
+function updateAutoCode() {
+    var v = document.getElementById('plot-variety').value;
+    var r = document.getElementById('plot-rootstock').value;
+    var a = document.getElementById('plot-age').value;
+    var c = document.getElementById('plot-code').value;
+    var code = buildAutoCode(v, r, a, c);
+    var preview = document.getElementById('auto-code-preview');
+    if(code === '南丰蜜桔-{品系}-{砧木}-{树龄}-{地块编码}'){
+        preview.textContent = code;
+        preview.style.color = '#9ca3af';
+    } else {
+        preview.textContent = code;
+        preview.style.color = '#16a34a';
+    }
+}
+
+function openPlotAddModal() {
+    plotEditId = null;
+    document.getElementById('plot-modal-title').textContent = '新增地块';
+    updatePlotVarietyOptions();
+    document.getElementById('plot-rootstock').value = '枳砧';
+    document.getElementById('plot-age').value = '';
+    document.getElementById('plot-code').value = '';
+    document.getElementById('plot-area').value = '';
+    document.getElementById('plot-altitude').value = '';
+    document.getElementById('plot-slope').value = '';
+    document.getElementById('plot-cultivation').value = '露天栽培';
+    document.getElementById('plot-manager').value = '';
+    document.getElementById('plot-phone').value = '';
+    updateAutoCode();
+    showModal('plot-add-modal');
+}
+
+function editPlot(id) {
+    var p = plotData.find(function(x){ return x.id === id; });
+    if(!p) return;
+    plotEditId = id;
+    document.getElementById('plot-modal-title').textContent = '编辑地块';
+    updatePlotVarietyOptions();
+    document.getElementById('plot-variety').value = p.variety;
+    document.getElementById('plot-rootstock').value = p.rootstock;
+    document.getElementById('plot-age').value = p.age;
+    var codeMatch = p.code.match(/南丰蜜桔-[^-]+-[^-]+-[^-]+-(.+)/);
+    document.getElementById('plot-code').value = codeMatch ? codeMatch[1] : '';
+    document.getElementById('plot-area').value = p.area;
+    document.getElementById('plot-altitude').value = p.altitude;
+    document.getElementById('plot-slope').value = p.slope;
+    document.getElementById('plot-cultivation').value = p.cultivation;
+    document.getElementById('plot-manager').value = p.manager;
+    document.getElementById('plot-phone').value = p.phone;
+    updateAutoCode();
+    showModal('plot-add-modal');
+}
+
+function submitPlotForm() {
+    var variety = document.getElementById('plot-variety').value;
+    var rootstock = document.getElementById('plot-rootstock').value;
+    var age = parseInt(document.getElementById('plot-age').value);
+    var code = document.getElementById('plot-code').value.trim();
+    var area = parseFloat(document.getElementById('plot-area').value) || 0;
+    var altitude = parseFloat(document.getElementById('plot-altitude').value) || 0;
+    var slope = parseFloat(document.getElementById('plot-slope').value) || 0;
+    var cultivation = document.getElementById('plot-cultivation').value;
+    var manager = document.getElementById('plot-manager').value.trim();
+    var phone = document.getElementById('plot-phone').value.trim();
+
+    if(!variety){ alert('请选择品系'); return; }
+    if(!rootstock){ alert('请选择砧木'); return; }
+    if(!age || age <= 0){ alert('请填写有效的树龄'); return; }
+    if(!code){ alert('请填写地块编码'); return; }
+
+    var autoCode = buildAutoCode(variety, rootstock, age, code);
+
+    if(plotEditId){
+        var p = plotData.find(function(x){ return x.id === plotEditId; });
+        if(p){
+            p.code = autoCode;
+            p.variety = variety;
+            p.rootstock = rootstock;
+            p.age = age;
+            p.area = area;
+            p.altitude = altitude;
+            p.slope = slope;
+            p.cultivation = cultivation;
+            p.manager = manager;
+            p.phone = phone;
+        }
+        alert('地块修改成功！');
+    } else {
+        var newId = 'p' + (Date.now());
+        plotData.push({
+            id: newId, code: autoCode, variety: variety, rootstock: rootstock,
+            age: age, area: area, altitude: altitude, slope: slope,
+            cultivation: cultivation, manager: manager, phone: phone
+        });
+        alert('地块新增成功！');
+    }
+    closeModal('plot-add-modal');
+    renderPlotTable();
+}
+
+function deletePlot(id) {
+    var p = plotData.find(function(x){ return x.id === id; });
+    if(!p) return;
+    plotDeleteId = id;
+    document.getElementById('delete-plot-name').textContent = p.code;
+    showModal('plot-delete-modal');
+}
+
+function confirmPlotDelete() {
+    var idx = plotData.findIndex(function(x){ return x.id === plotDeleteId; });
+    if(idx >= 0) plotData.splice(idx, 1);
+    closeModal('plot-delete-modal');
+    plotDeleteId = null;
+    renderPlotTable();
+}
+
+function renderStageButtons() {
+    var container = document.getElementById('stage-buttons');
+    container.innerHTML = stages.map(function(s){
+        return '<button class="stage-btn' + (s.key === currentStage ? ' active' : '') + '" onclick="switchStage(\'' + s.key + '\')">' + s.name + '</button>';
+    }).join('');
+}
+
+function switchStage(key) {
+    currentStage = key;
+    renderStageButtons();
+    renderStageTable();
+}
+
+function renderStageTable() {
+    var stage = stages.find(function(s){ return s.key === currentStage; });
+    var info = document.getElementById('stage-info');
+    info.innerHTML = '<strong>' + stage.name + '</strong>：' + stage.desc;
+
+    var params = stageParams[currentStage];
+    var factors = ['temp', 'humidity', 'soil', 'light', 'k', 'ph', 'root'];
+    var units = { temp: '°C', humidity: '%', soil: '%', light: 'klx', k: 'mg/kg', ph: '', root: 'cm' };
+    var keys = ['optMin', 'optMax', 'killMin', 'killMax', 'w', 'pk', 'r', 'zmax'];
+
+    var tbody = document.getElementById('stage-tbody');
+    tbody.innerHTML = factors.map(function(f){
+        var p = params[f];
+        var unit = units[f] || '';
+        var html = '<tr class="hover:bg-gray-50">';
+        html += '<td class="px-3 py-3 font-medium text-gray-800">' + p.name + (unit ? ' <span class="text-xs text-gray-400">(' + unit + ')</span>' : '') + '</td>';
+        keys.forEach(function(k){
+            html += '<td class="px-3 py-2"><input type="number" step="0.01" class="inline-input" value="' + p[k] + '" onchange="updateStageParam(\'' + f + '\',\'' + k + '\', this.value)"></td>';
+        });
+        html += '</tr>';
+        return html;
+    }).join('');
+}
+
+function updateStageParam(factor, key, value) {
+    var num = parseFloat(value);
+    if(isNaN(num)) return;
+    stageParams[currentStage][factor][key] = num;
+}
+
+function resetStageParams() {
+    if(!confirm('确定要将所有阶段的参数重置为默认值吗？')) return;
+    stageParams = JSON.parse(JSON.stringify(originalStageParams));
+    renderStageTable();
+    alert('参数已重置为默认值！');
+}
+
+function saveStageParams() {
+    alert('阶段参数已保存！共 ' + stages.length + ' 个生长阶段，' + Object.keys(stageParams).reduce(function(sum, k){ return sum + Object.keys(stageParams[k]).length; }, 0) + ' 项参数已更新。');
+}
+
+function exportArchive() {
+    alert('档案导出功能：将品系管理(' + varietyData.length + '条)、地块档案(' + plotData.length + '条)和阶段参数导出为Excel文件。');
+}
+
+function showModal(id) {
+    var modal = document.getElementById(id);
+    if(modal){
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function closeModal(id) {
+    var modal = document.getElementById(id);
+    if(modal){
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+}
+
+window.onload = function() {
+    renderVarietyTable();
+    renderPlotVarietyFilter();
+    renderPlotTable();
+    renderStageButtons();
+    renderStageTable();
+};
+</script>
+</body>
+</html>

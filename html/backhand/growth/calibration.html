@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据校准 - 南丰蜜桔生长模型系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body{margin:0;padding:0;background-color:#F0F2F5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,'Noto Sans SC',sans-serif}
+        .content-wrapper{padding:24px;height:100vh;overflow-y:auto}
+        .tab-active{color:#16a34a;border-bottom:2px solid #16a34a;font-weight:600}
+        .tab-inactive{color:#6b7280;border-bottom:2px solid transparent}
+        .tab-inactive:hover{color:#374151}
+        .error-bar{transition:all 0.3s}
+    </style>
+</head>
+<body>
+<div class="content-wrapper">
+
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h1 class="text-xl font-bold text-gray-800">数据校准</h1>
+            <p class="text-gray-500 text-sm mt-1">对比历史实测数据与模型预测结果，微调模型参数以提升预测精度</p>
+        </div>
+        <div class="flex items-center space-x-3">
+            <button onclick="recalculateModel()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm flex items-center">
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                重新计算模型
+            </button>
+            <button onclick="exportCalibrationReport()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm">导出报告</button>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 mb-6">
+        <div class="flex border-b border-gray-200 px-6">
+            <button onclick="switchTab('compare')" id="tab-compare" class="px-6 py-4 text-sm tab-active" style="transition:all 0.2s">
+                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                历史数据对比
+            </button>
+            <button onclick="switchTab('param')" id="tab-param" class="px-6 py-4 text-sm tab-inactive" style="transition:all 0.2s">
+                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                参数微调
+            </button>
+            <button onclick="switchTab('log')" id="tab-log" class="px-6 py-4 text-sm tab-inactive" style="transition:all 0.2s">
+                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                校准日志
+            </button>
+        </div>
+
+        <!-- 历史数据对比 Tab -->
+        <div id="panel-compare" class="p-6">
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center space-x-4">
+                    <div>
+                        <label class="block text-xs text-gray-500 mb-1">选择地块</label>
+                        <select id="compare-plot" class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 min-w-[180px]">
+                            <option value="NF-001">NF-001 东坡A-03地块</option>
+                            <option value="NF-003">NF-003 南坡B-01地块</option>
+                            <option value="NF-008">NF-008 南坡B-04地块</option>
+                            <option value="NF-015">NF-015 南坡B-06地块</option>
+                            <option value="NF-030">NF-030 北坡D-05地块</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-500 mb-1">选择年份</label>
+                        <select id="compare-year" class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+                            <option value="2023">2023年</option>
+                            <option value="2024">2024年</option>
+                            <option value="2025" selected>2025年</option>
+                        </select>
+                    </div>
+                    <button onclick="runComparison()" class="px-5 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm flex items-center mt-6">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                        对比分析
+                    </button>
+                </div>
+                <div class="text-sm text-gray-500">
+                    数据截止: <span class="font-medium text-gray-700">2025-11-30</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                <div class="lg:col-span-2 bg-white rounded-xl border border-gray-100 shadow-sm">
+                    <div class="p-4 border-b border-gray-100">
+                        <h3 class="text-base font-semibold text-gray-800 flex items-center">
+                            <svg class="w-5 h-5 text-gray-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                            指标对比详情
+                        </h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="bg-gray-50">
+                                    <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">指标</th>
+                                    <th class="text-right px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">模型预测值</th>
+                                    <th class="text-right px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">实测值</th>
+                                    <th class="text-right px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">误差率</th>
+                                    <th class="text-center px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">偏差方向</th>
+                                </tr>
+                            </thead>
+                            <tbody id="compare-table-body" class="divide-y divide-gray-100"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl border border-gray-100 shadow-sm">
+                    <div class="p-4 border-b border-gray-100">
+                        <h3 class="text-base font-semibold text-gray-800">误差分析</h3>
+                    </div>
+                    <div class="p-4">
+                        <div class="h-56"><canvas id="errorChart"></canvas></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200 p-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="flex items-center">
+                        <div class="w-14 h-14 bg-green-100 rounded-xl flex items-center justify-center mr-4">
+                            <svg class="w-7 h-7 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        </div>
+                        <div>
+                            <p class="text-xs text-green-700 mb-1">平均误差率</p>
+                            <p class="text-2xl font-bold text-green-700">3.0%</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center mr-4">
+                            <svg class="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                        </div>
+                        <div>
+                            <p class="text-xs text-blue-700 mb-1">模型精度</p>
+                            <p class="text-2xl font-bold text-blue-700">97.0%</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-14 h-14 bg-amber-100 rounded-xl flex items-center justify-center mr-4">
+                            <svg class="w-7 h-7 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                        </div>
+                        <div>
+                            <p class="text-xs text-amber-700 mb-1">评估结论</p>
+                            <p class="text-lg font-bold text-amber-700">模型精度良好</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-4 pt-4 border-t border-green-200">
+                    <p class="text-sm text-gray-600 leading-relaxed">
+                        <span class="font-semibold text-gray-800">分析说明：</span>
+                        本次对比基于NF-001地块2025年实际生产数据，模型预测值与实测值的平均误差率为3.0%，处于可接受范围（≤5%）。
+                        果径、糖度、单果重等品质指标偏差均在±5%以内，模型对南丰蜜桔生长发育的预测精度良好。
+                        建议继续保持当前参数配置，后续可结合更多年份数据进一步优化。
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 参数微调 Tab -->
+        <div id="panel-param" class="p-6" style="display:none">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-1 space-y-4">
+                    <div class="bg-white rounded-xl border border-gray-100 shadow-sm">
+                        <div class="p-4 border-b border-gray-100">
+                            <h3 class="text-sm font-semibold text-gray-800">生育阶段</h3>
+                        </div>
+                        <div class="p-3" id="stage-selector"></div>
+                    </div>
+                    <div class="bg-white rounded-xl border border-gray-100 shadow-sm">
+                        <div class="p-4 border-b border-gray-100">
+                            <h3 class="text-sm font-semibold text-gray-800">影响因子</h3>
+                        </div>
+                        <div class="p-3" id="factor-selector"></div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-2 space-y-6">
+                    <div class="bg-white rounded-xl border border-gray-100 shadow-sm">
+                        <div class="p-4 border-b border-gray-100 flex items-center justify-between">
+                            <h3 class="text-sm font-semibold text-gray-800">当前参数配置</h3>
+                            <span id="current-stage-factor-label" class="text-xs px-2 py-1 bg-green-100 text-green-700 rounded-full"></span>
+                        </div>
+                        <div class="p-6">
+                            <div id="current-params-display" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl border border-gray-100 shadow-sm">
+                        <div class="p-4 border-b border-gray-100">
+                            <h3 class="text-sm font-semibold text-gray-800">参数编辑</h3>
+                        </div>
+                        <div class="p-6">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                                <div>
+                                    <label class="block text-xs text-gray-500 mb-2">新权重 w</label>
+                                    <div class="relative">
+                                        <input type="number" id="edit-weight" step="0.01" min="0" max="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+                                    </div>
+                                    <p class="text-xs text-gray-400 mt-1">范围: 0 ~ 1</p>
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-gray-500 mb-2">新日生长速度 r</label>
+                                    <div class="relative">
+                                        <input type="number" id="edit-rate" step="0.01" min="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+                                    </div>
+                                    <p class="text-xs text-gray-400 mt-1">范围: 0 ~ 1</p>
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-gray-500 mb-2">新生长上限 Zmax</label>
+                                    <div class="relative">
+                                        <input type="number" id="edit-zmax" step="0.1" min="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+                                    </div>
+                                    <p class="text-xs text-gray-400 mt-1">根据指标单位确定</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+                                <div class="flex items-center">
+                                    <svg class="w-4 h-4 text-amber-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                                    <span class="text-xs text-amber-700">修改后需重新计算模型才能生效</span>
+                                </div>
+                                <div class="flex items-center space-x-3">
+                                    <button onclick="resetParams()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm">重置</button>
+                                    <button onclick="saveParams()" class="px-5 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">保存修改</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl border border-gray-100 shadow-sm">
+                        <div class="p-4 border-b border-gray-100">
+                            <h3 class="text-sm font-semibold text-gray-800">参数变更历史</h3>
+                        </div>
+                        <div class="p-4">
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-sm">
+                                    <thead>
+                                        <tr class="border-b border-gray-200">
+                                            <th class="text-left py-2 px-3 text-xs font-semibold text-gray-500">时间</th>
+                                            <th class="text-left py-2 px-3 text-xs font-semibold text-gray-500">阶段/因子</th>
+                                            <th class="text-left py-2 px-3 text-xs font-semibold text-gray-500">修改项</th>
+                                            <th class="text-left py-2 px-3 text-xs font-semibold text-gray-500">修改前→修改后</th>
+                                            <th class="text-left py-2 px-3 text-xs font-semibold text-gray-500">操作人</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="param-history-body" class="divide-y divide-gray-100"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 校准日志 Tab -->
+        <div id="panel-log" class="p-6" style="display:none">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center space-x-3">
+                    <input type="text" id="log-search" placeholder="搜索校准记录..." class="px-4 py-2 border border-gray-300 rounded-lg text-sm w-64 focus:outline-none focus:ring-2 focus:ring-green-500" oninput="filterLogs()">
+                    <select id="log-status-filter" class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500" onchange="filterLogs()">
+                        <option value="">全部状态</option>
+                        <option value="已生效">已生效</option>
+                        <option value="待计算">待计算</option>
+                        <option value="已回滚">已回滚</option>
+                    </select>
+                </div>
+                <div class="text-sm text-gray-500">
+                    共 <span id="log-total-count" class="font-semibold text-gray-700">0</span> 条记录
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="bg-gray-50">
+                            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">校准时间</th>
+                            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">地块/年份</th>
+                            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">修改参数</th>
+                            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">修改前 → 修改后</th>
+                            <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">操作人</th>
+                            <th class="text-center px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">状态</th>
+                        </tr>
+                    </thead>
+                    <tbody id="log-table-body" class="divide-y divide-gray-100"></tbody>
+                </table>
+            </div>
+            <div id="cal-log-pagination" class="px-4 py-3 flex items-center justify-between flex-wrap gap-2"></div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+var compareData = [
+    { metric: '果径', unit: 'mm', predicted: 78, actual: 75, errorRate: 4.0, direction: '模型偏高', directionType: 'over' },
+    { metric: '糖度', unit: '°Bx', predicted: 14.2, actual: 13.8, errorRate: 2.9, direction: '模型偏高', directionType: 'over' },
+    { metric: '单果重', unit: 'g', predicted: 235, actual: 228, errorRate: 3.1, direction: '模型偏高', directionType: 'over' },
+    { metric: '亩产', unit: 'kg', predicted: 2800, actual: 2720, errorRate: 2.9, direction: '模型偏高', directionType: 'over' },
+    { metric: '商品果率', unit: '%', predicted: 92, actual: 90, errorRate: 2.2, direction: '模型偏高', directionType: 'over' }
+];
+
+var stages = [
+    { id: 'seedling', name: '幼苗期', icon: '🌱' },
+    { id: 'growth', name: '生长期', icon: '🌿' },
+    { id: 'flower', name: '开花期', icon: '🌸' },
+    { id: 'fruit-drop', name: '落果期', icon: '🍃' },
+    { id: 'enlarge', name: '膨大期', icon: '🍊' },
+    { id: 'mature', name: '成熟期', icon: '🍊' }
+];
+
+var factors = [
+    { id: 'temp', name: '温度', unit: '°C' },
+    { id: 'humidity', name: '湿度', unit: '%' },
+    { id: 'soil-water', name: '土壤水', unit: '%' },
+    { id: 'light', name: '光照', unit: 'klx' },
+    { id: 'potassium', name: '钾', unit: 'mg/kg' },
+    { id: 'ph', name: 'PH值', unit: '' }
+];
+
+var paramConfig = {};
+stages.forEach(function(s) {
+    paramConfig[s.id] = {};
+    factors.forEach(function(f) {
+        var defaults = {
+            seedling: { temp: {w:0.85,r:0.95,Zmax:28}, humidity:{w:0.70,r:0.90,Zmax:85}, 'soil-water':{w:0.80,r:0.92,Zmax:80}, light:{w:0.75,r:0.88,Zmax:25}, potassium:{w:0.65,r:0.85,Zmax:150}, ph:{w:0.60,r:0.80,Zmax:7.5} },
+            growth: { temp: {w:0.90,r:0.97,Zmax:35}, humidity:{w:0.75,r:0.93,Zmax:80}, 'soil-water':{w:0.85,r:0.95,Zmax:75}, light:{w:0.82,r:0.92,Zmax:35}, potassium:{w:0.72,r:0.88,Zmax:200}, ph:{w:0.68,r:0.83,Zmax:7.2} },
+            flower: { temp: {w:0.92,r:0.98,Zmax:32}, humidity:{w:0.80,r:0.95,Zmax:75}, 'soil-water':{w:0.78,r:0.90,Zmax:70}, light:{w:0.88,r:0.94,Zmax:40}, potassium:{w:0.78,r:0.90,Zmax:220}, ph:{w:0.70,r:0.85,Zmax:7.0} },
+            'fruit-drop': { temp: {w:0.88,r:0.96,Zmax:30}, humidity:{w:0.82,r:0.94,Zmax:70}, 'soil-water':{w:0.90,r:0.96,Zmax:68}, light:{w:0.85,r:0.93,Zmax:38}, potassium:{w:0.82,r:0.92,Zmax:250}, ph:{w:0.72,r:0.86,Zmax:6.8} },
+            enlarge: { temp: {w:0.95,r:0.98,Zmax:38}, humidity:{w:0.88,r:0.96,Zmax:72}, 'soil-water':{w:0.92,r:0.97,Zmax:78}, light:{w:0.90,r:0.95,Zmax:45}, potassium:{w:0.88,r:0.94,Zmax:300}, ph:{w:0.75,r:0.88,Zmax:6.5} },
+            mature: { temp: {w:0.93,r:0.97,Zmax:36}, humidity:{w:0.85,r:0.95,Zmax:68}, 'soil-water':{w:0.88,r:0.94,Zmax:65}, light:{w:0.92,r:0.96,Zmax:42}, potassium:{w:0.90,r:0.95,Zmax:280}, ph:{w:0.78,r:0.90,Zmax:6.2} }
+        };
+        paramConfig[s.id][f.id] = defaults[s.id][f.id];
+    });
+});
+
+var paramHistory = [
+    { time: '2025-11-28 14:35', stage: '膨大期', factor: '钾', item: '权重w', before: '0.85', after: '0.88', operator: '张明' },
+    { time: '2025-11-25 10:12', stage: '成熟期', factor: '温度', item: '日生长速度r', before: '0.95', after: '0.97', operator: '李伟' },
+    { time: '2025-11-20 16:48', stage: '膨大期', factor: '土壤水', item: '生长上限Zmax', before: '75', after: '78', operator: '王芳' },
+    { time: '2025-11-15 09:30', stage: '开花期', factor: '湿度', item: '权重w', before: '0.78', after: '0.80', operator: '张明' },
+    { time: '2025-11-10 15:22', stage: '生长期', factor: '光照', item: '日生长速度r', before: '0.90', after: '0.92', operator: '刘洋' },
+    { time: '2025-11-05 11:05', stage: '成熟期', factor: 'PH值', item: '权重w', before: '0.72', after: '0.75', operator: '陈强' },
+    { time: '2025-10-30 13:40', stage: '落果期', factor: '温度', item: '生长上限Zmax', before: '28', after: '30', operator: '赵丽' },
+    { time: '2025-10-25 08:55', stage: '幼苗期', factor: '湿度', item: '权重w', before: '0.65', after: '0.70', operator: '孙杰' }
+];
+
+var calibrationLogs = [
+    { time: '2025-11-28 14:35', plot: 'NF-001 / 2025', param: '膨大期-钾', change: '权重w: 0.85 → 0.88', operator: '张明', status: '已生效' },
+    { time: '2025-11-25 10:12', plot: 'NF-003 / 2025', param: '成熟期-温度', change: '日生长速度r: 0.95 → 0.97', operator: '李伟', status: '已生效' },
+    { time: '2025-11-22 16:20', plot: 'NF-008 / 2025', param: '膨大期-光照', change: '权重w: 0.88 → 0.90', operator: '王芳', status: '待计算' },
+    { time: '2025-11-20 16:48', plot: 'NF-001 / 2025', param: '膨大期-土壤水', change: 'Zmax: 75 → 78', operator: '王芳', status: '已生效' },
+    { time: '2025-11-18 11:30', plot: 'NF-015 / 2025', param: '开花期-温度', change: '权重w: 0.90 → 0.92', operator: '张明', status: '已生效' },
+    { time: '2025-11-15 09:30', plot: 'NF-003 / 2025', param: '开花期-湿度', change: '权重w: 0.78 → 0.80', operator: '张明', status: '已生效' },
+    { time: '2025-11-12 14:05', plot: 'NF-030 / 2025', param: '生长期-钾', change: 'Zmax: 180 → 200', operator: '李伟', status: '已生效' },
+    { time: '2025-11-10 15:22', plot: 'NF-008 / 2025', param: '生长期-光照', change: '日生长速度r: 0.90 → 0.92', operator: '刘洋', status: '已生效' },
+    { time: '2025-11-08 10:45', plot: 'NF-001 / 2025', param: '成熟期-糖度模型', change: '预测偏差: +3.2% → +1.8%', operator: '陈强', status: '已生效' },
+    { time: '2025-11-05 11:05', plot: 'NF-015 / 2025', param: '成熟期-PH值', change: '权重w: 0.72 → 0.75', operator: '陈强', status: '已生效' },
+    { time: '2025-11-02 13:20', plot: 'NF-003 / 2025', param: '落果期-土壤水', change: '权重w: 0.85 → 0.90', operator: '赵丽', status: '已回滚' },
+    { time: '2025-10-30 13:40', plot: 'NF-001 / 2025', param: '落果期-温度', change: 'Zmax: 28 → 30', operator: '赵丽', status: '已生效' },
+    { time: '2025-10-28 09:15', plot: 'NF-030 / 2025', param: '幼苗期-湿度', change: '权重w: 0.65 → 0.68', operator: '孙杰', status: '已生效' },
+    { time: '2025-10-25 08:55', plot: 'NF-008 / 2025', param: '幼苗期-湿度', change: '权重w: 0.65 → 0.70', operator: '孙杰', status: '已生效' },
+    { time: '2025-10-22 15:30', plot: 'NF-001 / 2025', param: '膨大期-温度', change: '日生长速度r: 0.96 → 0.98', operator: '张明', status: '已生效' },
+    { time: '2025-10-20 10:00', plot: 'NF-003 / 2025', param: '生长期-PH值', change: '权重w: 0.65 → 0.68', operator: '刘洋', status: '已生效' },
+    { time: '2025-10-18 14:25', plot: 'NF-015 / 2025', param: '开花期-钾', change: 'Zmax: 200 → 220', operator: '王芳', status: '已生效' },
+    { time: '2025-10-15 11:40', plot: 'NF-030 / 2025', param: '成熟期-土壤水', change: '权重w: 0.82 → 0.85', operator: '陈强', status: '已生效' }
+];
+
+var currentStage = 'enlarge';
+var currentFactor = 'temp';
+var errorChart = null;
+var filteredLogs = calibrationLogs.slice();
+var calLogCurrentPage = 1;
+var calLogPageSize = 10;
+
+function switchTab(tab) {
+    document.getElementById('panel-compare').style.display = tab === 'compare' ? '' : 'none';
+    document.getElementById('panel-param').style.display = tab === 'param' ? '' : 'none';
+    document.getElementById('panel-log').style.display = tab === 'log' ? '' : 'none';
+
+    document.getElementById('tab-compare').className = 'px-6 py-4 text-sm ' + (tab === 'compare' ? 'tab-active' : 'tab-inactive');
+    document.getElementById('tab-param').className = 'px-6 py-4 text-sm ' + (tab === 'param' ? 'tab-active' : 'tab-inactive');
+    document.getElementById('tab-log').className = 'px-6 py-4 text-sm ' + (tab === 'log' ? 'tab-active' : 'tab-inactive');
+
+    if (tab === 'compare') {
+        if (!errorChart) initErrorChart();
+    }
+}
+
+function renderCompareTable() {
+    var tbody = document.getElementById('compare-table-body');
+    tbody.innerHTML = compareData.map(function(item) {
+        var dirIcon = item.directionType === 'over'
+            ? '<span class="inline-flex items-center px-2 py-0.5 rounded text-xs bg-orange-100 text-orange-700">↑ 偏高</span>'
+            : '<span class="inline-flex items-center px-2 py-0.5 rounded text-xs bg-blue-100 text-blue-700">↓ 偏低</span>';
+        var errColor = item.errorRate <= 2.5 ? 'text-green-600' : (item.errorRate <= 3.5 ? 'text-amber-600' : 'text-red-600');
+        return '<tr class="hover:bg-gray-50">' +
+            '<td class="px-4 py-3 font-medium text-gray-800">' + item.metric + '</td>' +
+            '<td class="px-4 py-3 text-right text-gray-700 font-medium">' + item.predicted + ' ' + item.unit + '</td>' +
+            '<td class="px-4 py-3 text-right text-gray-700">' + item.actual + ' ' + item.unit + '</td>' +
+            '<td class="px-4 py-3 text-right font-semibold ' + errColor + '">' + item.errorRate.toFixed(1) + '%</td>' +
+            '<td class="px-4 py-3 text-center">' + dirIcon + '</td>' +
+            '</tr>';
+    }).join('');
+}
+
+function runComparison() {
+    var plot = document.getElementById('compare-plot').value;
+    var year = document.getElementById('compare-year').value;
+    var btn = event.target.closest('button');
+    var originalHtml = btn.innerHTML;
+    btn.innerHTML = '<svg class="w-4 h-4 mr-1 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>分析中...';
+    btn.disabled = true;
+    setTimeout(function() {
+        btn.innerHTML = originalHtml;
+        btn.disabled = false;
+        renderCompareTable();
+        if (errorChart) updateErrorChart();
+    }, 800);
+}
+
+function initErrorChart() {
+    var ctx = document.getElementById('errorChart').getContext('2d');
+    errorChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: compareData.map(function(d) { return d.metric; }),
+            datasets: [{
+                label: '误差率 (%)',
+                data: compareData.map(function(d) { return d.errorRate; }),
+                backgroundColor: compareData.map(function(d) {
+                    if (d.errorRate <= 2.5) return '#22C55E';
+                    if (d.errorRate <= 3.5) return '#EAB308';
+                    return '#EF4444';
+                }),
+                borderRadius: 6,
+                barThickness: 32
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) { return '误差率: ' + context.parsed.y.toFixed(1) + '%'; }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 6,
+                    ticks: { stepSize: 1, font: { size: 11 }, callback: function(v) { return v + '%'; } },
+                    grid: { color: '#f3f4f6' }
+                },
+                x: {
+                    ticks: { font: { size: 11 } },
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+}
+
+function updateErrorChart() {
+    if (!errorChart) return;
+    errorChart.data.datasets[0].data = compareData.map(function(d) { return d.errorRate; });
+    errorChart.data.datasets[0].backgroundColor = compareData.map(function(d) {
+        if (d.errorRate <= 2.5) return '#22C55E';
+        if (d.errorRate <= 3.5) return '#EAB308';
+        return '#EF4444';
+    });
+    errorChart.update();
+}
+
+function renderStageSelector() {
+    var container = document.getElementById('stage-selector');
+    container.innerHTML = stages.map(function(s) {
+        var active = s.id === currentStage;
+        return '<div onclick="selectStage(\'' + s.id + '\')" class="p-3 mb-2 rounded-lg cursor-pointer transition-all ' +
+            (active ? 'bg-green-50 border border-green-200 text-green-700' : 'hover:bg-gray-50 border border-transparent text-gray-700') + '">' +
+            '<div class="flex items-center">' +
+            '<span class="text-xl mr-3">' + s.icon + '</span>' +
+            '<span class="text-sm font-medium">' + s.name + '</span>' +
+            (active ? '<svg class="w-4 h-4 ml-auto text-green-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>' : '') +
+            '</div></div>';
+    }).join('');
+}
+
+function renderFactorSelector() {
+    var container = document.getElementById('factor-selector');
+    container.innerHTML = factors.map(function(f) {
+        var active = f.id === currentFactor;
+        return '<div onclick="selectFactor(\'' + f.id + '\')" class="p-3 mb-2 rounded-lg cursor-pointer transition-all ' +
+            (active ? 'bg-blue-50 border border-blue-200 text-blue-700' : 'hover:bg-gray-50 border border-transparent text-gray-700') + '">' +
+            '<div class="flex items-center">' +
+            '<div class="w-8 h-8 rounded-lg flex items-center justify-center mr-3 text-sm font-bold ' +
+            (active ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600') + '">' + f.name.charAt(0) + '</div>' +
+            '<span class="text-sm font-medium">' + f.name + (f.unit ? ' (' + f.unit + ')' : '') + '</span>' +
+            '</div></div>';
+    }).join('');
+}
+
+function selectStage(id) {
+    currentStage = id;
+    renderStageSelector();
+    renderCurrentParams();
+    fillEditForm();
+}
+
+function selectFactor(id) {
+    currentFactor = id;
+    renderFactorSelector();
+    renderCurrentParams();
+    fillEditForm();
+}
+
+function renderCurrentParams() {
+    var stage = stages.find(function(s) { return s.id === currentStage; });
+    var factor = factors.find(function(f) { return f.id === currentFactor; });
+    var cfg = paramConfig[currentStage][currentFactor];
+
+    document.getElementById('current-stage-factor-label').textContent = stage.name + ' · ' + factor.name;
+
+    var container = document.getElementById('current-params-display');
+    container.innerHTML =
+        '<div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-4 border border-green-100">' +
+            '<p class="text-xs text-green-600 mb-1">权重 w</p>' +
+            '<p class="text-2xl font-bold text-green-700">' + cfg.w.toFixed(2) + '</p>' +
+            '<p class="text-xs text-gray-500 mt-2">因子对生长的影响权重</p>' +
+        '</div>' +
+        '<div class="bg-gradient-to-br from-blue-50 to-sky-50 rounded-xl p-4 border border-blue-100">' +
+            '<p class="text-xs text-blue-600 mb-1">日生长速度 r</p>' +
+            '<p class="text-2xl font-bold text-blue-700">' + cfg.r.toFixed(2) + '</p>' +
+            '<p class="text-xs text-gray-500 mt-2">每日生长速率常数</p>' +
+        '</div>' +
+        '<div class="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-xl p-4 border border-amber-100">' +
+            '<p class="text-xs text-amber-600 mb-1">生长上限 Zmax</p>' +
+            '<p class="text-2xl font-bold text-amber-700">' + cfg.Zmax.toFixed(1) + ' ' + factor.unit + '</p>' +
+            '<p class="text-xs text-gray-500 mt-2">该因子的最大限制值</p>' +
+        '</div>';
+}
+
+function fillEditForm() {
+    var cfg = paramConfig[currentStage][currentFactor];
+    document.getElementById('edit-weight').value = cfg.w.toFixed(2);
+    document.getElementById('edit-rate').value = cfg.r.toFixed(2);
+    document.getElementById('edit-zmax').value = cfg.Zmax.toFixed(1);
+}
+
+function saveParams() {
+    var newW = parseFloat(document.getElementById('edit-weight').value);
+    var newR = parseFloat(document.getElementById('edit-rate').value);
+    var newZ = parseFloat(document.getElementById('edit-zmax').value);
+
+    if (isNaN(newW) || isNaN(newR) || isNaN(newZ)) {
+        alert('请填写有效的数值');
+        return;
+    }
+    if (newW < 0 || newW > 1) {
+        alert('权重 w 必须在 0 ~ 1 之间');
+        return;
+    }
+    if (newR < 0 || newR > 1) {
+        alert('日生长速度 r 必须在 0 ~ 1 之间');
+        return;
+    }
+
+    var oldCfg = paramConfig[currentStage][currentFactor];
+    var stage = stages.find(function(s) { return s.id === currentStage; });
+    var factor = factors.find(function(f) { return f.id === currentFactor; });
+
+    paramConfig[currentStage][currentFactor] = { w: newW, r: newR, Zmax: newZ };
+
+    var now = new Date();
+    var timeStr = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0') + ' ' + String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+
+    var changes = [];
+    if (oldCfg.w !== newW) {
+        changes.push({ item: '权重w', before: oldCfg.w.toFixed(2), after: newW.toFixed(2) });
+    }
+    if (oldCfg.r !== newR) {
+        changes.push({ item: '日生长速度r', before: oldCfg.r.toFixed(2), after: newR.toFixed(2) });
+    }
+    if (oldCfg.Zmax !== newZ) {
+        changes.push({ item: '生长上限Zmax', before: oldCfg.Zmax.toFixed(1), after: newZ.toFixed(1) });
+    }
+
+    changes.forEach(function(c) {
+        paramHistory.unshift({
+            time: timeStr,
+            stage: stage.name,
+            factor: factor.name,
+            item: c.item,
+            before: c.before,
+            after: c.after,
+            operator: '当前用户'
+        });
+
+        calibrationLogs.unshift({
+            time: timeStr,
+            plot: '当前地块 / ' + now.getFullYear(),
+            param: stage.name + '-' + factor.name,
+            change: c.item + ': ' + c.before + ' → ' + c.after,
+            operator: '当前用户',
+            status: '待计算'
+        });
+    });
+
+    renderCurrentParams();
+    renderParamHistory();
+    renderLogTable();
+
+    alert('参数修改成功！\n\n修改后需点击「重新计算模型」才能生效。');
+}
+
+function resetParams() {
+    fillEditForm();
+}
+
+function renderParamHistory() {
+    var tbody = document.getElementById('param-history-body');
+    tbody.innerHTML = paramHistory.slice(0, 10).map(function(h) {
+        return '<tr class="hover:bg-gray-50">' +
+            '<td class="px-3 py-2 text-gray-500 whitespace-nowrap">' + h.time + '</td>' +
+            '<td class="px-3 py-2 text-gray-700">' + h.stage + '-' + h.factor + '</td>' +
+            '<td class="px-3 py-2 text-gray-600">' + h.item + '</td>' +
+            '<td class="px-3 py-2">' +
+                '<span class="text-red-500 line-through text-xs mr-1">' + h.before + '</span>' +
+                '<span class="text-gray-400 text-xs">→</span>' +
+                '<span class="text-green-600 font-medium text-xs ml-1">' + h.after + '</span>' +
+            '</td>' +
+            '<td class="px-3 py-2 text-gray-600">' + h.operator + '</td>' +
+            '</tr>';
+    }).join('');
+}
+
+function renderLogTable() {
+    var tbody = document.getElementById('log-table-body');
+    var total = filteredLogs.length;
+    document.getElementById('log-total-count').textContent = total;
+
+    var totalPages = Math.max(1, Math.ceil(total / calLogPageSize));
+
+    if (calLogCurrentPage > totalPages) calLogCurrentPage = totalPages;
+
+    if (total === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center py-12 text-gray-400">暂无匹配的校准日志</td></tr>';
+        renderCalLogPagination(0, 1);
+        return;
+    }
+
+    var start = (calLogCurrentPage - 1) * calLogPageSize;
+    var end = start + calLogPageSize;
+    var pageData = filteredLogs.slice(start, end);
+
+    tbody.innerHTML = pageData.map(function(log) {
+        var statusClass = '';
+        if (log.status === '已生效') statusClass = 'bg-green-100 text-green-700';
+        else if (log.status === '待计算') statusClass = 'bg-amber-100 text-amber-700';
+        else if (log.status === '已回滚') statusClass = 'bg-gray-100 text-gray-600';
+
+        return '<tr class="hover:bg-gray-50">' +
+            '<td class="px-4 py-3 text-gray-500 whitespace-nowrap">' + log.time + '</td>' +
+            '<td class="px-4 py-3 text-gray-700">' + log.plot + '</td>' +
+            '<td class="px-4 py-3 text-gray-800 font-medium">' + log.param + '</td>' +
+            '<td class="px-4 py-3 text-xs">' + log.change + '</td>' +
+            '<td class="px-4 py-3 text-gray-600">' + log.operator + '</td>' +
+            '<td class="px-4 py-3 text-center"><span class="px-2 py-1 text-xs rounded-full ' + statusClass + '">' + log.status + '</span></td>' +
+            '</tr>';
+    }).join('');
+
+    renderCalLogPagination(total, totalPages);
+}
+
+function renderCalLogPagination(total, totalPages) {
+    var container = document.getElementById('cal-log-pagination');
+    var start = (calLogCurrentPage - 1) * calLogPageSize + 1;
+    var end = Math.min(calLogCurrentPage * calLogPageSize, total);
+    var info = total > 0 ? '显示 ' + start + '-' + end + ' 条，共 ' + total + ' 条' : '没有数据';
+    var html = '<span class="text-sm text-gray-500">' + info + '</span>';
+    html += '<div class="flex items-center space-x-2">';
+    html += '<button onclick="changeCalLogPage(\'prev\')" class="px-3 py-1 text-sm bg-white border border-gray-300 rounded ' + (calLogCurrentPage <= 1 ? 'text-gray-300 cursor-not-allowed' : 'text-gray-600 hover:bg-gray-50') + '">上一页</button>';
+    for (var i = 1; i <= totalPages; i++) {
+        html += '<button onclick="changeCalLogPage(' + i + ')" class="px-3 py-1 text-sm rounded ' + (i === calLogCurrentPage ? 'bg-green-600 text-white' : 'bg-white border border-gray-300 text-gray-600 hover:bg-gray-50') + '">' + i + '</button>';
+    }
+    html += '<button onclick="changeCalLogPage(\'next\')" class="px-3 py-1 text-sm bg-white border border-gray-300 rounded ' + (calLogCurrentPage >= totalPages ? 'text-gray-300 cursor-not-allowed' : 'text-gray-600 hover:bg-gray-50') + '">下一页</button>';
+    html += '<select onchange="changeCalLogPageSize(this.value)" class="px-3 py-1 border border-gray-300 rounded text-sm">';
+    html += '<option value="10"' + (calLogPageSize === 10 ? ' selected' : '') + '>10条/页</option>';
+    html += '<option value="20"' + (calLogPageSize === 20 ? ' selected' : '') + '>20条/页</option>';
+    html += '<option value="50"' + (calLogPageSize === 50 ? ' selected' : '') + '>50条/页</option>';
+    html += '</select>';
+    html += '</div>';
+    container.innerHTML = html;
+}
+
+function changeCalLogPage(page) {
+    var totalPages = Math.max(1, Math.ceil(filteredLogs.length / calLogPageSize));
+    if (page === 'prev') { if (calLogCurrentPage > 1) calLogCurrentPage--; else return; }
+    else if (page === 'next') { if (calLogCurrentPage < totalPages) calLogCurrentPage++; else return; }
+    else calLogCurrentPage = page;
+    renderLogTable();
+}
+
+function changeCalLogPageSize(size) {
+    calLogPageSize = parseInt(size);
+    calLogCurrentPage = 1;
+    renderLogTable();
+}
+
+function filterLogs() {
+    var search = document.getElementById('log-search').value.toLowerCase();
+    var statusFilter = document.getElementById('log-status-filter').value;
+
+    calLogCurrentPage = 1;
+
+    filteredLogs = calibrationLogs.filter(function(log) {
+        var matchSearch = !search ||
+            log.plot.toLowerCase().indexOf(search) !== -1 ||
+            log.param.toLowerCase().indexOf(search) !== -1 ||
+            log.operator.toLowerCase().indexOf(search) !== -1 ||
+            log.change.toLowerCase().indexOf(search) !== -1;
+        var matchStatus = !statusFilter || log.status === statusFilter;
+        return matchSearch && matchStatus;
+    });
+
+    renderLogTable();
+}
+
+function recalculateModel() {
+    var btn = event.target.closest('button');
+    if (!btn) return;
+    var originalHtml = btn.innerHTML;
+    btn.innerHTML = '<svg class="w-4 h-4 mr-1 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>重新计算中...';
+    btn.disabled = true;
+
+    setTimeout(function() {
+        btn.innerHTML = originalHtml;
+        btn.disabled = false;
+
+        var pendingCount = calibrationLogs.filter(function(l) { return l.status === '待计算'; }).length;
+        if (pendingCount > 0) {
+            calibrationLogs.forEach(function(l) {
+                if (l.status === '待计算') l.status = '已生效';
+            });
+            filteredLogs = calibrationLogs.slice();
+            renderLogTable();
+            alert('模型重新计算完成！\n\n' + pendingCount + ' 条待计算的参数修改已生效。');
+        } else {
+            alert('模型重新计算完成！\n\n当前没有待生效的参数修改。');
+        }
+    }, 2000);
+}
+
+function exportCalibrationReport() {
+    alert('校准报告导出功能\n\n将导出当前地块的校准分析报告（PDF格式），包含：\n- 历史数据对比结果\n- 误差分析图表\n- 参数变更记录\n- 校准日志汇总');
+}
+
+window.onload = function() {
+    renderCompareTable();
+    renderStageSelector();
+    renderFactorSelector();
+    renderCurrentParams();
+    fillEditForm();
+    renderParamHistory();
+    filteredLogs = calibrationLogs.slice();
+    renderLogTable();
+
+    setTimeout(function() {
+        initErrorChart();
+    }, 100);
+};
+</script>
+</body>
+</html>

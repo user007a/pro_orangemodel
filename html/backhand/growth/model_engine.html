@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>模型计算中心 - 南丰蜜桔生长模型系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { margin: 0; padding: 0; background-color: #F0F2F5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans SC', sans-serif; }
+        .content-wrapper { padding: 24px; min-height: 100vh; }
+        .step-card { transition: all 0.4s ease; }
+        .step-pending { opacity: 0.5; }
+        .step-running { opacity: 1; box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.2); }
+        .step-done { opacity: 1; }
+        @keyframes pulse-ring {
+            0% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(22, 163, 74, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0); }
+        }
+        .step-running .step-number { animation: pulse-ring 1.5s infinite; }
+        .progress-fill { transition: width 0.8s ease-in-out; }
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        .data-row { animation: slideIn 0.4s ease-out; }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+        .formula-box { font-family: 'Courier New', monospace; background: #f0fdf4; border: 1px dashed #16a34a; border-radius: 8px; padding: 12px; font-size: 13px; color: #166534; line-height: 1.8; }
+        .plot-card { transition: all 0.2s; cursor: pointer; }
+        .plot-card.selected { border-color: #16a34a; background: #f0fdf4; }
+        .plot-card:hover { border-color: #86efac; }
+        .toggle-switch { position: relative; display: inline-block; width: 48px; height: 26px; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: .3s; border-radius: 26px; }
+        .toggle-slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
+        input:checked + .toggle-slider { background-color: #16a34a; }
+        input:checked + .toggle-slider:before { transform: translateX(22px); }
+        .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+        .scrollbar-thin::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+        #manual-calc-modal .modal-content { animation: modalFadeIn 0.3s ease-out; }
+        @keyframes modalFadeIn { from { opacity: 0; transform: scale(0.95) translateY(-10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+    </style>
+</head>
+<body>
+<div class="content-wrapper">
+
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h1 class="text-xl font-bold text-gray-800">模型计算中心</h1>
+            <p class="text-gray-500 text-sm mt-1">南丰蜜桔生长模型定时调度与手动计算</p>
+        </div>
+        <div class="flex items-center space-x-3">
+            <span class="text-sm text-gray-500">今日: <span id="today-date"></span></span>
+            <button onclick="openManualCalcModal()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium flex items-center">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                手动计算
+            </button>
+        </div>
+    </div>
+
+    <!-- Section: 计算调度 -->
+    <div class="mb-6">
+        <h2 class="text-base font-semibold text-gray-800 mb-3 flex items-center">
+            <svg class="w-5 h-5 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            计算调度
+        </h2>
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2">
+                    <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border border-green-100 p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center">
+                                <div class="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center mr-4">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                </div>
+                                <div>
+                                    <h2 class="text-lg font-semibold text-gray-800">定时任务配置</h2>
+                                    <p class="text-sm text-gray-500 mt-0.5">每日批量计算全部有效地块生长模型</p>
+                                </div>
+                            </div>
+                            <span id="schedule-badge" class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium flex items-center">
+                                <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>已启用
+                            </span>
+                        </div>
+                        <div class="bg-white rounded-lg p-4 mb-4">
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <div>
+                                    <p class="text-xs text-gray-500 mb-1">执行时间</p>
+                                    <p class="text-lg font-bold text-gray-800">每日 02:00</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-500 mb-1">地块总数</p>
+                                    <p class="text-lg font-bold text-gray-800" id="stat-plots">156</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-500 mb-1">成功率</p>
+                                    <p class="text-lg font-bold text-green-600">98.7%</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-500 mb-1">平均耗时</p>
+                                    <p class="text-lg font-bold text-gray-800">约 3 分钟</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-4">
+                                <span class="text-sm text-gray-600">定时任务</span>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="schedule-toggle" checked onchange="toggleSchedule(this)">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <button onclick="runNow()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium flex items-center">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                立即执行一次
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 h-full">
+                        <h3 class="text-sm font-semibold text-gray-700 mb-4">上次执行摘要</h3>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between py-2 border-b border-gray-50">
+                                <span class="text-sm text-gray-500">执行时间</span>
+                                <span class="text-sm font-medium text-gray-800">2026-08-04 02:00:03</span>
+                            </div>
+                            <div class="flex items-center justify-between py-2 border-b border-gray-50">
+                                <span class="text-sm text-gray-500">地块数</span>
+                                <span class="text-sm font-medium text-gray-800">156</span>
+                            </div>
+                            <div class="flex items-center justify-between py-2 border-b border-gray-50">
+                                <span class="text-sm text-gray-500">成功</span>
+                                <span class="text-sm font-medium text-green-600">154</span>
+                            </div>
+                            <div class="flex items-center justify-between py-2 border-b border-gray-50">
+                                <span class="text-sm text-gray-500">失败</span>
+                                <span class="text-sm font-medium text-red-500">2</span>
+                            </div>
+                            <div class="flex items-center justify-between py-2 border-b border-gray-50">
+                                <span class="text-sm text-gray-500">耗时</span>
+                                <span class="text-sm font-medium text-gray-800">2分47秒</span>
+                            </div>
+                            <div class="flex items-center justify-between py-2">
+                                <span class="text-sm text-gray-500">下次执行</span>
+                                <span class="text-sm font-medium text-gray-800">2026-08-05 02:00:00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section: 计算日志 -->
+    <div class="mb-6">
+        <h2 class="text-base font-semibold text-gray-800 mb-3 flex items-center">
+            <svg class="w-5 h-5 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            计算日志
+        </h2>
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center space-x-3">
+                    <input type="text" id="log-search" placeholder="搜索执行ID或操作人..." class="px-4 py-2 border border-gray-300 rounded-lg text-sm w-64 focus:outline-none focus:ring-2 focus:ring-green-500" oninput="filterLogs()">
+                    <select id="log-status-filter" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500" onchange="filterLogs()">
+                        <option value="">全部状态</option>
+                        <option value="success">成功</option>
+                        <option value="partial">部分成功</option>
+                        <option value="failed">失败</option>
+                    </select>
+                </div>
+                <button onclick="exportLogs()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm">导出日志</button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="border-b border-gray-200 bg-gray-50">
+                            <th class="text-left py-3 px-4 font-semibold text-gray-600">执行时间</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-600">执行类型</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-600">地块数</th>
+                            <th class="text-left py-3 px-4 font-semibold text-green-600">成功</th>
+                            <th class="text-left py-3 px-4 font-semibold text-red-600">失败</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-600">耗时</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-600">操作人</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-600">状态</th>
+                            <th class="text-center py-3 px-4 font-semibold text-gray-600">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="log-tbody"></tbody>
+                </table>
+            </div>
+            <div class="pt-4 border-t border-gray-100 flex items-center justify-between">
+                <p class="text-sm text-gray-500">共 <span id="log-total-count">12</span> 条记录</p>
+                <div class="flex items-center space-x-2">
+                    <button onclick="logPrevPage()" class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50">上一页</button>
+                    <span class="text-sm text-gray-600"><span id="log-current-page">1</span> / <span id="log-total-pages">2</span></span>
+                    <button onclick="logNextPage()" class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50">下一页</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 手动计算弹窗 -->
+    <div id="manual-calc-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center">
+        <div style="background:#fff;border-radius:12px;width:90%;max-width:550px;max-height:85vh;overflow-y:auto" class="modal-content">
+            <div class="flex items-center justify-between p-5 border-b border-gray-100">
+                <h3 class="text-base font-semibold text-gray-800 flex items-center">
+                    <svg class="w-5 h-5 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    手动计算配置
+                </h3>
+                <button onclick="closeManualCalcModal()" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="p-5">
+                <div class="mb-4">
+                    <label class="text-sm text-gray-600 block mb-2">选择地块 <span class="text-red-500">*</span></label>
+                    <div id="plot-picker" class="grid grid-cols-2 gap-2"></div>
+                </div>
+                <div class="mb-4">
+                    <label class="text-sm text-gray-600 block mb-2">计算日期 <span class="text-red-500">*</span></label>
+                    <input type="date" id="calc-date" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+                </div>
+            </div>
+            <div class="flex justify-end space-x-3 p-5 border-t border-gray-100">
+                <button onclick="closeManualCalcModal()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm font-medium">取消</button>
+                <button onclick="executeCalculation()" class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium flex items-center">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    执行计算
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 日志详情弹窗 -->
+    <div id="log-detail-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center">
+        <div style="background:#fff;border-radius:12px;width:90%;max-width:560px;max-height:85vh;overflow-y:auto" class="modal-content">
+            <div class="flex items-center justify-between p-5 border-b border-gray-100">
+                <h3 class="text-base font-semibold text-gray-800 flex items-center">
+                    <svg class="w-5 h-5 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    计算日志详情
+                </h3>
+                <button onclick="closeLogDetailModal()" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div id="log-detail-content" class="p-5"></div>
+            <div class="flex justify-end p-5 border-t border-gray-100">
+                <button onclick="closeLogDetailModal()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm font-medium">关闭</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let selectedPlots = [];
+let logData = [];
+let filteredLogs = [];
+let logCurrentPage = 1;
+const logPageSize = 8;
+
+const plots = [
+    { id: 'NF-A01', name: '东坡A-01地块', area: '南丰镇', variety: '小果系', age: '6年' },
+    { id: 'NF-A03', name: '东坡A-03地块', area: '南丰镇', variety: '小果系', age: '6年' },
+    { id: 'NF-B02', name: '西坡B-02地块', area: '太和镇', variety: '小果系', age: '8年' },
+    { id: 'NF-C05', name: '南坡C-05地块', area: '白舍镇', variety: '小果系', age: '5年' }
+];
+
+function init() {
+    document.getElementById('today-date').textContent = new Date().toLocaleDateString('zh-CN');
+    initPlotPicker();
+    initLogs();
+    document.getElementById('calc-date').valueAsDate = new Date();
+}
+
+function initPlotPicker() {
+    const picker = document.getElementById('plot-picker');
+    picker.innerHTML = plots.map((p, i) => `
+        <div class="plot-card border-2 border-gray-200 rounded-lg p-3 ${i === 0 ? 'selected' : ''}" data-idx="${i}" onclick="togglePlot(${i})">
+            <div class="flex items-center justify-between">
+                <span class="text-sm font-medium text-gray-800">${p.name}</span>
+                <span class="text-xs text-gray-400">${p.id}</span>
+            </div>
+            <div class="flex items-center space-x-2 mt-1">
+                <span class="text-xs text-gray-500">${p.area}</span>
+                <span class="text-xs text-gray-400">·</span>
+                <span class="text-xs text-gray-500">${p.age}</span>
+            </div>
+        </div>
+    `).join('');
+    selectedPlots = [0];
+}
+
+function togglePlot(idx) {
+    const i = selectedPlots.indexOf(idx);
+    if (i >= 0) {
+        if (selectedPlots.length > 1) selectedPlots.splice(i, 1);
+    } else {
+        selectedPlots.push(idx);
+    }
+    selectedPlots.sort();
+    document.querySelectorAll('.plot-card').forEach((el, i) => {
+        el.classList.toggle('selected', selectedPlots.includes(i));
+    });
+}
+
+function openManualCalcModal() {
+    const modal = document.getElementById('manual-calc-modal');
+    modal.style.display = 'flex';
+    document.getElementById('calc-date').valueAsDate = new Date();
+    selectedPlots = [0];
+    initPlotPicker();
+}
+
+function closeManualCalcModal() {
+    document.getElementById('manual-calc-modal').style.display = 'none';
+}
+
+function toggleSchedule(el) {
+    const badge = document.getElementById('schedule-badge');
+    if (el.checked) {
+        badge.className = 'px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium flex items-center';
+        badge.innerHTML = '<span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>已启用';
+    } else {
+        badge.className = 'px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm font-medium flex items-center';
+        badge.innerHTML = '<span class="w-2 h-2 bg-gray-400 rounded-full mr-2"></span>已停用';
+    }
+}
+
+function runNow() {
+    alert('已触发立即执行，正在后台计算...');
+}
+
+function executeCalculation() {
+    const date = document.getElementById('calc-date').value;
+    if (!date) { alert('请选择计算日期'); return; }
+    if (selectedPlots.length === 0) { alert('请至少选择一个地块'); return; }
+
+    const plotNames = selectedPlots.map(i => plots[i].name).join('、');
+    const now = new Date();
+    const pad = n => String(n).padStart(2, '0');
+    const timeStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+
+    logData.unshift({
+        id: logData.length > 0 ? Math.max(...logData.map(d => d.id)) + 1 : 1,
+        time: timeStr,
+        type: '手动计算',
+        plots: selectedPlots.length,
+        success: selectedPlots.length,
+        failed: 0,
+        duration: (selectedPlots.length * 2) + '秒',
+        operator: '当前用户',
+        version: 'v2.3.1',
+        trigger: '手动触发',
+        failedPlots: []
+    });
+    logCurrentPage = 1;
+    renderLogs();
+
+    closeManualCalcModal();
+    alert(`手动计算完成\n计算日期：${date}\n地块数：${selectedPlots.length}\n地块：${plotNames}`);
+}
+
+function initLogs() {
+    logData = [
+        { id: 1, time: '2026-08-04 02:00:03', type: '定时批量', plots: 156, success: 154, failed: 2, duration: '2分47秒', operator: '系统', version: 'v2.3.1', trigger: '定时任务(每日02:00)', failedPlots: ['NF-B07 西坡B-07地块', 'NF-D02 北坡D-02地块'] },
+        { id: 2, time: '2026-08-03 14:32:18', type: '手动计算', plots: 4, success: 4, failed: 0, duration: '8秒', operator: '张明', version: 'v2.3.1', trigger: '手动触发', failedPlots: [] },
+        { id: 3, time: '2026-08-03 02:00:02', type: '定时批量', plots: 155, success: 154, failed: 1, duration: '2分31秒', operator: '系统', version: 'v2.3.1', trigger: '定时任务(每日02:00)', failedPlots: ['NF-C11 南坡C-11地块'] },
+        { id: 4, time: '2026-08-02 16:45:22', type: '手动计算', plots: 8, success: 8, failed: 0, duration: '15秒', operator: '李华', version: 'v2.3.0', trigger: '手动触发', failedPlots: [] },
+        { id: 5, time: '2026-08-02 02:00:05', type: '定时批量', plots: 156, success: 156, failed: 0, duration: '2分18秒', operator: '系统', version: 'v2.3.0', trigger: '定时任务(每日02:00)', failedPlots: [] },
+        { id: 6, time: '2026-08-01 10:12:44', type: '手动计算', plots: 12, success: 12, failed: 0, duration: '22秒', operator: '王芳', version: 'v2.3.0', trigger: '手动触发', failedPlots: [] },
+        { id: 7, time: '2026-08-01 02:00:01', type: '定时批量', plots: 153, success: 150, failed: 3, duration: '3分02秒', operator: '系统', version: 'v2.3.0', trigger: '定时任务(每日02:00)', failedPlots: ['NF-A05 东坡A-05地块', 'NF-B03 西坡B-03地块', 'NF-D08 北坡D-08地块'] },
+        { id: 8, time: '2026-07-31 02:00:03', type: '定时批量', plots: 154, success: 152, failed: 2, duration: '2分55秒', operator: '系统', version: 'v2.3.0', trigger: '定时任务(每日02:00)', failedPlots: ['NF-C02 南坡C-02地块', 'NF-C09 南坡C-09地块'] },
+        { id: 9, time: '2026-07-30 09:22:11', type: '手动计算', plots: 3, success: 2, failed: 1, duration: '6秒', operator: '赵强', version: 'v2.2.9', trigger: '手动触发', failedPlots: ['NF-A08 东坡A-08地块'] },
+        { id: 10, time: '2026-07-30 02:00:02', type: '定时批量', plots: 155, success: 155, failed: 0, duration: '2分22秒', operator: '系统', version: 'v2.2.9', trigger: '定时任务(每日02:00)', failedPlots: [] },
+        { id: 11, time: '2026-07-29 15:08:33', type: '手动计算', plots: 6, success: 6, failed: 0, duration: '11秒', operator: '孙丽', version: 'v2.2.9', trigger: '手动触发', failedPlots: [] },
+        { id: 12, time: '2026-07-29 02:00:04', type: '定时批量', plots: 152, success: 148, failed: 4, duration: '3分15秒', operator: '系统', version: 'v2.2.9', trigger: '定时任务(每日02:00)', failedPlots: ['NF-A02 东坡A-02地块', 'NF-B05 西坡B-05地块', 'NF-C03 南坡C-03地块', 'NF-D06 北坡D-06地块'] }
+    ];
+    filteredLogs = [...logData];
+    renderLogs();
+}
+
+function renderLogs() {
+    const search = document.getElementById('log-search').value.toLowerCase();
+    const statusFilter = document.getElementById('log-status-filter').value;
+
+    filteredLogs = logData.filter(l => {
+        if (search && !l.operator.toLowerCase().includes(search) && !l.type.toLowerCase().includes(search)) return false;
+        if (statusFilter === 'success' && l.failed > 0 && l.success <= 0) return false;
+        if (statusFilter === 'partial' && !(l.failed > 0 && l.success > 0)) return false;
+        if (statusFilter === 'failed' && l.success > 0) return false;
+        return true;
+    });
+
+    const totalPages = Math.max(1, Math.ceil(filteredLogs.length / logPageSize));
+    if (logCurrentPage > totalPages) logCurrentPage = totalPages;
+
+    const start = (logCurrentPage - 1) * logPageSize;
+    const pageData = filteredLogs.slice(start, start + logPageSize);
+
+    const tbody = document.getElementById('log-tbody');
+    tbody.innerHTML = pageData.map(l => {
+        let statusHtml, bgClass;
+        if (l.failed === 0 && l.success > 0) {
+            statusHtml = '<span class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-medium">成功</span>';
+        } else if (l.success > 0 && l.failed > 0) {
+            statusHtml = '<span class="px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-xs font-medium">部分成功</span>';
+        } else {
+            statusHtml = '<span class="px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-medium">失败</span>';
+        }
+        return `
+            <tr class="border-b border-gray-100 hover:bg-gray-50">
+                <td class="py-3 px-4 text-gray-800">${l.time}</td>
+                <td class="py-3 px-4">
+                    <span class="px-2 py-1 rounded text-xs ${l.type === '定时批量' ? 'bg-blue-50 text-blue-600' : 'bg-purple-50 text-purple-600'}">${l.type}</span>
+                </td>
+                <td class="py-3 px-4 text-gray-800">${l.plots}</td>
+                <td class="py-3 px-4 text-green-600 font-medium">${l.success}</td>
+                <td class="py-3 px-4 ${l.failed > 0 ? 'text-red-500 font-medium' : 'text-gray-400'}">${l.failed}</td>
+                <td class="py-3 px-4 text-gray-600">${l.duration}</td>
+                <td class="py-3 px-4 text-gray-600">${l.operator}</td>
+                <td class="py-3 px-4">${statusHtml}</td>
+                <td class="py-3 px-4 text-center">
+                    <button onclick="showLogDetail(${l.id})" class="text-green-600 hover:text-green-800 text-sm">详情</button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+
+    document.getElementById('log-total-count').textContent = filteredLogs.length;
+    document.getElementById('log-current-page').textContent = logCurrentPage;
+    document.getElementById('log-total-pages').textContent = totalPages;
+}
+
+function filterLogs() { logCurrentPage = 1; renderLogs(); }
+function logPrevPage() { if (logCurrentPage > 1) { logCurrentPage--; renderLogs(); } }
+function logNextPage() {
+    const totalPages = Math.ceil(filteredLogs.length / logPageSize);
+    if (logCurrentPage < totalPages) { logCurrentPage++; renderLogs(); }
+}
+function exportLogs() { alert('日志导出功能：将导出当前筛选结果为Excel文件'); }
+
+function showLogDetail(id) {
+    const l = logData.find(d => d.id === id);
+    if (!l) return;
+    let statusHtml;
+    if (l.failed === 0 && l.success > 0) {
+        statusHtml = '<span class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-medium">成功</span>';
+    } else if (l.success > 0 && l.failed > 0) {
+        statusHtml = '<span class="px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-xs font-medium">部分成功</span>';
+    } else {
+        statusHtml = '<span class="px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-medium">失败</span>';
+    }
+    const successRate = l.plots > 0 ? ((l.success / l.plots) * 100).toFixed(1) : '0.0';
+    const typeClass = l.type === '定时批量' ? 'bg-blue-50 text-blue-600' : 'bg-purple-50 text-purple-600';
+    let failedPlotsHtml = '';
+    if (l.failedPlots && l.failedPlots.length > 0) {
+        failedPlotsHtml = '<div class="mt-4"><div class="text-xs font-semibold text-gray-500 uppercase mb-2">失败地块列表</div><div class="bg-red-50 rounded-lg p-3 border border-red-100"><ul class="space-y-1">' +
+            l.failedPlots.map(p => `<li class="text-sm text-red-700 flex items-center"><svg class="w-4 h-4 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>${p}</li>`).join('') +
+            '</ul></div></div>';
+    } else {
+        failedPlotsHtml = '<div class="mt-4"><div class="text-xs font-semibold text-gray-500 uppercase mb-2">失败地块列表</div><div class="bg-green-50 rounded-lg p-3 border border-green-100 text-sm text-green-700 flex items-center"><svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>无失败地块，全部计算成功</div></div>';
+    }
+    document.getElementById('log-detail-content').innerHTML = `
+        <div class="grid grid-cols-2 gap-4 mb-4">
+            <div><div class="text-xs text-gray-400 mb-1">执行时间</div><div class="text-sm font-medium text-gray-800">${l.time}</div></div>
+            <div><div class="text-xs text-gray-400 mb-1">执行类型</div><span class="px-2 py-1 rounded text-xs ${typeClass}">${l.type}</span></div>
+            <div><div class="text-xs text-gray-400 mb-1">操作人</div><div class="text-sm font-medium text-gray-800">${l.operator}</div></div>
+            <div><div class="text-xs text-gray-400 mb-1">耗时</div><div class="text-sm font-medium text-gray-800">${l.duration}</div></div>
+            <div><div class="text-xs text-gray-400 mb-1">触发方式</div><div class="text-sm font-medium text-gray-800">${l.trigger}</div></div>
+            <div><div class="text-xs text-gray-400 mb-1">模型版本</div><div class="text-sm font-medium text-gray-800">${l.version}</div></div>
+        </div>
+        <div class="bg-gray-50 rounded-lg p-4 mb-4">
+            <div class="text-xs font-semibold text-gray-500 uppercase mb-3">执行结果</div>
+            <div class="grid grid-cols-4 gap-3 text-center">
+                <div><div class="text-2xl font-bold text-gray-800">${l.plots}</div><div class="text-xs text-gray-500 mt-1">地块总数</div></div>
+                <div><div class="text-2xl font-bold text-green-600">${l.success}</div><div class="text-xs text-gray-500 mt-1">成功数</div></div>
+                <div><div class="text-2xl font-bold ${l.failed > 0 ? 'text-red-500' : 'text-gray-400'}">${l.failed}</div><div class="text-xs text-gray-500 mt-1">失败数</div></div>
+                <div><div class="text-2xl font-bold text-blue-600">${successRate}%</div><div class="text-xs text-gray-500 mt-1">成功率</div></div>
+            </div>
+        </div>
+        <div class="flex items-center justify-between mb-4">
+            <span class="text-xs text-gray-400">执行状态</span>
+            ${statusHtml}
+        </div>
+        ${failedPlotsHtml}
+    `;
+    document.getElementById('log-detail-modal').style.display = 'flex';
+}
+
+function closeLogDetailModal() {
+    document.getElementById('log-detail-modal').style.display = 'none';
+}
+
+init();
+</script>
+</body>
+</html>

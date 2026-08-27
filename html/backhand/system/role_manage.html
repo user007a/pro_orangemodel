@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -16,7 +16,7 @@
         .content-wrapper { padding: 24px; height: 100vh; overflow-y: auto; }
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.5); z-index: 1000; align-items: center; justify-content: center; }
         .modal-overlay.active { display: flex; }
-        .modal-content { background-color: white; border-radius: 12px; width: 90%; max-width: 600px; max-height: 80vh; overflow-y: auto; }
+        .modal-content { background-color: white; border-radius: 12px; width: 90%; max-width: 600px; max-height: 85vh; overflow-y: auto; }
         .toggle-btn svg { transition: transform 0.2s ease; }
     </style>
 </head>
@@ -25,7 +25,7 @@
         <div class="flex items-center justify-between mb-6">
             <div>
                 <h1 class="text-xl font-bold text-gray-800">角色管理</h1>
-                <p class="text-gray-500 text-sm mt-1">管理系统角色和权限配置</p>
+                <p class="text-gray-500 text-sm mt-1">管理系统角色和菜单权限配置</p>
             </div>
             <div class="flex items-center space-x-3">
                 <button onclick="openAddModal()" class="px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition flex items-center">
@@ -35,144 +35,10 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="role-grid">
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden" data-role="管理员">
-                <div class="p-4 border-b border-gray-100 bg-green-50">
-                    <h3 class="text-lg font-semibold text-green-800 flex items-center">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                        管理员
-                    </h3>
-                </div>
-                <div class="p-4">
-                    <div class="flex items-center justify-between mb-4">
-                        <span class="text-sm text-gray-500">用户数量</span>
-                        <span class="text-sm font-medium text-gray-800">5人</span>
-                    </div>
-                    <div class="space-y-2 mb-4">
-                        <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
-                            <span class="text-sm text-gray-600">模型管理</span>
-                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        </div>
-                        <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
-                            <span class="text-sm text-gray-600">数据管理</span>
-                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        </div>
-                        <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
-                            <span class="text-sm text-gray-600">预警管理</span>
-                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        </div>
-                        <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
-                            <span class="text-sm text-gray-600">微信后台</span>
-                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        </div>
-                        <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
-                            <span class="text-sm text-gray-600">系统管理</span>
-                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        </div>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <button onclick="openPermissionModal('管理员')" class="flex-1 px-3 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition">
-                            编辑权限
-                        </button>
-                        <button onclick="openDeleteModal('管理员')" class="px-3 py-2 text-gray-500 text-sm rounded-lg hover:bg-gray-100 transition">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden" data-role="农技员">
-                <div class="p-4 border-b border-gray-100 bg-blue-50">
-                    <h3 class="text-lg font-semibold text-blue-800 flex items-center">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                        农技员
-                    </h3>
-                </div>
-                <div class="p-4">
-                    <div class="flex items-center justify-between mb-4">
-                        <span class="text-sm text-gray-500">用户数量</span>
-                        <span class="text-sm font-medium text-gray-800">86人</span>
-                    </div>
-                    <div class="space-y-2 mb-4">
-                        <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
-                            <span class="text-sm text-gray-600">模型管理</span>
-                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        </div>
-                        <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
-                            <span class="text-sm text-gray-600">数据管理</span>
-                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        </div>
-                        <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
-                            <span class="text-sm text-gray-600">预警管理</span>
-                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        </div>
-                        <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
-                            <span class="text-sm text-gray-600">微信后台</span>
-                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        </div>
-                        <div class="flex items-center justify-between p-2 bg-gray-50 rounded opacity-50">
-                            <span class="text-sm text-gray-600">系统管理</span>
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-                        </div>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <button onclick="openPermissionModal('农技员')" class="flex-1 px-3 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition">
-                            编辑权限
-                        </button>
-                        <button onclick="openDeleteModal('农技员')" class="px-3 py-2 text-gray-500 text-sm rounded-lg hover:bg-gray-100 transition">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden" data-role="数据管理员">
-                <div class="p-4 border-b border-gray-100 bg-gray-50">
-                    <h3 class="text-lg font-semibold text-gray-800 flex items-center">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                        数据管理员
-                    </h3>
-                </div>
-                <div class="p-4">
-                    <div class="flex items-center justify-between mb-4">
-                        <span class="text-sm text-gray-500">用户数量</span>
-                        <span class="text-sm font-medium text-gray-800">65人</span>
-                    </div>
-                    <div class="space-y-2 mb-4">
-                        <div class="flex items-center justify-between p-2 bg-gray-50 rounded opacity-50">
-                            <span class="text-sm text-gray-600">模型管理</span>
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-                        </div>
-                        <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
-                            <span class="text-sm text-gray-600">数据管理</span>
-                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        </div>
-                        <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
-                            <span class="text-sm text-gray-600">预警管理</span>
-                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        </div>
-                        <div class="flex items-center justify-between p-2 bg-gray-50 rounded opacity-50">
-                            <span class="text-sm text-gray-600">微信后台</span>
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-                        </div>
-                        <div class="flex items-center justify-between p-2 bg-gray-50 rounded opacity-50">
-                            <span class="text-sm text-gray-600">系统管理</span>
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-                        </div>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <button onclick="openPermissionModal('数据管理员')" class="flex-1 px-3 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition">
-                            编辑权限
-                        </button>
-                        <button onclick="openDeleteModal('数据管理员')" class="px-3 py-2 text-gray-500 text-sm rounded-lg hover:bg-gray-100 transition">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="role-grid"></div>
     </div>
 
+    <!-- 新增角色弹窗 -->
     <div id="add-modal" class="modal-overlay">
         <div class="modal-content">
             <div class="p-4 border-b border-gray-200 flex items-center justify-between">
@@ -195,15 +61,14 @@
                 </div>
                 <div class="space-y-2">
                     <div class="flex items-center justify-between mb-2">
-                        <label class="block text-sm font-medium text-gray-700">权限设置（勾选菜单权限）</label>
+                        <label class="block text-sm font-medium text-gray-700">权限设置（勾选菜单权限，一级/二级菜单）</label>
                         <div class="flex items-center space-x-2">
-                            <button onclick="selectAllAddPermissions(true)" class="text-xs text-green-600 hover:text-green-700">全选</button>
+                            <button onclick="selectAllIn('add-permission-tree', true)" class="text-xs text-green-600 hover:text-green-700">全选</button>
                             <span class="text-gray-300">|</span>
-                            <button onclick="selectAllAddPermissions(false)" class="text-xs text-gray-500 hover:text-gray-700">取消全选</button>
+                            <button onclick="selectAllIn('add-permission-tree', false)" class="text-xs text-gray-500 hover:text-gray-700">取消全选</button>
                         </div>
                     </div>
-                    <div id="add-permission-tree">
-                    </div>
+                    <div id="add-permission-tree"></div>
                 </div>
             </div>
             <div class="p-4 border-t border-gray-200 flex justify-end space-x-3">
@@ -213,12 +78,53 @@
         </div>
     </div>
 
+    <!-- 编辑角色弹窗 -->
+    <div id="edit-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                    编辑角色
+                </h3>
+                <button onclick="closeModal('edit-modal')" class="p-1 hover:bg-gray-100 rounded">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">角色名称</label>
+                    <input type="text" id="edit-role-name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="请输入角色名称">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">角色描述</label>
+                    <textarea id="edit-role-desc" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="请输入角色描述"></textarea>
+                </div>
+                <div class="space-y-2">
+                    <div class="flex items-center justify-between mb-2">
+                        <label class="block text-sm font-medium text-gray-700">权限设置（勾选菜单权限，一级/二级菜单）</label>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="selectAllIn('edit-permission-tree', true)" class="text-xs text-green-600 hover:text-green-700">全选</button>
+                            <span class="text-gray-300">|</span>
+                            <button onclick="selectAllIn('edit-permission-tree', false)" class="text-xs text-gray-500 hover:text-gray-700">取消全选</button>
+                        </div>
+                    </div>
+                    <div id="edit-permission-tree"></div>
+                </div>
+            </div>
+            <div class="p-4 border-t border-gray-200 flex justify-end space-x-3">
+                <button onclick="closeModal('edit-modal')" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm">取消</button>
+                <button onclick="submitEditRole()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm">保存修改</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 权限设置弹窗（快捷设置） -->
     <div id="permission-modal" class="modal-overlay">
         <div class="modal-content">
             <div class="p-4 border-b border-gray-200 flex items-center justify-between">
                 <h3 class="text-lg font-semibold text-gray-800 flex items-center">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                    <span id="permission-title">编辑权限</span>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                    <span id="permission-title">权限设置</span>
                 </h3>
                 <button onclick="closeModal('permission-modal')" class="p-1 hover:bg-gray-100 rounded">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -226,15 +132,14 @@
             </div>
             <div class="p-6">
                 <div class="flex items-center justify-between mb-3">
-                    <label class="block text-sm font-medium text-gray-700">权限配置（勾选即授予该权限）</label>
+                    <label class="block text-sm font-medium text-gray-700">菜单权限配置（勾选即授予，一级/二级菜单）</label>
                     <div class="flex items-center space-x-2">
-                        <button onclick="selectAllPermissions(true)" class="text-xs text-green-600 hover:text-green-700">全选</button>
+                        <button onclick="selectAllIn('permission-tree', true)" class="text-xs text-green-600 hover:text-green-700">全选</button>
                         <span class="text-gray-300">|</span>
-                        <button onclick="selectAllPermissions(false)" class="text-xs text-gray-500 hover:text-gray-700">取消全选</button>
+                        <button onclick="selectAllIn('permission-tree', false)" class="text-xs text-gray-500 hover:text-gray-700">取消全选</button>
                     </div>
                 </div>
-                <div class="space-y-2" id="permission-tree">
-                </div>
+                <div class="space-y-2" id="permission-tree"></div>
             </div>
             <div class="p-4 border-t border-gray-200 flex justify-end space-x-3">
                 <button onclick="closeModal('permission-modal')" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm">取消</button>
@@ -243,6 +148,7 @@
         </div>
     </div>
 
+    <!-- 删除确认弹窗 -->
     <div id="delete-modal" class="modal-overlay">
         <div class="modal-content" style="max-width: 400px;">
             <div class="p-4 border-b border-gray-200 flex items-center justify-between">
@@ -273,133 +179,207 @@
         </div>
     </div>
 
-    <div id="import-modal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="p-4 border-b border-gray-200 flex items-center justify-between">
-                <h3 class="text-lg font-semibold text-gray-800 flex items-center">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
-                    导入角色
-                </h3>
-                <button onclick="closeModal('import-modal')" class="p-1 hover:bg-gray-100 rounded">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
-            </div>
-            <div class="p-6">
-                <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-green-500 transition cursor-pointer" onclick="document.getElementById('import-file').click()">
-                    <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                    <p class="text-gray-600 mb-2">点击或拖拽文件到此处上传</p>
-                    <p class="text-sm text-gray-400">支持 Excel (.xlsx)、CSV 文件</p>
-                    <input type="file" id="import-file" accept=".xlsx,.xls,.csv" class="hidden" onchange="handleImportFile(this)">
-                </div>
-                <div class="mt-4 p-3 bg-blue-50 rounded-lg">
-                    <p class="text-sm text-blue-700 flex items-center">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        导入模板说明：角色名称为必填字段，权限字段值为 full/view/none
-                    </p>
-                </div>
-                <div class="mt-4 flex justify-between items-center">
-                    <button onclick="downloadTemplate()" class="text-blue-600 hover:text-blue-700 text-sm flex items-center">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                        下载导入模板
-                    </button>
-                </div>
-            </div>
-            <div class="p-4 border-t border-gray-200 flex justify-end space-x-3">
-                <button onclick="closeModal('import-modal')" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm">取消</button>
-                <button onclick="submitImport()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm">开始导入</button>
-            </div>
-        </div>
-    </div>
-
     <script>
         let deleteTarget = '';
         let currentRole = '';
+        let editRoleName = '';
 
-        // 权限树数据结构
+        // ===== 菜单权限树（与实际侧边栏一级/二级菜单保持一致）=====
         const permissionTree = [
-            { id: 'model', name: '模型管理', desc: 'AI模型的训练与部署', children: [
-                { id: 'model-train', name: '模型训练', desc: '训练AI预测模型' },
-                { id: 'model-deploy', name: '模型部署', desc: '部署模型到生产环境' },
-                { id: 'model-eval', name: '模型评估', desc: '评估模型性能指标' }
+            { id: 'home', name: '系统首页', desc: '系统首页仪表盘', children: [] },
+            { id: 'growth', name: '生长模型', desc: '生长模型管理与应用', children: [
+                { id: 'growth-memo', name: '模型说明', desc: '生长模型算法说明' },
+                { id: 'growth-archive', name: '基础档案', desc: '地块与植株基础档案' },
+                { id: 'growth-factor', name: '因子采集', desc: '生长因子数据采集' },
+                { id: 'growth-scheme', name: '农事建议', desc: '农事建议配置' },
+                { id: 'growth-engine', name: '模型计算', desc: '生长模型计算' },
+                { id: 'growth-diagnosis', name: '诊断分析', desc: '植株健康诊断' },
+                { id: 'growth-report', name: '评价报告', desc: '生长评价报告' },
+                { id: 'growth-calibration', name: '数据校准', desc: '模型数据校准' }
             ]},
-            { id: 'data', name: '数据管理', desc: '数据的增删改查与导出', children: [
-                { id: 'data-view', name: '数据查看', desc: '查看数据报表与统计' },
-                { id: 'data-input', name: '数据录入', desc: '手动录入传感器数据' },
-                { id: 'data-export', name: '数据导出', desc: '导出数据报表' },
-                { id: 'data-delete', name: '数据删除', desc: '删除历史数据' }
+            { id: 'pest', name: '病虫害模型', desc: '病虫害预测模型与应用', children: [
+                { id: 'pest-memo', name: '模型说明', desc: '病虫害模型算法说明' },
+                { id: 'pest-data', name: '监测数据', desc: '模型输入监测数据' },
+                { id: 'pest-params', name: '参数配置', desc: '模型参数配置' },
+                { id: 'pest-engine', name: '预测计算', desc: '预测计算与调度' },
+                { id: 'pest-diagnosis', name: '风险诊断', desc: '风险因子诊断' },
+                { id: 'pest-report', name: '预测报告', desc: '病虫害预测报告' },
+                { id: 'pest-scheme', name: '防控方案', desc: '防控方案配置' }
             ]},
-            { id: 'alert', name: '预警管理', desc: '预警规则的配置与处理', children: [
-                { id: 'alert-view', name: '预警查看', desc: '查看预警信息列表' },
-                { id: 'alert-config', name: '预警配置', desc: '配置预警阈值规则' },
-                { id: 'alert-handle', name: '预警处理', desc: '处理响应预警事件' }
+            { id: 'data', name: '数据管理', desc: '各类数据的管理维护', children: [
+                { id: 'data-disease', name: '病害数据库', desc: '病害知识数据' },
+                { id: 'data-insect', name: '虫害数据库', desc: '虫害知识数据' },
+                { id: 'data-disaster', name: '灾害数据库', desc: '灾害知识数据' },
+                { id: 'data-variety', name: '品种数据库', desc: '品种知识数据' },
+                { id: 'data-weather', name: '气象数据库', desc: '气象监测数据' },
+                { id: 'data-soil', name: '墒情数据库', desc: '土壤墒情数据' },
+                { id: 'data-video', name: '视频监测库', desc: '视频监测数据' },
+                { id: 'data-price', name: '价格数据库', desc: '农产品价格数据' },
+                { id: 'data-farming', name: '物候数据库', desc: '物候期数据' },
+                { id: 'data-manual', name: '人工上报', desc: '人工采集上报数据' },
+                { id: 'data-external', name: '外部抓取', desc: '外部数据源抓取' }
             ]},
-            { id: 'wechat', name: '微信后台', desc: '微信小程序用户与内容管理', children: [
-                { id: 'wechat-user', name: '微信用户', desc: '管理微信用户账号' },
-                { id: 'wechat-orchard', name: '果园管理', desc: '管理果园信息' },
-                { id: 'wechat-news', name: '资讯管理', desc: '发布与管理资讯' },
-                { id: 'wechat-question', name: '农户采纳', desc: '处理农户采纳反馈' }
+            { id: 'alert', name: '预警管理', desc: '预警的配置与处理', children: [
+                { id: 'alert-manage', name: '预警管理', desc: '预警信息管理' },
+                { id: 'alert-dispose', name: '处置记录', desc: '预警处置记录' },
+                { id: 'alert-rule', name: '预警规则', desc: '预警规则配置' },
+                { id: 'alert-template', name: '预警模板', desc: '预警消息模板' }
+            ]},
+            { id: 'wechat', name: '微信后台', desc: '微信端用户与内容管理', children: [
+                { id: 'wechat-user', name: '微信用户', desc: '微信用户账号' },
+                { id: 'wechat-orchard', name: '果园管理', desc: '果园信息管理' },
+                { id: 'wechat-news', name: '资讯管理', desc: '资讯发布管理' },
+                { id: 'wechat-question', name: '建议采纳', desc: '农户建议采纳' },
+                { id: 'wechat-recognize', name: '识别日志', desc: '病虫害识别日志' }
             ]},
             { id: 'system', name: '系统管理', desc: '用户、角色与系统配置', children: [
-                { id: 'sys-user', name: '用户管理', desc: '管理系统用户账号' },
-                { id: 'sys-role', name: '角色管理', desc: '管理角色与权限' },
-                { id: 'sys-config', name: '系统配置', desc: '系统参数与日志' }
+                { id: 'sys-user', name: '用户管理', desc: '系统用户账号' },
+                { id: 'sys-role', name: '角色管理', desc: '角色与权限' }
             ]}
         ];
 
-        // 角色权限配置
+        // 角色基础信息（含颜色与图标风格）
+        const roleMeta = {
+            '管理员': { users: '5人', color: 'green' },
+            '农技员': { users: '86人', color: 'blue' },
+            '数据管理员': { users: '65人', color: 'gray' }
+        };
+
+        // 角色权限配置（一级+二级菜单，key 对应 permissionTree 的 id）
         const rolePermissions = {
             '管理员': {
-                'model': true, 'model-train': true, 'model-deploy': true, 'model-eval': true,
-                'data': true, 'data-view': true, 'data-input': true, 'data-export': true, 'data-delete': true,
-                'alert': true, 'alert-view': true, 'alert-config': true, 'alert-handle': true,
-                'wechat': true, 'wechat-user': true, 'wechat-orchard': true, 'wechat-news': true, 'wechat-question': true,
-                'system': true, 'sys-user': true, 'sys-role': true, 'sys-config': true
+                'home': true,
+                'growth': true, 'growth-memo': true, 'growth-archive': true, 'growth-factor': true, 'growth-scheme': true, 'growth-engine': true, 'growth-diagnosis': true, 'growth-report': true, 'growth-calibration': true,
+                'pest': true, 'pest-memo': true, 'pest-data': true, 'pest-params': true, 'pest-engine': true, 'pest-diagnosis': true, 'pest-report': true, 'pest-scheme': true,
+                'data': true, 'data-disease': true, 'data-insect': true, 'data-disaster': true, 'data-variety': true, 'data-weather': true, 'data-soil': true, 'data-video': true, 'data-price': true, 'data-farming': true, 'data-manual': true, 'data-external': true,
+                'alert': true, 'alert-manage': true, 'alert-dispose': true, 'alert-rule': true, 'alert-template': true,
+                'wechat': true, 'wechat-user': true, 'wechat-orchard': true, 'wechat-news': true, 'wechat-question': true, 'wechat-recognize': true,
+                'system': true, 'sys-user': true, 'sys-role': true
             },
             '农技员': {
-                'model': true, 'model-train': true, 'model-deploy': false, 'model-eval': true,
-                'data': true, 'data-view': true, 'data-input': true, 'data-export': true, 'data-delete': false,
-                'alert': true, 'alert-view': true, 'alert-config': true, 'alert-handle': true,
-                'wechat': true, 'wechat-user': false, 'wechat-orchard': true, 'wechat-news': false, 'wechat-question': true,
-                'system': false, 'sys-user': false, 'sys-role': false, 'sys-config': false
+                'home': true,
+                'growth': true, 'growth-memo': true, 'growth-archive': true, 'growth-factor': true, 'growth-scheme': true, 'growth-engine': true, 'growth-diagnosis': true, 'growth-report': true, 'growth-calibration': false,
+                'pest': true, 'pest-memo': true, 'pest-data': true, 'pest-params': false, 'pest-engine': true, 'pest-diagnosis': true, 'pest-report': true, 'pest-scheme': true,
+                'data': true, 'data-disease': true, 'data-insect': true, 'data-disaster': true, 'data-variety': true, 'data-weather': true, 'data-soil': true, 'data-video': true, 'data-price': true, 'data-farming': true, 'data-manual': true, 'data-external': false,
+                'alert': true, 'alert-manage': true, 'alert-dispose': true, 'alert-rule': false, 'alert-template': false,
+                'wechat': true, 'wechat-user': false, 'wechat-orchard': true, 'wechat-news': false, 'wechat-question': true, 'wechat-recognize': true,
+                'system': false, 'sys-user': false, 'sys-role': false
             },
             '数据管理员': {
-                'model': false, 'model-train': false, 'model-deploy': false, 'model-eval': false,
-                'data': true, 'data-view': true, 'data-input': false, 'data-export': false, 'data-delete': false,
-                'alert': true, 'alert-view': true, 'alert-config': false, 'alert-handle': false,
-                'wechat': false, 'wechat-user': false, 'wechat-orchard': false, 'wechat-news': false, 'wechat-question': false,
-                'system': false, 'sys-user': false, 'sys-role': false, 'sys-config': false
+                'home': true,
+                'growth': false, 'growth-memo': false, 'growth-archive': false, 'growth-factor': false, 'growth-scheme': false, 'growth-engine': false, 'growth-diagnosis': false, 'growth-report': false, 'growth-calibration': false,
+                'pest': false, 'pest-memo': false, 'pest-data': false, 'pest-params': false, 'pest-engine': false, 'pest-diagnosis': false, 'pest-report': false, 'pest-scheme': false,
+                'data': true, 'data-disease': true, 'data-insect': true, 'data-disaster': true, 'data-variety': true, 'data-weather': true, 'data-soil': true, 'data-video': true, 'data-price': true, 'data-farming': true, 'data-manual': true, 'data-external': true,
+                'alert': true, 'alert-manage': true, 'alert-dispose': true, 'alert-rule': false, 'alert-template': false,
+                'wechat': false, 'wechat-user': false, 'wechat-orchard': false, 'wechat-news': false, 'wechat-question': false, 'wechat-recognize': false,
+                'system': false, 'sys-user': false, 'sys-role': false
             }
         };
 
-        // 渲染权限树
+        // 计算角色权限状态：'all' 全权限 / 'partial' 部分 / 'none' 无
+        function calcRolePermState(roleName, permId) {
+            const node = permissionTree.find(p => p.id === permId);
+            const perms = rolePermissions[roleName] || {};
+            if (node.children.length === 0) return perms[permId] ? 'all' : 'none';
+            const childStates = node.children.map(c => !!perms[c.id]);
+            if (childStates.every(s => s)) return 'all';
+            if (childStates.some(s => s)) return 'partial';
+            return 'none';
+        }
+
+        // 渲染角色卡片
+        function renderRoleCards() {
+            const grid = document.getElementById('role-grid');
+            let html = '';
+            Object.keys(roleMeta).forEach(roleName => {
+                const meta = roleMeta[roleName];
+                const headerCls = roleName === '管理员' ? 'bg-green-50 text-green-800' : (roleName === '农技员' ? 'bg-blue-50 text-blue-800' : 'bg-gray-50 text-gray-800');
+                // 一级菜单权限概览
+                let permItems = '';
+                permissionTree.forEach(node => {
+                    const state = calcRolePermState(roleName, node.id);
+                    let iconHtml, textCls;
+                    if (state === 'all') {
+                        iconHtml = '<svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>';
+                        textCls = 'text-gray-600';
+                    } else if (state === 'partial') {
+                        iconHtml = '<svg class="w-4 h-4 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>';
+                        textCls = 'text-gray-600';
+                    } else {
+                        iconHtml = '<svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>';
+                        textCls = 'text-gray-400';
+                    }
+                    permItems += '<div class="flex items-center justify-between p-2 bg-gray-50 rounded"><span class="text-sm ' + textCls + '">' + node.name + '</span>' + iconHtml + '</div>';
+                });
+                html += `
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden" data-role="${roleName}">
+                    <div class="p-4 border-b border-gray-100 ${headerCls}">
+                        <h3 class="text-lg font-semibold flex items-center">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                            ${roleName}
+                        </h3>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-sm text-gray-500">用户数量</span>
+                            <span class="text-sm font-medium text-gray-800">${meta.users}</span>
+                        </div>
+                        <div class="space-y-2 mb-4">${permItems}</div>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="openEditModal('${roleName}')" class="flex-1 px-3 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition">编辑角色</button>
+                            <button onclick="openPermissionModal('${roleName}')" class="flex-1 px-3 py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 transition">权限设置</button>
+                            <button onclick="openDeleteModal('${roleName}')" class="px-3 py-2 text-gray-500 text-sm rounded-lg hover:bg-gray-100 transition">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>`;
+            });
+            grid.innerHTML = html;
+        }
+
+        // ===== 权限树渲染 =====
         function renderPermissionTree(containerId, permState) {
             const container = document.getElementById(containerId);
             container.innerHTML = '';
             permissionTree.forEach(node => {
-                const checked = permState ? permState[node.id] : false;
+                const checked = permState ? !!permState[node.id] : false;
+                let childrenHtml = '';
+                if (node.children.length > 0) {
+                    childrenHtml = `
+                    <div class="perm-subtree ml-6 mt-1 space-y-1" id="${containerId}-subtree-${node.id}">
+                        ${node.children.map(child => {
+                            const childChecked = permState ? !!permState[child.id] : false;
+                            return `
+                            <label class="flex items-center p-2 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition">
+                                <input type="checkbox" class="w-4 h-4 text-green-600 rounded focus:ring-green-500 perm-child" data-parent-id="${node.id}" data-perm-id="${child.id}" ${childChecked ? 'checked' : ''} onchange="onChildCheckboxChange('${containerId}', '${node.id}')">
+                                <span class="ml-3 text-sm text-gray-600">${child.name}</span>
+                                <span class="ml-auto text-xs text-gray-400">${child.desc}</span>
+                            </label>`;
+                        }).join('')}
+                    </div>`;
+                }
                 const parentHtml = `
                     <div class="permission-node" data-perm-id="${node.id}">
                         <label class="flex items-center p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition">
                             <input type="checkbox" class="w-4 h-4 text-green-600 rounded focus:ring-green-500 perm-parent" data-perm-id="${node.id}" ${checked ? 'checked' : ''} onchange="onParentCheckboxChange('${containerId}', '${node.id}')">
                             <span class="ml-3 text-sm font-medium text-gray-700">${node.name}</span>
                             <span class="ml-auto text-xs text-gray-400">${node.desc}</span>
-                            ${node.children.length > 0 ? `<button onclick="togglePermSubtree('${containerId}', '${node.id}')" class="ml-2 p-1 text-gray-400 hover:text-gray-600 toggle-btn"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg></button>` : ''}
+                            ${node.children.length > 0 ? `<button type="button" onclick="togglePermSubtree('${containerId}', '${node.id}')" class="ml-2 p-1 text-gray-400 hover:text-gray-600 toggle-btn"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg></button>` : ''}
                         </label>
-                        ${node.children.length > 0 ? `
-                        <div class="perm-subtree ml-6 mt-1 space-y-1" id="${containerId}-subtree-${node.id}" style="display:none;">
-                            ${node.children.map(child => {
-                                const childChecked = permState ? permState[child.id] : false;
-                                return `
-                                <label class="flex items-center p-2 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition">
-                                    <input type="checkbox" class="w-4 h-4 text-green-600 rounded focus:ring-green-500 perm-child" data-parent-id="${node.id}" data-perm-id="${child.id}" ${childChecked ? 'checked' : ''} onchange="onChildCheckboxChange('${containerId}', '${node.id}')">
-                                    <span class="ml-3 text-sm text-gray-600">${child.name}</span>
-                                    <span class="ml-auto text-xs text-gray-400">${child.desc}</span>
-                                </label>`;
-                            }).join('')}
-                        </div>` : ''}
+                        ${childrenHtml}
                     </div>
                 `;
                 container.insertAdjacentHTML('beforeend', parentHtml);
+                // 勾选后同步子权限与父级半选状态
+                if (permState) {
+                    const parentCb = container.querySelector('input.perm-parent[data-perm-id="' + node.id + '"]');
+                    if (node.children.length > 0) {
+                        const childCbs = container.querySelectorAll('.perm-child[data-parent-id="' + node.id + '"]');
+                        const childTrue = Array.from(childCbs).filter(cb => cb.checked).length;
+                        if (childTrue > 0 && childTrue < childCbs.length) parentCb.indeterminate = true;
+                    }
+                }
             });
         }
 
@@ -418,49 +398,38 @@
 
         // 父权限勾选变化时，同步所有子权限
         function onParentCheckboxChange(containerId, permId) {
-            const parentCheckbox = document.querySelector(`#${containerId} input.perm-parent[data-perm-id="${permId}"]`);
-            const childCheckboxes = document.querySelectorAll(`#${containerId} .perm-child[data-parent-id="${permId}"]`);
-            childCheckboxes.forEach(cb => { cb.checked = parentCheckbox.checked; });
+            const parentCheckbox = document.querySelector('#' + containerId + ' input.perm-parent[data-perm-id="' + permId + '"]');
+            const childCheckboxes = document.querySelectorAll('#' + containerId + ' .perm-child[data-parent-id="' + permId + '"]');
+            childCheckboxes.forEach(cb => { cb.checked = parentCheckbox.checked; cb.indeterminate = false; });
         }
 
         // 子权限勾选变化时，更新父权限状态
         function onChildCheckboxChange(containerId, permId) {
-            const childCheckboxes = document.querySelectorAll(`#${containerId} .perm-child[data-parent-id="${permId}"]`);
-            const parentCheckbox = document.querySelector(`#${containerId} input.perm-parent[data-perm-id="${permId}"]`);
+            const childCheckboxes = document.querySelectorAll('#' + containerId + ' .perm-child[data-parent-id="' + permId + '"]');
+            const parentCheckbox = document.querySelector('#' + containerId + ' input.perm-parent[data-perm-id="' + permId + '"]');
             const allChecked = Array.from(childCheckboxes).every(cb => cb.checked);
             const anyChecked = Array.from(childCheckboxes).some(cb => cb.checked);
             parentCheckbox.checked = allChecked;
             parentCheckbox.indeterminate = anyChecked && !allChecked;
         }
 
-        // 全选/取消全选（编辑权限弹窗）
-        function selectAllPermissions(select) {
-            document.querySelectorAll('#permission-tree input[type="checkbox"]').forEach(cb => {
+        // 全选/取消全选（指定容器）
+        function selectAllIn(containerId, select) {
+            document.querySelectorAll('#' + containerId + ' input[type="checkbox"]').forEach(cb => {
                 cb.checked = select;
                 cb.indeterminate = false;
             });
         }
 
-        // 全选/取消全选（新增角色弹窗）
-        function selectAllAddPermissions(select) {
-            document.querySelectorAll('#add-permission-tree input[type="checkbox"]').forEach(cb => {
-                cb.checked = select;
-                cb.indeterminate = false;
-            });
-        }
-
-        // 收集选中的权限
+        // 收集选中的权限名称（含一级与二级）
         function collectSelectedPermissions(containerId) {
             const selected = [];
-            const nodes = document.querySelectorAll(`#${containerId} .permission-node`);
+            const nodes = document.querySelectorAll('#' + containerId + ' .permission-node');
             nodes.forEach(node => {
                 const parentId = node.getAttribute('data-perm-id');
                 const parentCheckbox = node.querySelector('.perm-parent');
                 const permDef = permissionTree.find(p => p.id === parentId);
-                if (parentCheckbox && parentCheckbox.checked) {
-                    selected.push(permDef.name);
-                }
-                // 收集子权限
+                if (parentCheckbox && parentCheckbox.checked) selected.push(permDef.name);
                 const childCheckboxes = node.querySelectorAll('.perm-child');
                 childCheckboxes.forEach(cb => {
                     if (cb.checked) {
@@ -472,6 +441,21 @@
             return selected;
         }
 
+        // 收集选中权限的 id 映射（用于保存到 rolePermissions）
+        function collectSelectedPermMap(containerId) {
+            const map = {};
+            permissionTree.forEach(node => {
+                const pCb = document.querySelector('#' + containerId + ' input.perm-parent[data-perm-id="' + node.id + '"]');
+                if (pCb) map[node.id] = pCb.checked;
+                node.children.forEach(child => {
+                    const cCb = document.querySelector('#' + containerId + ' .perm-child[data-perm-id="' + child.id + '"]');
+                    if (cCb) map[child.id] = cCb.checked;
+                });
+            });
+            return map;
+        }
+
+        // ===== 弹窗打开/关闭 =====
         function openAddModal() {
             document.getElementById('add-role-name').value = '';
             document.getElementById('add-role-desc').value = '';
@@ -479,51 +463,19 @@
             document.getElementById('add-modal').classList.add('active');
         }
 
-        function openImportModal() {
-            document.getElementById('import-file').value = '';
-            document.getElementById('import-modal').classList.add('active');
-        }
-
-        function handleImportFile(input) {
-            const file = input.files[0];
-            if (file) {
-                alert('已选择文件: ' + file.name);
-            }
-        }
-
-        function downloadTemplate() {
-            const content = '角色名称,角色描述,模型管理,数据管理,预警管理,微信后台,系统管理\n管理员,系统管理员,是,是,是,是,是\n农技员,业务农技员,是,是,是,是,否\n数据管理员,数据查看管理员,否,是,是,否,否';
-            const blob = new Blob(['\uFEFF' + content], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = '角色导入模板.csv';
-            link.click();
-        }
-
-        function submitImport() {
-            const file = document.getElementById('import-file').files[0];
-            if (!file) {
-                alert('请先选择要导入的文件');
-                return;
-            }
-            alert('角色导入成功！\n文件: ' + file.name + '\n导入数量: 3 条');
-            closeModal('import-modal');
-        }
-
-        function exportRoles() {
-            const content = '角色名称,角色描述,模型管理,数据管理,预警管理,微信后台,系统管理\n管理员,系统管理员,是,是,是,是,是\n农技员,业务农技员,是,是,是,是,否\n数据管理员,数据查看管理员,否,是,是,否,否';
-            const blob = new Blob(['\uFEFF' + content], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = '角色列表_' + new Date().toISOString().split('T')[0] + '.csv';
-            link.click();
+        function openEditModal(roleName) {
+            editRoleName = roleName;
+            document.getElementById('edit-role-name').value = roleName;
+            const descMap = { '管理员': '系统最高权限，可管理全部菜单功能', '农技员': '负责农事技术服务与模型应用', '数据管理员': '负责数据采集、维护与录入' };
+            document.getElementById('edit-role-desc').value = descMap[roleName] || '';
+            renderPermissionTree('edit-permission-tree', rolePermissions[roleName] || {});
+            document.getElementById('edit-modal').classList.add('active');
         }
 
         function openPermissionModal(roleName) {
             currentRole = roleName;
-            document.getElementById('permission-title').textContent = roleName + ' - 编辑权限';
-            const perms = rolePermissions[roleName] || {};
-            renderPermissionTree('permission-tree', perms);
+            document.getElementById('permission-title').textContent = roleName + ' - 权限设置';
+            renderPermissionTree('permission-tree', rolePermissions[roleName] || {});
             document.getElementById('permission-modal').classList.add('active');
         }
 
@@ -537,53 +489,70 @@
             document.getElementById(modalId).classList.remove('active');
         }
 
+        // ===== 提交逻辑 =====
         function submitAddRole() {
             const name = document.getElementById('add-role-name').value.trim();
             const desc = document.getElementById('add-role-desc').value.trim();
-            if (!name) {
-                alert('请填写角色名称');
-                return;
-            }
-
+            if (!name) { alert('请填写角色名称'); return; }
             const selectedPerms = collectSelectedPermissions('add-permission-tree');
-            if (selectedPerms.length === 0) {
-                alert('请至少选择一个权限');
-                return;
-            }
-
+            if (selectedPerms.length === 0) { alert('请至少选择一个菜单权限'); return; }
+            const permMap = collectSelectedPermMap('add-permission-tree');
+            roleMeta[name] = { users: '0人', color: 'blue' };
+            rolePermissions[name] = permMap;
             closeModal('add-modal');
-            alert('角色「' + name + '」添加成功！\n已授予权限：' + selectedPerms.join('、'));
+            renderRoleCards();
+            alert('角色「' + name + '」添加成功！\n已授予菜单权限：' + selectedPerms.join('、'));
+        }
+
+        function submitEditRole() {
+            const name = document.getElementById('edit-role-name').value.trim();
+            if (!name) { alert('请填写角色名称'); return; }
+            const selectedPerms = collectSelectedPermissions('edit-permission-tree');
+            if (selectedPerms.length === 0) { alert('请至少选择一个菜单权限'); return; }
+            const oldName = editRoleName;
+            if (name !== oldName) {
+                const meta = roleMeta[oldName];
+                delete roleMeta[oldName];
+                delete rolePermissions[oldName];
+                roleMeta[name] = meta || { users: '0人', color: 'blue' };
+            }
+            rolePermissions[name] = collectSelectedPermMap('edit-permission-tree');
+            editRoleName = '';
+            closeModal('edit-modal');
+            renderRoleCards();
+            alert('角色「' + name + '」修改成功！\n当前菜单权限：' + selectedPerms.join('、'));
         }
 
         function submitPermission() {
             const selectedPerms = collectSelectedPermissions('permission-tree');
+            rolePermissions[currentRole] = collectSelectedPermMap('permission-tree');
             closeModal('permission-modal');
-            alert('「' + currentRole + '」权限保存成功！\n当前权限：' + (selectedPerms.length > 0 ? selectedPerms.join('、') : '无'));
+            renderRoleCards();
+            alert('「' + currentRole + '」权限保存成功！\n当前菜单权限：' + (selectedPerms.length > 0 ? selectedPerms.join('、') : '无'));
         }
 
         function submitDeleteRole() {
+            if (rolePermissions[deleteTarget]) {
+                delete rolePermissions[deleteTarget];
+                delete roleMeta[deleteTarget];
+            }
             closeModal('delete-modal');
+            renderRoleCards();
             alert('角色删除成功！');
         }
 
-        function filterRoles() {
-            const searchTerm = document.getElementById('search-input').value.toLowerCase();
-            const cards = document.querySelectorAll('#role-grid > div');
-            
-            cards.forEach(card => {
-                const roleName = card.getAttribute('data-role').toLowerCase();
-                card.style.display = roleName.includes(searchTerm) ? '' : 'none';
-            });
-        }
-
+        // 点击遮罩关闭弹窗（仅当点击目标是遮罩层本身时关闭，避免误关）
         document.addEventListener('click', (e) => {
-            ['add-modal', 'permission-modal', 'delete-modal', 'import-modal'].forEach(id => {
+            ['add-modal', 'edit-modal', 'permission-modal', 'delete-modal'].forEach(id => {
                 const modal = document.getElementById(id);
-                if (modal && modal.classList.contains('active') && !modal.contains(e.target) && !e.target.closest('[onclick*="open"]')) {
+                if (modal && modal.classList.contains('active') && e.target === modal) {
                     modal.classList.remove('active');
                 }
             });
         });
+
+        // 初始化
+        window.onload = function() { renderRoleCards(); };
     </script>
 </body>
 </html>

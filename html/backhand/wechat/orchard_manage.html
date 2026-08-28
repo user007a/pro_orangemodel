@@ -98,13 +98,14 @@
 
   <div class="card">
     <div class="search-bar">
-      <input type="text" class="search-input" id="searchInput" placeholder="搜索地块名称、用户名..." oninput="searchOrchards()">
+      <input type="text" class="search-input" id="searchInput" placeholder="搜索果园名称、地块名称、用户名..." oninput="searchOrchards()">
     </div>
 
     <div class="table-wrapper">
       <table>
         <thead>
           <tr>
+            <th>果园名称</th>
             <th>地块名称</th>
             <th>所属用户</th>
             <th>面积(亩)</th>
@@ -134,6 +135,10 @@
       </div>
       <div class="modal-body">
         <input type="hidden" id="edit-id">
+        <div class="form-item">
+          <label class="form-label">果园名称 *</label>
+          <input type="text" class="form-input" id="add-orchard" placeholder="请输入果园名称">
+        </div>
         <div class="form-item">
           <label class="form-label">地块名称 *</label>
           <input type="text" class="form-input" id="add-name" placeholder="请输入地块名称">
@@ -218,21 +223,21 @@
 
   <script>
     var orchards = [
-      { id: 'oc-001', name: '1号早熟蜜桔区', user: '张三', area: '15', variety: '南丰蜜桔早熟种', address: '南丰县南丰镇瑶浦村', manager: '张三', age: '8', status: '正常' },
-      { id: 'oc-002', name: '2号中熟蜜桔区', user: '张三', area: '18', variety: '南丰蜜桔中熟种', address: '南丰县南丰镇茅埠村', manager: '张三', age: '10', status: '预警' },
-      { id: 'oc-003', name: '3号晚熟蜜桔区', user: '李四', area: '20', variety: '南丰蜜桔晚熟种', address: '南丰县市山镇翠云村', manager: '李四', age: '6', status: '正常' },
-      { id: 'oc-004', name: '4号试验田', user: '李四', area: '15', variety: '新品种试验', address: '南丰县市山镇梓和村', manager: '李四', age: '3', status: '正常' },
-      { id: 'oc-005', name: '5号丰产园', user: '王五', area: '25', variety: '南丰蜜桔中熟种', address: '南丰县白舍镇鄱阳村', manager: '王五', age: '12', status: '正常' },
-      { id: 'oc-006', name: '6号精品园', user: '王五', area: '12', variety: '南丰蜜桔早熟种', address: '南丰县白舍镇望天村', manager: '王五', age: '8', status: '正常' },
-      { id: 'oc-007', name: '7号标准化基地', user: '赵六', area: '50', variety: '南丰蜜桔中熟种', address: '南丰县洽湾镇洽湾村', manager: '赵六', age: '10', status: '正常' },
-      { id: 'oc-008', name: '8号生态果园', user: '孙七', area: '30', variety: '南丰蜜桔晚熟种', address: '南丰县桑田镇桑田村', manager: '孙七', age: '7', status: '预警' },
-      { id: 'oc-009', name: '9号密植园', user: '周八', area: '18', variety: '南丰蜜桔早熟种', address: '南丰县紫霄镇紫霄村', manager: '周八', age: '9', status: '正常' },
-      { id: 'oc-010', name: '10号观光园', user: '吴九', area: '40', variety: '南丰蜜桔中熟种', address: '南丰县莱溪乡莱溪村', manager: '吴九', age: '15', status: '正常' },
-      { id: 'oc-011', name: '11号育苗基地', user: '郑十', area: '22', variety: '南丰蜜桔早熟种', address: '南丰县东坪乡东坪村', manager: '郑十', age: '2', status: '正常' },
-      { id: 'oc-012', name: '12号老树园', user: '陈十一', area: '35', variety: '南丰蜜桔晚熟种', address: '南丰县傅坊乡傅坊村', manager: '陈十一', age: '20', status: '预警' },
-      { id: 'oc-013', name: '13号新开发', user: '林十二', area: '10', variety: '南丰蜜桔中熟种', address: '南丰县太和镇太和村', manager: '林十二', age: '4', status: '正常' },
-      { id: 'oc-014', name: '14号高产园', user: '黄十三', area: '28', variety: '南丰蜜桔早熟种', address: '南丰县三溪乡三溪村', manager: '黄十三', age: '8', status: '正常' },
-      { id: 'oc-015', name: '15号示范园', user: '周十四', area: '32', variety: '南丰蜜桔中熟种', address: '南丰县琴城镇瑶浦村', manager: '周十四', age: '11', status: '正常' }
+      { id: 'oc-001', orchard: '瑶浦蜜桔园', name: '1号早熟蜜桔区', user: '张三', area: '15', variety: '南丰蜜桔早熟种', address: '南丰县南丰镇瑶浦村', manager: '张三', age: '8', status: '正常' },
+      { id: 'oc-002', orchard: '瑶浦蜜桔园', name: '2号中熟蜜桔区', user: '张三', area: '18', variety: '南丰蜜桔中熟种', address: '南丰县南丰镇茅埠村', manager: '张三', age: '10', status: '预警' },
+      { id: 'oc-003', orchard: '翠云生态园', name: '3号晚熟蜜桔区', user: '李四', area: '20', variety: '南丰蜜桔晚熟种', address: '南丰县市山镇翠云村', manager: '李四', age: '6', status: '正常' },
+      { id: 'oc-004', orchard: '翠云生态园', name: '4号试验田', user: '李四', area: '15', variety: '新品种试验', address: '南丰县市山镇梓和村', manager: '李四', age: '3', status: '正常' },
+      { id: 'oc-005', orchard: '白舍丰产基地', name: '5号丰产园', user: '王五', area: '25', variety: '南丰蜜桔中熟种', address: '南丰县白舍镇鄱阳村', manager: '王五', age: '12', status: '正常' },
+      { id: 'oc-006', orchard: '白舍丰产基地', name: '6号精品园', user: '王五', area: '12', variety: '南丰蜜桔早熟种', address: '南丰县白舍镇望天村', manager: '王五', age: '8', status: '正常' },
+      { id: 'oc-007', orchard: '洽湾标准化基地', name: '7号标准化基地', user: '赵六', area: '50', variety: '南丰蜜桔中熟种', address: '南丰县洽湾镇洽湾村', manager: '赵六', age: '10', status: '正常' },
+      { id: 'oc-008', orchard: '桑田生态果园', name: '8号生态果园', user: '孙七', area: '30', variety: '南丰蜜桔晚熟种', address: '南丰县桑田镇桑田村', manager: '孙七', age: '7', status: '预警' },
+      { id: 'oc-009', orchard: '紫霄密植园', name: '9号密植园', user: '周八', area: '18', variety: '南丰蜜桔早熟种', address: '南丰县紫霄镇紫霄村', manager: '周八', age: '9', status: '正常' },
+      { id: 'oc-010', orchard: '莱溪观光园', name: '10号观光园', user: '吴九', area: '40', variety: '南丰蜜桔中熟种', address: '南丰县莱溪乡莱溪村', manager: '吴九', age: '15', status: '正常' },
+      { id: 'oc-011', orchard: '东坪育苗基地', name: '11号育苗基地', user: '郑十', area: '22', variety: '南丰蜜桔早熟种', address: '南丰县东坪乡东坪村', manager: '郑十', age: '2', status: '正常' },
+      { id: 'oc-012', orchard: '傅坊老树园', name: '12号老树园', user: '陈十一', area: '35', variety: '南丰蜜桔晚熟种', address: '南丰县傅坊乡傅坊村', manager: '陈十一', age: '20', status: '预警' },
+      { id: 'oc-013', orchard: '太和新开发基地', name: '13号新开发', user: '林十二', area: '10', variety: '南丰蜜桔中熟种', address: '南丰县太和镇太和村', manager: '林十二', age: '4', status: '正常' },
+      { id: 'oc-014', orchard: '三溪高产园', name: '14号高产园', user: '黄十三', area: '28', variety: '南丰蜜桔早熟种', address: '南丰县三溪乡三溪村', manager: '黄十三', age: '8', status: '正常' },
+      { id: 'oc-015', orchard: '琴城示范园', name: '15号示范园', user: '周十四', area: '32', variety: '南丰蜜桔中熟种', address: '南丰县琴城镇瑶浦村', manager: '周十四', age: '11', status: '正常' }
     ];
 
     var originalOrchards = JSON.parse(JSON.stringify(orchards));
@@ -310,6 +315,7 @@
         var statusClass = o.status === '正常' ? 'status-normal' : 'status-warning';
         tbody.innerHTML += `
           <tr>
+            <td>${o.orchard || '-'}</td>
             <td>${o.name}</td>
             <td>${o.user}</td>
             <td>${o.area}</td>
@@ -357,7 +363,9 @@
     function searchOrchards() {
       var keyword = document.getElementById('searchInput').value.toLowerCase();
       orchards = originalOrchards.filter(function(o) {
-        return o.name.toLowerCase().includes(keyword) || o.user.toLowerCase().includes(keyword);
+        return (o.orchard && o.orchard.toLowerCase().includes(keyword)) ||
+               o.name.toLowerCase().includes(keyword) ||
+               o.user.toLowerCase().includes(keyword);
       });
       currentPage = 1;
       renderTable();
@@ -366,6 +374,7 @@
     function openAddModal() {
       document.getElementById('add-modal-title').textContent = '新增地块';
       document.getElementById('edit-id').value = '';
+      document.getElementById('add-orchard').value = '';
       document.getElementById('add-name').value = '';
       document.getElementById('add-user').value = '张三';
       document.getElementById('add-area').value = '';
@@ -381,6 +390,7 @@
       if (!o) return;
       document.getElementById('add-modal-title').textContent = '编辑地块';
       document.getElementById('edit-id').value = o.id;
+      document.getElementById('add-orchard').value = o.orchard || '';
       document.getElementById('add-name').value = o.name;
       document.getElementById('add-user').value = o.user;
       document.getElementById('add-area').value = o.area;
@@ -393,6 +403,7 @@
 
     function submitAdd() {
       var id = document.getElementById('edit-id').value;
+      var orchard = document.getElementById('add-orchard').value.trim();
       var name = document.getElementById('add-name').value.trim();
       var user = document.getElementById('add-user').value;
       var area = document.getElementById('add-area').value.trim();
@@ -401,7 +412,7 @@
       var age = document.getElementById('add-age').value.trim();
       var status = document.getElementById('add-status').value;
 
-      if (!name || !area) {
+      if (!orchard || !name || !area) {
         alert('请填写必填项');
         return;
       }
@@ -409,11 +420,11 @@
       if (id) {
         var index = originalOrchards.findIndex(function(item) { return item.id === id; });
         if (index > -1) {
-          originalOrchards[index] = { ...originalOrchards[index], name, user, area, variety, address, age, status };
+          originalOrchards[index] = { ...originalOrchards[index], orchard, name, user, area, variety, address, age, status };
         }
       } else {
         var newId = 'oc-' + String(originalOrchards.length + 1).padStart(3, '0');
-        originalOrchards.unshift({ id: newId, name, user, area, variety, address, manager: user, age, status });
+        originalOrchards.unshift({ id: newId, orchard, name, user, area, variety, address, manager: user, age, status });
       }
       
       closeModal('add-modal');
@@ -429,6 +440,7 @@
       document.getElementById('detail-content').innerHTML = `
         <div class="detail-info">
           <div class="detail-item"><div class="detail-label">地块ID</div><div class="detail-value">${o.id}</div></div>
+          <div class="detail-item"><div class="detail-label">果园名称</div><div class="detail-value">${o.orchard || '-'}</div></div>
           <div class="detail-item"><div class="detail-label">地块名称</div><div class="detail-value">${o.name}</div></div>
           <div class="detail-item"><div class="detail-label">所属用户</div><div class="detail-value">${o.user}</div></div>
           <div class="detail-item"><div class="detail-label">面积</div><div class="detail-value">${o.area} 亩</div></div>

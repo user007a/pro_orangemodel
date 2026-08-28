@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>南丰蜜桔病虫害模型</title>
+    <title>南丰蜜桔病虫害模型监测</title>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="css/dashboard-design-system.css">
@@ -479,6 +479,9 @@
         .map-panel-title { font-size: 11px; font-weight: 600; color: #166534; margin-bottom: 8px; letter-spacing: 0.5px; text-transform: uppercase; }
         .map-panel-row { font-size: 11px; color: #475569; display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
         .map-panel-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; box-shadow: 0 0 4px currentColor; }
+        .legend-wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; }
+        .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #475569; white-space: nowrap; }
+        .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; box-shadow: 0 0 4px currentColor; }
         .map-panel-text { font-size: 10px; color: #64748b; }
         .map-title-overlay {
             position: absolute;
@@ -825,7 +828,7 @@
         </div>
         <div class="platform-entries">
             <a href="growth_dashboard.html" class="platform-entry" title="生长模型监测">
-                <i class="fas fa-leaf"></i> 生长模型
+                <i class="fas fa-leaf"></i> 柑橘生长监测
             </a>
             <button class="platform-entry" onclick="toggleFullscreen()" title="全屏显示" style="cursor:pointer;">
                 <i class="fas fa-expand"></i> 全屏
@@ -1039,9 +1042,11 @@
                 </div>
                 <div class="map-overlay map-overlay-tl">
                     <div class="map-panel-title">实时监控数据</div>
-                    <div class="map-panel-row"><span class="map-panel-dot" style="background:#ef4444;color:#ef4444;"></span>高风险: 2个乡镇</div>
-                    <div class="map-panel-row"><span class="map-panel-dot" style="background:#f59e0b;color:#f59e0b;"></span>中风险: 7个乡镇</div>
-                    <div class="map-panel-row"><span class="map-panel-dot" style="background:#22c55e;color:#22c55e;"></span>低风险: 2个乡镇</div>
+                    <div class="legend-wrap">
+                        <div class="legend-item"><div class="legend-dot" style="background:#ef4444;color:#ef4444;"></div>高风险: 2个乡镇</div>
+                        <div class="legend-item"><div class="legend-dot" style="background:#f59e0b;color:#f59e0b;"></div>中风险: 7个乡镇</div>
+                        <div class="legend-item"><div class="legend-dot" style="background:#22c55e;color:#22c55e;"></div>低风险: 2个乡镇</div>
+                    </div>
                 </div>
                 <div class="map-overlay map-overlay-tr">
                     <div class="map-panel-title">预警统计</div>
@@ -1055,12 +1060,14 @@
                 </div>
                 <div class="map-overlay map-overlay-br">
                     <div class="map-panel-title">图例说明</div>
-                    <div class="map-panel-row"><span class="map-panel-dot" style="background:#ef4444;color:#ef4444;"></span>病害（红色光晕）</div>
-                    <div class="map-panel-row"><span class="map-panel-dot" style="background:#166534;color:#166534;"></span>虫害（深绿光晕）</div>
-                    <div class="map-panel-row"><span class="map-panel-dot" style="background:#22c55e;color:#22c55e;width:8px;height:8px;"></span>低风险（浅绿）</div>
-                    <div class="map-panel-row"><span class="map-panel-dot" style="background:#facc15;color:#facc15;width:8px;height:8px;"></span>中风险（黄色）</div>
-                    <div class="map-panel-row"><span class="map-panel-dot" style="background:#f97316;color:#f97316;width:8px;height:8px;"></span>高风险（橙色）</div>
-                    <div class="map-panel-row"><span class="map-panel-dot" style="background:#ef4444;color:#ef4444;width:8px;height:8px;"></span>极高风险（红色）</div>
+                    <div class="legend-wrap" style="flex-wrap:nowrap;">
+                        <div class="legend-item"><div class="legend-dot" style="background:#ef4444;color:#ef4444;"></div>病害（红色光晕）</div>
+                        <div class="legend-item"><div class="legend-dot" style="background:#166534;color:#166534;"></div>虫害（深绿光晕）</div>
+                        <div class="legend-item"><div class="legend-dot" style="background:#22c55e;color:#22c55e;"></div>低风险</div>
+                        <div class="legend-item"><div class="legend-dot" style="background:#facc15;color:#facc15;"></div>中风险</div>
+                        <div class="legend-item"><div class="legend-dot" style="background:#f97316;color:#f97316;"></div>高风险</div>
+                        <div class="legend-item"><div class="legend-dot" style="background:#ef4444;color:#ef4444;"></div>极高风险</div>
+                    </div>
                 </div>
             </div>
             <div class="scrolling-cards">

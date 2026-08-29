@@ -825,6 +825,11 @@
         .pest-rank-num.top3 { background: #ef4444; }
         .pest-rank-name { flex: 1; font-size: 0.85rem; color: #475569; }
         .pest-rank-count { font-weight: 600; color: #2b6e3c; }
+        /* 严重程度颜色 */
+        .pest-rank-count.sev-heavy     { color: #dc2626; }   /* 重度·红 */
+        .pest-rank-count.sev-moderate  { color: #ea580c; }   /* 中度·橙 */
+        .pest-rank-count.sev-light     { color: #ca8a04; }   /* 轻度·黄 */
+        .pest-rank-count.sev-none      { color: #6b7280; }   /* 无·灰 */
         .disaster-card {
             background: #fef2f2;
             border-radius: 12px;
@@ -979,42 +984,42 @@
     <div class="map-core-grid">
         <div class="side-col">
             <div class="card side-card">
-                <div class="card-header"><span><i class="fas fa-chart-line"></i> 病虫害种类 Top7</span><span class="header-extra">本月发生次数</span></div>
+                <div class="card-header"><span><i class="fas fa-chart-line"></i> 病虫害种类 Top7</span><span class="header-extra">本月严重程度</span></div>
                 <div class="pest-rank-list">
                     <div class="pest-rank-item">
                         <div class="pest-rank-num top3">1</div>
                         <span class="pest-rank-name">黄龙病</span>
-                        <span class="pest-rank-count">156次</span>
+                        <span class="pest-rank-count sev-heavy">重度</span>
                     </div>
                     <div class="pest-rank-item">
                         <div class="pest-rank-num top3">2</div>
                         <span class="pest-rank-name">红蜘蛛</span>
-                        <span class="pest-rank-count">134次</span>
+                        <span class="pest-rank-count sev-heavy">重度</span>
                     </div>
                     <div class="pest-rank-item">
                         <div class="pest-rank-num top3">3</div>
                         <span class="pest-rank-name">黑点病</span>
-                        <span class="pest-rank-count">98次</span>
+                        <span class="pest-rank-count sev-moderate">中度</span>
                     </div>
                     <div class="pest-rank-item">
                         <div class="pest-rank-num">4</div>
                         <span class="pest-rank-name">疮痂病</span>
-                        <span class="pest-rank-count">76次</span>
+                        <span class="pest-rank-count sev-moderate">中度</span>
                     </div>
                     <div class="pest-rank-item">
                         <div class="pest-rank-num">5</div>
                         <span class="pest-rank-name">柑桔木虱</span>
-                        <span class="pest-rank-count">62次</span>
+                        <span class="pest-rank-count sev-light">轻度</span>
                     </div>
                     <div class="pest-rank-item">
                         <div class="pest-rank-num">6</div>
                         <span class="pest-rank-name">溃疡病</span>
-                        <span class="pest-rank-count">58次</span>
+                        <span class="pest-rank-count sev-light">轻度</span>
                     </div>
                     <div class="pest-rank-item">
                         <div class="pest-rank-num">7</div>
                         <span class="pest-rank-name">潜叶蛾</span>
-                        <span class="pest-rank-count">45次</span>
+                        <span class="pest-rank-count sev-none">无</span>
                     </div>
                 </div>
             </div>
@@ -1026,21 +1031,17 @@
                         <div class="recognition-accuracy" id="recogAccuracy">96.8<span class="recog-unit">%</span></div>
                         <div class="recognition-label">图像识别准确率</div>
                     </div>
-                    <div class="recognition-stats">
-                        <div><strong id="recogSuccess">275</strong><span>成功</span></div>
-                        <div><strong id="recogTask">284</strong><span>任务</span></div>
-                    </div>
                 </div>
                 <div id="recognitionChart" class="chart-box"></div>
             </div>
 
             <div class="card side-card">
-                <div class="card-header"><span><i class="fas fa-list-alt"></i> 分级预警信息台账</span><span class="header-extra">本月数量</span></div>
+                <div class="card-header"><span><i class="fas fa-list-alt"></i> 分级预警信息统计</span><span class="header-extra">本月数量</span></div>
                 <div class="table-responsive">
                     <table class="data-table">
                         <thead>
                             <tr>
-                                <th>预警来源</th>
+                                <th>预警类型</th>
                                 <th>红色</th>
                                 <th>橙色</th>
                                 <th>黄色</th>
@@ -1049,22 +1050,57 @@
                         </thead>
                         <tbody id="alertTableBody">
                             <tr>
-                                <td>病虫害</td>
-                                <td><span style="color:#ef4444;font-weight:600;">23</span></td>
-                                <td><span style="color:#f59e0b;font-weight:600;">45</span></td>
+                                <td>病害</td>
+                                <td><span style="color:#ef4444;font-weight:600;">18</span></td>
+                                <td><span style="color:#f59e0b;font-weight:600;">36</span></td>
+                                <td><span style="color:#eab308;font-weight:600;">12</span></td>
+                                <td><span style="color:#3b82f6;font-weight:600;">21</span></td>
+                            </tr>
+                            <tr>
+                                <td>虫害</td>
+                                <td><span style="color:#ef4444;font-weight:600;">9</span></td>
+                                <td><span style="color:#f59e0b;font-weight:600;">28</span></td>
+                                <td><span style="color:#eab308;font-weight:600;">19</span></td>
+                                <td><span style="color:#3b82f6;font-weight:600;">15</span></td>
+                            </tr>
+                            <tr>
+                                <td>干旱</td>
+                                <td><span style="color:#ef4444;font-weight:600;">1</span></td>
+                                <td><span style="color:#f59e0b;font-weight:600;">1</span></td>
+                                <td><span style="color:#eab308;font-weight:600;">1</span></td>
+                                <td><span style="color:#3b82f6;font-weight:600;">1</span></td>
+                            </tr>
+                            <tr>
+                                <td>洪涝</td>
+                                <td><span style="color:#ef4444;font-weight:600;">1</span></td>
+                                <td><span style="color:#f59e0b;font-weight:600;">0</span></td>
                                 <td><span style="color:#eab308;font-weight:600;">0</span></td>
-                                <td><span style="color:#3b82f6;font-weight:600;">28</span></td>
+                                <td><span style="color:#3b82f6;font-weight:600;">0</span></td>
                             </tr>
                             <tr>
-                                <td>气象灾害</td>
+                                <td>台风</td>
                                 <td><span style="color:#ef4444;font-weight:600;">0</span></td>
-                                <td><span style="color:#f59e0b;font-weight:600;">12</span></td>
-                                <td><span style="color:#eab308;font-weight:600;">18</span></td>
-                                <td><span style="color:#3b82f6;font-weight:600;">35</span></td>
+                                <td><span style="color:#f59e0b;font-weight:600;">0</span></td>
+                                <td><span style="color:#eab308;font-weight:600;">0</span></td>
+                                <td><span style="color:#3b82f6;font-weight:600;">0</span></td>
                             </tr>
                             <tr>
-                                <td>综合预警</td>
-                                <td><span style="color:#ef4444;font-weight:600;">5</span></td>
+                                <td>高温热害</td>
+                                <td><span style="color:#ef4444;font-weight:600;">3</span></td>
+                                <td><span style="color:#f59e0b;font-weight:600;">4</span></td>
+                                <td><span style="color:#eab308;font-weight:600;">2</span></td>
+                                <td><span style="color:#3b82f6;font-weight:600;">8</span></td>
+                            </tr>
+                            <tr>
+                                <td>暴雨</td>
+                                <td><span style="color:#ef4444;font-weight:600;">1</span></td>
+                                <td><span style="color:#f59e0b;font-weight:600;">1</span></td>
+                                <td><span style="color:#eab308;font-weight:600;">1</span></td>
+                                <td><span style="color:#3b82f6;font-weight:600;">2</span></td>
+                            </tr>
+                            <tr>
+                                <td>冰雹</td>
+                                <td><span style="color:#ef4444;font-weight:600;">0</span></td>
                                 <td><span style="color:#f59e0b;font-weight:600;">0</span></td>
                                 <td><span style="color:#eab308;font-weight:600;">0</span></td>
                                 <td><span style="color:#3b82f6;font-weight:600;">0</span></td>
@@ -1140,33 +1176,45 @@
             </div>
 
             <div class="card side-card">
-                <div class="card-header"><span><i class="fas fa-cloud-sun"></i> 气象实时数据</span><span class="header-extra">实时更新</span></div>
+                <div class="card-header"><span><i class="fas fa-cloud-sun"></i> 气象实时数据</span>
+                    <span class="header-extra">
+                        <select id="weatherStationSelect" class="ds-select-sm" style="font-size:12px;color:#475569;background:#fff;border:1px solid #d1d5db;border-radius:6px;padding:3px 8px;cursor:pointer;outline:none;">
+                            <option value="orchard-central">南丰蜜桔种质园</option>
+                            <option value="qinchen">琴城果园监测点</option>
+                            <option value="qiawan">洽湾示范园监测点</option>
+                            <option value="taihe">太和基地监测点</option>
+                            <option value="baishe">白舍科技园监测点</option>
+                            <option value="shishan">市山核心园监测点</option>
+                            <option value="laixi">莱溪示范乡监测点</option>
+                        </select>
+                    </span>
+                </div>
                 <div class="env-grid">
                     <div class="env-card">
                         <div class="env-icon" style="background:#e0f2fe;color:#0284c7;"><i class="fas fa-thermometer-half"></i></div>
                         <div class="env-info">
-                            <div class="env-value">32.1°C</div>
+                            <div class="env-value" data-env-key="airTemp">32.1°C</div>
                             <div class="env-label">气温</div>
                         </div>
                     </div>
                     <div class="env-card">
                         <div class="env-icon" style="background:#dbeafe;color:#2563eb;"><i class="fas fa-cloud"></i></div>
                         <div class="env-info">
-                            <div class="env-value">56.2%</div>
+                            <div class="env-value" data-env-key="airHum">56.2%</div>
                             <div class="env-label">湿度</div>
                         </div>
                     </div>
                     <div class="env-card">
                         <div class="env-icon" style="background:#bfdbfe;color:#1d4ed8;"><i class="fas fa-cloud-rain"></i></div>
                         <div class="env-info">
-                            <div class="env-value">0 mm</div>
+                            <div class="env-value" data-env-key="rainfall">0 mm</div>
                             <div class="env-label">降雨量</div>
                         </div>
                     </div>
                     <div class="env-card">
                         <div class="env-icon" style="background:#f1f5f9;color:#64748b;"><i class="fas fa-wind"></i></div>
                         <div class="env-info">
-                            <div class="env-value">3.2 m/s</div>
+                            <div class="env-value" data-env-key="windSpeed">3.2 m/s</div>
                             <div class="env-label">风速</div>
                         </div>
                     </div>
@@ -1204,6 +1252,16 @@
 
     // ===== 统一预警数据源（所有面板/KPI 共用） =====
     var alertDataSource = {
+        // 各监测点气象数据（与气象卡片下拉框联动）
+        weatherStations: {
+            'orchard-central': { airTemp: '32.1°C', airHum: '56.2%', rainfall: '0 mm',  windSpeed: '3.2 m/s', trend: [32, 34, 35, 36, 35, 33, 31] },
+            'qinchen':         { airTemp: '30.5°C', airHum: '60.8%', rainfall: '1.2 mm', windSpeed: '2.8 m/s', trend: [30, 32, 33, 34, 33, 31, 30] },
+            'qiawan':          { airTemp: '31.7°C', airHum: '58.4%', rainfall: '0 mm',  windSpeed: '4.1 m/s', trend: [32, 33, 35, 35, 34, 32, 31] },
+            'taihe':           { airTemp: '31.0°C', airHum: '59.7%', rainfall: '0.5 mm', windSpeed: '3.5 m/s', trend: [31, 33, 34, 35, 34, 32, 30] },
+            'baishe':          { airTemp: '33.2°C', airHum: '54.1%', rainfall: '0 mm',  windSpeed: '3.8 m/s', trend: [33, 35, 36, 37, 36, 34, 33] },
+            'shishan':         { airTemp: '30.8°C', airHum: '61.5%', rainfall: '1.8 mm', windSpeed: '2.6 m/s', trend: [31, 32, 33, 34, 33, 31, 29] },
+            'laixi':           { airTemp: '31.5°C', airHum: '57.9%', rainfall: '0 mm',  windSpeed: '3.4 m/s', trend: [32, 33, 34, 35, 34, 32, 31] }
+        },
         // 按颜色级别统计
         levels: {
             red:    41,   // 红色预警
@@ -1258,13 +1316,13 @@
     recognitionChart.setOption({
         tooltip: { trigger: 'axis' },
         grid: { left: '3%', right: '4%', bottom: '3%', top: '10%', containLabel: true },
-        xAxis: { type: 'category', data: ['病害', '虫害', '健康', '疑难'] },
+        xAxis: { type: 'category', data: ['病害', '虫害'] },
         yAxis: { type: 'value', axisLabel: { formatter: '{value}条' } },
         series: [{
             type: 'bar',
-            data: [76, 128, 71, 9],
+            data: [76, 128],
             itemStyle: {
-                color: ['#ef4444', '#f59e0b', '#22c55e', '#8b5cf6'],
+                color: ['#ef4444', '#f59e0b'],
                 borderRadius: [6, 6, 0, 0]
             }
         }]
@@ -1278,7 +1336,7 @@
         yAxis: { type: 'value', min: 25, max: 38, axisLabel: { formatter: '{value}°' } },
         series: [{
             type: 'line',
-            data: [32, 34, 35, 36, 35, 33, 31],
+            data: (alertDataSource.weatherStations['orchard-central']).trend,
             smooth: true,
             itemStyle: { color: '#ef4444' },
             areaStyle: {
@@ -1388,6 +1446,26 @@
     }
 
     try { renderPestCards('all'); } catch(e) { console.error('renderPestCards error:', e); }
+
+    // 监测点下拉框切换：联动刷新 4 项气象指标 + 趋势图
+    // 延迟到 window.load 注册，避开内联脚本顶部抛错（如 mapUpdateTime=null）中断后续 IIFE
+    window.addEventListener('load', function () {
+        var sel = document.getElementById('weatherStationSelect');
+        if (!sel) return;
+        function applyStation(stationKey) {
+            var data = (alertDataSource.weatherStations || {})[stationKey];
+            if (!data) return;
+            document.querySelectorAll('.env-value[data-env-key]').forEach(function (el) {
+                var key = el.getAttribute('data-env-key');
+                if (data[key] !== undefined) el.textContent = data[key];
+            });
+            if (typeof weatherTrendChart !== 'undefined' && data.trend) {
+                weatherTrendChart.setOption({ series: [{ data: data.trend }] });
+            }
+        }
+        sel.addEventListener('change', function () { applyStation(sel.value); });
+        applyStation(sel.value);
+    });
 
     window.addEventListener('resize', function() {
         recognitionChart.resize();
@@ -2183,8 +2261,6 @@
 
         // 实时识别记录核心数字
         document.getElementById('recogAccuracy').innerHTML = alertDataSource.imgAccuracy + '<span class="recog-unit">%</span>';
-        document.getElementById('recogSuccess').textContent = alertDataSource.recognition.success;
-        document.getElementById('recogTask').textContent    = alertDataSource.recognition.task;
 
         // 渲染分级预警台账（按来源 × 颜色级别聚合）
         var tbody = document.getElementById('alertTableBody');

@@ -916,47 +916,59 @@
             </div>
 
             <div class="card compact-card">
-                <div class="card-header"><span><i class="fas fa-sensors"></i> 环境监测数据</span><span class="header-extra">实时更新</span></div>
+                <div class="card-header"><span><i class="fas fa-sensors"></i> 环境监测数据</span>
+                    <span class="header-extra">
+                        <select id="envStationSelect" class="ds-select-sm" style="font-size:12px;color:#475569;background:#fff;border:1px solid #d1d5db;border-radius:6px;padding:3px 8px;cursor:pointer;outline:none;">
+                            <option value="orchard-central">南丰蜜桔种质园</option>
+                            <option value="qinchen">琴城果园监测点</option>
+                            <option value="qiawan">洽湾示范园监测点</option>
+                            <option value="taihe">太和基地监测点</option>
+                            <option value="baishe">白舍科技园监测点</option>
+                            <option value="shishan">市山核心园监测点</option>
+                            <option value="laixi">莱溪示范乡监测点</option>
+                        </select>
+                    </span>
+                </div>
                 <div class="env-grid">
                     <div class="env-card">
                         <div class="env-icon"><i class="fas fa-temperature-three-quarters"></i></div>
                         <div class="env-info">
-                            <div class="env-value">26.8°C</div>
+                            <div class="env-value" data-env-key="soilTemp">26.8°C</div>
                             <div class="env-label">土壤温度</div>
                         </div>
                     </div>
                     <div class="env-card">
                         <div class="env-icon"><i class="fas fa-droplet"></i></div>
                         <div class="env-info">
-                            <div class="env-value">68.5%</div>
+                            <div class="env-value" data-env-key="soilHum">68.5%</div>
                             <div class="env-label">土壤湿度</div>
                         </div>
                     </div>
                     <div class="env-card">
                         <div class="env-icon"><i class="fas fa-flask"></i></div>
                         <div class="env-info">
-                            <div class="env-value" style="font-size:0.85rem;">N:25 P:18 K:92</div>
+                            <div class="env-value" data-env-key="soilNutri" style="font-size:0.85rem;">N:25 P:18 K:92</div>
                             <div class="env-label">土壤养分 (mg/kg)</div>
                         </div>
                     </div>
                     <div class="env-card">
                         <div class="env-icon"><i class="fas fa-sun"></i></div>
                         <div class="env-info">
-                            <div class="env-value">856 W/m²</div>
+                            <div class="env-value" data-env-key="light">856 W/m²</div>
                             <div class="env-label">光照强度</div>
                         </div>
                     </div>
                     <div class="env-card">
                         <div class="env-icon" style="background:#e0f2fe;color:#0284c7;"><i class="fas fa-vial"></i></div>
                         <div class="env-info">
-                            <div class="env-value">6.2</div>
+                            <div class="env-value" data-env-key="soilPh">6.2</div>
                             <div class="env-label">土壤pH值</div>
                         </div>
                     </div>
                     <div class="env-card">
                         <div class="env-icon" style="background:#dbeafe;color:#2563eb;"><i class="fas fa-arrows-up-down"></i></div>
                         <div class="env-info">
-                            <div class="env-value">9.6°C</div>
+                            <div class="env-value" data-env-key="diffTemp">9.6°C</div>
                             <div class="env-label">昼夜温差</div>
                         </div>
                     </div>
@@ -1183,14 +1195,14 @@
             { key: 'largegrower',   type: '种植大户', color: '#8b5cf6' },
             { key: 'iot',           type: '物联网',  color: '#06b6d4' }
         ],
-        // 品系（与监测植株品系分布卡片一致）
+        // 乡镇（与监测植株品系分布卡片对应位置）
         varieties: [
-            { key: 'small',   name: '小果系',  detail: '杨小2-6、金钱蜜桔',     count: 6, color: '#3b82f6', avgScore: 88.2 },
-            { key: 'large',   name: '大果系',  detail: '',                       count: 5, color: '#8b5cf6', avgScore: 85.6 },
-            { key: 'osman',   name: '桂花蒂系', detail: '柿蒂蜜桔',             count: 5, color: '#ec4899', avgScore: 86.8 },
-            { key: 'early',   name: '早熟系',   detail: '普通早熟蜜桔',         count: 4, color: '#f59e0b', avgScore: 84.3 },
-            { key: 'guiyue',  name: '桂月红',   detail: '特早熟芽变',           count: 3, color: '#22c55e', avgScore: 90.1 },
-            { key: 'miguang', name: '蜜广1号',  detail: '晚熟蜜广',             count: 3, color: '#10b981', avgScore: 87.5 }
+            { key: 'qinchen',  name: '琴城镇',  detail: '县城主产区',            count: 6, color: '#3b82f6', avgScore: 88.2 },
+            { key: 'qiawan',   name: '洽湾镇',  detail: '东郊蜜桔带',            count: 5, color: '#8b5cf6', avgScore: 85.6 },
+            { key: 'taihe',    name: '太和镇',  detail: '南丰东南部',            count: 5, color: '#ec4899', avgScore: 86.8 },
+            { key: 'baishe',   name: '白舍镇',  detail: '南大门·昌厦沿线',       count: 4, color: '#f59e0b', avgScore: 84.3 },
+            { key: 'shishan',  name: '市山镇',  detail: '蜜桔核心产区',          count: 3, color: '#22c55e', avgScore: 90.1 },
+            { key: 'laixi',    name: '莱溪乡',  detail: '城郊农业乡',            count: 3, color: '#10b981', avgScore: 87.5 }
         ],
         // KPI（8 个核心指标）
         kpis: {
@@ -1209,6 +1221,16 @@
         env: {
             soilTemp: '26.8', soilHum: '68.5', soilNutri: '中等',
             light: '856 W/m²', airTemp: '32.1', airHum: '56.2'
+        },
+        // 监测点环境数据（与 header-extra 下拉框联动）
+        envStations: {
+            'orchard-central': { soilTemp: '26.8°C', soilHum: '68.5%', soilNutri: 'N:25 P:18 K:92', light: '856 W/m²', soilPh: '6.2', diffTemp: '9.6°C' },
+            'qinchen':         { soilTemp: '25.4°C', soilHum: '71.2%', soilNutri: 'N:28 P:16 K:88', light: '792 W/m²', soilPh: '6.0', diffTemp: '9.2°C' },
+            'qiawan':          { soilTemp: '27.1°C', soilHum: '65.3%', soilNutri: 'N:22 P:20 K:96', light: '884 W/m²', soilPh: '6.4', diffTemp: '10.1°C' },
+            'taihe':           { soilTemp: '26.2°C', soilHum: '69.0%', soilNutri: 'N:24 P:17 K:90', light: '824 W/m²', soilPh: '6.1', diffTemp: '9.5°C' },
+            'baishe':          { soilTemp: '28.3°C', soilHum: '62.8%', soilNutri: 'N:20 P:22 K:98', light: '912 W/m²', soilPh: '6.5', diffTemp: '10.6°C' },
+            'shishan':         { soilTemp: '25.9°C', soilHum: '70.5%', soilNutri: 'N:30 P:14 K:85', light: '768 W/m²', soilPh: '5.9', diffTemp: '8.8°C' },
+            'laixi':           { soilTemp: '26.5°C', soilHum: '67.8%', soilNutri: 'N:26 P:19 K:93', light: '838 W/m²', soilPh: '6.3', diffTemp: '9.7°C' }
         },
         // 农事建议落地（柱状图）
         farmingAdopt: [
@@ -1509,6 +1531,23 @@
     }
 
     renderScrollingTable('all');
+
+    // 监测点下拉框切换：联动刷新 6 项环境指标
+    (function bindEnvStationSelect() {
+        var sel = document.getElementById('envStationSelect');
+        if (!sel) return;
+        function applyStation(stationKey) {
+            var data = (growthDataSource.envStations || {})[stationKey];
+            if (!data) return;
+            document.querySelectorAll('.env-value[data-env-key]').forEach(function (el) {
+                var key = el.getAttribute('data-env-key');
+                if (data[key] !== undefined) el.textContent = data[key];
+            });
+        }
+        sel.addEventListener('change', function () { applyStation(sel.value); });
+        // 初始化：确保 DOM 加载后第一次渲染也对得上当前选中
+        applyStation(sel.value);
+    })();
 
     window.addEventListener('resize', function() {
         healthRingChart.resize();

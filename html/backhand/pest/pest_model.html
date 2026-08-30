@@ -29,16 +29,6 @@
                 <h1 class="text-xl font-bold text-gray-800">模型说明</h1>
                 <p class="text-gray-500 text-sm mt-1">南丰蜜桔病虫害多因子耦合时序风险预测模型</p>
             </div>
-            <div class="flex items-center space-x-3">
-                <button onclick="openTrainModal()" class="px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50 flex items-center">
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-                    刷新状态
-                </button>
-                <button onclick="openModelMemo()" class="px-4 py-2 border border-blue-300 bg-blue-50 rounded-lg text-sm text-blue-600 hover:bg-blue-100 flex items-center">
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-                    模型说明
-                </button>
-            </div>
         </div>
 
         <!-- 2. Statistics Cards -->
@@ -248,70 +238,7 @@
         </div>
     </div>
 
-    <!-- 刷新状态弹窗 -->
-    <div id="train-modal" class="modal-overlay">
-        <div class="modal-content">
-            <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
-                <h3 style="font-size:18px;font-weight:600;color:#1f2937">刷新状态</h3>
-                <button onclick="closeModal('train-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
-            </div>
-            <div style="padding:24px">
-                <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px;margin-bottom:16px">
-                    <p style="font-size:14px;font-weight:500;color:#1d4ed8">确认刷新模型运行状态？</p>
-                    <p style="font-size:12px;color:#1e40af;margin-top:4px">系统将重新获取所有病虫害模型的最新运行状态、预警数据及监测结果。</p>
-                </div>
-                <div style="display:flex;flex-direction:column;gap:12px">
-                    <div style="display:flex;justify-content:space-between;padding:10px;background:#f9fafb;border-radius:8px">
-                        <span style="font-size:13px;color:#6b7280">模型总数</span>
-                        <span style="font-size:13px;font-weight:500;color:#1f2937">6 个</span>
-                    </div>
-                    <div style="display:flex;justify-content:space-between;padding:10px;background:#f9fafb;border-radius:8px">
-                        <span style="font-size:13px;color:#6b7280">运行中</span>
-                        <span style="font-size:13px;font-weight:500;color:#16a34a">6 个</span>
-                    </div>
-                    <div style="display:flex;justify-content:space-between;padding:10px;background:#f9fafb;border-radius:8px">
-                        <span style="font-size:13px;color:#6b7280">已禁用</span>
-                        <span style="font-size:13px;font-weight:500;color:#9ca3af">0 个</span>
-                    </div>
-                    <div style="display:flex;justify-content:space-between;padding:10px;background:#f9fafb;border-radius:8px">
-                        <span style="font-size:13px;color:#6b7280">最近刷新时间</span>
-                        <span style="font-size:13px;font-weight:500;color:#1f2937">2026-08-04 09:30</span>
-                    </div>
-                </div>
-            </div>
-            <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:12px">
-                <button onclick="closeModal('train-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
-                <button onclick="startTraining()" style="padding:8px 16px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">确认刷新</button>
-            </div>
-        </div>
-    </div>
-
     <script>
-        function showModal(id) { var m = document.getElementById(id); if (m) { m.style.display = 'flex'; m.classList.add('active'); } }
-        function hideModal(id) { var m = document.getElementById(id); if (m) { m.style.display = 'none'; m.classList.remove('active'); } }
-        function closeModal(id) { hideModal(id); }
-
-        function openTrainModal() { showModal('train-modal'); }
-        function openModelMemo() { window.open('pest_model_memo.html', '_blank'); }
-
-        function startTraining() {
-            alert('状态刷新成功！\n已重新获取全部 6 个模型的最新运行状态与预警数据。');
-            closeModal('train-modal');
-        }
-
-        document.addEventListener('click', function(e) {
-            var ids = ['train-modal'];
-            for (var i = 0; i < ids.length; i++) {
-                var m = document.getElementById(ids[i]);
-                if (m && m.style.display === 'flex') {
-                    var inner = m.children[0];
-                    if (inner && !inner.contains(e.target) && e.target === m) {
-                        m.style.display = 'none';
-                        m.classList.remove('active');
-                    }
-                }
-            }
-        });
     </script>
 </body>
 </html>

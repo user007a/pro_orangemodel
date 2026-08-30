@@ -132,37 +132,6 @@
                 </div>
                 <div id="iot-pagination" class="mt-4 flex items-center justify-between flex-wrap gap-2"></div>
             </div>
-
-            <!-- 实时数据区块 -->
-            <div>
-                <h3 class="text-sm font-semibold text-gray-700 mb-3 flex items-center">
-                    <svg class="w-4 h-4 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                    实时数据（最新采集均值）
-                </h3>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="bg-green-50 rounded-lg p-4 border border-green-100">
-                        <div class="flex items-center justify-between">
-                            <span class="text-sm text-green-700">当前温度</span>
-                            <span class="text-2xl font-bold text-green-800" id="stat-temp">-</span>
-                        </div>
-                        <div class="text-xs text-green-600 mt-1">南丰蜜桔适宜: 20-35℃</div>
-                    </div>
-                    <div class="bg-blue-50 rounded-lg p-4 border border-blue-100">
-                        <div class="flex items-center justify-between">
-                            <span class="text-sm text-blue-700">土壤含水量</span>
-                            <span class="text-2xl font-bold text-blue-800" id="stat-soil">-</span>
-                        </div>
-                        <div class="text-xs text-blue-600 mt-1">适宜范围: 60-85%</div>
-                    </div>
-                    <div class="bg-yellow-50 rounded-lg p-4 border border-yellow-100">
-                        <div class="flex items-center justify-between">
-                            <span class="text-sm text-yellow-700">光照强度</span>
-                            <span class="text-2xl font-bold text-yellow-800" id="stat-light">-</span>
-                        </div>
-                        <div class="text-xs text-yellow-600 mt-1">适宜范围: 25000-80000 lux</div>
-                    </div>
-                </div>
-            </div>
         </div>
 
         <!-- 人工采样录入 Tab -->
@@ -213,38 +182,6 @@
 
         <!-- 农事操作记录 Tab -->
         <div id="tab-farm" class="tab-content p-6" style="display:none">
-            <!-- 类型统计 -->
-            <div class="grid grid-cols-2 md:grid-cols-7 gap-3 mb-5">
-                <div class="bg-blue-50 rounded-lg p-3 border border-blue-100 text-center">
-                    <div class="text-lg font-bold text-blue-700" id="type-irrigation">0</div>
-                    <div class="text-xs text-blue-600">💧 灌溉</div>
-                </div>
-                <div class="bg-green-50 rounded-lg p-3 border border-green-100 text-center">
-                    <div class="text-lg font-bold text-green-700" id="type-fertilize">0</div>
-                    <div class="text-xs text-green-600">🌱 施肥</div>
-                </div>
-                <div class="bg-yellow-50 rounded-lg p-3 border border-yellow-100 text-center">
-                    <div class="text-lg font-bold text-yellow-700" id="type-thin">0</div>
-                    <div class="text-xs text-yellow-600">✂️ 疏果</div>
-                </div>
-                <div class="bg-orange-50 rounded-lg p-3 border border-orange-100 text-center">
-                    <div class="text-lg font-bold text-orange-700" id="type-prune">0</div>
-                    <div class="text-xs text-orange-600">🌿 修剪</div>
-                </div>
-                <div class="bg-purple-50 rounded-lg p-3 border border-purple-100 text-center">
-                    <div class="text-lg font-bold text-purple-700" id="type-shade">0</div>
-                    <div class="text-xs text-purple-600">⛱️ 遮阳</div>
-                </div>
-                <div class="bg-red-50 rounded-lg p-3 border border-red-100 text-center">
-                    <div class="text-lg font-bold text-red-700" id="type-spray">0</div>
-                    <div class="text-xs text-red-600">💊 打药</div>
-                </div>
-                <div class="bg-cyan-50 rounded-lg p-3 border border-cyan-100 text-center">
-                    <div class="text-lg font-bold text-cyan-700" id="type-drain">0</div>
-                    <div class="text-xs text-cyan-600">🌊 排水</div>
-                </div>
-            </div>
-
             <div class="flex items-center justify-between mb-4 flex-wrap gap-3">
                 <div class="flex items-center space-x-3 flex-wrap">
                     <input type="text" id="farm-search" placeholder="搜索详情/操作人..." class="px-3 py-2 border border-gray-300 rounded-lg text-sm w-48" oninput="farmCurrentPage=1;renderFarmTable()">
@@ -638,7 +575,7 @@ function switchTab(tab) {
     var target = document.getElementById('tab-' + tab);
     if (target) target.style.display = '';
     if (tab === 'manual') { renderManualTable(); }
-    if (tab === 'farm') { renderFarmTable(); updateFarmStats(); }
+    if (tab === 'farm') { renderFarmTable(); }
 }
 
 // ============ IoT实时数据 ============
@@ -687,7 +624,6 @@ function renderIotTable() {
     tbody.innerHTML = html;
     document.getElementById('iot-total-count').textContent = total;
     renderIotPagination(total, totalPages);
-    updateIotStats(data);
 }
 
 function renderIotPagination(total, totalPages) {
@@ -748,26 +684,6 @@ function showIotDetail(id) {
         '</div>';
     document.getElementById('iot-detail-content').innerHTML = html;
     showModal('iot-detail-modal');
-}
-
-function updateIotStats(data) {
-    if (data.length === 0) {
-        document.getElementById('stat-temp').textContent = '-';
-        document.getElementById('stat-soil').textContent = '-';
-        document.getElementById('stat-light').textContent = '-';
-        return;
-    }
-    // 取最新时间点的数据计算均值作为实时数据
-    var latestTime = data[0].time;
-    var latestData = data.filter(function (d) { return d.time === latestTime; });
-    var avgTemp = 0, avgSoil = 0, avgLight = 0;
-    for (var i = 0; i < latestData.length; i++) { avgTemp += latestData[i].temp; avgSoil += latestData[i].soil; avgLight += latestData[i].light; }
-    avgTemp = (avgTemp / latestData.length).toFixed(1);
-    avgSoil = (avgSoil / latestData.length).toFixed(1);
-    avgLight = Math.round(avgLight / latestData.length).toLocaleString();
-    document.getElementById('stat-temp').textContent = avgTemp + '℃';
-    document.getElementById('stat-soil').textContent = avgSoil + '%';
-    document.getElementById('stat-light').textContent = avgLight + ' lux';
 }
 
 function toggleAutoRefresh() {
@@ -1160,20 +1076,6 @@ function changeFarmPageSize(size) {
     renderFarmTable();
 }
 
-function updateFarmStats() {
-    var typeCount = {};
-    farmData.forEach(function (d) {
-        typeCount[d.type] = (typeCount[d.type] || 0) + 1;
-    });
-    document.getElementById('type-irrigation').textContent = typeCount['灌溉'] || 0;
-    document.getElementById('type-fertilize').textContent = typeCount['施肥'] || 0;
-    document.getElementById('type-thin').textContent = typeCount['疏果'] || 0;
-    document.getElementById('type-prune').textContent = typeCount['修剪'] || 0;
-    document.getElementById('type-shade').textContent = typeCount['遮阳'] || 0;
-    document.getElementById('type-spray').textContent = typeCount['打药'] || 0;
-    document.getElementById('type-drain').textContent = typeCount['排水'] || 0;
-}
-
 function openFarmAddModal() {
     farmEditId = null;
     document.getElementById('farm-edit-title').textContent = '新增农事记录';
@@ -1224,7 +1126,6 @@ function submitFarmForm() {
     }
     closeModal('farm-edit-modal');
     renderFarmTable();
-    updateFarmStats();
 }
 
 function showFarmDetail(id) {
@@ -1282,7 +1183,6 @@ function confirmDelete() {
         if (idx2 >= 0) farmData.splice(idx2, 1);
         showToast('删除成功', 'success');
         renderFarmTable();
-        updateFarmStats();
     }
     closeModal('delete-modal');
     deleteTargetId = null;
@@ -1335,7 +1235,6 @@ window.addEventListener('load', function () {
     // Render manual and farm tabs in background
     renderManualTable();
     renderFarmTable();
-    updateFarmStats();
 });
 </script>
 </body>

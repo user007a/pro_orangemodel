@@ -785,69 +785,6 @@
             </div>
             <div class="p-6 bg-white">
                 <h5 class="text-sm font-semibold text-gray-700 mb-3 flex items-center">
-                    <iconify-icon icon="material-symbols:sensors" class="w-4 h-4 mr-2 text-green-500"></iconify-icon>
-                    当前监测数据
-                </h5>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-                    <div class="p-3 bg-red-50 rounded-lg">
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="text-xs text-red-500">温度</span>
-                            <iconify-icon icon="material-symbols:thermostat" class="w-4 h-4 text-red-500"></iconify-icon>
-                        </div>
-                        <p class="text-2xl font-bold text-red" id="data-temp">-</p>
-                    </div>
-                    <div class="p-3 bg-blue-50 rounded-lg">
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="text-xs text-blue-500">湿度</span>
-                            <iconify-icon icon="material-symbols:water" class="w-4 h-4 text-blue-500"></iconify-icon>
-                        </div>
-                        <p class="text-2xl font-bold text-blue" id="data-humidity">-</p>
-                    </div>
-                    <div class="p-3 bg-yellow-50 rounded-lg">
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="text-xs text-yellow-500">光照</span>
-                            <svg class="w-5 h-5 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-                        </div>
-                        <p class="text-2xl font-bold text-yellow" id="data-light">-</p>
-                    </div>
-                    <div class="p-3 bg-teal-50 rounded-lg">
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="text-xs text-teal-500">风速</span>
-                            <iconify-icon icon="material-symbols:air" class="w-4 h-4 text-teal-500"></iconify-icon>
-                        </div>
-                        <p class="text-2xl font-bold text-teal-600" id="data-wind">-</p>
-                    </div>
-                    <div class="p-3 bg-indigo-50 rounded-lg">
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="text-xs text-indigo-500">降雨量</span>
-                            <iconify-icon icon="material-symbols:cloud-rain" class="w-4 h-4 text-indigo-500"></iconify-icon>
-                        </div>
-                        <p class="text-2xl font-bold text-indigo-600" id="data-rain">-</p>
-                    </div>
-                    <div class="p-3 bg-purple-50 rounded-lg">
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="text-xs text-purple-500">气压</span>
-                            <iconify-icon icon="material-symbols:compress" class="w-4 h-4 text-purple-500"></iconify-icon>
-                        </div>
-                        <p class="text-2xl font-bold text-purple" id="data-pressure">-</p>
-                    </div>
-                    <div class="p-3 bg-gray-50 rounded-lg">
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="text-xs text-gray-500">信号强度</span>
-                            <iconify-icon icon="material-symbols:signal-cellular-alt" class="w-4 h-4 text-gray-500"></iconify-icon>
-                        </div>
-                        <p class="text-2xl font-bold text-gray-700" id="data-signal">-</p>
-                    </div>
-                    <div class="p-3 bg-green-50 rounded-lg">
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="text-xs text-green-500">电池电量</span>
-                            <iconify-icon icon="material-symbols:battery-full" class="w-4 h-4 text-green-500"></iconify-icon>
-                        </div>
-                        <p class="text-2xl font-bold text-green" id="data-battery">-</p>
-                    </div>
-                </div>
-
-                <h5 class="text-sm font-semibold text-gray-700 mb-3 flex items-center">
                     <iconify-icon icon="material-symbols:list-alt" class="w-4 h-4 mr-2 text-gray-500"></iconify-icon>
                     数据列表
                 </h5>
@@ -1064,7 +1001,10 @@
                 document.getElementById('data-station-name').textContent = name;
                 const detail = stationDetails[name];
 
-                // Generate deterministic mock values for fields not in stationDetails
+                // Generate 24-hour data table
+                const tableBody = document.getElementById('data-table-body');
+                const now = new Date();
+                const pad = (n) => n.toString().padStart(2, '0');
                 let hash = 0;
                 for (let i = 0; i < name.length; i++) {
                     hash = ((hash << 5) - hash) + name.charCodeAt(i);
@@ -1074,20 +1014,6 @@
                 const baseHumidity = 50 + (Math.abs(hash >> 4) % 30);
                 const baseLight = 8000 + (Math.abs(hash >> 8) % 12000);
                 const basePressure = 1008 + (Math.abs(hash >> 12) % 20);
-
-                document.getElementById('data-temp').textContent = baseTemp + '°C';
-                document.getElementById('data-humidity').textContent = baseHumidity + '%';
-                document.getElementById('data-light').textContent = baseLight + ' lux';
-                document.getElementById('data-wind').textContent = detail ? detail.wind : '-';
-                document.getElementById('data-rain').textContent = detail ? detail.rain : '-';
-                document.getElementById('data-pressure').textContent = basePressure + ' hPa';
-                document.getElementById('data-signal').textContent = detail ? detail.signal : '-';
-                document.getElementById('data-battery').textContent = detail ? detail.battery : '-';
-
-                // Generate 24-hour data table
-                const tableBody = document.getElementById('data-table-body');
-                const now = new Date();
-                const pad = (n) => n.toString().padStart(2, '0');
                 const baseWindVal = (detail && detail.wind && detail.wind !== '-') ? parseFloat(detail.wind.replace(' m/s', '')) : 2.5;
                 let html = '';
                 for (let i = 23; i >= 0; i--) {

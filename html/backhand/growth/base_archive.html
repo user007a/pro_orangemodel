@@ -31,9 +31,6 @@
             <h1 class="text-xl font-bold text-gray-800">基础档案</h1>
             <p class="text-gray-500 text-sm mt-1">管理南丰蜜桔生长模型的品系信息、地块档案和阶段参数配置</p>
         </div>
-        <div class="flex items-center space-x-3">
-            <button onclick="exportArchive()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm">导出档案</button>
-        </div>
     </div>
 
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 mb-6">
@@ -711,10 +708,6 @@ function resetStageParams() {
 
 function saveStageParams() {
     alert('阶段参数已保存！共 ' + stages.length + ' 个生长阶段，' + Object.keys(stageParams).reduce(function(sum, k){ return sum + Object.keys(stageParams[k]).length; }, 0) + ' 项参数已更新。');
-}
-
-function exportArchive() {
-    alert('档案导出功能：将品系管理(' + varietyData.length + '条)、地块档案(' + plotData.length + '条)和阶段参数导出为Excel文件。');
 }
 
 function showModal(id) {

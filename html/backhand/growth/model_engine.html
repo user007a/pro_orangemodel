@@ -37,7 +37,6 @@
         .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
         .scrollbar-thin::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
         .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
-        #manual-calc-modal .modal-content { animation: modalFadeIn 0.3s ease-out; }
         @keyframes modalFadeIn { from { opacity: 0; transform: scale(0.95) translateY(-10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
     </style>
 </head>
@@ -47,14 +46,7 @@
     <div class="flex items-center justify-between mb-6">
         <div>
             <h1 class="text-xl font-bold text-gray-800">模型计算中心</h1>
-            <p class="text-gray-500 text-sm mt-1">南丰蜜桔生长模型定时调度与手动计算</p>
-        </div>
-        <div class="flex items-center space-x-3">
-            <span class="text-sm text-gray-500">今日: <span id="today-date"></span></span>
-            <button onclick="openManualCalcModal()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium flex items-center">
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-                手动计算
-            </button>
+            <p class="text-gray-500 text-sm mt-1">南丰蜜桔生长模型定时调度与执行</p>
         </div>
     </div>
 
@@ -200,38 +192,6 @@
         </div>
     </div>
 
-    <!-- 手动计算弹窗 -->
-    <div id="manual-calc-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center">
-        <div style="background:#fff;border-radius:12px;width:90%;max-width:550px;max-height:85vh;overflow-y:auto" class="modal-content">
-            <div class="flex items-center justify-between p-5 border-b border-gray-100">
-                <h3 class="text-base font-semibold text-gray-800 flex items-center">
-                    <svg class="w-5 h-5 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                    手动计算配置
-                </h3>
-                <button onclick="closeManualCalcModal()" class="text-gray-400 hover:text-gray-600">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
-            </div>
-            <div class="p-5">
-                <div class="mb-4">
-                    <label class="text-sm text-gray-600 block mb-2">选择地块 <span class="text-red-500">*</span></label>
-                    <div id="plot-picker" class="grid grid-cols-2 gap-2"></div>
-                </div>
-                <div class="mb-4">
-                    <label class="text-sm text-gray-600 block mb-2">计算日期 <span class="text-red-500">*</span></label>
-                    <input type="date" id="calc-date" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
-                </div>
-            </div>
-            <div class="flex justify-end space-x-3 p-5 border-t border-gray-100">
-                <button onclick="closeManualCalcModal()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm font-medium">取消</button>
-                <button onclick="executeCalculation()" class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium flex items-center">
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                    执行计算
-                </button>
-            </div>
-        </div>
-    </div>
-
     <!-- 日志详情弹窗 -->
     <div id="log-detail-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center">
         <div style="background:#fff;border-radius:12px;width:90%;max-width:560px;max-height:85vh;overflow-y:auto" class="modal-content">
@@ -253,67 +213,13 @@
 </div>
 
 <script>
-let selectedPlots = [];
 let logData = [];
 let filteredLogs = [];
 let logCurrentPage = 1;
 const logPageSize = 8;
 
-const plots = [
-    { id: 'NF-A01', name: '东坡A-01地块', area: '南丰镇', variety: '小果系', age: '6年' },
-    { id: 'NF-A03', name: '东坡A-03地块', area: '南丰镇', variety: '小果系', age: '6年' },
-    { id: 'NF-B02', name: '西坡B-02地块', area: '太和镇', variety: '小果系', age: '8年' },
-    { id: 'NF-C05', name: '南坡C-05地块', area: '白舍镇', variety: '小果系', age: '5年' }
-];
-
 function init() {
-    document.getElementById('today-date').textContent = new Date().toLocaleDateString('zh-CN');
-    initPlotPicker();
     initLogs();
-    document.getElementById('calc-date').valueAsDate = new Date();
-}
-
-function initPlotPicker() {
-    const picker = document.getElementById('plot-picker');
-    picker.innerHTML = plots.map((p, i) => `
-        <div class="plot-card border-2 border-gray-200 rounded-lg p-3 ${i === 0 ? 'selected' : ''}" data-idx="${i}" onclick="togglePlot(${i})">
-            <div class="flex items-center justify-between">
-                <span class="text-sm font-medium text-gray-800">${p.name}</span>
-                <span class="text-xs text-gray-400">${p.id}</span>
-            </div>
-            <div class="flex items-center space-x-2 mt-1">
-                <span class="text-xs text-gray-500">${p.area}</span>
-                <span class="text-xs text-gray-400">·</span>
-                <span class="text-xs text-gray-500">${p.age}</span>
-            </div>
-        </div>
-    `).join('');
-    selectedPlots = [0];
-}
-
-function togglePlot(idx) {
-    const i = selectedPlots.indexOf(idx);
-    if (i >= 0) {
-        if (selectedPlots.length > 1) selectedPlots.splice(i, 1);
-    } else {
-        selectedPlots.push(idx);
-    }
-    selectedPlots.sort();
-    document.querySelectorAll('.plot-card').forEach((el, i) => {
-        el.classList.toggle('selected', selectedPlots.includes(i));
-    });
-}
-
-function openManualCalcModal() {
-    const modal = document.getElementById('manual-calc-modal');
-    modal.style.display = 'flex';
-    document.getElementById('calc-date').valueAsDate = new Date();
-    selectedPlots = [0];
-    initPlotPicker();
-}
-
-function closeManualCalcModal() {
-    document.getElementById('manual-calc-modal').style.display = 'none';
 }
 
 function toggleSchedule(el) {
@@ -329,36 +235,6 @@ function toggleSchedule(el) {
 
 function runNow() {
     alert('已触发立即执行，正在后台计算...');
-}
-
-function executeCalculation() {
-    const date = document.getElementById('calc-date').value;
-    if (!date) { alert('请选择计算日期'); return; }
-    if (selectedPlots.length === 0) { alert('请至少选择一个地块'); return; }
-
-    const plotNames = selectedPlots.map(i => plots[i].name).join('、');
-    const now = new Date();
-    const pad = n => String(n).padStart(2, '0');
-    const timeStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
-
-    logData.unshift({
-        id: logData.length > 0 ? Math.max(...logData.map(d => d.id)) + 1 : 1,
-        time: timeStr,
-        type: '手动计算',
-        plots: selectedPlots.length,
-        success: selectedPlots.length,
-        failed: 0,
-        duration: (selectedPlots.length * 2) + '秒',
-        operator: '当前用户',
-        version: 'v2.3.1',
-        trigger: '手动触发',
-        failedPlots: []
-    });
-    logCurrentPage = 1;
-    renderLogs();
-
-    closeManualCalcModal();
-    alert(`手动计算完成\n计算日期：${date}\n地块数：${selectedPlots.length}\n地块：${plotNames}`);
 }
 
 function initLogs() {

@@ -94,10 +94,6 @@
                         <option value="NF-005">西坡C-02地块</option>
                         <option value="NF-008">南坡B-04地块</option>
                     </select>
-                    <button onclick="toggleAutoRefresh()" id="auto-refresh-btn" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm flex items-center">
-                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-                        <span id="auto-refresh-text">暂停自动刷新</span>
-                    </button>
                     <button onclick="refreshIotData()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm flex items-center">
                         <svg id="refresh-icon" class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
                         立即刷新
@@ -147,10 +143,6 @@
                     </select>
                 </div>
                 <div class="flex items-center space-x-3">
-                    <button onclick="showBatchImport()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm flex items-center transition-colors">
-                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
-                        批量导入
-                    </button>
                     <button onclick="openManualAddModal()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm flex items-center transition-colors">
                         <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                         添加采样
@@ -408,32 +400,6 @@
     </div>
 </div>
 
-<!-- 批量导入弹窗 -->
-<div id="batch-import-modal" class="modal-mask">
-    <div style="background:#fff;border-radius:12px;width:90%;max-width:500px" class="modal-content">
-        <div style="padding:16px 20px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
-            <h3 style="font-size:17px;font-weight:600;color:#1f2937">批量导入数据</h3>
-            <button onclick="closeModal('batch-import-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:22px;color:#9ca3af">&times;</button>
-        </div>
-        <div style="padding:24px">
-            <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px;margin-bottom:16px">
-                <p style="font-size:14px;font-weight:500;color:#1e40af">导入说明</p>
-                <p style="font-size:12px;color:#2563eb;margin-top:4px">支持 Excel/CSV 格式文件导入，文件需包含地块编号、采样日期、果径、糖度、SPAD、PH、氮磷钾、挂果量等字段。</p>
-            </div>
-            <div style="border:2px dashed #d1d5db;border-radius:8px;padding:32px;text-align:center;cursor:pointer" onclick="document.getElementById('file-input').click()">
-                <svg style="width:48px;height:48px;color:#9ca3af;margin:0 auto 12px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
-                <p style="font-size:14px;color:#6b7280">点击上传文件</p>
-                <p style="font-size:12px;color:#9ca3af;margin-top:4px">支持 .xlsx, .xls, .csv 格式，最大 10MB</p>
-                <input type="file" id="file-input" style="display:none" accept=".xlsx,.xls,.csv" onchange="handleFileUpload(this)">
-            </div>
-            <button onclick="downloadTemplate()" style="margin-top:12px;font-size:13px;color:#2563eb;background:none;border:none;cursor:pointer;text-decoration:underline">下载导入模板</button>
-        </div>
-        <div style="padding:14px 20px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end">
-            <button onclick="closeModal('batch-import-modal')" style="padding:8px 16px;background:#f3f4f6;color:#374151;border:none;border-radius:8px;font-size:14px;cursor:pointer">关闭</button>
-        </div>
-    </div>
-</div>
-
 <!-- 删除确认弹窗 -->
 <div id="delete-modal" class="modal-mask">
     <div style="background:#fff;border-radius:12px;width:90%;max-width:400px" class="modal-content">
@@ -525,9 +491,6 @@ var farmData = [
 ];
 
 // ============ 状态变量 ============
-var autoRefreshTimer = null;
-var autoRefreshInterval = 5000;
-var isAutoRefresh = true;
 var currentTab = 'iot';
 var deleteTargetId = null;
 var deleteTargetType = null;
@@ -686,28 +649,6 @@ function showIotDetail(id) {
     showModal('iot-detail-modal');
 }
 
-function toggleAutoRefresh() {
-    isAutoRefresh = !isAutoRefresh;
-    var btn = document.getElementById('auto-refresh-text');
-    if (isAutoRefresh) {
-        btn.textContent = '暂停自动刷新';
-        startAutoRefresh();
-    } else {
-        btn.textContent = '开启自动刷新';
-        stopAutoRefresh();
-    }
-}
-
-function startAutoRefresh() {
-    stopAutoRefresh();
-    autoRefreshTimer = setInterval(function () {
-        refreshIotData();
-    }, autoRefreshInterval);
-}
-
-function stopAutoRefresh() {
-    if (autoRefreshTimer) { clearInterval(autoRefreshTimer); autoRefreshTimer = null; }
-}
 
 function refreshIotData() {
     // Simulate data refresh with slight variations
@@ -1189,49 +1130,10 @@ function confirmDelete() {
     deleteTargetType = null;
 }
 
-// ============ 批量导入 ============
-function showBatchImport() {
-    showModal('batch-import-modal');
-}
-
-function handleFileUpload(input) {
-    if (input.files && input.files.length > 0) {
-        var fileName = input.files[0].name;
-        showToast('文件 "' + fileName + '" 已选择，模拟导入成功', 'success');
-        closeModal('batch-import-modal');
-        input.value = '';
-        // Simulate adding imported data
-        for (var i = 0; i < 3; i++) {
-            var newId = manualData.length > 0 ? Math.max.apply(null, manualData.map(function (d) { return d.id; })) + i + 1 : i + 1;
-            manualData.push({
-                id: newId,
-                plot: 'NF-001|东坡A-03地块',
-                date: getTodayStr(),
-                diameter: +(60 + Math.random() * 15).toFixed(1),
-                sugar: +(7 + Math.random() * 3).toFixed(1),
-                spad: +(42 + Math.random() * 10).toFixed(1),
-                ph: +(6 + Math.random()).toFixed(1),
-                ec: +(1.2 + Math.random() * 0.5).toFixed(2),
-                n: +(1.5 + Math.random() * 0.5).toFixed(1),
-                p: +(0.3 + Math.random() * 0.1).toFixed(2),
-                k: +(1.1 + Math.random() * 0.4).toFixed(1),
-                yield: Math.round(100 + Math.random() * 40),
-                pest: '批量导入数据'
-            });
-        }
-        if (currentTab === 'manual') { renderManualTable(); }
-    }
-}
-
-function downloadTemplate() {
-    showToast('模板下载中...', 'info');
-}
-
 // ============ 初始化 ============
 window.addEventListener('load', function () {
     updateLastUpdateTime();
     renderIotTable();
-    startAutoRefresh();
     // Render manual and farm tabs in background
     renderManualTable();
     renderFarmTable();

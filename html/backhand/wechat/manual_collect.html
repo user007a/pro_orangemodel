@@ -33,10 +33,6 @@
                     <iconify-icon icon="material-symbols:search" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2"></iconify-icon>
                     <input type="text" id="search-input" placeholder="搜索数据记录..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm w-64" oninput="filterData()">
                 </div>
-                <button onclick="openExportModal()" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 text-sm flex items-center">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                    导出数据
-                </button>
                 <button onclick="openAddModal()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm flex items-center">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                     录入数据
@@ -55,6 +51,7 @@
                             <option value="土壤墒情">土壤墒情</option>
                             <option value="温湿度">温湿度</option>
                             <option value="农事操作">农事操作</option>
+                            <option value="销售数据">销售数据</option>
                         </select>
                     </div>
                     <div class="flex items-center space-x-2">
@@ -192,11 +189,36 @@
                                 <button onclick="openDeleteModal('DAT-202607008')" class="px-3 py-1 text-red hover:bg-red-50 rounded text-xs font-medium transition-colors">删除</button>
                             </td>
                         </tr>
+                        <tr class="border-b border-gray-100 hover:bg-gray-50" data-id="DAT-202607009" data-code="XS-20260723-001" data-person="周农技" data-plot="南丰县XX合作社-1号园" data-type="销售数据" data-collect-type="销售数据" data-collect-time="2026-07-23 14:20" data-detail="售日期:2026-07-23, 销售数量:1850kg, 销售价格:4.20元/kg, 销往地区:江西省抚州市" data-note="首批南丰蜜桔发往抚州批发市场" data-status="已审核">
+                            <td class="py-3 px-4 text-gray-600">DAT-202607009</td>
+                            <td class="py-3 px-4"><span class="px-2 py-1 bg-emerald-100 text-emerald-700 text-xs rounded">销售数据</span></td>
+                            <td class="py-3 px-4">南丰县XX合作社-1号园</td>
+                            <td class="py-3 px-4">周农技</td>
+                            <td class="py-3 px-4">2026-07-23 14:20</td>
+                            <td class="py-3 px-4"><span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded">已审核</span></td>
+                            <td class="py-3 px-4">
+                                <button onclick="openDetailModal('DAT-202607009')" class="px-3 py-1 text-green hover:bg-green-50 rounded text-xs font-medium transition-colors mr-3">查看</button>
+                                <button onclick="openDeleteModal('DAT-202607009')" class="px-3 py-1 text-red hover:bg-red-50 rounded text-xs font-medium transition-colors">删除</button>
+                            </td>
+                        </tr>
+                        <tr class="border-b border-gray-100 hover:bg-gray-50" data-id="DAT-202607010" data-code="XS-20260724-001" data-person="赵农户" data-plot="南丰县XX种植大户-东园" data-type="销售数据" data-collect-type="销售数据" data-collect-time="2026-07-24 10:05" data-detail="售日期:2026-07-24, 销售数量:1200kg, 销售价格:4.60元/kg, 销往地区:广东省深圳市" data-note="精品果发往深圳连锁商超" data-status="待审核">
+                            <td class="py-3 px-4 text-gray-600">DAT-202607010</td>
+                            <td class="py-3 px-4"><span class="px-2 py-1 bg-emerald-100 text-emerald-700 text-xs rounded">销售数据</span></td>
+                            <td class="py-3 px-4">南丰县XX种植大户-东园</td>
+                            <td class="py-3 px-4">赵农户</td>
+                            <td class="py-3 px-4">2026-07-24 10:05</td>
+                            <td class="py-3 px-4"><span class="px-2 py-1 bg-yellow-100 text-yellow-700 text-xs rounded">待审核</span></td>
+                            <td class="py-3 px-4">
+                                <button onclick="openDetailModal('DAT-202607010')" class="px-3 py-1 text-green hover:bg-green-50 rounded text-xs font-medium transition-colors mr-3">查看</button>
+                                <button onclick="openAuditModal('DAT-202607010')" class="px-3 py-1 text-yellow hover:bg-yellow-50 rounded text-xs font-medium transition-colors mr-3">审核</button>
+                                <button onclick="openDeleteModal('DAT-202607010')" class="px-3 py-1 text-red hover:bg-red-50 rounded text-xs font-medium transition-colors">删除</button>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
             <div class="px-4 py-3 bg-gray-50 border-t border-gray-200 flex items-center justify-between">
-                <p class="text-sm text-gray-500">共 <span id="total-count">8</span> 条记录</p>
+                <p class="text-sm text-gray-500">共 <span id="total-count">10</span> 条记录</p>
                 <div id="pagination-controls" class="flex items-center space-x-2"></div>
             </div>
         </div>
@@ -213,7 +235,14 @@
                 <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">采集编号</label><input type="text" id="add-code" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box" placeholder="请输入采集编号，如 SC-20260722-006"></div>
                 <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">采集人 <span style="color:#ef4444">*</span></label><input type="text" id="add-person" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box" placeholder="请输入采集人姓名"></div>
                 <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">地块名称 <span style="color:#ef4444">*</span></label><input type="text" id="add-plot" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box" placeholder="请输入地块名称"></div>
-                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">采集类型</label><select id="add-collect-type" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"><option value="土壤数据">土壤数据</option><option value="气象数据">气象数据</option><option value="物候数据">物候数据</option><option value="病虫害数据">病虫害数据</option><option value="产量数据">产量数据</option></select></div>
+                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">采集类型</label><select id="add-collect-type" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box" onchange="onAddCollectTypeChange()"><option value="土壤数据">土壤数据</option><option value="气象数据">气象数据</option><option value="物候数据">物候数据</option><option value="病虫害数据">病虫害数据</option><option value="产量数据">产量数据</option><option value="销售数据">销售数据</option></select></div>
+                <div id="add-sale-fields" style="display:none;border:1px solid #d1fae5;background:#f0fdf4;border-radius:8px;padding:12px;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                    <div><label style="font-size:13px;font-weight:500;color:#374151;display:block;margin-bottom:4px">售日期 <span style="color:#ef4444">*</span></label><input type="date" id="add-sale-date" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"></div>
+                    <div><label style="font-size:13px;font-weight:500;color:#374151;display:block;margin-bottom:4px">销售数量(kg) <span style="color:#ef4444">*</span></label><input type="number" id="add-sale-qty" min="0" step="0.01" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box" placeholder="例如：1850"></div>
+                    <div><label style="font-size:13px;font-weight:500;color:#374151;display:block;margin-bottom:4px">销售价格(元/kg) <span style="color:#ef4444">*</span></label><input type="number" id="add-sale-price" min="0" step="0.01" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box" placeholder="例如：4.20"></div>
+                    <div><label style="font-size:13px;font-weight:500;color:#374151;display:block;margin-bottom:4px">销往省份 <span style="color:#ef4444">*</span></label><select id="add-sale-province" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"></select></div>
+                    <div style="grid-column:span 2"><label style="font-size:13px;font-weight:500;color:#374151;display:block;margin-bottom:4px">销往城市 <span style="color:#ef4444">*</span></label><input type="text" id="add-sale-city" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box" placeholder="例如：抚州市"></div>
+                </div>
                 <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">采集时间 <span style="color:#ef4444">*</span></label><input type="datetime-local" id="add-collect-time" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"></div>
                 <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">数据详情</label><textarea id="add-detail" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box" rows="3" placeholder="请输入数据详情，如：土壤湿度:62%, 土壤温度:28.5℃"></textarea></div>
                 <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">备注</label><textarea id="add-note" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box" rows="2" placeholder="请输入备注信息"></textarea></div>
@@ -221,23 +250,6 @@
             <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:12px">
                 <button onclick="closeModal('add-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
                 <button onclick="saveData()" style="padding:8px 16px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">确认添加</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 导出数据弹窗 -->
-    <div id="export-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center">
-        <div style="background:#fff;border-radius:12px;width:90%;max-width:400px">
-            <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
-                <h3 style="font-size:18px;font-weight:600;color:#1f2937">导出数据</h3>
-                <button onclick="closeModal('export-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
-            </div>
-            <div style="padding:24px">
-                <div style="margin-bottom:16px"><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">导出格式</label><select id="export-format" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"><option value="Excel">Excel (.xlsx)</option><option value="CSV">CSV (.csv)</option><option value="PDF">PDF (.pdf)</option></select></div>
-            </div>
-            <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:12px">
-                <button onclick="closeModal('export-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
-                <button onclick="confirmExport()" style="padding:8px 16px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">确认导出</button>
             </div>
         </div>
     </div>
@@ -385,18 +397,24 @@
             document.getElementById('add-collect-time').value = '';
             document.getElementById('add-detail').value = '';
             document.getElementById('add-note').value = '';
+            onAddCollectTypeChange();
             showModal('add-modal');
         }
 
-        function openExportModal() {
-            document.getElementById('export-format').value = 'Excel';
-            showModal('export-modal');
-        }
+        var CHINA_PROVINCES = ['北京市','天津市','上海市','重庆市','河北省','山西省','辽宁省','吉林省','黑龙江省','江苏省','浙江省','安徽省','福建省','江西省','山东省','河南省','湖北省','湖南省','广东省','海南省','四川省','贵州省','云南省','陕西省','甘肃省','青海省','台湾省','内蒙古自治区','广西壮族自治区','西藏自治区','宁夏回族自治区','新疆维吾尔自治区','香港特别行政区','澳门特别行政区'];
 
-        function confirmExport() {
-            var format = document.getElementById('export-format').value;
-            alert('数据导出成功！\n导出格式: ' + format + '\n导出记录数: ' + document.getElementById('total-count').textContent + ' 条');
-            closeModal('export-modal');
+        function onAddCollectTypeChange() {
+            var t = document.getElementById('add-collect-type').value;
+            var box = document.getElementById('add-sale-fields');
+            if (t === '销售数据') {
+                box.style.display = 'grid';
+                var sel = document.getElementById('add-sale-province');
+                if (sel.options.length === 0) {
+                    sel.innerHTML = '<option value="">请选择省份</option>' + CHINA_PROVINCES.map(function(p){return '<option value="'+p+'">'+p+'</option>';}).join('');
+                }
+            } else {
+                box.style.display = 'none';
+            }
         }
 
         // 上报数据字段映射（对应微信端 mb_data_input.html 各上报类型）
@@ -435,6 +453,12 @@
                 {section:'发生程度',fields:{'程度等级':'中度','发生范围':'部分发生'}},
                 {section:'处置情况',fields:{'处置状态':'已处置','处置方式':'化学防治','处置备注':'使用阿维菌素1:1000倍液喷雾防治'}},
                 {section:'备注信息',fields:{'详细说明':'红蜘蛛防治操作记录'}}
+            ],
+            'DAT-202607009': [
+                {section:'销售信息',fields:{'售日期':'2026-07-23','销售数量(kg)':'1850','销售价格(元/kg)':'4.20','销往省份':'江西省','销往城市':'抚州市'}}
+            ],
+            'DAT-202607010': [
+                {section:'销售信息',fields:{'售日期':'2026-07-24','销售数量(kg)':'1200','销售价格(元/kg)':'4.60','销往省份':'广东省','销往城市':'深圳市'}}
             ]
         };
 
@@ -452,7 +476,7 @@
 
             var statusColors = {'已审核':{bg:'#dcfce7',text:'#16a34a'},'待审核':{bg:'#fef3c7',text:'#d97706'},'已驳回':{bg:'#fee2e2',text:'#dc2626'}};
             var sc = statusColors[status] || {bg:'#f3f4f6',text:'#6b7280'};
-            var typeColors = {'土壤养分':{bg:'#dbeafe',text:'#2563eb'},'土壤墒情':{bg:'#dcfce7',text:'#16a34a'},'温湿度':{bg:'#f3e8ff',text:'#9333ea'},'农事操作':{bg:'#ffedd5',text:'#ea580c'}};
+            var typeColors = {'土壤养分':{bg:'#dbeafe',text:'#2563eb'},'土壤墒情':{bg:'#dcfce7',text:'#16a34a'},'温湿度':{bg:'#f3e8ff',text:'#9333ea'},'农事操作':{bg:'#ffedd5',text:'#ea580c'},'销售数据':{bg:'#d1fae5',text:'#059669'}};
             var tc = typeColors[type] || {bg:'#f3f4f6',text:'#6b7280'};
 
             var html = '';
@@ -540,10 +564,25 @@
             var plot = document.getElementById('add-plot').value;
             var collectType = document.getElementById('add-collect-type').value;
             var collectTime = document.getElementById('add-collect-time').value;
+            var detail = document.getElementById('add-detail').value;
 
             if (!person || !plot || !collectTime) {
                 alert('请填写采集人、地块名称和采集时间');
                 return;
+            }
+
+            if (collectType === '销售数据') {
+                var saleDate = document.getElementById('add-sale-date').value;
+                var saleQty = document.getElementById('add-sale-qty').value;
+                var salePrice = document.getElementById('add-sale-price').value;
+                var saleProv = document.getElementById('add-sale-province').value;
+                var saleCity = document.getElementById('add-sale-city').value;
+                if (!saleDate || !saleQty || !salePrice || !saleProv || !saleCity) {
+                    alert('请完整填写销售日期、销售数量、销售价格、销往地区');
+                    return;
+                }
+                detail = '售日期:' + saleDate + ', 销售数量:' + saleQty + 'kg, 销售价格:' + salePrice + '元/kg, 销往地区:' + saleProv + saleCity + (detail ? ('。' + detail) : '');
+                document.getElementById('add-detail').value = detail;
             }
 
             alert('数据录入成功！\n采集编号: ' + (code || '自动生成') + '\n采集人: ' + person + '\n地块: ' + plot + '\n类型: ' + collectType);
@@ -591,7 +630,7 @@
 
         // 点击遮罩关闭弹窗
         document.addEventListener('click', function(e) {
-            var ids = ['add-modal', 'export-modal', 'detail-modal', 'audit-modal', 'delete-modal'];
+            var ids = ['add-modal', 'detail-modal', 'audit-modal', 'delete-modal'];
             for (var i = 0; i < ids.length; i++) {
                 var m = document.getElementById(ids[i]);
                 if (m && m.style.display === 'flex') {

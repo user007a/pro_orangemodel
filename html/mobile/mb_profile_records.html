@@ -91,6 +91,7 @@
     .record-card.type-weather::before { background: var(--info); }
     .record-card.type-farming::before { background: var(--primary); }
     .record-card.type-disease::before { background: var(--error); }
+    .record-card.type-sales::before { background: var(--warning); }
 
     .record-header {
       display: flex;
@@ -115,6 +116,8 @@
     .record-icon.farming svg { color: var(--primary); }
     .record-icon.disease { background: var(--error-bg); }
     .record-icon.disease svg { color: var(--error); }
+    .record-icon.sales { background: var(--warning-light); }
+    .record-icon.sales svg { color: var(--warning); }
 
     .record-title-wrap { flex: 1; }
     .record-title {
@@ -134,6 +137,7 @@
     .record-type-tag.weather { background: var(--info-bg); color: var(--info); }
     .record-type-tag.farming { background: var(--primary-light); color: var(--primary); }
     .record-type-tag.disease { background: var(--error-bg); color: var(--error); }
+    .record-type-tag.sales { background: var(--warning-light); color: var(--warning); }
 
     .record-status {
       padding: 3px 10px;
@@ -311,6 +315,7 @@
         <div class="mb-skeleton" style="flex:1;height:36px;border-radius:var(--radius-md);"></div>
         <div class="mb-skeleton" style="flex:1;height:36px;border-radius:var(--radius-md);"></div>
         <div class="mb-skeleton" style="flex:1;height:36px;border-radius:var(--radius-md);"></div>
+        <div class="mb-skeleton" style="flex:1;height:36px;border-radius:var(--radius-md);"></div>
       </div>
       <div class="mb-skeleton-card" style="margin:0 16px 16px;">
         <div class="mb-skeleton" style="width:120px;height:16px;margin-bottom:12px;"></div>
@@ -351,6 +356,7 @@
         <div class="tab-item" data-tab="weather" onclick="switchTab('weather')">气象数据</div>
         <div class="tab-item" data-tab="farming" onclick="switchTab('farming')">农事记录</div>
         <div class="tab-item" data-tab="disease" onclick="switchTab('disease')">病虫上报</div>
+        <div class="tab-item" data-tab="sales" onclick="switchTab('sales')">蜜桔销售</div>
       </div>
 
       <!-- 内容区 -->
@@ -525,6 +531,28 @@
               2026-07-25
             </div>
             <div class="record-meta-item">2号中熟蜜桔区</div>
+          </div>
+        </div>
+
+        <!-- 蜜桔销售上报 -->
+        <div class="record-card type-sales" onclick="viewDetail('sales', 0)">
+          <div class="record-header">
+            <div class="record-icon sales">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </div>
+            <div class="record-title-wrap">
+              <div class="record-title">蜜桔销售上报</div>
+              <span class="record-type-tag sales">蜜桔销售</span>
+            </div>
+            <span class="record-status success">已提交</span>
+          </div>
+          <div class="record-desc">销售数量 850 公斤，单价 21.00 元/公斤，销售总价 17,850.00 元，销往浙江省·杭州市。</div>
+          <div class="record-meta">
+            <div class="record-meta-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              2026-07-27
+            </div>
+            <div class="record-meta-item">1号早熟蜜桔区</div>
           </div>
         </div>
       </div>
@@ -709,6 +737,72 @@
         </div>
       </div>
 
+      <!-- 蜜桔销售 -->
+      <div id="salesRecords" style="display:none;">
+        <div class="record-card type-sales" onclick="viewDetail('sales', 0)">
+          <div class="record-header">
+            <div class="record-icon sales">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </div>
+            <div class="record-title-wrap">
+              <div class="record-title">蜜桔销售上报</div>
+              <span class="record-type-tag sales">蜜桔销售</span>
+            </div>
+            <span class="record-status success">已提交</span>
+          </div>
+          <div class="record-desc">销售数量 850 公斤，单价 21.00 元/公斤，销售总价 17,850.00 元，销往浙江省·杭州市。</div>
+          <div class="record-meta">
+            <div class="record-meta-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              2026-07-27
+            </div>
+            <div class="record-meta-item">1号早熟蜜桔区</div>
+          </div>
+        </div>
+
+        <div class="record-card type-sales" onclick="viewDetail('sales', 1)">
+          <div class="record-header">
+            <div class="record-icon sales">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </div>
+            <div class="record-title-wrap">
+              <div class="record-title">蜜桔销售上报</div>
+              <span class="record-type-tag sales">蜜桔销售</span>
+            </div>
+            <span class="record-status success">已提交</span>
+          </div>
+          <div class="record-desc">销售数量 1,200 公斤，单价 19.50 元/公斤，销售总价 23,400.00 元，销往广东省·深圳市。</div>
+          <div class="record-meta">
+            <div class="record-meta-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              2026-07-24
+            </div>
+            <div class="record-meta-item">2号中熟蜜桔区</div>
+          </div>
+        </div>
+
+        <div class="record-card type-sales" onclick="viewDetail('sales', 2)">
+          <div class="record-header">
+            <div class="record-icon sales">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </div>
+            <div class="record-title-wrap">
+              <div class="record-title">蜜桔销售上报</div>
+              <span class="record-type-tag sales">蜜桔销售</span>
+            </div>
+            <span class="record-status success">已提交</span>
+          </div>
+          <div class="record-desc">销售数量 600 公斤，单价 23.00 元/公斤，销售总价 13,800.00 元，销往上海市·上海市。</div>
+          <div class="record-meta">
+            <div class="record-meta-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              2026-07-15
+            </div>
+            <div class="record-meta-item">3号晚熟蜜桔区</div>
+          </div>
+        </div>
+      </div>
+
       <div style="height: 80px;"></div>
     </div><!-- /real-content -->
 
@@ -761,7 +855,7 @@
         });
         document.querySelector('[data-tab="' + tab + '"]').classList.add('active');
 
-        var containers = ['allRecords', 'soilRecords', 'weatherRecords', 'farmingRecords', 'diseaseRecords'];
+        var containers = ['allRecords', 'soilRecords', 'weatherRecords', 'farmingRecords', 'diseaseRecords', 'salesRecords'];
         containers.forEach(function(id) {
           var el = document.getElementById(id);
           if (el) el.style.display = 'none';
@@ -846,6 +940,29 @@
             },
             reply: '农技人员已确认防治措施到位，建议继续观察7天，如无新病斑出现即可解除预警。'
           }
+        ],
+        sales: [
+          {
+            title: '蜜桔销售上报',
+            date: '2026-07-27',
+            location: '1号早熟蜜桔区',
+            status: '已提交',
+            salesData: { qty: '850 公斤', price: '21.00 元/公斤', total: '17,850.00 元', region: '浙江省·杭州市' }
+          },
+          {
+            title: '蜜桔销售上报',
+            date: '2026-07-24',
+            location: '2号中熟蜜桔区',
+            status: '已提交',
+            salesData: { qty: '1,200 公斤', price: '19.50 元/公斤', total: '23,400.00 元', region: '广东省·深圳市' }
+          },
+          {
+            title: '蜜桔销售上报',
+            date: '2026-07-15',
+            location: '3号晚熟蜜桔区',
+            status: '已提交',
+            salesData: { qty: '600 公斤', price: '23.00 元/公斤', total: '13,800.00 元', region: '上海市·上海市' }
+          }
         ]
       };
 
@@ -861,6 +978,8 @@
           html = renderFarmingDetail(data);
         } else if (type === 'disease') {
           html = renderDiseaseDetail(data);
+        } else if (type === 'sales') {
+          html = renderSalesDetail(data);
         }
 
         document.getElementById('detailTitle').textContent = data.title;
@@ -1013,6 +1132,33 @@
             <div class="detail-note" style="background:var(--info-bg);color:var(--text);">${data.reply}</div>
           </div>
           ` : ''}
+        `;
+      }
+
+      function renderSalesDetail(data) {
+        var d = data.salesData;
+        return `
+          <div class="detail-section">
+            <div class="detail-section-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+              销售信息
+            </div>
+            <div class="detail-info-row"><span class="detail-info-label">销售日期</span><span class="detail-info-value">${data.date}</span></div>
+            <div class="detail-info-row"><span class="detail-info-label">来源地块</span><span class="detail-info-value">${data.location}</span></div>
+            <div class="detail-info-row"><span class="detail-info-label">提交状态</span><span class="detail-info-value" style="color:var(--success)">${data.status}</span></div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-section-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              销售明细
+            </div>
+            <div class="detail-grid">
+              <div class="detail-grid-item"><div class="detail-grid-label">销售数量</div><div class="detail-grid-value">${d.qty}</div></div>
+              <div class="detail-grid-item"><div class="detail-grid-label">销售单价</div><div class="detail-grid-value">${d.price}</div></div>
+              <div class="detail-grid-item"><div class="detail-grid-label">销售总价</div><div class="detail-grid-value success">${d.total}</div></div>
+              <div class="detail-grid-item"><div class="detail-grid-label">销往地区</div><div class="detail-grid-value">${d.region}</div></div>
+            </div>
+          </div>
         `;
       }
 

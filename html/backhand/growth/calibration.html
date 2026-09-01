@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>数据校准 - 南丰蜜桔生长模型系统</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body{margin:0;padding:0;background-color:#F0F2F5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,'Noto Sans SC',sans-serif}
         .content-wrapper{padding:24px;height:100vh;overflow-y:auto}
@@ -28,7 +27,6 @@
                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
                 重新计算模型
             </button>
-            <button onclick="exportCalibrationReport()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm">导出报告</button>
         </div>
     </div>
 
@@ -80,77 +78,26 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-                <div class="lg:col-span-2 bg-white rounded-xl border border-gray-100 shadow-sm">
-                    <div class="p-4 border-b border-gray-100">
-                        <h3 class="text-base font-semibold text-gray-800 flex items-center">
-                            <svg class="w-5 h-5 text-gray-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                            指标对比详情
-                        </h3>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-sm">
-                            <thead>
-                                <tr class="bg-gray-50">
-                                    <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">指标</th>
-                                    <th class="text-right px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">模型预测值</th>
-                                    <th class="text-right px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">实测值</th>
-                                    <th class="text-right px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">误差率</th>
-                                    <th class="text-center px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">偏差方向</th>
-                                </tr>
-                            </thead>
-                            <tbody id="compare-table-body" class="divide-y divide-gray-100"></tbody>
-                        </table>
-                    </div>
+            <div class="bg-white rounded-xl border border-gray-100 shadow-sm">
+                <div class="p-4 border-b border-gray-100">
+                    <h3 class="text-base font-semibold text-gray-800 flex items-center">
+                        <svg class="w-5 h-5 text-gray-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        指标对比详情
+                    </h3>
                 </div>
-
-                <div class="bg-white rounded-xl border border-gray-100 shadow-sm">
-                    <div class="p-4 border-b border-gray-100">
-                        <h3 class="text-base font-semibold text-gray-800">误差分析</h3>
-                    </div>
-                    <div class="p-4">
-                        <div class="h-56"><canvas id="errorChart"></canvas></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200 p-6">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="flex items-center">
-                        <div class="w-14 h-14 bg-green-100 rounded-xl flex items-center justify-center mr-4">
-                            <svg class="w-7 h-7 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        </div>
-                        <div>
-                            <p class="text-xs text-green-700 mb-1">平均误差率</p>
-                            <p class="text-2xl font-bold text-green-700">3.0%</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center">
-                        <div class="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center mr-4">
-                            <svg class="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
-                        </div>
-                        <div>
-                            <p class="text-xs text-blue-700 mb-1">模型精度</p>
-                            <p class="text-2xl font-bold text-blue-700">97.0%</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center">
-                        <div class="w-14 h-14 bg-amber-100 rounded-xl flex items-center justify-center mr-4">
-                            <svg class="w-7 h-7 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                        </div>
-                        <div>
-                            <p class="text-xs text-amber-700 mb-1">评估结论</p>
-                            <p class="text-lg font-bold text-amber-700">模型精度良好</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="mt-4 pt-4 border-t border-green-200">
-                    <p class="text-sm text-gray-600 leading-relaxed">
-                        <span class="font-semibold text-gray-800">分析说明：</span>
-                        本次对比基于NF-001地块2025年实际生产数据，模型预测值与实测值的平均误差率为3.0%，处于可接受范围（≤5%）。
-                        果径、糖度、单果重等品质指标偏差均在±5%以内，模型对南丰蜜桔生长发育的预测精度良好。
-                        建议继续保持当前参数配置，后续可结合更多年份数据进一步优化。
-                    </p>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="bg-gray-50">
+                                <th class="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">指标</th>
+                                <th class="text-right px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">模型预测值</th>
+                                <th class="text-right px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">实测值</th>
+                                <th class="text-right px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">误差率</th>
+                                <th class="text-center px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">偏差方向</th>
+                            </tr>
+                        </thead>
+                        <tbody id="compare-table-body" class="divide-y divide-gray-100"></tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -365,7 +312,6 @@ var calibrationLogs = [
 
 var currentStage = 'enlarge';
 var currentFactor = 'temp';
-var errorChart = null;
 var filteredLogs = calibrationLogs.slice();
 var calLogCurrentPage = 1;
 var calLogPageSize = 10;
@@ -378,10 +324,6 @@ function switchTab(tab) {
     document.getElementById('tab-compare').className = 'px-6 py-4 text-sm ' + (tab === 'compare' ? 'tab-active' : 'tab-inactive');
     document.getElementById('tab-param').className = 'px-6 py-4 text-sm ' + (tab === 'param' ? 'tab-active' : 'tab-inactive');
     document.getElementById('tab-log').className = 'px-6 py-4 text-sm ' + (tab === 'log' ? 'tab-active' : 'tab-inactive');
-
-    if (tab === 'compare') {
-        if (!errorChart) initErrorChart();
-    }
 }
 
 function renderCompareTable() {
@@ -412,64 +354,7 @@ function runComparison() {
         btn.innerHTML = originalHtml;
         btn.disabled = false;
         renderCompareTable();
-        if (errorChart) updateErrorChart();
     }, 800);
-}
-
-function initErrorChart() {
-    var ctx = document.getElementById('errorChart').getContext('2d');
-    errorChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: compareData.map(function(d) { return d.metric; }),
-            datasets: [{
-                label: '误差率 (%)',
-                data: compareData.map(function(d) { return d.errorRate; }),
-                backgroundColor: compareData.map(function(d) {
-                    if (d.errorRate <= 2.5) return '#22C55E';
-                    if (d.errorRate <= 3.5) return '#EAB308';
-                    return '#EF4444';
-                }),
-                borderRadius: 6,
-                barThickness: 32
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) { return '误差率: ' + context.parsed.y.toFixed(1) + '%'; }
-                    }
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    max: 6,
-                    ticks: { stepSize: 1, font: { size: 11 }, callback: function(v) { return v + '%'; } },
-                    grid: { color: '#f3f4f6' }
-                },
-                x: {
-                    ticks: { font: { size: 11 } },
-                    grid: { display: false }
-                }
-            }
-        }
-    });
-}
-
-function updateErrorChart() {
-    if (!errorChart) return;
-    errorChart.data.datasets[0].data = compareData.map(function(d) { return d.errorRate; });
-    errorChart.data.datasets[0].backgroundColor = compareData.map(function(d) {
-        if (d.errorRate <= 2.5) return '#22C55E';
-        if (d.errorRate <= 3.5) return '#EAB308';
-        return '#EF4444';
-    });
-    errorChart.update();
 }
 
 function renderStageSelector() {
@@ -751,10 +636,6 @@ function recalculateModel() {
     }, 2000);
 }
 
-function exportCalibrationReport() {
-    alert('校准报告导出功能\n\n将导出当前地块的校准分析报告（PDF格式），包含：\n- 历史数据对比结果\n- 误差分析图表\n- 参数变更记录\n- 校准日志汇总');
-}
-
 window.onload = function() {
     renderCompareTable();
     renderStageSelector();
@@ -764,10 +645,6 @@ window.onload = function() {
     renderParamHistory();
     filteredLogs = calibrationLogs.slice();
     renderLogTable();
-
-    setTimeout(function() {
-        initErrorChart();
-    }, 100);
 };
 </script>
 </body>

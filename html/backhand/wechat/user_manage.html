@@ -71,7 +71,7 @@
     .detail-label { font-size: 12px; color: #8898aa; margin-bottom: 4px; }
     .detail-value { font-size: 14px; color: #1b2a41; }
     
-    .stats-card { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 24px; }
+    .stats-card { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin: 24px; }
     .stat-item { background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); display: flex; align-items: center; justify-content: space-between; }
     .stat-info { text-align: left; }
     .stat-number { font-size: 24px; font-weight: 700; color: #1b2a41; margin-bottom: 2px; }
@@ -221,10 +221,11 @@
             <div class="form-item">
               <label class="form-label">种植主体类型 *</label>
               <select class="form-select" id="add-type">
-                <option value="种植大户">种植大户</option>
+                <option value="农业企业">农业企业</option>
+                <option value="农民专业合作社">农民专业合作社</option>
                 <option value="家庭农场">家庭农场</option>
-                <option value="专业合作社">专业合作社</option>
-                <option value="企业">企业</option>
+                <option value="种植大户（农户）">种植大户（农户）</option>
+                <option value="村集体经济合作社">村集体经济合作社</option>
               </select>
             </div>
           </div>
@@ -354,24 +355,92 @@
 
   <script>
     var users = [
-      { id: 'wx-001', name: '张三', region: '江西省抚州市南丰县白舍镇', type: '种植大户', phone: '13800138001', wechatId: 'zhangsan_wx', registerTime: '2026-01-15 09:30', status: '正常' },
-      { id: 'wx-002', name: '李四', region: '江西省抚州市南丰县太和镇', type: '家庭农场', phone: '13800138002', wechatId: 'lisi_wx', registerTime: '2026-02-20 14:15', status: '正常' },
-      { id: 'wx-003', name: '王五', region: '江西省抚州市南丰县桑田镇', type: '专业合作社', phone: '13800138003', wechatId: 'wangwu_wx', registerTime: '2026-03-10 10:00', status: '正常' },
-      { id: 'wx-004', name: '赵六', region: '江西省抚州市南丰县琴城镇', type: '企业', phone: '13800138004', wechatId: 'zhaoliu_wx', registerTime: '2026-03-25 16:45', status: '正常' },
-      { id: 'wx-005', name: '孙七', region: '江西省抚州市南丰县市山镇', type: '种植大户', phone: '13800138005', wechatId: 'sunqi_wx', registerTime: '2026-04-08 09:20', status: '禁用' },
-      { id: 'wx-006', name: '周八', region: '江西省抚州市南丰县洽湾镇', type: '家庭农场', phone: '13800138006', wechatId: 'zhouba_wx', registerTime: '2026-04-15 11:30', status: '正常' },
-      { id: 'wx-007', name: '吴九', region: '江西省抚州市南丰县莱溪乡', type: '种植大户', phone: '13800138007', wechatId: 'wujiu_wx', registerTime: '2026-05-02 14:00', status: '正常' },
-      { id: 'wx-008', name: '郑十', region: '江西省抚州市南丰县太源乡', type: '专业合作社', phone: '13800138008', wechatId: 'zhengshi_wx', registerTime: '2026-05-18 10:45', status: '正常' },
-      { id: 'wx-009', name: '陈十一', region: '江西省抚州市南丰县东坪乡', type: '企业', phone: '13800138009', wechatId: 'chenshiyi_wx', registerTime: '2026-06-05 15:20', status: '正常' },
-      { id: 'wx-010', name: '林十二', region: '江西省抚州市南丰县三溪乡', type: '种植大户', phone: '13800138010', wechatId: 'linshiwx', registerTime: '2026-06-20 09:00', status: '禁用' },
-      { id: 'wx-011', name: '黄十三', region: '江西省抚州市南丰县付坊乡', type: '家庭农场', phone: '13800138011', wechatId: 'huangshisan_wx', registerTime: '2026-07-03 11:15', status: '正常' },
-      { id: 'wx-012', name: '周十四', region: '江西省抚州市南丰县白舍镇', type: '种植大户', phone: '13800138012', wechatId: 'zhoushisi_wx', registerTime: '2026-07-10 14:30', status: '正常' },
-      { id: 'wx-013', name: '徐十五', region: '江西省抚州市南丰县太和镇', type: '专业合作社', phone: '13800138013', wechatId: 'xushishi_wx', registerTime: '2026-07-15 16:00', status: '正常' },
-      { id: 'wx-014', name: '马十六', region: '江西省抚州市南丰县桑田镇', type: '企业', phone: '13800138014', wechatId: 'mashiliu_wx', registerTime: '2026-07-18 09:45', status: '正常' },
-      { id: 'wx-015', name: '高十七', region: '江西省抚州市南丰县琴城镇', type: '种植大户', phone: '13800138015', wechatId: 'gaoshiqi_wx', registerTime: '2026-07-20 10:30', status: '正常' },
-      { id: 'wx-016', name: '郭十八', region: '江西省抚州市南丰县市山镇', type: '家庭农场', phone: '13800138016', wechatId: 'guoshiba_wx', registerTime: '2026-07-22 13:20', status: '正常' },
-      { id: 'wx-017', name: '何十九', region: '江西省抚州市南丰县洽湾镇', type: '种植大户', phone: '13800138017', wechatId: 'heshijiu_wx', registerTime: '2026-07-23 15:45', status: '正常' },
-      { id: 'wx-018', name: '罗二十', region: '江西省抚州市南丰县莱溪乡', type: '专业合作社', phone: '13800138018', wechatId: 'luoershi_wx', registerTime: '2026-07-24 09:00', status: '正常' }
+      { id: 'wx-001',  name: '肖武',     region: '江西省抚州市南丰县白舍镇',     type: '农业企业',     phone: '13800138001', wechatId: 'wx_xiaowu_nf',     registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-002',  name: '蔚晓阳',   region: '江西省抚州市南丰县白舍镇',     type: '农民专业合作社', phone: '13800138002', wechatId: 'wx_yuxiaoyang_nf', registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-003',  name: '袁国娇',   region: '江西省抚州市南丰县白舍镇',     type: '农业企业',     phone: '13800138003', wechatId: 'wx_yuanguojiao_nf',registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-004',  name: '甘小平',   region: '江西省抚州市南丰县白舍镇',     type: '种植大户（农户）',phone: '13800138004', wechatId: 'wx_ganxiaoping_nf',registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-005',  name: '黄智利',   region: '江西省抚州市南丰县白舍镇',     type: '农民专业合作社',phone: '13800138005', wechatId: 'wx_huangzhili_nf',  registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-006',  name: '邱婷',     region: '江西省抚州市南丰县东坪乡',     type: '家庭农场',     phone: '13800138006', wechatId: 'wx_qiuting_nf',     registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-007',  name: '席必生',   region: '江西省抚州市南丰县东坪乡',     type: '家庭农场',     phone: '13800138007', wechatId: 'wx_xibisheng_nf',  registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-008',  name: '崔大明',   region: '江西省抚州市南丰县东坪乡',     type: '家庭农场',     phone: '13800138008', wechatId: 'wx_cuidaming_nf',   registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-009',  name: '严长根',   region: '江西省抚州市南丰县东坪乡',     type: '家庭农场',     phone: '13800138009', wechatId: 'wx_yanchanggen_nf', registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-010',  name: '方超',     region: '江西省抚州市南丰县傅坊乡',     type: '农业企业',     phone: '13800138010', wechatId: 'wx_fangchao_nf',    registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-011',  name: '王才华',   region: '江西省抚州市南丰县傅坊乡',     type: '农业企业',     phone: '13800138011', wechatId: 'wx_wangcaihua_nf',  registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-012',  name: '廖长根',   region: '江西省抚州市南丰县傅坊乡',     type: '种植大户（农户）',phone: '13800138012', wechatId: 'wx_liaochanggen_nf',registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-013',  name: '吴显龙',   region: '江西省抚州市南丰县傅坊乡',     type: '种植大户（农户）',phone: '13800138013', wechatId: 'wx_wuxianlong_nf',  registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-014',  name: '饶俊',     region: '江西省抚州市南丰县傅坊乡',     type: '农业企业',     phone: '13800138014', wechatId: 'wx_raojun_nf',      registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-015',  name: '谢军平',   region: '江西省抚州市南丰县莱溪乡',     type: '家庭农场',     phone: '13800138015', wechatId: 'wx_xiejunping_nf',  registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-016',  name: '吴耀',     region: '江西省抚州市南丰县莱溪乡',     type: '农民专业合作社',phone: '13800138016', wechatId: 'wx_wuyao_nf',       registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-017',  name: '曾福田',   region: '江西省抚州市南丰县莱溪乡',     type: '农业企业',     phone: '13800138017', wechatId: 'wx_zengfutian_nf',  registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-018',  name: '平建辉',   region: '江西省抚州市南丰县莱溪乡',     type: '农业企业',     phone: '13800138018', wechatId: 'wx_pingjianhui_nf', registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-019',  name: '张立新',   region: '江西省抚州市南丰县莱溪乡',     type: '农业企业',     phone: '13800138019', wechatId: 'wx_zhanglixin_nf',  registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-020',  name: '彭晓春',   region: '江西省抚州市南丰县莱溪乡',     type: '农业企业',     phone: '13800138020', wechatId: 'wx_pengxiaochun_nf',registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-021',  name: '吴小年',   region: '江西省抚州市南丰县莱溪乡',     type: '种植大户（农户）',phone: '13800138021', wechatId: 'wx_wuxiaonian_nf',  registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-022',  name: '曾棒根',   region: '江西省抚州市南丰县洽湾镇',     type: '种植大户（农户）',phone: '13800138022', wechatId: 'wx_zengbanggen_nf',registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-023',  name: '方超',     region: '江西省抚州市南丰县洽湾镇',     type: '农业企业',     phone: '13800138023', wechatId: 'wx_fangchao2_nf',   registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-024',  name: '黄灿平',   region: '江西省抚州市南丰县洽湾镇',     type: '农业企业',     phone: '13800138024', wechatId: 'wx_huangcanping_nf',registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-025',  name: '揭迪',     region: '江西省抚州市南丰县洽湾镇',     type: '种植大户（农户）',phone: '13800138025', wechatId: 'wx_jiedi_nf',       registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-026',  name: '陈小华',   region: '江西省抚州市南丰县洽湾镇',     type: '种植大户（农户）',phone: '13800138026', wechatId: 'wx_chenxiaohua_nf', registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-027',  name: '王建明',   region: '江西省抚州市南丰县洽湾镇',     type: '农业企业',     phone: '13800138027', wechatId: 'wx_wangjianming_nf',registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-028',  name: '陈国根',   region: '江西省抚州市南丰县洽湾镇',     type: '农业企业',     phone: '13800138028', wechatId: 'wx_chenguogen_nf',  registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-029',  name: '江建平',   region: '江西省抚州市南丰县洽湾镇',     type: '种植大户（农户）',phone: '13800138029', wechatId: 'wx_jiangjianping_nf',registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-030',  name: '赵长林',   region: '江西省抚州市南丰县琴城镇',     type: '农业企业',     phone: '13800138030', wechatId: 'wx_zhaochanglin_nf',registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-031',  name: '赵保根',   region: '江西省抚州市南丰县琴城镇',     type: '种植大户（农户）',phone: '13800138031', wechatId: 'wx_zhaobaogen_nf',  registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-032',  name: '黄志俊',   region: '江西省抚州市南丰县琴城镇',     type: '农业企业',     phone: '13800138032', wechatId: 'wx_huangzhijun_nf',registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-033',  name: '余江华',   region: '江西省抚州市南丰县琴城镇',     type: '农业企业',     phone: '13800138033', wechatId: 'wx_yujianghua_nf',  registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-034',  name: '朱国强',   region: '江西省抚州市南丰县琴城镇',     type: '农业企业',     phone: '13800138034', wechatId: 'wx_zhuguoqiang_nf',registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-035',  name: '聂敬才',   region: '江西省抚州市南丰县三溪乡',     type: '种植大户（农户）',phone: '13800138035', wechatId: 'wx_niejingcai_nf',  registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-036',  name: '吴根富',   region: '江西省抚州市南丰县三溪乡',     type: '种植大户（农户）',phone: '13800138036', wechatId: 'wx_wugenfu_nf',     registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-037',  name: '唐冬英',   region: '江西省抚州市南丰县三溪乡',     type: '种植大户（农户）',phone: '13800138037', wechatId: 'wx_tangdongying_nf',registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-038',  name: '彭水云',   region: '江西省抚州市南丰县三溪乡',     type: '种植大户（农户）',phone: '13800138038', wechatId: 'wx_pengshuiyun_nf',registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-039',  name: '聂小斌',   region: '江西省抚州市南丰县三溪乡',     type: '农业企业',     phone: '13800138039', wechatId: 'wx_niexiaobin_nf',  registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-040',  name: '李应辉',   region: '江西省抚州市南丰县三溪乡',     type: '种植大户（农户）',phone: '13800138040', wechatId: 'wx_liyinghui_nf',   registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-041',  name: '阮建忠',   region: '江西省抚州市南丰县三溪乡',     type: '种植大户（农户）',phone: '13800138041', wechatId: 'wx_ruanjianzhong_nf',registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-042',  name: '彭水云',   region: '江西省抚州市南丰县三溪乡',     type: '村集体经济合作社',phone: '13800138042', wechatId: 'wx_pengshuiyun2_nf',registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-043',  name: '聂小斌',   region: '江西省抚州市南丰县三溪乡',     type: '农业企业',     phone: '13800138043', wechatId: 'wx_niexiaobin2_nf',registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-044',  name: '吴香泉',   region: '江西省抚州市南丰县桑田镇',     type: '种植大户（农户）',phone: '13800138044', wechatId: 'wx_wuxiangquan_nf',registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-045',  name: '朱发春',   region: '江西省抚州市南丰县桑田镇',     type: '农业企业',     phone: '13800138045', wechatId: 'wx_zhufachun_nf',   registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-046',  name: '吴雄飞',   region: '江西省抚州市南丰县桑田镇',     type: '种植大户（农户）',phone: '13800138046', wechatId: 'wx_wuxiongfei_nf', registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-047',  name: '方忠华',   region: '江西省抚州市南丰县桑田镇',     type: '种植大户（农户）',phone: '13800138047', wechatId: 'wx_fangzhonghua_nf',registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-048',  name: '张文英',   region: '江西省抚州市南丰县桑田镇',     type: '农业企业',     phone: '13800138048', wechatId: 'wx_zhangwenying_nf',registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-049',  name: '黄四文',   region: '江西省抚州市南丰县桑田镇',     type: '农业企业',     phone: '13800138049', wechatId: 'wx_huangsiwen_nf',  registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-050',  name: '陈志明',   region: '江西省抚州市南丰县桑田镇',     type: '种植大户（农户）',phone: '13800138050', wechatId: 'wx_chenzhiming_nf',registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-051',  name: '刘芳贵',   region: '江西省抚州市南丰县桑田镇',     type: '种植大户（农户）',phone: '13800138051', wechatId: 'wx_liufanggui_nf', registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-052',  name: '封明应',   region: '江西省抚州市南丰县市山镇',     type: '农民专业合作社',phone: '13800138052', wechatId: 'wx_fengmingying_nf',registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-053',  name: '韩学印',   region: '江西省抚州市南丰县市山镇',     type: '农民专业合作社',phone: '13800138053', wechatId: 'wx_hanxueyin_nf',   registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-054',  name: '揭由水',   region: '江西省抚州市南丰县市山镇',     type: '农业企业',     phone: '13800138054', wechatId: 'wx_jieyoushui_nf',  registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-055',  name: '刘春根',   region: '江西省抚州市南丰县市山镇',     type: '农业企业',     phone: '13800138055', wechatId: 'wx_liuchungen_nf',  registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-056',  name: '邱金根',   region: '江西省抚州市南丰县市山镇',     type: '农业企业',     phone: '13800138056', wechatId: 'wx_qiujingen_nf',   registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-057',  name: '张志光',   region: '江西省抚州市南丰县市山镇',     type: '农民专业合作社',phone: '13800138057', wechatId: 'wx_zhangzhiguang_nf',registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-058',  name: '陈炳泉',   region: '江西省抚州市南丰县市山镇',     type: '农业企业',     phone: '13800138058', wechatId: 'wx_chenbingquan_nf',registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-059',  name: '周炳旺',   region: '江西省抚州市南丰县市山镇',     type: '农业企业',     phone: '13800138059', wechatId: 'wx_zhoubingwang_nf',registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-060',  name: '黄小根',   region: '江西省抚州市南丰县市山镇',     type: '农业企业',     phone: '13800138060', wechatId: 'wx_huangxiaogen_nf',registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-061',  name: '聂印根',   region: '江西省抚州市南丰县市山镇',     type: '农业企业',     phone: '13800138061', wechatId: 'wx_nieyingen_nf',   registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-062',  name: '邱水根',   region: '江西省抚州市南丰县市山镇',     type: '农业企业',     phone: '13800138062', wechatId: 'wx_qiushuigen_nf',  registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-063',  name: '刘印才',   region: '江西省抚州市南丰县市山镇',     type: '种植大户（农户）',phone: '13800138063', wechatId: 'wx_liuyincai_nf',   registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-064',  name: '李贤文',   region: '江西省抚州市南丰县市山镇',     type: '农业企业',     phone: '13800138064', wechatId: 'wx_lixianwen_nf',   registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-065',  name: '包后贤',   region: '江西省抚州市南丰县市山镇',     type: '农业企业',     phone: '13800138065', wechatId: 'wx_baohouxian_nf',  registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-066',  name: '徐开明',   region: '江西省抚州市南丰县市山镇',     type: '种植大户（农户）',phone: '13800138066', wechatId: 'wx_xukaiming_nf',  registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-067',  name: '李印旺',   region: '江西省抚州市南丰县市山镇',     type: '农业企业',     phone: '13800138067', wechatId: 'wx_liyinwang_nf',  registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-068',  name: '胡金根',   region: '江西省抚州市南丰县市山镇',     type: '农业企业',     phone: '13800138068', wechatId: 'wx_hujingen_nf',    registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-069',  name: '邹孙平',   region: '江西省抚州市南丰县太和镇',     type: '种植大户（农户）',phone: '13800138069', wechatId: 'wx_zousunping_nf',  registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-070',  name: '李建军',   region: '江西省抚州市南丰县太和镇',     type: '种植大户（农户）',phone: '13800138070', wechatId: 'wx_lijianjun_nf',  registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-071',  name: '王建国',   region: '江西省抚州市南丰县太和镇',     type: '种植大户（农户）',phone: '13800138071', wechatId: 'wx_wangjianguo_nf',registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-072',  name: '邵毛仔',   region: '江西省抚州市南丰县太和镇',     type: '种植大户（农户）',phone: '13800138072', wechatId: 'wx_shaomaozai_nf', registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-073',  name: '刘全国',   region: '江西省抚州市南丰县太和镇',     type: '种植大户（农户）',phone: '13800138073', wechatId: 'wx_liuquanguo_nf', registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-074',  name: '刘小康',   region: '江西省抚州市南丰县太和镇',     type: '农业企业',     phone: '13800138074', wechatId: 'wx_liuxiaokang_nf',registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-075',  name: '吴三根',   region: '江西省抚州市南丰县太源乡',     type: '种植大户（农户）',phone: '13800138075', wechatId: 'wx_wusangen_nf',    registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-076',  name: '李才春',   region: '江西省抚州市南丰县太源乡',     type: '种植大户（农户）',phone: '13800138076', wechatId: 'wx_licaichun_nf',  registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-077',  name: '吴寿文',   region: '江西省抚州市南丰县太源乡',     type: '种植大户（农户）',phone: '13800138077', wechatId: 'wx_wushouwen_nf',  registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-078',  name: '章玉财',   region: '江西省抚州市南丰县太源乡',     type: '种植大户（农户）',phone: '13800138078', wechatId: 'wx_zhangyucai_nf', registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-079',  name: '肖丽飞',   region: '江西省抚州市南丰县太源乡',     type: '种植大户（农户）',phone: '13800138079', wechatId: 'wx_xiaolifei_nf',  registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-080',  name: '吴金财',   region: '江西省抚州市南丰县太源乡',     type: '种植大户（农户）',phone: '13800138080', wechatId: 'wx_wujincai_nf',   registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-081',  name: '严忠友',   region: '江西省抚州市南丰县太源乡',     type: '种植大户（农户）',phone: '13800138081', wechatId: 'wx_yanzhongyou_nf',registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-082',  name: '邱金亮',   region: '江西省抚州市南丰县太源乡',     type: '种植大户（农户）',phone: '13800138082', wechatId: 'wx_qiujinliang_nf',registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-083',  name: '江国平',   region: '江西省抚州市南丰县太源乡',     type: '种植大户（农户）',phone: '13800138083', wechatId: 'wx_jiangguoping_nf',registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-084',  name: '祝小华',   region: '江西省抚州市南丰县紫霄镇',     type: '农业企业',     phone: '13800138084', wechatId: 'wx_zhuxiaohua_nf', registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-085',  name: '方志平',   region: '江西省抚州市南丰县紫霄镇',     type: '农业企业',     phone: '13800138085', wechatId: 'wx_fangzhiping_nf',registerTime: '2025-09-01 09:00', status: '正常' },
+      { id: 'wx-086',  name: '聂道辉',   region: '江西省抚州市南丰县紫霄镇',     type: '种植大户（农户）',phone: '13800138086', wechatId: 'wx_niedaohui_nf',  registerTime: '2025-09-01 09:00', status: '正常' }
     ];
 
     var originalUsers = JSON.parse(JSON.stringify(users));
@@ -382,10 +451,11 @@
 
     function renderStats() {
       var total = originalUsers.length;
-      var bigFarmers = originalUsers.filter(function(u) { return u.type === '种植大户'; }).length;
+      var enterprises = originalUsers.filter(function(u) { return u.type === '农业企业'; }).length;
+      var cooperatives = originalUsers.filter(function(u) { return u.type === '农民专业合作社'; }).length;
       var familyFarms = originalUsers.filter(function(u) { return u.type === '家庭农场'; }).length;
-      var cooperatives = originalUsers.filter(function(u) { return u.type === '专业合作社'; }).length;
-      var enterprises = originalUsers.filter(function(u) { return u.type === '企业'; }).length;
+      var bigFarmers = originalUsers.filter(function(u) { return u.type === '种植大户（农户）'; }).length;
+      var villageCoop = originalUsers.filter(function(u) { return u.type === '村集体经济合作社'; }).length;
       
       var statsCard = document.getElementById('statsCard');
       statsCard.innerHTML = `
@@ -400,11 +470,20 @@
         </div>
         <div class="stat-item">
           <div class="stat-info">
-            <div class="stat-number">${bigFarmers}</div>
-            <div class="stat-label">种植大户</div>
+            <div class="stat-number">${enterprises}</div>
+            <div class="stat-label">农业企业</div>
           </div>
-          <div class="stat-icon bigfarmer">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6"/></svg>
+          <div class="stat-icon enterprise">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7v6h6"/><path d="M21 17a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          </div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-info">
+            <div class="stat-number">${cooperatives}</div>
+            <div class="stat-label">农民专业合作社</div>
+          </div>
+          <div class="stat-icon coop">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
           </div>
         </div>
         <div class="stat-item">
@@ -418,20 +497,20 @@
         </div>
         <div class="stat-item">
           <div class="stat-info">
-            <div class="stat-number">${cooperatives}</div>
-            <div class="stat-label">专业合作社</div>
+            <div class="stat-number">${bigFarmers}</div>
+            <div class="stat-label">种植大户（农户）</div>
           </div>
-          <div class="stat-icon coop">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <div class="stat-icon bigfarmer">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6"/></svg>
           </div>
         </div>
         <div class="stat-item">
           <div class="stat-info">
-            <div class="stat-number">${enterprises}</div>
-            <div class="stat-label">企业</div>
+            <div class="stat-number">${villageCoop}</div>
+            <div class="stat-label">村集体合作社</div>
           </div>
-          <div class="stat-icon enterprise">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7v6h6"/><path d="M21 17a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          <div class="stat-icon total">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><circle cx="12" cy="11" r="3"/></svg>
           </div>
         </div>
       `;

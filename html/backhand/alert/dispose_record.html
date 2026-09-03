@@ -109,9 +109,6 @@
                     </select>
                     <select id="handler-filter" class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500" onchange="filterRecords()">
                         <option value="">全部处置人</option>
-                        <option value="李农技">李农技</option>
-                        <option value="王农技">王农技</option>
-                        <option value="赵农技">赵农技</option>
                     </select>
                     <button onclick="resetFilters()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200">重置</button>
                 </div>
@@ -209,11 +206,7 @@
                 <div class="space-y-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">处置人</label>
-                        <select id="edit-handler" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
-                            <option value="李农技">李农技</option>
-                            <option value="王农技">王农技</option>
-                            <option value="赵农技">赵农技</option>
-                        </select>
+                        <select id="edit-handler" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"></select>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">处置状态</label>
@@ -287,42 +280,42 @@
         };
 
         let records = [
-            { id: 'YJ-20260722-001', title: '高温热害预警', level: '红色预警', handler: '李农技', status: '已完成', measure: '喷水降温、遮阳网覆盖', result: '果面温度降至安全范围，高温影响消除', area: '全县范围', start: '2026-07-22 11:00', end: '2026-07-22 16:30' },
-            { id: 'YJ-20260721-015', title: '炭疽病发生预警', level: '黄色预警', handler: '王农技', status: '处置中', measure: '咪鲜胺喷雾防治', result: '-', area: '白舍镇', start: '2026-07-21 15:00', end: '-' },
-            { id: 'YJ-20260722-003', title: '持续干旱预警', level: '黄色预警', handler: '赵农技', status: '待处置', measure: '-', result: '-', area: '全县范围', start: '-', end: '-' },
-            { id: 'YJ-20260722-004', title: '潜叶蛾高发预警', level: '橙色预警', handler: '赵农技', status: '处置中', measure: '氯氰菊酯喷雾防治', result: '-', area: '太和镇、桑田镇', start: '2026-07-22 14:00', end: '-' },
-            { id: 'YJ-20260722-005', title: '日灼病预警', level: '红色预警', handler: '王农技', status: '待处置', measure: '-', result: '-', area: '洽湾镇', start: '-', end: '-' },
-            { id: 'YJ-20260722-006', title: '白粉虱发生预警', level: '蓝色预警', handler: '李农技', status: '已完成', measure: '黄板诱杀+吡虫啉喷雾', result: '虫口密度降至安全水平', area: '桑田镇', start: '2026-07-22 08:00', end: '2026-07-22 12:00' },
-            { id: 'YJ-20260721-017', title: '暴雨洪涝预警', level: '橙色预警', handler: '王农技', status: '已完成', measure: '开沟排水、加固果园', result: '积水排出，果园无损失', area: '太和镇、东坪乡', start: '2026-07-21 16:00', end: '2026-07-21 20:30' },
-            { id: 'YJ-20260721-018', title: '红蜘蛛爆发预警', level: '红色预警', handler: '李农技', status: '已完成', measure: '阿维菌素喷雾防治', result: '虫口密度降至3头/叶以下', area: '市山镇、洽湾镇', start: '2026-07-21 09:00', end: '2026-07-21 17:00' },
-            { id: 'YJ-20260721-019', title: '疮痂病发生预警', level: '黄色预警', handler: '赵农技', status: '已完成', measure: '代森锰锌喷雾防治', result: '病叶率降至1%以下', area: '紫霄镇', start: '2026-07-21 13:00', end: '2026-07-21 16:00' },
-            { id: 'YJ-20260721-020', title: '煤烟病预警', level: '蓝色预警', handler: '赵农技', status: '处置中', measure: '矿物油乳液喷雾', result: '-', area: '琴城镇', start: '2026-07-21 10:30', end: '-' },
-            { id: 'YJ-20260720-025', title: '锈壁虱发生预警', level: '橙色预警', handler: '王农技', status: '已完成', measure: '螺螨酯喷雾+枝条修剪', result: '虫口密度降至安全水平', area: '三溪乡、傅坊乡', start: '2026-07-20 14:00', end: '2026-07-20 18:00' },
-            { id: 'YJ-20260720-026', title: '高温热浪预警', level: '黄色预警', handler: '李农技', status: '已完成', measure: '灌溉降温、喷施抗逆剂', result: '果园温度降低3-5°C', area: '全县范围', start: '2026-07-20 09:00', end: '2026-07-20 15:00' },
-            { id: 'YJ-20260719-031', title: '疮痂病预警', level: '黄色预警', handler: '王农技', status: '待处置', measure: '-', result: '-', area: '紫霄镇', start: '-', end: '-' },
-            { id: 'YJ-20260719-032', title: '白粉虱预警', level: '蓝色预警', handler: '李农技', status: '已完成', measure: '啶虫脒喷雾防治', result: '虫害得到有效控制', area: '桑田镇', start: '2026-07-19 10:00', end: '2026-07-19 14:00' },
-            { id: 'YJ-20260718-045', title: '锈壁虱预警', level: '橙色预警', handler: '赵农技', status: '已完成', measure: '螺螨酯喷雾防治', result: '虫口密度大幅下降', area: '三溪乡', start: '2026-07-18 14:30', end: '2026-07-18 18:00' },
-            { id: 'YJ-20260718-046', title: '高温热浪预警', level: '黄色预警', handler: '王农技', status: '已关闭', measure: '因气温下降自动关闭', result: '气温回落至35°C以下', area: '全县范围', start: '2026-07-18 09:00', end: '2026-07-18 12:00' },
-            { id: 'YJ-20260717-051', title: '异常落果预警', level: '红色预警', handler: '李农技', status: '已完成', measure: '排查根系、补充营养液', result: '落果率恢复正常', area: '市山镇', start: '2026-07-17 11:00', end: '2026-07-17 16:00' },
-            { id: 'YJ-20260717-052', title: '日灼果预警', level: '黄色预警', handler: '王农技', status: '已完成', measure: '遮阳网覆盖、喷水降温', result: '果面温度降至40°C以下', area: '洽湾镇', start: '2026-07-17 09:30', end: '2026-07-17 14:00' },
-            { id: 'YJ-20260716-058', title: '裂果预警', level: '橙色预警', handler: '赵农技', status: '已完成', measure: '均衡灌溉、覆盖保墒', result: '裂果率控制在2%以内', area: '白舍镇', start: '2026-07-16 15:30', end: '2026-07-16 20:00' },
-            { id: 'YJ-20260716-059', title: '土壤干旱预警', level: '黄色预警', handler: '李农技', status: '已完成', measure: '滴灌补水、覆盖保墒', result: '土壤湿度恢复至30%以上', area: '全县范围', start: '2026-07-16 14:30', end: '2026-07-16 18:00' },
-            { id: 'YJ-20260715-067', title: '台风预警', level: '红色预警', handler: '王农技', status: '已完成', measure: '加固树体、疏通排水、抢收成熟果', result: '台风过后无重大损失', area: '全县范围', start: '2026-07-15 16:30', end: '2026-07-16 08:00' },
-            { id: 'YJ-20260715-068', title: '溃疡病预警', level: '红色预警', handler: '赵农技', status: '处置中', measure: '铜制剂喷雾防治', result: '-', area: '太和镇', start: '2026-07-15 14:00', end: '-' },
-            { id: 'YJ-20260714-075', title: '暴雨预警', level: '橙色预警', handler: '李农技', status: '已完成', measure: '清理排水沟、准备抽水设备', result: '排水及时无积水', area: '桑田镇、紫霄镇', start: '2026-07-14 15:00', end: '2026-07-14 19:00' },
-            { id: 'YJ-20260714-076', title: '粉虱预警', level: '黄色预警', handler: '王农技', status: '已完成', measure: '黄板诱杀+吡虫啉喷雾', result: '虫口密度降至10头/叶以下', area: '琴城镇', start: '2026-07-14 09:30', end: '2026-07-14 15:00' },
-            { id: 'YJ-20260713-082', title: '蚜虫预警', level: '黄色预警', handler: '赵农技', status: '已完成', measure: '啶虫脒喷雾防治', result: '新梢受害率降至5%以下', area: '三溪乡', start: '2026-07-13 14:00', end: '2026-07-13 18:00' },
-            { id: 'YJ-20260713-083', title: '缺钾预警', level: '蓝色预警', handler: '李农技', status: '已完成', measure: '根施硫酸钾+叶面喷施钾肥', result: '叶片含钾量恢复至1.5%', area: '傅坊乡', start: '2026-07-13 10:00', end: '2026-07-13 16:00' },
-            { id: 'YJ-20260712-091', title: '冰雹预警', level: '红色预警', handler: '王农技', status: '已关闭', measure: '冰雹未实际到达，自动关闭', result: '未受冰雹影响', area: '东坪乡', start: '2026-07-12 11:30', end: '2026-07-12 14:00' },
-            { id: 'YJ-20260712-092', title: '缺钙预警', level: '蓝色预警', handler: '赵农技', status: '已完成', measure: '叶面喷施氨基酸钙', result: '叶片含钙量恢复至1.2%', area: '市山镇', start: '2026-07-12 12:00', end: '2026-07-12 17:00' },
-            { id: 'YJ-20260711-098', title: '连阴雨预警', level: '黄色预警', handler: '李农技', status: '已完成', measure: '喷施保护性杀菌剂', result: '病害得到有效预防', area: '全县范围', start: '2026-07-11 11:00', end: '2026-07-11 15:00' },
-            { id: 'YJ-20260711-099', title: '黑星病预警', level: '蓝色预警', handler: '王农技', status: '已完成', measure: '苯醚甲环唑喷雾防治', result: '病果率控制在1%以下', area: '白舍镇', start: '2026-07-11 10:30', end: '2026-07-11 14:00' },
-            { id: 'YJ-20260710-105', title: '树脂病预警', level: '橙色预警', handler: '赵农技', status: '已完成', measure: '修剪病枝+涂抹石硫合剂', result: '病枝率降至1%以下', area: '琴城镇、桑田镇', start: '2026-07-10 10:00', end: '2026-07-10 16:00' },
-            { id: 'YJ-20260710-106', title: '树势衰弱预警', level: '橙色预警', handler: '李农技', status: '处置中', measure: '根施有机肥+叶面追肥', result: '-', area: '太和镇', start: '2026-07-10 15:00', end: '-' },
-            { id: 'YJ-20260708-120', title: '果皮粗皮预警', level: '蓝色预警', handler: '王农技', status: '已关闭', measure: '评估为非病理性粗皮，关闭预警', result: '无需处置', area: '三溪乡', start: '2026-07-08 11:00', end: '2026-07-08 12:00' },
-            { id: 'YJ-20260708-121', title: '根系缺氧预警', level: '黄色预警', handler: '赵农技', status: '已完成', measure: '排水松土、改善透气性', result: '土壤氧含量恢复至8%', area: '傅坊乡', start: '2026-07-08 12:00', end: '2026-07-08 16:00' },
-            { id: 'YJ-20260706-136', title: '脚腐病预警', level: '黄色预警', handler: '李农技', status: '已完成', measure: '刮治病斑+涂波尔多液', result: '病株得到控制', area: '桑田镇', start: '2026-07-06 10:30', end: '2026-07-06 15:00' },
-            { id: 'YJ-20260705-142', title: '缺镁预警', level: '蓝色预警', handler: '王农技', status: '已完成', measure: '叶面喷施硫酸镁', result: '叶片含镁量恢复至0.4%', area: '东坪乡', start: '2026-07-05 11:00', end: '2026-07-05 15:00' }
+            { id: 'YJ-20260722-001', title: '高温热害预警', level: '红色预警', handler: 'hujianing', status: '已完成', measure: '喷水降温、遮阳网覆盖', result: '果面温度降至安全范围，高温影响消除', area: '全县范围', start: '2026-07-22 11:00', end: '2026-07-22 16:30' },
+            { id: 'YJ-20260721-015', title: '炭疽病发生预警', level: '黄色预警', handler: 'huangzhongjian', status: '处置中', measure: '咪鲜胺喷雾防治', result: '-', area: '白舍镇', start: '2026-07-21 15:00', end: '-' },
+            { id: 'YJ-20260722-003', title: '持续干旱预警', level: '黄色预警', handler: 'fangchao', status: '待处置', measure: '-', result: '-', area: '全县范围', start: '-', end: '-' },
+            { id: 'YJ-20260722-004', title: '潜叶蛾高发预警', level: '橙色预警', handler: 'cuixingen', status: '处置中', measure: '氯氰菊酯喷雾防治', result: '-', area: '太和镇、桑田镇', start: '2026-07-22 14:00', end: '-' },
+            { id: 'YJ-20260722-005', title: '日灼病预警', level: '红色预警', handler: 'caohongying', status: '待处置', measure: '-', result: '-', area: '洽湾镇', start: '-', end: '-' },
+            { id: 'YJ-20260722-006', title: '白粉虱发生预警', level: '蓝色预警', handler: 'xushuiying', status: '已完成', measure: '黄板诱杀+吡虫啉喷雾', result: '虫口密度降至安全水平', area: '桑田镇', start: '2026-07-22 08:00', end: '2026-07-22 12:00' },
+            { id: 'YJ-20260721-017', title: '暴雨洪涝预警', level: '橙色预警', handler: 'wukening', status: '已完成', measure: '开沟排水、加固果园', result: '积水排出，果园无损失', area: '太和镇、东坪乡', start: '2026-07-21 16:00', end: '2026-07-21 20:30' },
+            { id: 'YJ-20260721-018', title: '红蜘蛛爆发预警', level: '红色预警', handler: 'xiexiantong', status: '已完成', measure: '阿维菌素喷雾防治', result: '虫口密度降至3头/叶以下', area: '市山镇、洽湾镇', start: '2026-07-21 09:00', end: '2026-07-21 17:00' },
+            { id: 'YJ-20260721-019', title: '疮痂病发生预警', level: '黄色预警', handler: 'jiangguoping', status: '已完成', measure: '代森锰锌喷雾防治', result: '病叶率降至1%以下', area: '紫霄镇', start: '2026-07-21 13:00', end: '2026-07-21 16:00' },
+            { id: 'YJ-20260721-020', title: '煤烟病预警', level: '蓝色预警', handler: 'yujianghua', status: '处置中', measure: '矿物油乳液喷雾', result: '-', area: '琴城镇', start: '2026-07-21 10:30', end: '-' },
+            { id: 'YJ-20260720-025', title: '锈壁虱发生预警', level: '橙色预警', handler: 'huangyungui', status: '已完成', measure: '螺螨酯喷雾+枝条修剪', result: '虫口密度降至安全水平', area: '三溪乡、傅坊乡', start: '2026-07-20 14:00', end: '2026-07-20 18:00' },
+            { id: 'YJ-20260720-026', title: '高温热浪预警', level: '黄色预警', handler: 'jiangyueqin', status: '已完成', measure: '灌溉降温、喷施抗逆剂', result: '果园温度降低3-5°C', area: '全县范围', start: '2026-07-20 09:00', end: '2026-07-20 15:00' },
+            { id: 'YJ-20260719-031', title: '疮痂病预警', level: '黄色预警', handler: 'wangyinggen', status: '待处置', measure: '-', result: '-', area: '紫霄镇', start: '-', end: '-' },
+            { id: 'YJ-20260719-032', title: '白粉虱预警', level: '蓝色预警', handler: 'wangchunhua', status: '已完成', measure: '啶虫脒喷雾防治', result: '虫害得到有效控制', area: '桑田镇', start: '2026-07-19 10:00', end: '2026-07-19 14:00' },
+            { id: 'YJ-20260718-045', title: '锈壁虱预警', level: '橙色预警', handler: 'chenjinquan', status: '已完成', measure: '螺螨酯喷雾防治', result: '虫口密度大幅下降', area: '三溪乡', start: '2026-07-18 14:30', end: '2026-07-18 18:00' },
+            { id: 'YJ-20260718-046', title: '高温热浪预警', level: '黄色预警', handler: 'yanghaiping', status: '已关闭', measure: '因气温下降自动关闭', result: '气温回落至35°C以下', area: '全县范围', start: '2026-07-18 09:00', end: '2026-07-18 12:00' },
+            { id: 'YJ-20260717-051', title: '异常落果预警', level: '红色预警', handler: 'qiushuifeng', status: '已完成', measure: '排查根系、补充营养液', result: '落果率恢复正常', area: '市山镇', start: '2026-07-17 11:00', end: '2026-07-17 16:00' },
+            { id: 'YJ-20260717-052', title: '日灼果预警', level: '黄色预警', handler: 'niexuequan', status: '已完成', measure: '遮阳网覆盖、喷水降温', result: '果面温度降至40°C以下', area: '洽湾镇', start: '2026-07-17 09:30', end: '2026-07-17 14:00' },
+            { id: 'YJ-20260716-058', title: '裂果预警', level: '橙色预警', handler: 'zengjunshu', status: '已完成', measure: '均衡灌溉、覆盖保墒', result: '裂果率控制在2%以内', area: '白舍镇', start: '2026-07-16 15:30', end: '2026-07-16 20:00' },
+            { id: 'YJ-20260716-059', title: '土壤干旱预警', level: '黄色预警', handler: 'tuguoping', status: '已完成', measure: '滴灌补水、覆盖保墒', result: '土壤湿度恢复至30%以上', area: '全县范围', start: '2026-07-16 14:30', end: '2026-07-16 18:00' },
+            { id: 'YJ-20260715-067', title: '台风预警', level: '红色预警', handler: 'linjiuxing', status: '已完成', measure: '加固树体、疏通排水、抢收成熟果', result: '台风过后无重大损失', area: '全县范围', start: '2026-07-15 16:30', end: '2026-07-16 08:00' },
+            { id: 'YJ-20260715-068', title: '溃疡病预警', level: '红色预警', handler: 'wangzhigang', status: '处置中', measure: '铜制剂喷雾防治', result: '-', area: '太和镇', start: '2026-07-15 14:00', end: '-' },
+            { id: 'YJ-20260714-075', title: '暴雨预警', level: '橙色预警', handler: 'wangbingcai', status: '已完成', measure: '清理排水沟、准备抽水设备', result: '排水及时无积水', area: '桑田镇、紫霄镇', start: '2026-07-14 15:00', end: '2026-07-14 19:00' },
+            { id: 'YJ-20260714-076', title: '粉虱预警', level: '黄色预警', handler: 'zhougenchao', status: '已完成', measure: '黄板诱杀+吡虫啉喷雾', result: '虫口密度降至10头/叶以下', area: '琴城镇', start: '2026-07-14 09:30', end: '2026-07-14 15:00' },
+            { id: 'YJ-20260713-082', title: '蚜虫预警', level: '黄色预警', handler: 'xiejunhui', status: '已完成', measure: '啶虫脒喷雾防治', result: '新梢受害率降至5%以下', area: '三溪乡', start: '2026-07-13 14:00', end: '2026-07-13 18:00' },
+            { id: 'YJ-20260713-083', title: '缺钾预警', level: '蓝色预警', handler: 'zengaiwen', status: '已完成', measure: '根施硫酸钾+叶面喷施钾肥', result: '叶片含钾量恢复至1.5%', area: '傅坊乡', start: '2026-07-13 10:00', end: '2026-07-13 16:00' },
+            { id: 'YJ-20260712-091', title: '冰雹预警', level: '红色预警', handler: 'songchangquan', status: '已关闭', measure: '冰雹未实际到达，自动关闭', result: '未受冰雹影响', area: '东坪乡', start: '2026-07-12 11:30', end: '2026-07-12 14:00' },
+            { id: 'YJ-20260712-092', title: '缺钙预警', level: '蓝色预警', handler: 'liuhui', status: '已完成', measure: '叶面喷施氨基酸钙', result: '叶片含钙量恢复至1.2%', area: '市山镇', start: '2026-07-12 12:00', end: '2026-07-12 17:00' },
+            { id: 'YJ-20260711-098', title: '连阴雨预警', level: '黄色预警', handler: 'jiangxiaochen', status: '已完成', measure: '喷施保护性杀菌剂', result: '病害得到有效预防', area: '全县范围', start: '2026-07-11 11:00', end: '2026-07-11 15:00' },
+            { id: 'YJ-20260711-099', title: '黑星病预警', level: '蓝色预警', handler: 'luzhiimg', status: '已完成', measure: '苯醚甲环唑喷雾防治', result: '病果率控制在1%以下', area: '白舍镇', start: '2026-07-11 10:30', end: '2026-07-11 14:00' },
+            { id: 'YJ-20260710-105', title: '树脂病预警', level: '橙色预警', handler: 'zhouchangguo', status: '已完成', measure: '修剪病枝+涂抹石硫合剂', result: '病枝率降至1%以下', area: '琴城镇、桑田镇', start: '2026-07-10 10:00', end: '2026-07-10 16:00' },
+            { id: 'YJ-20260710-106', title: '树势衰弱预警', level: '橙色预警', handler: 'weizhigang', status: '处置中', measure: '根施有机肥+叶面追肥', result: '-', area: '太和镇', start: '2026-07-10 15:00', end: '-' },
+            { id: 'YJ-20260708-120', title: '果皮粗皮预警', level: '蓝色预警', handler: 'zhengzhejiang', status: '已关闭', measure: '评估为非病理性粗皮，关闭预警', result: '无需处置', area: '三溪乡', start: '2026-07-08 11:00', end: '2026-07-08 12:00' },
+            { id: 'YJ-20260708-121', title: '根系缺氧预警', level: '黄色预警', handler: 'xiaoliangen', status: '已完成', measure: '排水松土、改善透气性', result: '土壤氧含量恢复至8%', area: '傅坊乡', start: '2026-07-08 12:00', end: '2026-07-08 16:00' },
+            { id: 'YJ-20260706-136', title: '脚腐病预警', level: '黄色预警', handler: 'zhaoxiaoming', status: '已完成', measure: '刮治病斑+涂波尔多液', result: '病株得到控制', area: '桑田镇', start: '2026-07-06 10:30', end: '2026-07-06 15:00' },
+            { id: 'YJ-20260705-142', title: '缺镁预警', level: '蓝色预警', handler: 'guiyouming', status: '已完成', measure: '叶面喷施硫酸镁', result: '叶片含镁量恢复至0.4%', area: '东坪乡', start: '2026-07-05 11:00', end: '2026-07-05 15:00' }
         ];
 
         let currentPage = 1;
@@ -343,7 +336,7 @@
                             id: f.alertId,
                             title: f.alertTitle || ('预警-' + f.alertId),
                             level: f.level || '黄色预警',
-                            handler: f.handler || '反馈用户',
+                            handler: f.handler || 'admin',
                             status: f.status || '处置中',
                             measure: f.measure || (f.feedback || '（待补充措施）'),
                             result: f.result || '-',
@@ -368,6 +361,51 @@
         }
         let editTargetId = null;
         let deleteTargetId = null;
+
+        // ============ 共享：从系统管理·用户管理 加载用户名列表 ============
+        // 内置兜底用户名列表（与 user_manage.html 中的 usersData 保持一致）
+        const FALLBACK_USERS = [
+            'admin','hujianing','huangzhongjian','xushuiying','zhuquanlong','chenxiaozhong','liaochunliang',
+            'lijianming','ligen','zhangcaisun','liuquanguo','maodingwei','yesandong','zhoucaigui',
+            'chengminggao','dengxiaohua','zhouchengyou','weihongwei','fangchao','caohongying','cuixingen',
+            'wukening','zhouyinggen','xiexiantong','jiangguoping','yujianghua','xuguoliang','huangyungui',
+            'jiangyueqin','wangyinggen','wangchunhua','chenjinquan','yanghaiping','qiushuifeng','niexuequan',
+            'zengjunshu','tuguoping','linjiuxing','wangzhigang','wangbingcai','zhougenchao','xiejunhui',
+            'zengaiwen','songchangquan','liuhui','jiangxiaochen','luzhiimg','zhouchangguo','weizhigang',
+            'zhengzhejiang','xiaoliangen','zhaoxiaoming','guiyouming','liqinnian','baoshouchuan','wuyinlong',
+            'huangshuiwang','jiangguoping2','lixiaoming','fengxiaozhong','qiuquanjiang','leilingen','hanxueyin',
+            'huzhicai','zhangxiaobing','zouchangfa','xiongguoging','lihai','tianshuerzi'
+        ];
+
+        function loadSystemUsers(){
+            try{
+                var raw = localStorage.getItem('systemUsers');
+                if(!raw) return FALLBACK_USERS.slice();
+                var arr = JSON.parse(raw);
+                if(!Array.isArray(arr) || arr.length === 0) return FALLBACK_USERS.slice();
+                return arr.map(function(u){ return u.username; }).filter(Boolean);
+            }catch(e){
+                return FALLBACK_USERS.slice();
+            }
+        }
+
+        function populateHandlerOptions(){
+            var users = loadSystemUsers();
+            var filterSel = document.getElementById('handler-filter');
+            var editSel = document.getElementById('edit-handler');
+            // 保留"全部处置人"第一项
+            var filterHtml = '<option value="">全部处置人</option>';
+            users.forEach(function(u){
+                filterHtml += '<option value="' + escapeHtml(u) + '">' + escapeHtml(u) + '</option>';
+            });
+            filterSel.innerHTML = filterHtml;
+            // 编辑弹窗下拉
+            var editHtml = '';
+            users.forEach(function(u){
+                editHtml += '<option value="' + escapeHtml(u) + '">' + escapeHtml(u) + '</option>';
+            });
+            editSel.innerHTML = editHtml;
+        }
 
         function escapeHtml(str) {
             if (str === null || str === undefined) return '';
@@ -515,7 +553,15 @@
             const r = records.find(x => x.id === id);
             if (!r) return;
             editTargetId = id;
-            document.getElementById('edit-handler').value = r.handler;
+            const handlerSel = document.getElementById('edit-handler');
+            // 若当前记录中的处置人不在下拉列表中（兼容历史数据），临时追加一项
+            if(r.handler && !Array.from(handlerSel.options).some(o => o.value === r.handler)){
+                const opt = document.createElement('option');
+                opt.value = r.handler;
+                opt.textContent = r.handler;
+                handlerSel.appendChild(opt);
+            }
+            handlerSel.value = r.handler;
             document.getElementById('edit-status').value = r.status;
             document.getElementById('edit-measure').value = r.measure === '-' ? '' : r.measure;
             document.getElementById('edit-result').value = r.result === '-' ? '' : r.result;
@@ -600,6 +646,7 @@
             });
         });
 
+        populateHandlerOptions();
         syncFeedbackFromStorage();
         filteredRecords = records.slice();
         updateStats();

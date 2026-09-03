@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -69,6 +69,9 @@
                         <tr class="bg-gray-50">
                             <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">用户名</th>
                             <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">姓名</th>
+                            <th class="text-center px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">性别</th>
+                            <th class="text-center px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">年龄</th>
+                            <th class="text-center px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">文化水平</th>
                             <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">手机号</th>
                             <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">所在乡镇</th>
                             <th class="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">角色</th>
@@ -83,7 +86,7 @@
             </div>
             <div class="p-4 border-t border-gray-100 flex items-center justify-between flex-wrap gap-3">
                 <div class="flex items-center space-x-2">
-                    <p class="text-sm text-gray-500">显示 <span id="page-info">1-10</span> 条，共 <span id="total-count">35</span> 条</p>
+                    <p class="text-sm text-gray-500">显示 <span id="page-info">1-10</span> 条，共 <span id="total-count">69</span> 条</p>
                     <select id="page-size-select" class="px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-green-500" onchange="changePageSize()">
                         <option value="5">5条/页</option>
                         <option value="10" selected>10条/页</option>
@@ -120,6 +123,31 @@
                     <label class="block text-sm font-medium text-gray-700 mb-1">姓名</label>
                     <input type="text" id="add-name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="请输入姓名">
                 </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">性别</label>
+                        <select id="add-gender" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                            <option>男</option>
+                            <option>女</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">年龄</label>
+                        <input type="number" id="add-age" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="请输入年龄">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">文化水平</label>
+                    <select id="add-education" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <option>小学</option>
+                        <option>初中</option>
+                        <option>高中</option>
+                        <option>中专</option>
+                        <option>大专</option>
+                        <option>本科</option>
+                        <option>硕干</option>
+                    </select>
+                </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">手机号</label>
                     <input type="text" id="add-phone" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="请输入手机号">
@@ -135,6 +163,11 @@
                         <option>傅坊乡</option>
                         <option>莱溪乡</option>
                         <option>三溪乡</option>
+                        <option>琴城镇</option>
+                        <option>桑田镇</option>
+                        <option>东坪乡</option>
+                        <option>太源乡</option>
+                        <option>长红乡</option>
                     </select>
                 </div>
                 <div>
@@ -177,6 +210,31 @@
                     <label class="block text-sm font-medium text-gray-700 mb-1">姓名</label>
                     <input type="text" id="edit-name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
                 </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">性别</label>
+                        <select id="edit-gender" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                            <option>男</option>
+                            <option>女</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">年龄</label>
+                        <input type="number" id="edit-age" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">文化水平</label>
+                    <select id="edit-education" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <option>小学</option>
+                        <option>初中</option>
+                        <option>高中</option>
+                        <option>中专</option>
+                        <option>大专</option>
+                        <option>本科</option>
+                        <option>硕干</option>
+                    </select>
+                </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">手机号</label>
                     <input type="text" id="edit-phone" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
@@ -192,6 +250,11 @@
                         <option>傅坊乡</option>
                         <option>莱溪乡</option>
                         <option>三溪乡</option>
+                        <option>琴城镇</option>
+                        <option>桑田镇</option>
+                        <option>东坪乡</option>
+                        <option>太源乡</option>
+                        <option>长红乡</option>
                     </select>
                 </div>
                 <div>
@@ -294,49 +357,108 @@
     </div>
 
     <script>
-        // ===== 35条Mock数据 =====
+        // ===== 真实用户数据（来自 2025农民柑桔技术员表）=====
         const usersData = [
-            { username: 'admin',    name: '管理员',   phone: '138****0001', department: '太和镇', role: '管理员', time: '2026-01-01 10:00', status: '启用' },
-            { username: 'admin02',  name: '刘天明',   phone: '138****0002', department: '白舍镇', role: '管理员', time: '2026-01-15 09:30', status: '启用' },
-            { username: 'admin03',  name: '张华',     phone: '138****0003', department: '太和镇', role: '管理员', time: '2026-02-10 14:00', status: '启用' },
-            { username: 'admin04',  name: '陈志远',   phone: '138****0004', department: '市山镇',     role: '管理员', time: '2026-03-05 11:20', status: '启用' },
-            { username: 'admin05',  name: '王丽',     phone: '138****0005', department: '白舍镇', role: '管理员', time: '2026-04-20 08:00', status: '启用' },
-            { username: 'user001',  name: '张三',     phone: '139****0006', department: '紫霄镇', role: '农技员', time: '2026-06-15 09:30', status: '启用' },
-            { username: 'user003',  name: '王五',     phone: '136****0007', department: '洽湾镇', role: '农技员', time: '2026-07-05 11:20', status: '启用' },
-            { username: 'nf001',    name: '陈建国',   phone: '135****0008', department: '傅坊乡', role: '农技员', time: '2026-05-10 08:30', status: '启用' },
-            { username: 'nf002',    name: '刘桂芳',   phone: '135****0009', department: '傅坊乡', role: '农技员', time: '2026-05-12 10:00', status: '启用' },
-            { username: 'nf003',    name: '吴志强',   phone: '135****0010', department: '市山镇',     role: '农技员', time: '2026-05-20 14:20', status: '启用' },
-            { username: 'nf004',    name: '孙明辉',   phone: '135****0011', department: '紫霄镇', role: '农技员', time: '2026-05-25 09:00', status: '启用' },
-            { username: 'nf005',    name: '郑海龙',   phone: '135****0012', department: '洽湾镇', role: '农技员', time: '2026-06-01 16:00', status: '启用' },
-            { username: 'nf006',    name: '林小红',   phone: '135****0013', department: '市山镇',     role: '农技员', time: '2026-06-05 10:30', status: '禁用' },
-            { username: 'nf007',    name: '杨建军',   phone: '135****0014', department: '傅坊乡', role: '农技员', time: '2026-06-10 08:00', status: '启用' },
-            { username: 'nf008',    name: '马丽娟',   phone: '135****0015', department: '紫霄镇', role: '农技员', time: '2026-06-12 14:10', status: '启用' },
-            { username: 'nf009',    name: '胡伟',     phone: '135****0016', department: '洽湾镇', role: '农技员', time: '2026-06-18 11:30', status: '禁用' },
-            { username: 'nf010',    name: '何秀英',   phone: '135****0017', department: '市山镇',     role: '农技员', time: '2026-06-22 09:50', status: '启用' },
-            { username: 'nf011',    name: '罗志明',   phone: '135****0018', department: '傅坊乡', role: '农技员', time: '2026-07-01 08:20', status: '启用' },
-            { username: 'nf012',    name: '高玉兰',   phone: '135****0019', department: '紫霄镇', role: '农技员', time: '2026-07-05 15:00', status: '启用' },
-            { username: 'nf013',    name: '梁永强',   phone: '135****0020', department: '洽湾镇', role: '农技员', time: '2026-07-10 10:10', status: '启用' },
-            { username: 'user002',  name: '李四',     phone: '137****0021', department: '莱溪乡', role: '数据管理员', time: '2026-07-10 14:00', status: '禁用' },
-            { username: 'user004',  name: '赵六',     phone: '135****0022', department: '白舍镇', role: '数据管理员', time: '2026-07-18 09:00', status: '启用' },
-            { username: 'nf014',    name: '黄大明',   phone: '134****0023', department: '傅坊乡', role: '数据管理员', time: '2026-04-05 08:00', status: '启用' },
-            { username: 'nf015',    name: '周美华',   phone: '134****0024', department: '傅坊乡', role: '数据管理员', time: '2026-04-10 09:30', status: '启用' },
-            { username: 'nf016',    name: '谢文斌',   phone: '134****0025', department: '莱溪乡', role: '数据管理员', time: '2026-04-18 10:45', status: '启用' },
-            { username: 'nf017',    name: '唐桂花',   phone: '134****0026', department: '傅坊乡', role: '数据管理员', time: '2026-04-22 14:00', status: '启用' },
-            { username: 'nf018',    name: '韩磊',     phone: '134****0027', department: '莱溪乡', role: '数据管理员', time: '2026-05-08 11:20', status: '禁用' },
-            { username: 'nf019',    name: '冯秀珍',   phone: '134****0028', department: '傅坊乡', role: '数据管理员', time: '2026-05-15 09:00', status: '启用' },
-            { username: 'nf020',    name: '曹建国',   phone: '134****0029', department: '莱溪乡', role: '数据管理员', time: '2026-05-20 16:30', status: '启用' },
-            { username: 'nf021',    name: '许丽华',   phone: '134****0030', department: '傅坊乡', role: '数据管理员', time: '2026-06-02 10:00', status: '启用' },
-            { username: 'nf022',    name: '邓伟',     phone: '134****0031', department: '莱溪乡', role: '数据管理员', time: '2026-06-08 13:40', status: '启用' },
-            { username: 'nf023',    name: '彭玉英',   phone: '134****0032', department: '傅坊乡', role: '数据管理员', time: '2026-06-15 08:50', status: '启用' },
-            { username: 'nf024',    name: '沈志强',   phone: '134****0033', department: '莱溪乡', role: '数据管理员', time: '2026-06-22 09:10', status: '启用' },
-            { username: 'nf025',    name: '蒋明芳',   phone: '134****0034', department: '傅坊乡', role: '数据管理员', time: '2026-07-02 15:30', status: '禁用' },
-            { username: 'nf026',    name: '范学军',   phone: '134****0035', department: '莱溪乡', role: '数据管理员', time: '2026-07-12 10:00', status: '启用' }
+            { username: 'admin',     name: '管理员', gender: '男', age: 35, education: '本科',     phone: '13800000001', department: '太和镇',     role: '管理员', time: '2026-01-01 10:00', status: '启用' },
+            { username: 'hujianing', name: '惠加宁', gender: '男', age: 57, education: '大专',     phone: '13307912585', department: '白舍镇',     role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'huangzhongjian', name: '黄忠坚', gender: '男', age: 55, education: '初中', phone: '13979412180', department: '白舍镇', role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'xushuiying', name: '徐水应', gender: '男', age: 53, education: '初中',   phone: '13879418637', department: '白舍镇',     role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'zhuquanlong', name: '朱泉龙', gender: '男', age: 55, education: '初中',  phone: '18296452648', department: '白舍镇',     role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'chenxiaozhong', name: '陈小忠', gender: '男', age: 57, education: '高中',phone: '18779417899', department: '白舍镇',     role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'liaochunliang', name: '廖春亮', gender: '男', age: 50, education: '初中',phone: '13767679075', department: '白舍镇',   role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'lijianming', name: '李建明', gender: '男', age: 52, education: '初中',   phone: '13970432567', department: '白舍镇',     role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'ligen',    name: '李根',     gender: '男', age: 49, education: '高中',     phone: '13030587809', department: '白舍镇',     role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'zhangcaisun', name: '张才孙', gender: '男', age: 56, education: '初中',   phone: '15079427679', department: '白舍镇',     role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'liuquanguo', name: '刘全国', gender: '男', age: 55, education: '初中',   phone: '13870409283', department: '白舍镇',     role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'maodingwei', name: '毛定卫', gender: '男', age: 58, education: '初中',   phone: '15979580151', department: '白舍镇',     role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'yesandong', name: '叶三东',   gender: '男', age: 53, education: '初中',   phone: '13307946219', department: '白舍镇',     role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'zhoucaigui', name: '周才贵', gender: '男', age: 58, education: '初中',   phone: '13307043277', department: '白舍镇',     role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'chengminggao', name: '程名高', gender: '男', age: 65, education: '高中', phone: '13879411631', department: '东坪乡',   role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'dengxiaohua', name: '邓小华', gender: '男', age: 57, education: '初中',   phone: '15179450918', department: '东坪乡',     role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'zhouchengyou', name: '周成友', gender: '男', age: 49, education: '初中', phone: '13407945529', department: '东坪乡',   role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'weihongwei', name: '危红卫', gender: '男', age: 55, education: '初中',   phone: '13870456916', department: '东坪乡',     role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'fangchao', name: '方超',     gender: '男', age: 35, education: '大专',     phone: '13437942227', department: '洽湾镇',     role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'caohongying', name: '曹红英', gender: '女', age: 52, education: '初中',   phone: '15179480005', department: '洽湾镇',     role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'cuixingen', name: '崔新根', gender: '男', age: 54, education: '大专',   phone: '13970402086', department: '洽湾镇',     role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'wukening', name: '吴克宁',   gender: '男', age: 56, education: '大专',     phone: '13755982948', department: '洽湾镇',     role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'zhouyinggen', name: '周应根', gender: '男', age: 44, education: '初中', phone: '15979597956', department: '洽湾镇', role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'xiexiantong', name: '谢先龙', gender: '男', age: 52, education: '中专', phone: '17770442900', department: '太源乡', role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'jiangguoping', name: '江国平', gender: '男', age: 52, education: '初中', phone: '13879410253', department: '太源乡', role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'yujianghua', name: '余江华', gender: '男', age: 49, education: '大专',   phone: '13507943124', department: '琴城镇',     role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'xuguoliang', name: '徐国良', gender: '男', age: 55, education: '初中',   phone: '15079484177', department: '琴城镇',     role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'huangyungui', name: '黄云贵', gender: '男', age: 46, education: '大专', phone: '15279401609', department: '傅坊乡', role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'jiangyueqin', name: '江月琴', gender: '女', age: 32, education: '中专',   phone: '15990326845', department: '傅坊乡',     role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'wangyinggen', name: '王应根', gender: '男', age: 52, education: '初中', phone: '13407946526', department: '傅坊乡', role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'wangchunhua', name: '王春华', gender: '男', age: 47, education: '大专', phone: '13979415835', department: '紫霄镇', role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'chenjinquan', name: '陈金泉', gender: '男', age: 60, education: '初中', phone: '13755958138', department: '紫霄镇', role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'yanghaiping', name: '杨海平', gender: '男', age: 57, education: '高中', phone: '18779479812', department: '紫霄镇', role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'qiushuifeng', name: '邱水凤', gender: '女', age: 38, education: '初中', phone: '18107048849', department: '三溪乡', role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'niexuequan', name: '聂学全', gender: '男', age: 45, education: '大专',   phone: '13870409996', department: '三溪乡',     role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'zengjunshu', name: '曾军书', gender: '男', age: 43, education: '中专',   phone: '13879418657', department: '三溪乡',     role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'tuguoping', name: '涂国平', gender: '男', age: 58, education: '初中',   phone: '15946980039', department: '太和镇',     role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'linjiuxing', name: '林九行', gender: '男', age: 53, education: '初中',   phone: '18296988008', department: '太和镇',     role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'wangzhigang', name: '王志刚', gender: '男', age: 44, education: '初中', phone: '18166007111', department: '太和镇', role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'wangbingcai', name: '王炳才', gender: '男', age: 60, education: '初中', phone: '13879412157', department: '太和镇', role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'zhougenchao', name: '周根朝', gender: '男', age: 55, education: '初中', phone: '13479412767', department: '太和镇', role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'xiejunhui', name: '解军辉',   gender: '男', age: 39, education: '大专',     phone: '18296976181', department: '太和镇',     role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'zengaiwen', name: '曾爱文',   gender: '男', age: 57, education: '初中',     phone: '15179454023', department: '太和镇',     role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'songchangquan', name: '宋长泉', gender: '男', age: 54, education: '初中',phone: '13879419077', department: '太和镇', role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'liuhui',   name: '刘辉',     gender: '男', age: 40, education: '初中',     phone: '15779115075', department: '太和镇',     role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'jiangxiaochen', name: '蒋小陈', gender: '男', age: 56, education: '初中',phone: '18970425713', department: '太和镇', role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'luzhiimg', name: '鲁志明',   gender: '男', age: 49, education: '高中',     phone: '19079493397', department: '莱溪乡',     role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'zhouchangguo', name: '周长国', gender: '男', age: 48, education: '高中',phone: '13870412883', department: '莱溪乡', role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'weizhigang', name: '危志刚', gender: '男', age: 42, education: '大专',   phone: '18707914426', department: '桑田镇',     role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'zhengzhejiang', name: '郑浙江', gender: '男', age: 55, education: '初中',phone: '18702651860', department: '桑田镇', role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'xiaoliangen', name: '肖连根', gender: '男', age: 46, education: '高中', phone: '13907042756', department: '桑田镇', role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'zhaoxiaoming', name: '赵小明', gender: '男', age: 40, education: '初中',phone: '13097117986', department: '桑田镇', role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'guiyouming', name: '桂友明', gender: '男', age: 52, education: '初中',   phone: '18079472369', department: '桑田镇',     role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'liqinnian', name: '黎青年',   gender: '男', age: 40, education: '高中',     phone: '13097119155', department: '桑田镇',     role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'baoshouchuan', name: '包寿泉', gender: '男', age: 49, education: '高中',phone: '18296474865', department: '桑田镇', role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'wuyinlong', name: '吴银龙',   gender: '男', age: 53, education: '初中',     phone: '19579980645', department: '桑田镇',     role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'huangshuiwang', name: '黄水旺', gender: '男', age: 62, education: '高中',phone: '13767613368', department: '桑田镇', role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'jiangguoping2', name: '江国平', gender: '男', age: 60, education: '初中',phone: '15779123216', department: '桑田镇', role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'lixiaoming', name: '黎小明',   gender: '男', age: 56, education: '初中',     phone: '13979410472', department: '桑田镇',     role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'fengxiaozhong', name: '封小忠', gender: '男', age: 40, education: '初中',phone: '13978485156', department: '桑田镇', role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'qiuquanjiang', name: '邱泉江', gender: '男', age: 47, education: '初中',phone: '13767613353', department: '市山镇', role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'leilingen', name: '雷林根',   gender: '男', age: 55, education: '初中',     phone: '15079427035', department: '市山镇',     role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'hanxueyin', name: '韩学印',   gender: '男', age: 40, education: '高中',     phone: '15879826738', department: '市山镇',     role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'huzhicai', name: '胡志才',   gender: '男', age: 42, education: '初中',     phone: '13979419785', department: '市山镇',     role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'zhangxiaobing', name: '张小兵', gender: '男', age: 52, education: '初中',phone: '13767678618', department: '市山镇', role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'zouchangfa', name: '邹长发', gender: '男', age: 45, education: '大专',   phone: '13979411821', department: '市山镇',     role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'xiongguoging', name: '熊国庆', gender: '男', age: 41, education: '初中', phone: '18179437107', department: '市山镇', role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'lihai',   name: '李海',     gender: '男', age: 39, education: '初中',     phone: '15879847722', department: '市山镇',     role: '农技员', time: '2025-09-01 09:00', status: '启用' },
+            { username: 'tianshuerzi', name: '田树滋', gender: '男', age: 64, education: '高中', phone: '15870791949', department: '长红乡', role: '农技员', time: '2025-09-01 09:00', status: '启用' }
         ];
 
         let currentPage = 1;
         let pageSize = 10;
         let filteredData = [...usersData];
         let deleteTarget = '';
+
+        // ============ 共享：用户数据持久化到 localStorage ============
+        function saveUsersToStorage(){
+            try{
+                localStorage.setItem('systemUsers', JSON.stringify(usersData));
+            }catch(e){ console.error('saveUsersToStorage error:', e); }
+        }
+        function loadUsersFromStorage(){
+            try{
+                var raw = localStorage.getItem('systemUsers');
+                if(!raw) return null;
+                var arr = JSON.parse(raw);
+                return Array.isArray(arr) ? arr : null;
+            }catch(e){ return null; }
+        }
+        // 页面加载时：优先使用存储中的用户数据，否则初始化并保存
+        (function initUsersData(){
+            var stored = loadUsersFromStorage();
+            if(stored && stored.length){
+                usersData.length = 0;
+                stored.forEach(function(u){ usersData.push(u); });
+            } else {
+                saveUsersToStorage();
+            }
+        })();
 
         // 角色徽章样式
         function getRoleBadge(role) {
@@ -364,18 +486,21 @@
 
             tbody.innerHTML = pageData.map(u => `
                 <tr class="hover:bg-gray-50" data-username="${u.username}" data-role="${u.role}">
-                    <td class="px-6 py-4 text-sm text-gray-800">${u.username}</td>
-                    <td class="px-6 py-4 text-sm text-gray-600">${u.name}</td>
-                    <td class="px-6 py-4 text-sm text-gray-600">${u.phone}</td>
-                    <td class="px-6 py-4 text-sm text-gray-600">${u.department}</td>
+                    <td class="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">${u.username}</td>
+                    <td class="px-6 py-4 text-sm text-gray-600 whitespace-nowrap">${u.name}</td>
+                    <td class="px-6 py-4 text-sm text-gray-600 text-center">${u.gender}</td>
+                    <td class="px-6 py-4 text-sm text-gray-600 text-center">${u.age}</td>
+                    <td class="px-6 py-4 text-sm text-gray-600 text-center">${u.education}</td>
+                    <td class="px-6 py-4 text-sm text-gray-600 whitespace-nowrap">${u.phone}</td>
+                    <td class="px-6 py-4 text-sm text-gray-600 whitespace-nowrap">${u.department}</td>
                     <td class="px-6 py-4">${getRoleBadge(u.role)}</td>
-                    <td class="px-6 py-4 text-sm text-gray-500">${u.time}</td>
+                    <td class="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">${u.time}</td>
                     <td class="px-6 py-4">${getStatusHtml(u.status)}</td>
                     <td class="px-6 py-4">
-                        <div class="flex items-center justify-center space-x-3">
-                            <button onclick="openEditModal('${u.username}')" class="px-3 py-1 text-blue hover:bg-blue-50 rounded text-xs font-medium transition-colors">编辑</button>
-                            <button onclick="openResetPasswordModal('${u.username}', '${u.name}')" class="px-3 py-1 text-purple hover:bg-purple-50 rounded text-xs font-medium transition-colors">重置密码</button>
-                            <button onclick="openDeleteModal('${u.username}', '${u.name}')" class="px-3 py-1 text-red hover:bg-red-50 rounded text-xs font-medium transition-colors">删除</button>
+                        <div class="flex items-center justify-center space-x-2">
+                            <button onclick="openEditModal('${u.username}')" class="px-2 py-1 text-blue hover:bg-blue-50 rounded text-xs font-medium transition-colors">编辑</button>
+                            <button onclick="openResetPasswordModal('${u.username}', '${u.name}')" class="px-2 py-1 text-purple hover:bg-purple-50 rounded text-xs font-medium transition-colors">重置密码</button>
+                            <button onclick="openDeleteModal('${u.username}', '${u.name}')" class="px-2 py-1 text-red hover:bg-red-50 rounded text-xs font-medium transition-colors">删除</button>
                         </div>
                     </td>
                 </tr>
@@ -456,7 +581,7 @@
             const roleFilter = document.getElementById('role-filter').value;
 
             filteredData = usersData.filter(u => {
-                const matchSearch = !searchTerm || u.username.toLowerCase().includes(searchTerm) || u.name.toLowerCase().includes(searchTerm) || u.phone.toLowerCase().includes(searchTerm);
+                const matchSearch = !searchTerm || u.username.toLowerCase().includes(searchTerm) || u.name.toLowerCase().includes(searchTerm) || u.phone.toLowerCase().includes(searchTerm) || u.department.toLowerCase().includes(searchTerm);
                 const matchRole = !roleFilter || u.role === roleFilter;
                 return matchSearch && matchRole;
             });
@@ -469,6 +594,9 @@
         function openAddModal() {
             document.getElementById('add-username').value = '';
             document.getElementById('add-name').value = '';
+            document.getElementById('add-gender').value = '男';
+            document.getElementById('add-age').value = '';
+            document.getElementById('add-education').value = '初中';
             document.getElementById('add-phone').value = '';
             document.getElementById('add-department').value = '太和镇';
             document.getElementById('add-role').value = '农技员';
@@ -513,6 +641,9 @@
             if (!user) return;
             document.getElementById('edit-username').value = user.username;
             document.getElementById('edit-name').value = user.name;
+            document.getElementById('edit-gender').value = user.gender;
+            document.getElementById('edit-age').value = user.age;
+            document.getElementById('edit-education').value = user.education;
             document.getElementById('edit-phone').value = user.phone;
             document.getElementById('edit-department').value = user.department;
             document.getElementById('edit-role').value = user.role;
@@ -533,6 +664,7 @@
         function submitAddUser() {
             const username = document.getElementById('add-username').value.trim();
             const name = document.getElementById('add-name').value.trim();
+            const age = document.getElementById('add-age').value.trim();
             if (!username || !name) {
                 alert('请填写用户名和姓名');
                 return;

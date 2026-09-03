@@ -473,12 +473,12 @@
         .map-bubble:hover {
             filter: drop-shadow(0 4px 12px rgba(0,0,0,0.25));
         }
-        .bubble-service { fill: #3b82f6; animation: bubblePulse 3s ease-in-out infinite; }
-        .bubble-enterprise { fill: #ef4444; animation: bubblePulse 2.5s ease-in-out infinite 0.2s; }
-        .bubble-cooperative { fill: #f59e0b; animation: bubblePulse 3.5s ease-in-out infinite 0.4s; }
-        .bubble-demonstration { fill: #22c55e; animation: bubblePulse 2.8s ease-in-out infinite 0.6s; }
-        .bubble-largegrower { fill: #8b5cf6; animation: bubblePulse 3.2s ease-in-out infinite 0.8s; }
-        .bubble-iot { fill: #06b6d4; animation: bubblePulse 2s ease-in-out infinite 1s; }
+        .bubble-service { animation: bubblePulse 3s ease-in-out infinite; }
+        .bubble-enterprise { animation: bubblePulse 2.5s ease-in-out infinite 0.2s; }
+        .bubble-cooperative { animation: bubblePulse 3.5s ease-in-out infinite 0.4s; }
+        .bubble-demonstration { animation: bubblePulse 2.8s ease-in-out infinite 0.6s; }
+        .bubble-largegrower { animation: bubblePulse 3.2s ease-in-out infinite 0.8s; }
+        .bubble-iot { animation: bubblePulse 2s ease-in-out infinite 1s; }
         @keyframes bubblePulse {
             0%, 100% { opacity: 0.8; transform-origin: center; }
             50% { opacity: 1; }
@@ -778,7 +778,8 @@
             flex-shrink: 0;
         }
         .phenology-name { flex: 1; color: #475569; }
-        .phenology-count { font-weight: 600; color: #2b6e3c; }
+        .phenology-count { font-weight: 600; color: #2b6e3c; min-width: 32px; text-align: right; font-size: 0.78rem; }
+        .phenology-score { font-weight: 700; min-width: 36px; text-align: right; font-size: 0.82rem; }
         .phenology-bar-wrapper { flex: 2; }
         .phenology-bar {
             height: 6px;
@@ -934,8 +935,8 @@
                     <div class="env-card">
                         <div class="env-icon"><i class="fas fa-flask"></i></div>
                         <div class="env-info">
-                            <div class="env-value">中等</div>
-                            <div class="env-label">土壤养分</div>
+                            <div class="env-value" style="font-size:0.85rem;">N:25 P:18 K:92</div>
+                            <div class="env-label">土壤养分 (mg/kg)</div>
                         </div>
                     </div>
                     <div class="env-card">
@@ -946,17 +947,17 @@
                         </div>
                     </div>
                     <div class="env-card">
-                        <div class="env-icon" style="background:#e0f2fe;color:#0284c7;"><i class="fas fa-thermometer-half"></i></div>
+                        <div class="env-icon" style="background:#e0f2fe;color:#0284c7;"><i class="fas fa-vial"></i></div>
                         <div class="env-info">
-                            <div class="env-value">32.1°C</div>
-                            <div class="env-label">空气温度</div>
+                            <div class="env-value">6.2</div>
+                            <div class="env-label">土壤pH值</div>
                         </div>
                     </div>
                     <div class="env-card">
-                        <div class="env-icon" style="background:#dbeafe;color:#2563eb;"><i class="fas fa-cloud"></i></div>
+                        <div class="env-icon" style="background:#dbeafe;color:#2563eb;"><i class="fas fa-arrows-up-down"></i></div>
                         <div class="env-info">
-                            <div class="env-value">56.2%</div>
-                            <div class="env-label">空气湿度</div>
+                            <div class="env-value">9.6°C</div>
+                            <div class="env-label">昼夜温差</div>
                         </div>
                     </div>
                 </div>
@@ -1049,27 +1050,24 @@
                     <text x="230" y="250" fill="#475569" font-size="11" font-weight="500">紫霄镇</text>
                     <text x="250" y="170" text-anchor="middle" fill="rgba(22,101,52,0.08)" font-size="40" font-weight="bold">南丰县</text>
                     <g filter="url(#bubbleGlow)">
-                        <!-- 每个乡镇一个监测点（11 个乡镇共 11 个气泡） -->
-                        <circle cx="135" cy="85" r="8" class="map-bubble bubble-service" data-type="service" data-index="0" data-count="2"/>
-                        <circle cx="290" cy="170" r="7" class="map-bubble bubble-service" data-type="service" data-index="1" data-count="2"/>
-                        <circle cx="225" cy="80" r="10" class="map-bubble bubble-enterprise" data-type="enterprise" data-index="0" data-count="3"/>
-                        <circle cx="380" cy="185" r="8" class="map-bubble bubble-enterprise" data-type="enterprise" data-index="1" data-count="2"/>
-                        <circle cx="315" cy="75" r="9" class="map-bubble bubble-cooperative" data-type="cooperative" data-index="0" data-count="2"/>
-                        <circle cx="405" cy="235" r="8" class="map-bubble bubble-cooperative" data-type="cooperative" data-index="1" data-count="3"/>
-                        <circle cx="395" cy="95" r="9" class="map-bubble bubble-demonstration" data-type="demonstration" data-index="0" data-count="2"/>
-                        <circle cx="115" cy="250" r="7" class="map-bubble bubble-demonstration" data-type="demonstration" data-index="1" data-count="2"/>
-                        <circle cx="120" cy="180" r="8" class="map-bubble bubble-largegrower" data-type="largegrower" data-index="0" data-count="2"/>
-                        <circle cx="230" cy="250" r="7" class="map-bubble bubble-largegrower" data-type="largegrower" data-index="1" data-count="2"/>
-                        <circle cx="205" cy="170" r="7" class="map-bubble bubble-iot" data-type="iot" data-index="0" data-count="4"/>
+                        <!-- 每个乡镇一个监测点（11 个乡镇共 11 个气泡），按评分着色：优秀=绿/良好=橙/一般=红 -->
+                        <circle cx="135" cy="85"  r="8"  class="map-bubble" data-type="service"       data-index="0" data-count="2" fill="#22c55e"/>
+                        <circle cx="290" cy="170" r="7"  class="map-bubble" data-type="service"       data-index="1" data-count="2" fill="#f59e0b"/>
+                        <circle cx="225" cy="80"  r="10" class="map-bubble" data-type="enterprise"    data-index="0" data-count="3" fill="#f59e0b"/>
+                        <circle cx="380" cy="185" r="8"  class="map-bubble" data-type="enterprise"    data-index="1" data-count="2" fill="#22c55e"/>
+                        <circle cx="315" cy="75"  r="9"  class="map-bubble" data-type="cooperative"   data-index="0" data-count="2" fill="#22c55e"/>
+                        <circle cx="405" cy="235" r="8"  class="map-bubble" data-type="cooperative"   data-index="1" data-count="3" fill="#f59e0b"/>
+                        <circle cx="395" cy="95"  r="9"  class="map-bubble" data-type="demonstration" data-index="0" data-count="2" fill="#ef4444"/>
+                        <circle cx="115" cy="250" r="7"  class="map-bubble" data-type="demonstration" data-index="1" data-count="2" fill="#22c55e"/>
+                        <circle cx="120" cy="180" r="8"  class="map-bubble" data-type="largegrower"   data-index="0" data-count="2" fill="#f59e0b"/>
+                        <circle cx="230" cy="250" r="7"  class="map-bubble" data-type="largegrower"   data-index="1" data-count="2" fill="#ef4444"/>
+                        <circle cx="205" cy="170" r="7"  class="map-bubble" data-type="iot"           data-index="0" data-count="4" fill="#22c55e"/>
                     </g>
                 </svg>
                 <div class="map-legend">
-                    <div class="legend-item"><div class="legend-dot" style="background:#3b82f6;color:#3b82f6;"></div>南丰蜜桔-1年生</div>
-                    <div class="legend-item"><div class="legend-dot" style="background:#ef4444;color:#ef4444;"></div>南丰蜜桔-3年生</div>
-                    <div class="legend-item"><div class="legend-dot" style="background:#f59e0b;color:#f59e0b;"></div>南丰蜜桔-5年生</div>
-                    <div class="legend-item"><div class="legend-dot" style="background:#22c55e;color:#22c55e;"></div>南丰蜜桔-10年生</div>
-                    <div class="legend-item"><div class="legend-dot" style="background:#8b5cf6;color:#8b5cf6;"></div>南丰蜜桔-15年生</div>
-                    <div class="legend-item"><div class="legend-dot" style="background:#06b6d4;color:#06b6d4;"></div>南丰蜜桔-20年生</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#22c55e;color:#22c55e;"></div>优秀 (≥90分)</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#f59e0b;color:#f59e0b;"></div>良好 (80-89)</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#ef4444;color:#ef4444;"></div>一般 (&lt;80)</div>
                 </div>
                 <div style="position:absolute;top:14px;right:14px;z-index:10;display:flex;gap:10px;pointer-events:none;">
                     <div style="background:rgba(255,255,255,0.88);backdrop-filter:blur(10px);border:1px solid rgba(0,0,0,0.06);border-radius:10px;padding:8px 14px;text-align:center;box-shadow:0 2px 12px rgba(0,0,0,0.06);">
@@ -1105,12 +1103,13 @@
             </div>
 
             <div class="card side-card">
-                <div class="card-header"><span><i class="fas fa-seedling"></i> 监测植株品系分布</span><span class="header-extra">当前</span></div>
+                <div class="card-header"><span><i class="fas fa-seedling"></i> 监测植株品系分布</span><span class="header-extra">综合评分</span></div>
                 <div class="phenology-stage-list">
                     <div class="phenology-stage-item">
                         <div class="phenology-dot" style="background:#3b82f6;"></div>
                         <span class="phenology-name">小果系（杨小2-6、金钱蜜桔）</span>
-                        <span class="phenology-count">6</span>
+                        <span class="phenology-count">6株</span>
+                        <span class="phenology-score" style="color:#22c55e;">88.2</span>
                         <div class="phenology-bar-wrapper">
                             <div class="phenology-bar"><div class="phenology-bar-fill" style="width:23%;background:#3b82f6;"></div></div>
                         </div>
@@ -1118,7 +1117,8 @@
                     <div class="phenology-stage-item">
                         <div class="phenology-dot" style="background:#8b5cf6;"></div>
                         <span class="phenology-name">大果系</span>
-                        <span class="phenology-count">5</span>
+                        <span class="phenology-count">5株</span>
+                        <span class="phenology-score" style="color:#22c55e;">85.6</span>
                         <div class="phenology-bar-wrapper">
                             <div class="phenology-bar"><div class="phenology-bar-fill" style="width:19%;background:#8b5cf6;"></div></div>
                         </div>
@@ -1126,7 +1126,8 @@
                     <div class="phenology-stage-item">
                         <div class="phenology-dot" style="background:#ec4899;"></div>
                         <span class="phenology-name">桂花蒂系（柿蒂蜜桔）</span>
-                        <span class="phenology-count">5</span>
+                        <span class="phenology-count">5株</span>
+                        <span class="phenology-score" style="color:#22c55e;">86.8</span>
                         <div class="phenology-bar-wrapper">
                             <div class="phenology-bar"><div class="phenology-bar-fill" style="width:19%;background:#ec4899;"></div></div>
                         </div>
@@ -1134,7 +1135,8 @@
                     <div class="phenology-stage-item">
                         <div class="phenology-dot" style="background:#f59e0b;"></div>
                         <span class="phenology-name">早熟系（普通早熟蜜桔）</span>
-                        <span class="phenology-count">4</span>
+                        <span class="phenology-count">4株</span>
+                        <span class="phenology-score" style="color:#f59e0b;">84.3</span>
                         <div class="phenology-bar-wrapper">
                             <div class="phenology-bar"><div class="phenology-bar-fill" style="width:15%;background:#f59e0b;"></div></div>
                         </div>
@@ -1142,7 +1144,8 @@
                     <div class="phenology-stage-item">
                         <div class="phenology-dot" style="background:#22c55e;"></div>
                         <span class="phenology-name">桂月红（特早熟芽变）</span>
-                        <span class="phenology-count">3</span>
+                        <span class="phenology-count">3株</span>
+                        <span class="phenology-score" style="color:#16a34a;">90.1</span>
                         <div class="phenology-bar-wrapper">
                             <div class="phenology-bar"><div class="phenology-bar-fill" style="width:12%;background:#22c55e;"></div></div>
                         </div>
@@ -1150,7 +1153,8 @@
                     <div class="phenology-stage-item">
                         <div class="phenology-dot" style="background:#10b981;"></div>
                         <span class="phenology-name">蜜广1号（晚熟蜜广）</span>
-                        <span class="phenology-count">3</span>
+                        <span class="phenology-count">3株</span>
+                        <span class="phenology-score" style="color:#22c55e;">87.5</span>
                         <div class="phenology-bar-wrapper">
                             <div class="phenology-bar"><div class="phenology-bar-fill" style="width:12%;background:#10b981;"></div></div>
                         </div>
@@ -1165,6 +1169,56 @@
 
 <script>
     document.getElementById('currentDate').textContent = new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' });
+
+    // ===== 生长模型统一数据源 =====
+    var growthDataSource = {
+        // 监测点：每个乡镇一个，共 11 个，合计 26 株
+        monitoringPoints: 11,
+        // 6 个监测点（植株综合评价表格里可见的样本）
+        samplePoints: [
+            { key: 'service',       type: '服务',    color: '#3b82f6' },
+            { key: 'enterprise',    type: '企业',    color: '#ef4444' },
+            { key: 'cooperative',   type: '合作社',  color: '#f59e0b' },
+            { key: 'demonstration', type: '示范户',  color: '#22c55e' },
+            { key: 'largegrower',   type: '种植大户', color: '#8b5cf6' },
+            { key: 'iot',           type: '物联网',  color: '#06b6d4' }
+        ],
+        // 品系（与监测植株品系分布卡片一致）
+        varieties: [
+            { key: 'small',   name: '小果系',  detail: '杨小2-6、金钱蜜桔',     count: 6, color: '#3b82f6', avgScore: 88.2 },
+            { key: 'large',   name: '大果系',  detail: '',                       count: 5, color: '#8b5cf6', avgScore: 85.6 },
+            { key: 'osman',   name: '桂花蒂系', detail: '柿蒂蜜桔',             count: 5, color: '#ec4899', avgScore: 86.8 },
+            { key: 'early',   name: '早熟系',   detail: '普通早熟蜜桔',         count: 4, color: '#f59e0b', avgScore: 84.3 },
+            { key: 'guiyue',  name: '桂月红',   detail: '特早熟芽变',           count: 3, color: '#22c55e', avgScore: 90.1 },
+            { key: 'miguang', name: '蜜广1号',  detail: '晚熟蜜广',             count: 3, color: '#10b981', avgScore: 87.5 }
+        ],
+        // KPI（8 个核心指标）
+        kpis: {
+            users: 2847,         // 用户主体
+            activity: 68.3,      // 用户活跃度 %
+            plants: 26,          // 监控植株数（与地图气泡合计一致）
+            reports: 3856,       // 报告生成数量
+            score: 86.5,         // 整体评分
+            suggestions: 1256,   // 农事建议数量
+            adoptRate: 82.3,     // 农事采纳率 %
+            learnTimes: 8652     // 农户学习次数
+        },
+        // 健康指数分布
+        healthDistribution: { excellent: 42, good: 45, normal: 13 },
+        // 环境监测（保留与生长相关的，去除与气象重复）
+        env: {
+            soilTemp: '26.8', soilHum: '68.5', soilNutri: '中等',
+            light: '856 W/m²', airTemp: '32.1', airHum: '56.2'
+        },
+        // 农事建议落地（柱状图）
+        farmingAdopt: [
+            { name: '灌溉', value: 3256 },
+            { name: '施肥', value: 2847 },
+            { name: '修剪', value: 1892 },
+            { name: '病虫害', value: 1567 },
+            { name: '其他', value: 892 }
+        ]
+    };
 
     function toggleFullscreen() {
         if (!document.fullscreenElement) {
@@ -1213,19 +1267,21 @@
 
     var healthTrendChart = echarts.init(document.getElementById('healthTrendChart'));
     healthTrendChart.setOption({
-        tooltip: { trigger: 'axis' },
-        grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
-        xAxis: { type: 'category', data: ['太和镇', '桑田镇', '白舍镇', '市山镇', '洽湾镇', '东坪乡'] },
-        yAxis: { type: 'value', max: 100, axisLabel: { formatter: '{value}分' } },
+        tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: function(p){ return p[0].name + '：' + p[0].value + ' 分'; } },
+        grid: { left: '3%', right: '8%', bottom: '3%', top: '5%', containLabel: true },
+        xAxis: { type: 'value', max: 100, axisLabel: { formatter: '{value}分' } },
+        yAxis: {
+            type: 'category',
+            data: growthDataSource.varieties.map(function(v) { return v.name; })
+        },
         series: [{
             type: 'bar',
-            data: [88, 85, 83, 89, 84, 86],
-            itemStyle: {
-                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                    { offset: 0, color: '#f59e0b' }, { offset: 1, color: '#fcd34d' }
-                ]),
-                borderRadius: [4, 4, 0, 0]
-            }
+            data: growthDataSource.varieties.map(function(v) {
+                var color = v.avgScore >= 90 ? '#22c55e' : v.avgScore >= 80 ? '#f59e0b' : '#ef4444';
+                return { value: v.avgScore, itemStyle: { color: color, borderRadius: [0, 4, 4, 0] } };
+            }),
+            label: { show: true, position: 'right', fontSize: 10, formatter: '{c}' },
+            barWidth: '55%'
         }]
     });
 
@@ -1280,34 +1336,40 @@
     var entityData = (function() {
         // 11 个监测点（每个乡镇一个），每点 2-4 株，共 26 株
         // entityData[type][pointIndex] 返回该监测点的植株信息汇总
+        // type 含义：service=小果系, enterprise=大果系, cooperative=桂花蒂系,
+        //           demonstration=早熟系, largegrower=桂月红, iot=蜜广1号
         var typeConfig = [
-            { type: 'service', age: '1年生', counts: [2, 2] },
-            { type: 'enterprise', age: '3年生', counts: [3, 2] },
-            { type: 'cooperative', age: '5年生', counts: [2, 3] },
-            { type: 'demonstration', age: '10年生', counts: [2, 2] },
-            { type: 'largegrower', age: '15年生', counts: [2, 2] },
-            { type: 'iot', age: '20年生', counts: [4] }
+            { type: 'service',       age: '小果系',     counts: [2, 2] },
+            { type: 'enterprise',    age: '大果系',     counts: [3, 2] },
+            { type: 'cooperative',   age: '桂花蒂系',   counts: [2, 3] },
+            { type: 'demonstration', age: '早熟系',     counts: [2, 2] },
+            { type: 'largegrower',   age: '桂月红',     counts: [2, 2] },
+            { type: 'iot',           age: '蜜广1号',    counts: [4] }
         ];
+        // 11 个乡镇对应的监测点（与地图气泡坐标顺序一致），用于分配固定分数
+        var townScores = [92, 78, 85, 90, 88, 76, 72, 68, 84, 80, 95];
         var persons = ['李建国','王志强','陈国强','刘建军','黄国平','吴建华','张明华','刘芳','张志远','陈伟明','李大海','周明辉','陈大山','赵晓峰','孙伟','吴大勇','李德发','赵永强','钱国华','孙建明','周大海','周建国','吴丽华','郑伟','马建国','胡志远','徐明德','杨春华','朱国强','秦伟明'];
         var data = {};
         var num = 1;
         var pIdx = 0;
+        var townIdx = 0;
         typeConfig.forEach(function(tc) {
             data[tc.type] = [];
             tc.counts.forEach(function(pointCount, pointIdx) {
-                var score = 78 + (num * 7 + 3) % 18;
+                var score = townScores[townIdx % townScores.length];
                 var grade = score >= 90 ? '优秀' : (score >= 80 ? '良好' : '一般');
                 data[tc.type].push({
                     evalId: 'PF-2026-' + ('000' + num).slice(-4),
                     evalObj: '南丰蜜桔-' + tc.age + '·监测点' + (pointIdx + 1),
                     plantCount: pointCount,
-                    score: score.toFixed(1),
+                    score: score,
                     grade: grade,
                     person: persons[pIdx % persons.length],
                     evalDate: '2026-07-' + ('0' + (5 + (num % 26))).slice(-2)
                 });
                 num++;
                 pIdx++;
+                townIdx++;
             });
         });
         return data;
@@ -1320,12 +1382,12 @@
         var data = entityData[type][index];
 
         var typeNames = {
-            service: '南丰蜜桔-1年生',
-            enterprise: '南丰蜜桔-3年生',
-            cooperative: '南丰蜜桔-5年生',
-            demonstration: '南丰蜜桔-10年生',
-            largegrower: '南丰蜜桔-15年生',
-            iot: '南丰蜜桔-20年生'
+            service:       '小果系（杨小2-6、金钱蜜桔）',
+            enterprise:    '大果系',
+            cooperative:   '桂花蒂系（柿蒂蜜桔）',
+            demonstration: '早熟系（普通早熟蜜桔）',
+            largegrower:   '桂月红（特早熟芽变）',
+            iot:           '蜜广1号（晚熟蜜广）'
         };
 
         title.textContent = typeNames[type] + ' - ' + data.evalObj;
@@ -1368,12 +1430,12 @@
     var scrollingEntities = (function() {
         // 按监测点展示，11 个监测点合计 26 株
         var typeConfig = [
-            { type: 'service', age: '1年生', counts: [2, 2] },
-            { type: 'enterprise', age: '3年生', counts: [3, 2] },
-            { type: 'cooperative', age: '5年生', counts: [2, 3] },
-            { type: 'demonstration', age: '10年生', counts: [2, 2] },
-            { type: 'largegrower', age: '15年生', counts: [2, 2] },
-            { type: 'iot', age: '20年生', counts: [4] }
+            { type: 'service',       age: '小果系',   counts: [2, 2] },
+            { type: 'enterprise',    age: '大果系',   counts: [3, 2] },
+            { type: 'cooperative',   age: '桂花蒂系', counts: [2, 3] },
+            { type: 'demonstration', age: '早熟系',   counts: [2, 2] },
+            { type: 'largegrower',   age: '桂月红',   counts: [2, 2] },
+            { type: 'iot',           age: '蜜广1号',  counts: [4] }
         ];
         var persons = ['张明华','陈大山','周建国','刘芳','黄小明','赵晓峰','吴丽华','林秀英','孙伟','郑伟','李志强','王大海','刘海龙','陈小燕','杨伟','张建国','刘艳','李明','王强','陈秀英','张磊','刘强','周芳','王小军'];
         var entities = [];
@@ -1462,13 +1524,13 @@
             var duration = 1500;
             var start = 0;
             var startTime = null;
-            
+
             function update(currentTime) {
                 if (!startTime) startTime = currentTime;
                 var progress = Math.min((currentTime - startTime) / duration, 1);
                 var easeOut = 1 - Math.pow(1 - progress, 3);
                 var current = start + (target - start) * easeOut;
-                
+
                 if (target >= 1000) {
                     el.textContent = current.toLocaleString('zh-CN', { maximumFractionDigits: 1 });
                 } else if (target % 1 !== 0) {
@@ -1476,15 +1538,37 @@
                 } else {
                     el.textContent = Math.round(current).toLocaleString('zh-CN');
                 }
-                
+
                 if (progress < 1) {
                     requestAnimationFrame(update);
                 }
             }
-            
+
             requestAnimationFrame(update);
         });
     }
+
+    // 把顶部 8 个 KPI 与统一数据源同步
+    (function syncKpiFromSource() {
+        var kpiMap = {
+            '用户主体':      growthDataSource.kpis.users,
+            '用户活跃度':    growthDataSource.kpis.activity,
+            '监控植株数量':  growthDataSource.kpis.plants,
+            '报告生成数量':  growthDataSource.kpis.reports,
+            '整体评分':      growthDataSource.kpis.score,
+            '农事建议数量':  growthDataSource.kpis.suggestions,
+            '农事采纳率':    growthDataSource.kpis.adoptRate,
+            '农户学习次数':  growthDataSource.kpis.learnTimes
+        };
+        document.querySelectorAll('.kpi-card').forEach(function(card) {
+            var h4 = card.querySelector('h4');
+            if (!h4) return;
+            var key = h4.textContent.trim();
+            if (kpiMap.hasOwnProperty(key)) {
+                card.querySelector('.kpi-number').setAttribute('data-value', kpiMap[key]);
+            }
+        });
+    })();
 
     setTimeout(animateNumbers, 500);
 

@@ -1,435 +1,185 @@
-﻿﻿<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>蜜桔农业助手 - 资讯详情</title>
   <link rel="stylesheet" href="css/mobile-design-system.css">
-  <style>
-    .page-header {
-      position: relative;
-      background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
-      padding: 44px 16px 20px;
-      color: var(--bg-white);
-    }
-    
-    .header-back {
-      position: absolute;
-      left: 12px;
-      top: 44px;
-      width: 36px;
-      height: 36px;
-      background: rgba(255,255,255,0.2);
-      border-radius: var(--radius-md);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-    }
-    
-    .header-back svg { width: 18px; height: 18px; }
-    
-    .header-content { padding-left: 44px; }
-    .header-title { font-size: var(--font-xl); font-weight: 700; }
-    .header-sub { font-size: var(--font-sm); opacity: 0.85; margin-top: 4px; }
-
-    .header-actions {
-      position: absolute;
-      right: 12px;
-      top: 44px;
-      display: flex;
-      gap: var(--space-2);
-    }
-    
-    .header-action-btn {
-      width: 36px;
-      height: 36px;
-      background: rgba(255,255,255,0.2);
-      border-radius: var(--radius-md);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-    }
-    
-    .header-action-btn svg { width: 18px; height: 18px; }
-
-    .detail-container {
-      background: var(--bg-white);
-      border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-      margin-top: -16px;
-      padding: var(--space-5);
-      min-height: calc(100vh - 100px);
-    }
-    
-    .detail-title {
-      font-size: var(--font-xl);
-      font-weight: 700;
-      color: var(--text);
-      line-height: 1.4;
-      margin-bottom: var(--space-4);
-    }
-    
-    .detail-meta {
-      display: flex;
-      align-items: center;
-      gap: var(--space-4);
-      font-size: var(--font-sm);
-      color: var(--text-light);
-      margin-bottom: var(--space-5);
-      padding-bottom: var(--space-4);
-      border-bottom: 1px solid var(--border);
-    }
-    
-    .detail-meta span { display: flex; align-items: center; gap: var(--space-1); }
-    .detail-meta svg { width: 16px; height: 16px; }
-    
-    .detail-image {
-      width: 100%;
-      border-radius: var(--radius-lg);
-      margin-bottom: var(--space-5);
-      aspect-ratio: 16/9;
-      object-fit: cover;
-    }
-    
-    .detail-content {
-      font-size: var(--font-base);
-      color: var(--text-secondary);
-      line-height: 1.8;
-    }
-    
-    .detail-content h3 {
-      font-size: var(--font-lg);
-      font-weight: 600;
-      color: var(--text);
-      margin: var(--space-5) 0 var(--space-3);
-    }
-    
-    .detail-content p { margin-bottom: var(--space-4); }
-    
-    .detail-content ul {
-      padding-left: var(--space-4);
-      margin-bottom: var(--space-4);
-    }
-    
-    .detail-content li {
-      margin-bottom: var(--space-2);
-      list-style-type: disc;
-    }
-    
-    .share-sheet {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      z-index: 1000;
-      transform: translateY(100%);
-      transition: transform var(--transition-fast);
-    }
-    
-    .share-sheet.show { transform: translateY(0); }
-    
-    .share-mask {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.5);
-      z-index: 999;
-      display: none;
-    }
-    
-    .share-mask.show { display: block; }
-    
-    .share-content {
-      background: var(--bg-white);
-      border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-      padding: var(--space-4);
-      padding-bottom: calc(var(--space-4) + env(safe-area-inset-bottom));
-    }
-    
-    .share-title {
-      text-align: center;
-      font-size: var(--font-sm);
-      color: var(--text-secondary);
-      margin-bottom: var(--space-4);
-    }
-    
-    .share-options {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: var(--space-4);
-      margin-bottom: var(--space-4);
-    }
-    
-    .share-option {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: var(--space-2);
-      cursor: pointer;
-    }
-    
-    .share-icon {
-      width: 48px;
-      height: 48px;
-      border-radius: var(--radius-full);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    
-    .share-icon.wechat { background: #07C160; }
-    .share-icon.moments { background: #67C23A; }
-    .share-icon.qq { background: #12B7F5; }
-    .share-icon.link { background: var(--primary); }
-    
-    .share-icon svg { width: 24px; height: 24px; color: var(--bg-white); }
-    .share-option span { font-size: var(--font-xs); color: var(--text-secondary); }
-    
-    .share-cancel {
-      width: 100%;
-      height: 48px;
-      border-radius: var(--radius-md);
-      background: var(--bg);
-      border: none;
-      font-size: var(--font-base);
-      color: var(--text);
-      cursor: pointer;
-    }
-
-    .skeleton-state { display: none; }
-    .mb-app.loading .real-content { display: none; }
-    .mb-app.loading .skeleton-state { display: block; }
-  </style>
+  <link rel="stylesheet" href="css/detail-page.css">
 </head>
 <body>
-  <div class="mb-app loading">
-    <!-- ===================== 骨架屏 ===================== -->
-    <div class="skeleton-state">
-      <div class="page-header">
-        <div class="header-nav">
-          <div style="width:36px;height:36px;"></div>
-          <div class="header-title"></div>
-        </div>
-      </div>
-      <div class="detail-container">
-        <div class="mb-skeleton" style="width:100%;height:24px;margin-bottom:16px;"></div>
-        <div class="mb-skeleton" style="width:60%;height:12px;margin-bottom:20px;"></div>
-        <div class="mb-skeleton" style="width:100%;height:200px;border-radius:12px;margin-bottom:20px;"></div>
-        <div class="mb-skeleton-line long"></div>
-        <div class="mb-skeleton-line long"></div>
-        <div class="mb-skeleton-line medium"></div>
-        <div class="mb-skeleton-line long"></div>
-        <div class="mb-skeleton-line long"></div>
-      </div>
-    </div>
-
-    <!-- ===================== 真实内容 ===================== -->
-    <div class="real-content">
-      <!-- Header -->
-      <div class="page-header">
-        <div class="header-back" onclick="goBack()">
+  <div class="mb-app">
+    <!-- 顶部 Banner -->
+    <div class="detail-banner">
+      <div class="detail-banner-inner">
+        <div class="detail-banner-back" onclick="goBack()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M15 18l-6-6 6-6"/>
           </svg>
         </div>
-        <div class="header-content">
-          <div class="header-title">资讯详情</div>
-          <div class="header-sub">南丰蜜桔种植技术指南</div>
-        </div>
-        <div class="header-actions">
-          <div class="header-action-btn" onclick="toggleFavorite()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        <div class="detail-banner-content">
+          <div class="detail-banner-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
           </div>
-          <div class="header-action-btn" onclick="shareNews()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          <div class="detail-banner-info">
+            <div class="detail-banner-title" id="newsTitle">南丰蜜桔夏季病虫害防治技术要点</div>
+            <div class="detail-banner-subtitle" id="newsMeta">2026-07-22 · 3258人已读</div>
+            <div class="detail-banner-tags" id="newsTags"></div>
           </div>
         </div>
-      </div>
-
-      <!-- 详情内容 -->
-      <div class="detail-container">
-        <div class="detail-title">南丰蜜桔夏季病虫害综合防治技术要点</div>
-        
-        <div class="detail-meta">
-          <span>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-            2026-07-22
-          </span>
-          <span>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-            南丰农技站
-          </span>
-          <span>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="16" x2="12" y2="18"/></svg>
-            3258阅读
-          </span>
-        </div>
-        
-        <div class="detail-image" style="background: linear-gradient(135deg, #e8f5e9, #c8e6c9); height: 180px; border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; margin-bottom: 16px;">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#66bb6a" stroke-width="1.5" style="width: 40px; height: 40px; opacity: 0.4;"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-        </div>
-        
-        <div class="detail-content">
-          <p>夏季高温高湿天气是病虫害发生的高峰期，南丰蜜桔果园需加强监测和防治工作，确保果实正常生长发育。本文详细介绍了夏季常见病虫害的识别特征和综合防治方法。</p>
-          
-          <h3>一、主要病害及防治</h3>
-          
-          <p><strong>1. 黄龙病</strong></p>
-          <p>黄龙病是由韧皮部杆菌引起的毁灭性病害，通过柑桔木虱传播。病树表现为叶片黄化、果实畸形、小果多，严重时整株死亡。</p>
-          <ul>
-            <li>症状：叶片黄化呈斑驳状，黄绿相间；果实变小、畸形，着色不均；病树生长衰弱，枝条干枯；根部腐烂。</li>
-            <li>防治：严格检疫，杜绝病苗进入；种植无病苗木；彻底防治柑桔木虱；发现病树立即挖除烧毁；加强果园管理，增强树势。</li>
-          </ul>
-          
-          <p><strong>2. 黑点病</strong></p>
-          <p>黑点病主要危害果实，在果实表面形成黑色小斑点，影响果实外观和商品价值。高温高湿环境易发病。</p>
-          <ul>
-            <li>症状：果实表面出现针尖大小的黑色小斑点，斑点周围有黄色晕圈，严重时斑点连成一片。</li>
-            <li>防治：冬季清园，减少病源；加强通风透光；药剂防治：谢花后喷代森锰锌等。</li>
-          </ul>
-          
-          <h3>二、主要虫害及防治</h3>
-          
-          <p><strong>1. 红蜘蛛</strong></p>
-          <p>红蜘蛛是蜜桔最常见的害虫之一，以刺吸式口器吸食叶片和果实汁液，导致叶片失绿、果实表面出现斑点。</p>
-          <ul>
-            <li>症状：叶片出现灰白色小点，逐渐失绿；严重时叶片苍白脱落；果实表面出现褐色斑点；叶片背面有白色丝网。</li>
-            <li>防治：冬季清园，刮除老皮；保护天敌（瓢虫、捕食螨等）；药剂防治：螺螨酯、乙螨唑等；注意药剂轮换，避免抗药性。</li>
-          </ul>
-          
-          <p><strong>2. 柑桔木虱</strong></p>
-          <p>柑桔木虱是黄龙病的主要传播媒介，同时也是重要害虫，以成虫和若虫吸食嫩梢汁液。</p>
-          <ul>
-            <li>症状：嫩梢叶片卷曲、畸形；若虫分泌白色蜜露，诱发煤烟病；严重时嫩梢枯萎。</li>
-            <li>防治：彻底清除果园周围的芸香科植物；梢期重点防治；药剂防治：噻虫嗪、吡虫啉等；保持树冠通风透光。</li>
-          </ul>
-          
-          <h3>三、综合防治措施</h3>
-          
-          <p>1. 加强果园管理：及时清除杂草和落叶，保持果园清洁；合理修剪，改善通风透光条件；科学施肥，增强树势。</p>
-          <p>2. 物理防治：悬挂黄色粘虫板诱杀蚜虫、粉虱等；利用黑光灯诱杀夜间活动的害虫。</p>
-          <p>3. 生物防治：保护和利用天敌，如瓢虫、捕食螨、寄生蜂等，实现害虫的自然控制。</p>
-          <p>4. 化学防治：合理使用农药，严格按照农药使用说明进行操作；注意药剂轮换，避免抗药性；严格遵守安全间隔期，确保果实农药残留不超标。</p>
-          
-          <p>夏季是蜜桔病虫害防治的关键时期，果农应根据实际情况，采取综合防治措施，确保果园健康发展，为丰收打下良好基础。</p>
-        </div>
-      </div>
-    </div><!-- /real-content -->
-
-    <!-- 底部导航 -->
-    <div class="mb-tab-bar">
-      <div class="mb-tab-item" onclick="navigateTo('mb_home.html')">
-        <svg class="mb-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-        <span>首页</span>
-      </div>
-      <div class="mb-tab-item" onclick="navigateTo('mb_data.html')">
-        <svg class="mb-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-        <span>监测</span>
-      </div>
-      <div class="mb-tab-item" onclick="navigateTo('mb_disease_knowledge.html')">
-        <svg class="mb-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><circle cx="12" cy="10" r="3"/></svg>
-        <span>病虫害</span>
-      </div>
-      <div class="mb-tab-item" onclick="navigateTo('mb_profile.html')">
-        <svg class="mb-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        <span>我的</span>
       </div>
     </div>
 
-    <!-- 分享遮罩 -->
-    <div class="share-mask" id="shareMask" onclick="closeShare()"></div>
-    
-    <!-- 分享面板 -->
-    <div class="share-sheet" id="shareSheet">
-      <div class="share-content">
-        <div class="share-title">分享到</div>
-        <div class="share-options">
-          <div class="share-option" onclick="shareTo('wechat')">
-            <div class="share-icon wechat">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
-            </div>
-            <span>微信好友</span>
-          </div>
-          <div class="share-option" onclick="shareTo('moments')">
-            <div class="share-icon moments">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
-            </div>
-            <span>朋友圈</span>
-          </div>
-          <div class="share-option" onclick="shareTo('qq')">
-            <div class="share-icon qq">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            </div>
-            <span>QQ好友</span>
-          </div>
-          <div class="share-option" onclick="shareTo('link')">
-            <div class="share-icon link">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 1 5-5m0 0a5 5 0 0 1 5 5m-5 5a5 5 0 0 1-5-5m0 0a5 5 0 0 1-5 5"/></svg>
-            </div>
-            <span>复制链接</span>
-          </div>
-        </div>
-        <button class="share-cancel" onclick="closeShare()">取消</button>
-      </div>
+    <!-- 文章正文 -->
+    <div class="article-content" id="articleContent"></div>
+
+    <!-- 相关推荐 -->
+    <div class="mb-section-title" style="margin: 12px 16px 8px;">
+      <span style="width:3px;height:12px;background:var(--primary);border-radius:2px;display:inline-block;margin-right:6px;"></span>
+      相关推荐
     </div>
+    <div class="recommend-row" id="recommendRow"></div>
 
-    <script>
-      function goBack() {
-        window.history.back();
+    <div style="height: 80px;"></div>
+
+    <!-- 底部操作栏 -->
+    <div class="detail-bottom-bar">
+      <button class="detail-bottom-btn" onclick="toggleFavorite()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        <span id="favoriteText">收藏</span>
+      </button>
+      <button class="detail-bottom-btn" onclick="consultExpert()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.37 1.9.72 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.35 1.85.59 2.81.72A2 2 0 0 1 22 16.92z"/></svg>
+        咨询专家
+      </button>
+      <button class="detail-bottom-btn primary" onclick="shareArticle()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        分享
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // 资讯详情数据
+    var NEWS_DATA = {
+      'summer-pest': {
+        title: '南丰蜜桔夏季病虫害防治技术要点',
+        date: '2026-07-22',
+        reads: 3258,
+        author: '县农业农村局 · 王志远',
+        tags: ['重要', '技术', '病虫害'],
+        content: [
+          { type: 'h2', text: '一、夏季主要病虫害发生趋势' },
+          { type: 'p', text: '南丰蜜桔进入7-9月高温季节后，红蜘蛛、锈壁虱等螨类害虫进入高发期，蚧壳虫若虫孵化盛期也在此阶段。炭疽病、黑点病等真菌性病害在多雨季节容易爆发流行，需重点防控。' },
+          { type: 'h2', text: '二、关键防治技术' },
+          { type: 'h3', text: '（一）螨类害虫防治' },
+          { type: 'p', text: '红蜘蛛、锈壁虱等螨类在高温干旱条件下繁殖迅速，5-7天即可完成一代。监测建议：' },
+          { type: 'li', text: '每3-5天巡查一次果园，重点观察叶背和果实表面' },
+          { type: 'li', text: '使用黄色粘虫板监测成虫数量，每板超过10头立即防治' },
+          { type: 'li', text: '干旱季节果园喷雾增湿，可有效抑制螨类繁殖' },
+          { type: 'p', text: '推荐用药：阿维菌素 1.8% EC 5000-6000 倍液喷雾，重点喷叶片正反面。' },
+          { type: 'h3', text: '（二）蚧壳虫综合防控' },
+          { type: 'p', text: '若虫孵化盛期是防治关键期，需连续防治2次。' },
+          { type: 'h2', text: '三、注意事项' },
+          { type: 'quote', text: '化学防治时注意药剂轮换，避免产生抗药性。生物防治与化学防治相结合效果更佳。' },
+          { type: 'p', text: '夏季高温时段（11:00-15:00）避免喷药，建议在清晨或傍晚进行，确保作业人员安全的同时提高药效。' }
+        ],
+        recommend: [
+          { title: '高温天气下南丰蜜桔灌溉管理技巧', date: '2026-07-21', reads: 2186 },
+          { title: '柑桔木虱识别与黄龙病防控要点', date: '2026-07-19', reads: 1854 },
+          { title: '7月果园管理月历：肥水、病虫、修剪', date: '2026-07-15', reads: 3120 }
+        ]
+      },
+      'irrigation': {
+        title: '高温天气下南丰蜜桔灌溉管理技巧',
+        date: '2026-07-21',
+        reads: 2186,
+        author: '省农科院 · 李秀梅',
+        tags: ['技术', '灌溉'],
+        content: [
+          { type: 'h2', text: '一、高温对蜜桔的影响' },
+          { type: 'p', text: '持续高温（>35°C）会导致蜜桔光合作用下降、蒸腾加剧，叶片萎蔫、果实日灼，严重影响产量和品质。土壤水分不足时尤为严重。' },
+          { type: 'h2', text: '二、灌溉关键技术' },
+          { type: 'h3', text: '（一）灌溉时间' },
+          { type: 'p', text: '避开中午高温时段（11:00-15:00），建议在清晨6:00-9:00或傍晚17:00-19:00进行灌溉，此时水温与地温差异小，根系吸水效率高。' },
+          { type: 'h3', text: '（二）灌溉方式' },
+          { type: 'p', text: '推荐采用滴灌或微喷，节水高效，可精准控制水量。漫灌易造成土壤板结和根系呼吸不畅。' },
+          { type: 'h3', text: '（三）灌溉量' },
+          { type: 'p', text: '根据土壤湿度传感器数据判断，每次灌溉使土壤湿度保持在60-70%。' },
+          { type: 'h2', text: '三、配套措施' },
+          { type: 'p', text: '覆盖地膜或秸秆保墒；搭建遮阳网预防日灼；结合叶面喷水降温。' }
+        ],
+        recommend: [
+          { title: '南丰蜜桔夏季病虫害防治技术要点', date: '2026-07-22', reads: 3258 },
+          { title: '蜜桔科学施肥：氮磷钾配比与施用方法', date: '2026-07-18', reads: 1452 },
+          { title: '果园排水不良的识别与改进措施', date: '2026-07-12', reads: 968 }
+        ]
       }
+    };
 
-      function navigateTo(page) {
-        window.location.href = page;
-      }
+    function getQueryParam(name) {
+      var match = location.search.match(new RegExp('[?&]' + name + '=([^&]*)'));
+      return match ? decodeURIComponent(match[1]) : null;
+    }
 
-      function toggleFavorite() {
-        var svg = document.querySelector('.header-actions svg[fill="none"]');
-        var isFavorited = svg.getAttribute('fill') === 'currentColor';
-        
-        if (isFavorited) {
-          svg.setAttribute('fill', 'none');
-          alert('已取消收藏');
-        } else {
-          svg.setAttribute('fill', 'currentColor');
-          alert('已添加到收藏');
+    var newsKey = getQueryParam('id') || 'summer-pest';
+    var news = NEWS_DATA[newsKey] || NEWS_DATA['summer-pest'];
+
+    // 渲染头部
+    function renderHeader() {
+      document.getElementById('newsTitle').textContent = news.title;
+      document.getElementById('newsMeta').textContent = news.date + ' · ' + news.reads + '人已读 · ' + news.author;
+      var tagsHtml = '';
+      news.tags.forEach(function(t) {
+        var cls = '';
+        if (t === '重要') cls = 'danger';
+        else if (t === '技术' || t === '培训') cls = 'success';
+        else if (t === '病虫害') cls = 'warning';
+        tagsHtml += '<span class="detail-banner-tag ' + cls + '">' + t + '</span>';
+      });
+      document.getElementById('newsTags').innerHTML = tagsHtml;
+    }
+
+    // 渲染正文
+    function renderContent() {
+      var html = '';
+      news.content.forEach(function(b) {
+        switch (b.type) {
+          case 'h2': html += '<h2>' + b.text + '</h2>'; break;
+          case 'h3': html += '<h3>' + b.text + '</h3>'; break;
+          case 'p': html += '<p>' + b.text + '</p>'; break;
+          case 'li': html += '<li>' + b.text + '</li>'; break;
+          case 'quote': html += '<blockquote>' + b.text + '</blockquote>'; break;
         }
-      }
+      });
+      document.getElementById('articleContent').innerHTML = html;
+    }
 
-      function shareNews() {
-        document.getElementById('shareSheet').classList.add('show');
-        document.getElementById('shareMask').classList.add('show');
-      }
+    // 渲染相关推荐
+    function renderRecommend() {
+      var html = '';
+      (news.recommend || []).forEach(function(r) {
+        html += '<div class="recommend-card" onclick="location.href=\'mb_news_detail.html?id=' + (r.title.includes('夏季') ? 'summer-pest' : 'irrigation') + '\'">' +
+          '<div class="recommend-title">' + r.title + '</div>' +
+          '<div class="recommend-meta">' + r.date + ' · ' + r.reads + '人已读</div>' +
+        '</div>';
+      });
+      document.getElementById('recommendRow').innerHTML = html;
+    }
 
-      function closeShare() {
-        document.getElementById('shareSheet').classList.remove('show');
-        document.getElementById('shareMask').classList.remove('show');
-      }
+    var favorited = false;
+    function toggleFavorite() {
+      favorited = !favorited;
+      document.getElementById('favoriteText').textContent = favorited ? '已收藏' : '收藏';
+      if (favorited) alert('已收藏到我的收藏');
+    }
+    function consultExpert() { alert('正在为您接通农技专家...'); }
+    function shareArticle() { alert('分享链接已复制'); }
+    function goBack() { history.back(); }
 
-      function shareTo(type) {
-        closeShare();
-        if (type === 'link') {
-          var dummy = document.createElement('input');
-          document.body.appendChild(dummy);
-          dummy.value = window.location.href;
-          dummy.select();
-          document.execCommand('copy');
-          document.body.removeChild(dummy);
-          alert('链接已复制到剪贴板');
-        } else {
-          var names = { 'wechat': '微信好友', 'moments': '微信朋友圈', 'qq': 'QQ好友' };
-          alert('分享到' + names[type]);
-        }
-      }
-
-      (function() {
-        var app = document.querySelector('.mb-app');
-        setTimeout(function() {
-          app.classList.remove('loading');
-        }, 600);
-      })();
-    </script>
-  </body>
+    renderHeader();
+    renderContent();
+    renderRecommend();
+  </script>
+</body>
 </html>

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
@@ -44,15 +44,7 @@
 
     <!-- 底部操作栏 -->
     <div class="detail-bottom-bar">
-      <button class="detail-bottom-btn" onclick="toggleFavorite()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-        <span id="favoriteText">收藏</span>
-      </button>
-      <button class="detail-bottom-btn" onclick="consultExpert()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.37 1.9.72 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.35 1.85.59 2.81.72A2 2 0 0 1 22 16.92z"/></svg>
-        咨询专家
-      </button>
-      <button class="detail-bottom-btn primary" onclick="shareArticle()">
+      <button class="detail-bottom-btn primary" style="flex:1;" onclick="shareArticle()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
         分享
       </button>
@@ -167,13 +159,6 @@
       document.getElementById('recommendRow').innerHTML = html;
     }
 
-    var favorited = false;
-    function toggleFavorite() {
-      favorited = !favorited;
-      document.getElementById('favoriteText').textContent = favorited ? '已收藏' : '收藏';
-      if (favorited) alert('已收藏到我的收藏');
-    }
-    function consultExpert() { alert('正在为您接通农技专家...'); }
     function shareArticle() { alert('分享链接已复制'); }
     function goBack() { history.back(); }
 

@@ -35,6 +35,8 @@ body { margin: 0; padding: 0; background-color: #F0F2F5; font-family: -apple-sys
     </button>
   </div>
 
+  <div id="incoming-banner" style="display:none" class="mb-4"></div>
+
   <!-- 3. 筛选栏 -->
   <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6 flex flex-wrap items-center gap-3">
     <div class="flex items-center gap-2">
@@ -276,7 +278,57 @@ document.addEventListener('click',function(e){
     if(m.style.display==='flex'&&e.target===m) hideModal(id);
   });
 });
-window.onload=function(){ renderAll(); };
+window.onload=function(){ initFromIncoming(); renderAll(); };
+
+function initFromIncoming(){
+  try {
+    var params = new URLSearchParams(window.location.search);
+    var pest = params.get('pest');
+    if(pest){
+      var sel = document.getElementById('fPest');
+      for(var i=0;i<sel.options.length;i++){
+        if(sel.options[i].value === pest || sel.options[i].text === pest){
+          sel.selectedIndex = i; break;
+        }
+      }
+      doFilter();
+    }
+    var stored = JSON.parse(localStorage.getItem('pestReport.forScheme') || 'null');
+    if(stored){
+      var banner = document.getElementById('incoming-banner');
+      var sg = (stored.suggestions || []).map(function(s){ return s[0] + ' · ' + s[1]; }).slice(0,3).join('；');
+      banner.innerHTML = '<div class="bg-indigo-50 border-l-4 border-indigo-400 text-indigo-800 px-4 py-2 rounded text-sm flex items-center justify-between">' +
+        '<div><span class="font-semibold">📄 从预测报告带入：</span>' + (stored.pest || '?') + '·' + (stored.period || '?') + '天预测 · 建议：' + (sg || '无') + '</div>' +
+        '<div class="flex gap-3">' +
+        '<button onclick="importReportSuggestions()" class="text-indigo-600 hover:underline text-xs">导入建议为新方案</button>' +
+        '<a href="pest_report.html" class="text-indigo-600 hover:underline text-xs">← 返回报告</a>' +
+        '</div></div>';
+      banner.style.display = 'block';
+    }
+  } catch(e){}
+}
+
+function importReportSuggestions(){
+  var stored = JSON.parse(localStorage.getItem('pestReport.forScheme') || 'null');
+  if(!stored || !stored.suggestions){ alert('没有可导入的建议'); return; }
+  openAdd();
+  setTimeout(function(){
+    var pestSel = document.querySelector('#form-modal select[name="pest"]');
+    if(pestSel){
+      for(var i=0;i<pestSel.options.length;i++){
+        if(pestSel.options[i].value === stored.pest || pestSel.options[i].text === stored.pest){
+          pestSel.selectedIndex = i; break;
+        }
+      }
+    }
+    var text = stored.suggestions.map(function(s){ return '[' + s[0] + '] 区域：' + s[1] + ' 措施：' + s[2] + ' 复查：' + s[3]; }).join('\n');
+    var measureEl = document.querySelector('#form-modal textarea[name="measure"]');
+    if(measureEl) measureEl.value = text;
+    var periodEl = document.querySelector('#form-modal input[name="period"]');
+    if(periodEl && stored.period) periodEl.value = stored.period + '天';
+  }, 50);
+  alert('已带入报告建议，请在弹窗中补充完整后保存。');
+}
 </script>
 </body>
 </html>

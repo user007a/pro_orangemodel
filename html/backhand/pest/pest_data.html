@@ -33,10 +33,13 @@ body { margin: 0; padding: 0; background-color: #F0F2F5; font-family: -apple-sys
     </button>
   </div>
 
+  <div id="archive-summary" style="display:none"></div>
+
   <!-- Tab Bar -->
   <div class="bg-white rounded-xl shadow-sm border border-gray-100 mb-6">
     <div class="border-b border-gray-100 flex items-center px-6 overflow-x-auto">
       <div class="tab-item px-4 py-4 cursor-pointer text-sm mr-6 tab-active whitespace-nowrap" data-tab="wt" onclick="switchTab('wt')">气象数据 (Wt)</div>
+      <div class="tab-item px-4 py-4 cursor-pointer text-sm mr-6 tab-inactive whitespace-nowrap" data-tab="pt" onclick="switchTab('pt')">物候数据 (Pt)</div>
       <div class="tab-item px-4 py-4 cursor-pointer text-sm mr-6 tab-inactive whitespace-nowrap" data-tab="dt" onclick="switchTab('dt')">病情虫情 (Dt)</div>
       <div class="tab-item px-4 py-4 cursor-pointer text-sm mr-6 tab-inactive whitespace-nowrap" data-tab="it" onclick="switchTab('it')">虫源基数 (It)</div>
       <div class="tab-item px-4 py-4 cursor-pointer text-sm mr-6 tab-inactive whitespace-nowrap" data-tab="ht" onclick="switchTab('ht')">历史数据 (Ht)</div>
@@ -57,6 +60,27 @@ body { margin: 0; padding: 0; background-color: #F0F2F5; font-family: -apple-sys
       <div class="p-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
         <span id="wt-page-info"></span>
         <div class="flex gap-2"><button onclick="prevPage('wt')" class="px-3 py-1 border border-gray-300 rounded hover:bg-gray-50">上一页</button><button onclick="nextPage('wt')" class="px-3 py-1 border border-gray-300 rounded hover:bg-gray-50">下一页</button></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- pt Tab -->
+  <div id="tab-pt" class="tab-content" style="display:none">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-4 flex flex-wrap items-center gap-3">
+      <select id="pt-town-filter" class="px-3 py-2 border border-gray-300 rounded-lg text-sm" onchange="currentPage.pt=1;renderTable('pt')"><option value="">全部乡镇</option></select>
+      <select id="pt-stage-filter" class="px-3 py-2 border border-gray-300 rounded-lg text-sm" onchange="currentPage.pt=1;renderTable('pt')">
+        <option value="">全部物候期</option><option value="春芽萌动期">春芽萌动期</option><option value="春梢生长期">春梢生长期</option><option value="开花期">开花期</option><option value="生理落果期">生理落果期</option><option value="夏梢抽发期">夏梢抽发期</option><option value="果实膨大期">果实膨大期</option><option value="秋梢抽发期">秋梢抽发期</option><option value="果实成熟期">果实成熟期</option>
+      </select>
+      <input type="date" id="pt-date-from" value="2026-07-20" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+      <span class="text-gray-400 text-sm">至</span>
+      <input type="date" id="pt-date-to" value="2026-08-04" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+      <button onclick="currentPage.pt=1;renderTable('pt')" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">查询</button>
+    </div>
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 mb-4 overflow-hidden">
+      <div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="bg-gray-50" id="pt-thead"></tr></thead><tbody id="pt-tbody"></tbody></table></div>
+      <div class="p-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
+        <span id="pt-page-info"></span>
+        <div class="flex gap-2"><button onclick="prevPage('pt')" class="px-3 py-1 border border-gray-300 rounded hover:bg-gray-50">上一页</button><button onclick="nextPage('pt')" class="px-3 py-1 border border-gray-300 rounded hover:bg-gray-50">下一页</button></div>
       </div>
     </div>
   </div>
@@ -165,6 +189,7 @@ var townships = ['琴城镇','市山镇','洽湾镇','太和镇','桑田镇','�
 
 var colConfig = {
   wt: [{k:'town',l:'乡镇'},{k:'date',l:'日期'},{k:'temp',l:'温度(°C)'},{k:'humidity',l:'湿度(%)'},{k:'rain',l:'降雨量(mm)'},{k:'light',l:'光照(klx)'},{k:'wind',l:'风速(m/s)'}],
+  pt: [{k:'town',l:'乡镇'},{k:'date',l:'日期'},{k:'stage',l:'物候期'},{k:'shoot',l:'新梢萌发率(%)'},{k:'flower',l:'花蕾密度'},{k:'fruit',l:'坐果率(%)'},{k:'diameter',l:'果径(mm)'},{k:'note',l:'物候描述'}],
   dt: [{k:'town',l:'乡镇'},{k:'date',l:'日期'},{k:'type',l:'病虫害类型'},{k:'spot',l:'病斑率(%)'},{k:'density',l:'虫口密度(头/叶)'},{k:'egg',l:'卵量(粒/叶)'}],
   it: [{k:'town',l:'乡镇'},{k:'date',l:'日期'},{k:'stype',l:'虫源类型'},{k:'winter',l:'越冬虫源(头/m²)'},{k:'cfu',l:'病原菌量(CFU/g)'},{k:'remark',l:'备注'}],
   ht: [{k:'town',l:'乡镇'},{k:'year',l:'年份'},{k:'level',l:'同期发生水平'},{k:'trend',l:'历史趋势'},{k:'cycle',l:'流行周期'}]
@@ -172,6 +197,7 @@ var colConfig = {
 
 var fieldConfig = {
   wt: [{k:'town',l:'乡镇',t:'select',opts:townships},{k:'date',l:'日期',t:'date'},{k:'temp',l:'温度(°C)',t:'number'},{k:'humidity',l:'湿度(%)',t:'number'},{k:'rain',l:'降雨量(mm)',t:'number'},{k:'light',l:'光照(klx)',t:'number'},{k:'wind',l:'风速(m/s)',t:'number',step:'0.1'}],
+  pt: [{k:'town',l:'乡镇',t:'select',opts:townships},{k:'date',l:'日期',t:'date'},{k:'stage',l:'物候期',t:'select',opts:['春芽萌动期','春梢生长期','开花期','生理落果期','夏梢抽发期','果实膨大期','秋梢抽发期','果实成熟期']},{k:'shoot',l:'新梢萌发率(%)',t:'number'},{k:'flower',l:'花蕾密度(朵/枝)',t:'number'},{k:'fruit',l:'坐果率(%)',t:'number'},{k:'diameter',l:'果径(mm)',t:'number'},{k:'note',l:'物候描述',t:'text'}],
   dt: [{k:'town',l:'乡镇',t:'select',opts:townships},{k:'date',l:'日期',t:'date'},{k:'type',l:'病虫害类型',t:'select',opts:['红蜘蛛','黄龙病','炭疽病','潜叶蛾','溃疡病','疮痂病']},{k:'spot',l:'病斑率(%)',t:'number'},{k:'density',l:'虫口密度(头/叶)',t:'number'},{k:'egg',l:'卵量(粒/叶)',t:'number'}],
   it: [{k:'town',l:'乡镇',t:'select',opts:townships},{k:'date',l:'日期',t:'date'},{k:'stype',l:'虫源类型',t:'select',opts:['红蜘蛛越冬','木虱越冬','潜叶蛾越冬','炭疽病菌源','溃疡病菌源']},{k:'winter',l:'越冬虫源(头/m²)',t:'number'},{k:'cfu',l:'病原菌量(CFU/g)',t:'number'},{k:'remark',l:'备注',t:'text'}],
   ht: [{k:'town',l:'乡镇',t:'select',opts:townships},{k:'year',l:'年份',t:'number'},{k:'level',l:'同期发生水平',t:'select',opts:['轻度','中度','偏重','重度']},{k:'trend',l:'历史趋势',t:'text'},{k:'cycle',l:'流行周期',t:'text'}]
@@ -188,6 +214,17 @@ var allData = {
     {town:'紫霄镇',date:'2026-08-01',temp:32,humidity:79,rain:6,light:44,wind:2.0},
     {town:'三溪乡',date:'2026-07-30',temp:29,humidity:84,rain:18,light:35,wind:1.6},
     {town:'傅坊乡',date:'2026-07-28',temp:35,humidity:68,rain:0,light:50,wind:3.5}
+  ],
+  pt: [
+    {town:'琴城镇',date:'2026-08-04',stage:'果实膨大期',shoot:0,flower:0,fruit:82,diameter:48,note:'果实膨大正常，无明显裂果'},
+    {town:'市山镇',date:'2026-08-04',stage:'果实膨大期',shoot:0,flower:0,fruit:78,diameter:45,note:'膨大略偏慢，关注水分管理'},
+    {town:'洽湾镇',date:'2026-08-03',stage:'果实膨大期',shoot:0,flower:0,fruit:85,diameter:50,note:'膨大良好'},
+    {town:'太和镇',date:'2026-08-03',stage:'果实膨大期',shoot:0,flower:0,fruit:75,diameter:43,note:'膨大偏慢，需追肥'},
+    {town:'桑田镇',date:'2026-08-02',stage:'秋梢抽发期',shoot:35,flower:0,fruit:0,diameter:0,note:'秋梢集中抽发，建议抹芽控梢'},
+    {town:'白舍镇',date:'2026-08-02',stage:'果实膨大期',shoot:0,flower:0,fruit:80,diameter:46,note:'膨大正常'},
+    {town:'紫霄镇',date:'2026-08-01',stage:'秋梢抽发期',shoot:28,flower:0,fruit:0,diameter:0,note:'秋梢萌发中等'},
+    {town:'三溪乡',date:'2026-07-30',stage:'果实膨大期',shoot:0,flower:0,fruit:88,diameter:52,note:'长势最优'},
+    {town:'傅坊乡',date:'2026-07-28',stage:'果实膨大期',shoot:0,flower:0,fruit:83,diameter:47,note:'膨大正常'}
   ],
   dt: [
     {town:'琴城镇',date:'2026-08-04',type:'红蜘蛛',spot:12,density:8,egg:5},
@@ -225,7 +262,7 @@ var allData = {
 };
 
 var currentTab = 'wt';
-var currentPage = {wt:1,dt:1,it:1,ht:1};
+var currentPage = {wt:1,pt:1,dt:1,it:1,ht:1};
 var pageSize = 5;
 var editIdx = null;
 var formTab = null;
@@ -233,15 +270,33 @@ var delTarget = null;
 
 window.onload = function() {
   populateTownFilters();
-  ['wt','dt','it','ht'].forEach(function(t){
+  showArchiveSummary();
+  ['wt','pt','dt','it','ht'].forEach(function(t){
     renderThead(t);
     renderTable(t);
   });
+  persistPestDataRecords();
 };
+
+function showArchiveSummary(){
+  try {
+    var plots = JSON.parse(localStorage.getItem('baseArchive.plots') || 'null');
+    var banner = document.getElementById('archive-summary');
+    if(!banner) return;
+    if(plots && plots.length > 0){
+      banner.innerHTML = '<div class="bg-blue-50 border-l-4 border-blue-400 text-blue-800 px-4 py-2 mb-4 rounded text-sm flex items-center justify-between">' +
+        '<span>📁 基础档案已关联 <span class="font-semibold">' + plots.length + '</span> 个地块，数据采集以地块为单位。</span>' +
+        '<span class="text-xs text-blue-500">来源：基础档案 → 监测数据</span></div>';
+      banner.style.display = 'block';
+    } else {
+      banner.style.display = 'none';
+    }
+  } catch(e){}
+}
 
 function populateTownFilters() {
   townships.forEach(function(tw){
-    ['wt','dt','it','ht'].forEach(function(t){
+    ['wt','pt','dt','it','ht'].forEach(function(t){
       var sel = document.getElementById(t+'-town-filter');
       if(sel){ var o=document.createElement('option'); o.value=tw; o.textContent=tw; sel.appendChild(o); }
     });
@@ -259,10 +314,12 @@ function getFiltered(tab) {
   var town = document.getElementById(tab+'-town-filter').value;
   var dFrom = document.getElementById(tab+'-date-from').value;
   var dTo = document.getElementById(tab+'-date-to').value;
+  var stage = tab==='pt' ? document.getElementById('pt-stage-filter').value : '';
   return allData[tab].filter(function(d){
     if(town && d.town !== town) return false;
     if(d.date && dFrom && d.date < dFrom) return false;
     if(d.date && dTo && d.date > dTo) return false;
+    if(tab === 'pt' && stage && d.stage !== stage) return false;
     return true;
   });
 }
@@ -307,7 +364,7 @@ function showModal(id){ var m=document.getElementById(id); if(m){m.style.display
 function hideModal(id){ var m=document.getElementById(id); if(m){m.style.display='none';m.classList.remove('active');} }
 function closeModal(id){ hideModal(id); }
 
-function tabName(tab){ return {wt:'气象',dt:'病情虫情',it:'虫源基数',ht:'历史'}[tab]||''; }
+function tabName(tab){ return {wt:'气象',pt:'物候',dt:'病情虫情',it:'虫源基数',ht:'历史'}[tab]||''; }
 
 function buildFormFields(tab, data) {
   var html = '';
@@ -344,6 +401,19 @@ function saveForm(){
   if(editIdx===null){ allData[tab].push(obj); } else { allData[tab][editIdx] = obj; }
   hideModal('form-modal');
   renderTable(tab);
+  persistPestDataRecords();
+}
+
+function persistPestDataRecords(){
+  try {
+    var records = [];
+    ['wt','pt','dt','it','ht'].forEach(function(tab){
+      allData[tab].forEach(function(d, idx){
+        records.push({ id: tab + '-' + idx, plotId: null, tab: tab, town: d.town || d.乡镇 || '', date: d.date || d.日期 || '', stage: d.stage || '' });
+      });
+    });
+    localStorage.setItem('pestData.records', JSON.stringify(records));
+  } catch(e){}
 }
 
 function viewDetail(tab,idx){

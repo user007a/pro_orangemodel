@@ -232,10 +232,13 @@
 
     function startIdentify() {
       document.getElementById('loadingModal').classList.add('show');
-      setTimeout(() => {
+      setTimeout(function() {
         document.getElementById('loadingModal').classList.remove('show');
-        document.getElementById('resultArea').style.display = 'block';
-      }, 2000);
+        // 模拟识别：随机选一个病虫害并跳转结果页
+        var candidates = ['红蜘蛛', '蚧壳虫', '炭疽病', '黑点病', '柑桔木虱', '锈壁虱'];
+        var picked = candidates[Math.floor(Math.random() * candidates.length)];
+        window.location.href = 'mb_disease_result.html?pest=' + encodeURIComponent(picked);
+      }, 1800);
     }
 
     (function() {

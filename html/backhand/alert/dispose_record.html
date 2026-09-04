@@ -328,6 +328,44 @@
         let currentPage = 1;
         let pageSize = 5;
         let filteredRecords = records.slice();
+
+        function syncFeedbackFromStorage(){
+            try {
+                var feedbacks = JSON.parse(localStorage.getItem('alertFeedback') || '[]');
+                if(!Array.isArray(feedbacks) || feedbacks.length === 0) return;
+                var existingIds = {};
+                records.forEach(function(r){ existingIds[r.id + '|' + r.start] = true; });
+                var now = new Date().toISOString().substring(0,19).replace('T',' ');
+                feedbacks.forEach(function(f){
+                    var key = f.alertId + '|' + f.start;
+                    if(!existingIds[key]){
+                        records.push({
+                            id: f.alertId,
+                            title: f.alertTitle || ('预警-' + f.alertId),
+                            level: f.level || '黄色预警',
+                            handler: f.handler || '反馈用户',
+                            status: f.status || '处置中',
+                            measure: f.measure || (f.feedback || '（待补充措施）'),
+                            result: f.result || '-',
+                            area: f.area || '-',
+                            start: f.start || now,
+                            end: f.end || (f.status === '已完成' ? now : '-'),
+                            fromFeedback: true
+                        });
+                        existingIds[key] = true;
+                    }
+                });
+                try {
+                    var alerts = JSON.parse(localStorage.getItem('alerts') || '[]');
+                    alerts.forEach(function(a){
+                        var idx = records.findIndex(function(r){ return r.id === a.id && !r.fromFeedback; });
+                        if(idx !== -1 && a.status && a.status !== records[idx].status){
+                            if(a.status === '已处置') records[idx].status = '已完成';
+                        }
+                    });
+                } catch(e){}
+            } catch(e){}
+        }
         let editTargetId = null;
         let deleteTargetId = null;
 
@@ -362,10 +400,11 @@
                 tbody.innerHTML = pageData.map(r => {
                     const levelStyle = LEVEL_STYLES[r.level] || 'bg-gray-100 text-gray-700';
                     const statusStyle = STATUS_STYLES[r.status] || 'bg-gray-100 text-gray-700';
+                    const fbTag = r.fromFeedback ? '<span class="ml-1 px-1.5 py-0.5 bg-blue-50 text-blue-600 rounded text-xs">接收反馈</span>' : '';
                     return `
                         <tr class="hover:bg-gray-50">
                             <td class="px-6 py-4 text-sm text-gray-500">${escapeHtml(r.id)}</td>
-                            <td class="px-6 py-4"><span class="font-medium text-gray-900">${escapeHtml(r.title)}</span></td>
+                            <td class="px-6 py-4"><span class="font-medium text-gray-900">${escapeHtml(r.title)}</span>${fbTag}</td>
                             <td class="px-6 py-4"><span class="px-2 py-1 ${levelStyle} text-xs rounded-full">${escapeHtml(r.level)}</span></td>
                             <td class="px-6 py-4 text-sm text-gray-600">${escapeHtml(r.handler)}</td>
                             <td class="px-6 py-4"><span class="px-2 py-1 ${statusStyle} text-xs rounded-full">${escapeHtml(r.status)}</span></td>
@@ -561,6 +600,8 @@
             });
         });
 
+        syncFeedbackFromStorage();
+        filteredRecords = records.slice();
         updateStats();
         renderTable();
     </script>

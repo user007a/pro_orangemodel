@@ -30,9 +30,24 @@ body { margin: 0; padding: 0; background-color: #F0F2F5; font-family: -apple-sys
       <h1 class="text-xl font-bold text-gray-800">参数配置</h1>
       <p class="text-gray-500 text-sm mt-1">配置病虫害预测模型的多因子权重、耦合系数、时间窗口与θ权重参数</p>
     </div>
-    <button onclick="saveConfig()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium flex items-center">
-      <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>保存配置
-    </button>
+    <div class="flex items-center space-x-2">
+      <button onclick="saveConfig()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium flex items-center">
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>保存配置
+      </button>
+      <button onclick="applyParamsToModel()" id="apply-params-btn" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium flex items-center">
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>应用到模型计算
+      </button>
+    </div>
+  </div>
+
+  <div id="unapplied-banner" style="display:none" class="bg-yellow-50 border-l-4 border-yellow-400 text-yellow-800 px-4 py-3 mb-4 rounded">
+    <div class="flex items-center justify-between">
+      <div>
+        <p class="text-sm font-medium">⚠ 当前有 <span id="unapplied-count">0</span> 项参数未应用到模型计算</p>
+        <p class="text-xs mt-1">上次应用：<span id="last-applied-time">从未</span></p>
+      </div>
+      <button onclick="applyParamsToModel()" class="px-3 py-1 bg-yellow-600 text-white text-xs rounded hover:bg-yellow-700">立即应用</button>
+    </div>
   </div>
 
   <!-- Tab Bar -->
@@ -92,6 +107,27 @@ body { margin: 0; padding: 0; background-color: #F0F2F5; font-family: -apple-sys
         <h3 class="text-sm font-semibold text-gray-700 mb-3">θ 权重分布</h3>
         <div style="height:280px"><canvas id="theta-chart"></canvas></div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- 通知模态框 -->
+<div id="notification-modal" class="modal-overlay">
+  <div class="modal-content" style="max-width:420px">
+    <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+      <h3 id="notification-title" style="font-size:18px;font-weight:600;color:#1f2937">系统通知</h3>
+      <button onclick="hideNotificationModal()" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
+    </div>
+    <div style="padding:24px;display:flex;align-items:flex-start;gap:12px">
+      <div id="notification-icon" style="flex-shrink:0;width:40px;height:40px;border-radius:50%;background:#fef3c7;display:flex;align-items:center;justify-content:center">
+        <svg style="width:24px;height:24px;color:#d97706" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+      </div>
+      <div style="flex:1">
+        <p id="notification-message" style="font-size:14px;color:#374151;line-height:1.6;margin:0"></p>
+      </div>
+    </div>
+    <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:12px">
+      <button onclick="hideNotificationModal()" style="padding:8px 20px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">我知道了</button>
     </div>
   </div>
 </div>
@@ -281,7 +317,7 @@ function saveForm(){
 }
 
 function saveConfig(){
-  alert('配置已保存成功');
+  showNotificationModal('配置已保存', 'success', '参数配置已成功保存到本地草稿。\n注意：保存后还需点击右侧"应用到模型计算"，参数才会真正参与病虫害预测计算。');
 }
 
 function initChart(){
@@ -294,11 +330,87 @@ function initChart(){
 
 window.onload=function(){
   renderWeight(); renderCoupling(); renderTime(); renderTheta(); initChart();
+  updateUnappliedBanner();
 };
+
+function applyParamsToModel(){
+  var snapshot = {
+    weightData: JSON.parse(JSON.stringify(weightData)),
+    couplingData: JSON.parse(JSON.stringify(couplingData)),
+    timeData: JSON.parse(JSON.stringify(timeData)),
+    thetaData: JSON.parse(JSON.stringify(thetaData)),
+    paramCount: 0,
+    appliedAt: new Date().toISOString(),
+    appliedBy: '当前用户'
+  };
+  var wc=0; Object.keys(snapshot.weightData).forEach(function(k){ wc += snapshot.weightData[k].length; });
+  snapshot.paramCount = wc + snapshot.couplingData.length + snapshot.timeData.length + snapshot.thetaData.length;
+  localStorage.setItem('pestModel.appliedParams', JSON.stringify(snapshot));
+  updateUnappliedBanner();
+  var msg = '已将 ' + snapshot.paramCount + ' 项病虫害模型参数应用到计算。\n\n生效时间：' + snapshot.appliedAt.replace('T',' ').substring(0,16) + '\n\n下次每日 06:00 的自动批量预测将使用此参数版本。';
+  showNotificationModal('已应用到模型计算', 'success', msg);
+}
+
+function showNotificationModal(title, type, message){
+  var modal = document.getElementById('notification-modal');
+  if(!modal) { alert(message); return; }
+  document.getElementById('notification-title').textContent = title;
+  document.getElementById('notification-message').textContent = message;
+  var iconWrap = document.getElementById('notification-icon');
+  var iconSvg = iconWrap.querySelector('svg');
+  if(type === 'success'){
+    iconWrap.style.background = '#dcfce7';
+    iconSvg.style.color = '#16a34a';
+    iconSvg.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>';
+  } else {
+    iconWrap.style.background = '#fef3c7';
+    iconSvg.style.color = '#d97706';
+    iconSvg.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>';
+  }
+  modal.style.display = 'flex';
+  modal.classList.add('active');
+}
+
+function hideNotificationModal(){
+  var modal = document.getElementById('notification-modal');
+  if(!modal) return;
+  modal.style.display = 'none';
+  modal.classList.remove('active');
+}
+
+function updateUnappliedBanner(){
+  var applied = JSON.parse(localStorage.getItem('pestModel.appliedParams') || 'null');
+  var banner = document.getElementById('unapplied-banner');
+  var countEl = document.getElementById('unapplied-count');
+  var timeEl = document.getElementById('last-applied-time');
+  if(!applied){
+    countEl.textContent = '30';
+    timeEl.textContent = '从未';
+    banner.style.display = 'block';
+    return;
+  }
+  var diffDays = Math.floor((Date.now() - new Date(applied.appliedAt).getTime()) / 86400000);
+  var timeStr = applied.appliedAt.replace('T',' ').substring(0,16);
+  if(diffDays >= 7){
+    countEl.textContent = '0';
+    timeEl.textContent = timeStr + '（已 ' + diffDays + ' 天，建议重新校准）';
+    banner.style.display = 'block';
+  } else {
+    banner.style.display = 'none';
+  }
+}
 
 document.addEventListener('click',function(e){
   var m=document.getElementById('form-modal');
   if(m.style.display==='flex'&&e.target===m) hideModal();
+  var nm=document.getElementById('notification-modal');
+  if(nm&&nm.style.display==='flex'&&e.target===nm) hideNotificationModal();
+});
+document.addEventListener('keydown',function(e){
+  if(e.key === 'Escape'){
+    var nm=document.getElementById('notification-modal');
+    if(nm&&nm.style.display==='flex') hideNotificationModal();
+  }
 });
 </script>
 </body>

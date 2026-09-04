@@ -63,6 +63,8 @@ body { margin: 0; padding: 0; background-color: #F0F2F5; font-family: -apple-sys
   </div>
 
   <!-- Tab Bar -->
+  <div id="incoming-banner" style="display:none" class="mb-4"></div>
+
   <div class="bg-white rounded-xl shadow-sm border border-gray-100 mb-6">
     <div class="border-b border-gray-100 flex items-center px-6 overflow-x-auto">
       <div class="tab-item px-4 py-4 cursor-pointer text-sm mr-6 tab-active whitespace-nowrap" data-tab="factor" onclick="switchTab('factor')">因子归因</div>
@@ -367,7 +369,31 @@ function openTown(t){
   showModal();
 }
 document.addEventListener('click',function(e){var m=document.getElementById('town-modal');if(m.style.display==='flex'&&e.target===m)hideModal();});
-window.onload=function(){ renderAll(); };
+window.onload=function(){ initFromIncoming(); renderAll(); };
+
+function initFromIncoming(){
+  try {
+    var params = new URLSearchParams(window.location.search);
+    var pest = params.get('pest');
+    if(pest){
+      var sel = document.getElementById('pest-select');
+      for(var i=0;i<sel.options.length;i++){
+        if(sel.options[i].value === pest || sel.options[i].text === pest){
+          sel.selectedIndex = i; break;
+        }
+      }
+    }
+    var stored = JSON.parse(localStorage.getItem('pestReport.summary') || 'null');
+    if(stored){
+      var banner = document.getElementById('incoming-banner');
+      var highRiskNames = (stored.highRisk || []).map(function(r){ return r.t; }).slice(0,3).join('、');
+      banner.innerHTML = '<div class="bg-purple-50 border-l-4 border-purple-400 text-purple-800 px-4 py-2 rounded text-sm flex items-center justify-between">' +
+        '<div><span class="font-semibold">📄 从预测报告跳转：</span>' + (stored.pest || '?') + '·' + (stored.period || '?') + '天预测 · 高风险乡镇：' + (highRiskNames || '无') + '</div>' +
+        '<a href="pest_report.html" class="text-purple-600 hover:underline text-xs">← 返回报告</a></div>';
+      banner.style.display = 'block';
+    }
+  } catch(e){}
+}
 </script>
 </body>
 </html>

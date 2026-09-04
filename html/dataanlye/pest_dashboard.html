@@ -1736,6 +1736,8 @@
         var detailsContainer = document.getElementById('modalDetails');
         
         chartContainer.innerHTML = '';
+        statsContainer.innerHTML = '';
+        detailsContainer.innerHTML = '';
         
         var titles = {
             '病害': '病害种类分布',
@@ -1943,6 +1945,20 @@
                     ]
                 };
                 break;
+            case '红色预警':
+                option = {
+                    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+                    legend: { data: ['病虫害', '气象灾害', '综合预警'], top: 0, textStyle: { fontSize: 11 } },
+                    grid: { left: '3%', right: '4%', bottom: '12%', top: '14%', containLabel: true },
+                    xAxis: { type: 'category', data: ['太和镇', '桑田镇', '白舍镇', '市山镇', '琴城镇', '太源乡', '其他乡镇'] },
+                    yAxis: { type: 'value', axisLabel: { formatter: '{value}条' } },
+                    series: [
+                        { name: '病虫害', type: 'bar', stack: 'red', data: [8, 6, 3, 2, 2, 1, 1], itemStyle: { color: '#ef4444', borderRadius: [0, 0, 0, 0] } },
+                        { name: '气象灾害', type: 'bar', stack: 'red', data: [0, 0, 0, 0, 0, 0, 0], itemStyle: { color: '#f59e0b' } },
+                        { name: '综合预警', type: 'bar', stack: 'red', data: [1, 1, 1, 1, 1, 0, 0], itemStyle: { color: '#dc2626', borderRadius: [6, 6, 0, 0] } }
+                    ]
+                };
+                break;
         }
         
         modalChartInstance.setOption(option);
@@ -2004,6 +2020,11 @@
                 { value: alertDataSource.riskTowns.high, label: '高风险乡镇', color: '#ef4444' },
                 { value: alertDataSource.riskTowns.mid, label: '中风险乡镇', color: '#f59e0b' },
                 { value: alertDataSource.riskTowns.low, label: '低风险乡镇', color: '#22c55e' }
+            ],
+            '红色预警': [
+                { value: alertDataSource.levels.red, label: '红色预警总数', color: '#dc2626' },
+                { value: alertDataSource.types.pest.red + alertDataSource.types.general.red, label: '需立即处置', color: '#ef4444' },
+                { value: (alertDataSource.levels.red - (alertDataSource.types.pest.red + alertDataSource.types.general.red) > 0 ? alertDataSource.levels.red - (alertDataSource.types.pest.red + alertDataSource.types.general.red) : 0) + '条', label: '持续监控', color: '#f59e0b' }
             ]
         };
         
@@ -2110,6 +2131,14 @@
                 { label: '白舍镇', value: '65分 · 中风险' },
                 { label: '头陂镇', value: '60分 · 中风险' },
                 { label: '建议立即巡查', value: '重点关注树势' }
+            ],
+            '红色预警': [
+                { label: '病虫害源', value: alertDataSource.types.pest.red + '条' },
+                { label: '气象灾害源', value: alertDataSource.types.weather.red + '条' },
+                { label: '综合预警源', value: alertDataSource.types.general.red + '条' },
+                { label: '高风险乡镇', value: alertDataSource.riskTowns.high + '个' },
+                { label: '占总预警比', value: ((alertDataSource.levels.red / (alertDataSource.levels.red + alertDataSource.levels.orange + alertDataSource.levels.yellow + alertDataSource.levels.blue)) * 100).toFixed(1) + '%' },
+                { label: '紧急建议', value: '立即组织防护、加固支架、停止户外作业' }
             ]
         };
         

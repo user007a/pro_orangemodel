@@ -593,6 +593,7 @@
     </div>
   </div>
 
+<script src="js/pest-risk-engine.js"></script>
 <script>
   function navigateTo(page) {
     window.location.href = page;
@@ -712,6 +713,7 @@
 
   document.addEventListener('DOMContentLoaded', function() {
     renderTodoList();
+    injectRiskTodo();
 
     var today = new Date();
     var year = today.getFullYear();
@@ -721,6 +723,47 @@
     var priceDateEl = document.getElementById('price-date');
     if (priceDateEl) priceDateEl.textContent = dateStr;
   });
+
+  // 基于风险引擎评估结果，把高风险病虫害注入今日待办（监测 ↔ 病虫害打通）
+  function injectRiskTodo() {
+    if (!window.PestRiskEngine) return;
+    var envData = { temp: 35, humidity: 45, rainfall: 0 };
+    var historyData = {
+      dailyTemps: [22, 24, 26, 28, 30, 32, 34, 35, 33, 31],
+      captures: {
+        '红蜘蛛': { recent7day: 8 },
+        '蚧壳虫': { recent7day: 3 },
+        '炭疽病': { recent7day: 2 }
+      }
+    };
+    var results = window.PestRiskEngine.assess(envData, historyData);
+    var high = results.filter(function(r) { return r.level === 'high' && r.key !== '红蜘蛛'; }); // 排除已在硬编码 todo 里的红蜘蛛
+    high.slice(0, 1).forEach(function(r) {
+      var icons = {
+        '锈壁虱': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/></svg>',
+        '柑桔木虱': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 22h20z"/></svg>'
+      };
+      todoItems.unshift({
+        type: 'warn',
+        tagText: '风险预警',
+        title: r.name + '风险等级提升',
+        desc: '基于环境数据评估，当前风险评分 ' + r.score + '，建议检查并预防',
+        icon: icons[r.key] || '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>',
+        action: '查看详情',
+        task: {
+          id: 't-risk-' + r.key,
+          title: r.name + '风险预警',
+          status: 'pending',
+          time: '今日尽快处理',
+          area: '适用区域：全部地块',
+          source: '来源：风险评估引擎',
+          desc: '根据当前环境数据（' + envData.temp + '°C / 湿度' + envData.humidity + '%）评估，' + r.name + '风险评分为 ' + r.score + '。' + r.summary,
+          suggestion: '1. 立即巡查果园，确认危害情况；\n2. 必要时进行药剂防治；\n3. 加强监测频次；\n4. 配套农业防治措施。'
+        }
+      });
+    });
+    renderTodoList();
+  }
 </script>
 </body>
 </html>

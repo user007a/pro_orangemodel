@@ -6,117 +6,322 @@
   <title>蜜桔农业助手 - 识别结果</title>
   <link rel="stylesheet" href="css/mobile-design-system.css">
   <link rel="stylesheet" href="css/detail-page.css">
+  <style>
+    /* 上半部分：图片 + 卡片浮层 */
+    .result-top {
+      position: relative;
+      width: 100%;
+      height: 27vh;
+      min-height: 200px;
+      background: #2c3e2e;
+      overflow: visible;
+    }
+    .result-top-img-wrap {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      z-index: 1;
+    }
+    .result-top-img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+      object-position: center;
+    }
+    /* 图片占位骨架 */
+    .img-placeholder {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: url('images/recognition-original.svg') center/cover no-repeat;
+      color: #fff;
+      font-size: var(--font-sm);
+    }
+    .img-placeholder svg { width: 48px; height: 48px; opacity: 0.5; }
+    /* 识别框（青色矩形） */
+    .detect-box {
+      position: absolute;
+      border: 2px solid #00e5ff;
+      box-shadow: 0 0 8px rgba(0, 229, 255, 0.4);
+      pointer-events: none;
+      border-radius: 2px;
+    }
+    .detect-box.b1 { top: 14%; left: 20%; width: 32%; height: 24%; }
+    .detect-box.b2 { top: 36%; left: 12%; width: 36%; height: 30%; }
+    .detect-box.b3 { top: 8%; right: 8%; width: 28%; height: 22%; }
+
+    /* 返回按钮浮在图片左上 */
+    .top-back {
+      position: absolute;
+      left: 16px;
+      top: 16px;
+      width: 36px;
+      height: 36px;
+      background: rgba(0,0,0,0.4);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 5;
+    }
+    .top-back svg { width: 18px; height: 18px; color: #fff; }
+
+    /* 白色卡片浮层（移出图片区，作为下方独立卡片） */
+    .result-card {
+      position: relative;
+      margin: 12px 16px 0;
+      background: #fff;
+      border-radius: var(--radius-xl);
+      padding: 18px 18px 16px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+      z-index: 4;
+    }
+    .result-card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      font-size: var(--font-sm);
+      color: var(--text-secondary);
+    }
+    .result-card-edit {
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--text-secondary);
+    }
+    .result-card-edit svg { width: 18px; height: 18px; }
+
+    .result-card-main {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      margin-bottom: 0;
+    }
+    .result-thumb {
+      width: 64px;
+      height: 64px;
+      border-radius: var(--radius-md);
+      border: 2px solid var(--error);
+      object-fit: cover;
+      flex-shrink: 0;
+      background: #f0f0f0;
+    }
+    .result-meta {
+      flex: 1;
+      min-width: 0;
+    }
+    .result-meta-name {
+      font-size: var(--font-xl);
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.3;
+      margin-bottom: 6px;
+    }
+    .result-meta-sim {
+      font-size: var(--font-sm);
+      color: var(--text-secondary);
+    }
+    .result-meta-sim b {
+      color: var(--error);
+      font-weight: 700;
+      font-size: var(--font-base);
+    }
+
+    /* 三张样例图：移出卡片，作为下方独立区块 */
+    .ref-images {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin: 12px 16px 0;
+    }
+    .ref-img {
+      width: 100%;
+      aspect-ratio: 1/1;
+      border-radius: var(--radius-md);
+      object-fit: cover;
+      background: #f0f0f0;
+    }
+
+    /* 信息列表 */
+    .info-block {
+      background: var(--bg-white);
+      border-radius: var(--radius-lg);
+      padding: 16px 18px;
+      margin: 12px 16px 0;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+    }
+    .info-row {
+      display: flex;
+      gap: 8px;
+      padding: 10px 0;
+      font-size: var(--font-sm);
+      line-height: 1.7;
+      border-bottom: 1px solid var(--border-light);
+    }
+    .info-row:last-child { border-bottom: none; }
+    .info-key {
+      flex-shrink: 0;
+      min-width: 70px;
+      color: var(--text);
+      font-weight: 600;
+    }
+    .info-val {
+      flex: 1;
+      color: var(--text-secondary);
+    }
+
+    /* 更多介绍按钮 */
+    .more-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin: 12px 16px 16px;
+      height: 48px;
+      background: var(--bg-white);
+      border-radius: var(--radius-md);
+      font-size: var(--font-base);
+      font-weight: 700;
+      color: var(--text);
+      cursor: pointer;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+    }
+    .more-btn svg { width: 14px; height: 14px; color: var(--text-secondary); }
+  </style>
 </head>
 <body>
   <div class="mb-app">
-    <!-- 顶部 Banner -->
-    <div class="detail-banner">
-      <div class="detail-banner-inner">
-        <div class="detail-banner-back" onclick="goBack()">
+    <!-- 上半部分：图片 + 卡片浮层 -->
+    <div class="result-top">
+      <div class="result-top-img-wrap">
+        <img class="result-top-img" id="topImg" alt="用户上传图片">
+        <!-- 占位骨架，图片加载完成后会自动隐藏 -->
+        <div class="img-placeholder" id="topImgPlaceholder">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        </div>
+        <!-- 识别框 -->
+        <div class="detect-box b1"></div>
+        <div class="detect-box b2"></div>
+        <div class="detect-box b3"></div>
+      </div>
+      <!-- 返回按钮 -->
+      <div class="top-back" onclick="goBack()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M15 18l-6-6 6-6"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- 主结果卡片：缩略图 + 名称 + 相似度，独立下移到图片下方 -->
+    <div class="result-card">
+      <div class="result-card-head">
+        <span>你要识别的可能是：</span>
+        <div class="result-card-edit" onclick="recogAgain()" title="重新识别">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M15 18l-6-6 6-6"/>
+            <path d="M12 20h9"/>
+            <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
           </svg>
         </div>
-        <div class="detail-banner-content">
-          <div class="detail-banner-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
-          </div>
-          <div class="detail-banner-info">
-            <div class="detail-banner-title">识别结果</div>
-            <div class="detail-banner-subtitle">AI 病虫害图像识别 · <span id="recogTime">2026-07-23 10:30</span></div>
-            <div class="detail-banner-tags">
-              <span class="detail-banner-tag success">识别完成</span>
-            </div>
-          </div>
+      </div>
+      <div class="result-card-main">
+        <img class="result-thumb" id="resultThumb" alt="缩略图">
+        <div class="result-meta">
+          <div class="result-meta-name" id="resultName">柑橘黄龙病</div>
+          <div class="result-meta-sim">相似度 <b id="resultSim">92%</b></div>
         </div>
       </div>
     </div>
 
-    <!-- 用户上传图 -->
-    <div class="result-hero">
-      <div class="result-hero-img">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-        <span class="upload-hint" id="uploadHint">用户上传 · 01:23 PM</span>
-      </div>
+    <!-- 三张样例图 -->
+    <div class="ref-images" id="refImages"></div>
 
-      <div class="result-label">识别结果</div>
-      <div class="result-name" id="resultName">红蜘蛛</div>
-      <div class="result-confidence">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-        置信度 <span id="resultConfidence">87.3%</span>
+    <!-- 信息列表 -->
+    <div class="info-block">
+      <div class="info-row">
+        <div class="info-key">名称：</div>
+        <div class="info-val" id="infoName">-</div>
       </div>
-    </div>
-
-    <!-- Top3 候选结果 -->
-    <div class="detail-section">
-      <div class="detail-section-title">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-        Top 3 候选结果
+      <div class="info-row">
+        <div class="info-key">危害症状：</div>
+        <div class="info-val" id="infoSymptom">-</div>
       </div>
-      <div class="candidate-list" id="candidateList"></div>
-    </div>
-
-    <!-- 行动按钮 -->
-    <div class="action-row">
-      <button class="action-btn primary" style="flex:1;" onclick="viewDetail()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-        查看详情
-      </button>
-    </div>
-
-    <!-- 推荐用药速览 -->
-    <div class="detail-section">
-      <div class="detail-section-title">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.5 20H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h7l5 5v5"/><circle cx="14" cy="17" r="2"/></svg>
-        防治速览
+      <div class="info-row">
+        <div class="info-key">防治方案：</div>
+        <div class="info-val" id="infoTreatment">-</div>
       </div>
-      <div id="drugPreview"></div>
-    </div>
-
-    <!-- 识别信息 -->
-    <div class="detail-section">
-      <div class="detail-section-title">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-        识别信息
+      <div class="info-row">
+        <div class="info-key">发生规律：</div>
+        <div class="info-val" id="infoRule">-</div>
       </div>
-      <div style="font-size: var(--font-sm); color: var(--text-secondary); line-height: 1.8;">
-        <div style="display:flex;padding:6px 0;"><span style="min-width:90px;color:var(--text-tertiary);">识别模型</span><span>蜜桔病虫害识别 v2.3</span></div>
-        <div style="display:flex;padding:6px 0;border-top:1px solid var(--border-light);"><span style="min-width:90px;color:var(--text-tertiary);">模型类型</span><span>深度学习 CNN</span></div>
-        <div style="display:flex;padding:6px 0;border-top:1px solid var(--border-light);"><span style="min-width:90px;color:var(--text-tertiary);">识别耗时</span><span>1.2 秒</span></div>
-        <div style="display:flex;padding:6px 0;border-top:1px solid var(--border-light);"><span style="min-width:90px;color:var(--text-tertiary);">样本数量</span><span>已学习 12,580 张样本</span></div>
+      <div class="info-row">
+        <div class="info-key">危害：</div>
+        <div class="info-val" id="infoHarm">-</div>
       </div>
     </div>
 
-    <div style="height: 20px;"></div>
+    <!-- 更多介绍 -->
+    <div class="more-btn" onclick="viewDetail()">
+      更多介绍
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="9 18 15 12 9 6"/>
+      </svg>
+    </div>
 
-    <!-- 底部操作栏 -->
+    <div style="height: 80px;"></div>
+
+    <!-- 底部操作栏：首页 + 再来一次 -->
     <div class="detail-bottom-bar">
-      <button class="detail-bottom-btn" onclick="goBack()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-        返回识别
+      <button class="detail-bottom-btn" onclick="goHome()" style="flex: 0 0 100px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        首页
       </button>
-      <button class="detail-bottom-btn" onclick="reportWrong()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        反馈有误
-      </button>
-      <button class="detail-bottom-btn primary" onclick="consultExpert()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.37 1.9.72 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.35 1.85.59 2.81.72A2 2 0 0 1 22 16.92z"/></svg>
-        咨询专家
+      <button class="detail-bottom-btn primary" onclick="recogAgain()" style="flex: 1;">
+        再来一次
       </button>
     </div>
   </div>
 
   <script src="js/pest-risk-engine.js"></script>
   <script>
-    // 模拟识别结果（实际对接AI时替换）
+    // 病虫害详情映射
+    var PEST_INFO = {
+      '柑橘黄龙病': {
+        symptom: '(1)叶片和枝梢：黄梢和斑驳是柑橘黄龙病的典型症状，叶片黄绿相间；(2)果实：果实变小、畸形、着色不均，出现"红鼻果"；(3)根部：根系腐烂，树势衰弱。',
+        treatment: '加强检疫、种无病苗、防除木虱、挖除病树。幼树期重点监测，发现病株立即挖除烧毁并消毒土壤。',
+        rule: '5月下旬开始发病，8～9月份最严重。春梢、夏梢、秋梢均可表现症状，通过柑桔木虱传播。',
+        harm: '树体瘦弱，毁园。毁灭性病害，传播迅速，目前无有效治疗药剂。'
+      },
+      '红蜘蛛': {
+        symptom: '(1)叶片出现灰白色小点，逐渐失绿；(2)严重时叶片苍白脱落；(3)果实表面出现褐色斑点；(4)叶片背面有白色丝网。',
+        treatment: '春季螨类始发期喷第一次药，7-10天喷一次，连喷2-3次，重点喷叶片背面。后期用杀卵剂与杀成螨剂混用。',
+        rule: '一年发生多代，4-5月和9-10月为高峰期。高温干旱时繁殖迅速。',
+        harm: '导致叶片失绿、果实品质下降，严重时引起大量落叶落果。'
+      }
+    };
+
+    // 图片资源：优先使用 text_to_image 实时生成，本地静态作为后备
+    var IMG_BASE_PROMPT = 'a close-up photograph of mandarin orange fruits hanging on tree branches, lush green leaves, natural sunlight, real orchard photo, high resolution';
+    var IMG_SAMPLES_PROMPTS = [
+      'citrus Huanglongbing yellow mottled leaf close-up macro photograph',
+      'mandarin orange fruit with irregular coloration Huanglongbing symptom close-up',
+      'diseased mandarin orange tree with yellow leaves Huanglongbing whole tree view'
+    ];
+
+    // 模拟识别结果
     var RECOGNITION_RESULT = {
-      top: { name: '红蜘蛛', confidence: 87.3 },
-      candidates: [
-        { name: '红蜘蛛', confidence: 87.3 },
-        { name: '锈壁虱', confidence: 10.2 },
-        { name: '螨虫', confidence: 2.5 }
-      ],
-      uploadTime: '01:23 PM'
+      top: { name: '柑橘黄龙病', confidence: 92 },
+      info: PEST_INFO['柑橘黄龙病'],
+      uploadTime: '2026-07-23 10:30'
     };
 
     function getQueryParam(name) {
@@ -126,59 +331,80 @@
 
     var topPest = getQueryParam('pest') || RECOGNITION_RESULT.top.name;
 
-    // 渲染识别结果
     function renderResult() {
       document.getElementById('resultName').textContent = topPest;
-      var pests = RECOGNITION_RESULT.candidates;
-      var matched = pests.find(function(p) { return p.name === topPest; });
-      document.getElementById('resultConfidence').textContent = (matched ? matched.confidence : 87.3).toFixed(1) + '%';
-      document.getElementById('uploadHint').textContent = '用户上传 · ' + RECOGNITION_RESULT.uploadTime;
+      document.getElementById('resultSim').textContent = RECOGNITION_RESULT.top.confidence + '%';
 
-      // 候选列表
-      var html = '';
-      pests.forEach(function(c, idx) {
-        html += '<div class="candidate-item">' +
-          '<div class="candidate-rank ' + (idx === 0 ? 'top' : '') + '">' + (idx + 1) + '</div>' +
-          '<div class="candidate-info">' +
-            '<div class="candidate-name">' + c.name + '</div>' +
-            '<div class="candidate-bar-wrap">' +
-              '<div class="candidate-bar"><div class="candidate-bar-fill" style="width:' + c.confidence + '%;"></div></div>' +
-              '<div class="candidate-percent">' + c.confidence.toFixed(1) + '%</div>' +
-            '</div>' +
-          '</div>' +
-        '</div>';
+      // 顶部主图：使用本地静态图，加载失败时降级到 text_to_image
+      var topImg = document.getElementById('topImg');
+      var placeholder = document.getElementById('topImgPlaceholder');
+      topImg.onerror = function() {
+        // 本地图失败，尝试在线生成
+        topImg.onerror = function() { placeholder.style.display = 'flex'; };
+        topImg.src = buildImgUrl(IMG_BASE_PROMPT, 'landscape_16_9') + '&t=' + Date.now();
+      };
+      topImg.src = 'images/recognition-original.svg?t=' + Date.now();
+
+      // 缩略图
+      var thumb = document.getElementById('resultThumb');
+      thumb.onerror = function() {
+        thumb.onerror = function() { thumb.src = makeFallbackImg(topPest); };
+        thumb.src = buildImgUrl(IMG_SAMPLES_PROMPTS[0], 'square_hd') + '&t=' + Date.now();
+      };
+      thumb.src = 'images/sample-1.svg?t=' + Date.now();
+
+      // 三张样例图（本地 SVG）
+      var sampleNames = ['sample-1.svg', 'sample-2.svg', 'sample-3.svg'];
+      var refHtml = '';
+      sampleNames.forEach(function(name, i) {
+        refHtml += '<img class="ref-img" src="images/' + name + '?t=' + Date.now() + '" alt="">';
       });
-      document.getElementById('candidateList').innerHTML = html;
-
-      // 推荐用药速览
-      var drugs = window.PestRiskEngine.getDrugs(topPest);
-      var drugHtml = '';
-      drugs.slice(0, 2).forEach(function(d) {
-        drugHtml += '<div class="drug-card">' +
-          '<div class="drug-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.5 20H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h7l5 5v5"/><circle cx="14" cy="17" r="2"/></svg></div>' +
-          '<div class="drug-info">' +
-            '<div class="drug-name">' + d.name + '</div>' +
-            '<div class="drug-spec">' + d.spec + ' · ' + d.period + '</div>' +
-          '</div>' +
-        '</div>';
+      document.getElementById('refImages').innerHTML = refHtml;
+      // 参考图加载失败时降级到 text_to_image，最终兜底 SVG
+      document.querySelectorAll('.ref-img').forEach(function(img, idx) {
+        img.onerror = function() {
+          img.onerror = function() { img.src = makeFallbackImg('样例图'); };
+          img.src = buildImgUrl(IMG_SAMPLES_PROMPTS[idx], 'square_hd') + '&t=' + Date.now();
+        };
       });
-      if (!drugHtml) drugHtml = '<div style="text-align:center;color:var(--text-tertiary);padding:20px;">暂无推荐用药</div>';
-      document.getElementById('drugPreview').innerHTML = drugHtml;
 
-      // 修正 conf 为匹配项
-      if (!matched) {
-        document.getElementById('resultConfidence').textContent = '87.3%';
-      }
+      // 信息列表
+      var info = RECOGNITION_RESULT.info || PEST_INFO[topPest] || {};
+      document.getElementById('infoName').textContent = topPest;
+      document.getElementById('infoSymptom').textContent = info.symptom || '-';
+      document.getElementById('infoTreatment').textContent = info.treatment || '-';
+      document.getElementById('infoRule').textContent = info.rule || '-';
+      document.getElementById('infoHarm').textContent = info.harm || '-';
+    }
+
+    function buildImgUrl(prompt, size) {
+      return 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=' +
+             encodeURIComponent(prompt) + '&image_size=' + (size || 'landscape_4_3');
+    }
+
+    // 兜底占位图：生成 SVG data URI
+    function makeFallbackImg(label) {
+      var colors = ['#3a5a3e', '#5e8b3a', '#2c3e2e'];
+      var c1 = colors[Math.floor(Math.random() * colors.length)];
+      var c2 = '#1f2e22';
+      var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300">' +
+        '<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">' +
+        '<stop offset="0" stop-color="' + c1 + '"/><stop offset="1" stop-color="' + c2 + '"/>' +
+        '</linearGradient></defs>' +
+        '<rect width="400" height="300" fill="url(#g)"/>' +
+        '<text x="200" y="160" text-anchor="middle" fill="#fff" font-size="18" font-family="sans-serif" opacity="0.7">' + label + '</text>' +
+        '</svg>';
+      return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
     }
 
     function viewDetail() {
       navigateTo('mb_disease_detail.html?pest=' + encodeURIComponent(topPest));
     }
-    function reportWrong() {
-      alert('已记录您的反馈，我们将优化识别模型');
+    function recogAgain() {
+      navigateTo('mb_disease_ai.html');
     }
-    function consultExpert() { alert('正在为您接通农技专家...'); }
     function goBack() { history.back(); }
+    function goHome() { navigateTo('mb_home.html'); }
     function navigateTo(url) { window.location.href = url; }
 
     renderResult();

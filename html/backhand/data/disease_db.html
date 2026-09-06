@@ -14,7 +14,6 @@
         purple: { DEFAULT: '#9333ea' }
       }}}}
     </script>
-
     <style>
         body { margin: 0; padding: 0; background-color: #F0F2F5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans SC', sans-serif; }
         .content-wrapper { padding: 24px; height: 100vh; overflow-y: auto; }
@@ -25,10 +24,10 @@
         <div class="flex items-center justify-between mb-6">
             <div>
                 <h1 class="text-xl font-bold text-gray-800">病害数据库</h1>
-                <p class="text-gray-500 text-sm mt-1">管理南丰蜜桔病害知识数据</p>
+                <p class="text-gray-500 text-sm mt-1">管理南丰蜜桔病害知识数据（业务知识库，15 字段核心 schema）</p>
             </div>
             <div class="flex items-center space-x-3">
-                <button onclick="openAddModal()" class="px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 flex items-center">
+                <button onclick="openFormModal(null, 'add')" class="px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 flex items-center">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                     添加病害
                 </button>
@@ -37,25 +36,63 @@
 
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <div class="p-4 border-b border-gray-100">
-                <div class="flex items-center space-x-4 flex-wrap">
-                    <div class="flex-1 max-w-md">
+                <div class="flex items-center space-x-3 flex-wrap gap-y-2">
+                    <div class="flex-1 min-w-[220px] max-w-md">
                         <div class="relative">
                             <svg class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                            <input type="text" id="search-input" placeholder="搜索病害名称..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500" oninput="filterDiseases()">
+                            <input type="text" id="search-input" placeholder="全文检索：名称/病原/症状/防治/物候..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500" oninput="filterDiseases()">
                         </div>
                     </div>
-                    <select id="type-filter" class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500" onchange="filterDiseases()">
+                    <select id="type-filter" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500" onchange="filterDiseases()">
                         <option value="">全部类型</option>
-                        <option value="真菌病害">真菌病害</option>
-                        <option value="细菌病害">细菌病害</option>
-                        <option value="病毒病害">病毒病害</option>
+                        <option value="真菌性">真菌性</option>
+                        <option value="细菌性">细菌性</option>
+                        <option value="病毒性">病毒性</option>
+                        <option value="生理性">生理性</option>
+                        <option value="药害">药害</option>
+                        <option value="缺素">缺素</option>
+                    </select>
+                    <select id="parts-filter" multiple size="1" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 min-w-[110px]" onchange="filterDiseases()" title="可多选（按住 Ctrl/Cmd）">
+                        <option value="" disabled selected>部位（多选）</option>
+                        <option value="叶片">叶片</option>
+                        <option value="果实">果实</option>
+                        <option value="枝干">枝干</option>
+                        <option value="根系">根系</option>
+                        <option value="花">花</option>
+                    </select>
+                    <select id="season-filter" multiple size="1" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 min-w-[120px]" onchange="filterDiseases()" title="可多选（按住 Ctrl/Cmd）">
+                        <option value="" disabled selected>物候期（多选）</option>
+                        <option value="休眠期">休眠期</option>
+                        <option value="萌芽期">萌芽期</option>
+                        <option value="现蕾期">现蕾期</option>
+                        <option value="开花期">开花期</option>
+                        <option value="春梢期">春梢期</option>
+                        <option value="幼果期">幼果期</option>
+                        <option value="夏梢期">夏梢期</option>
+                        <option value="生理落果期">生理落果期</option>
+                        <option value="膨大期">膨大期</option>
+                        <option value="秋梢期">秋梢期</option>
+                        <option value="着色期">着色期</option>
+                        <option value="成熟期">成熟期</option>
+                        <option value="采后期">采后期</option>
+                    </select>
+                    <select id="harm-filter" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500" onchange="filterDiseases()">
+                        <option value="">危害等级</option>
+                        <option value="重">重</option>
+                        <option value="中">中</option>
+                        <option value="轻">轻</option>
+                    </select>
+                    <select id="status-filter" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500" onchange="filterDiseases()">
+                        <option value="">状态</option>
+                        <option value="启用">启用</option>
+                        <option value="禁用">禁用</option>
                     </select>
                     <button onclick="resetFilter()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200">重置</button>
                 </div>
+                <div id="search-summary" class="mt-3"></div>
             </div>
 
-            <div id="disease-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
-            </div>
+            <div id="disease-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4"></div>
 
             <div class="px-6 py-4 border-t border-gray-100 flex items-center justify-between">
                 <p class="text-sm text-gray-500">共 <span id="total-count">15</span> 条记录</p>
@@ -73,521 +110,774 @@
         </div>
     </div>
 
-    <!-- 添加病害弹窗 -->
-    <div id="add-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center">
-        <div style="background:#fff;border-radius:12px;width:90%;max-width:500px;max-height:85vh;overflow-y:auto">
-            <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
-                <h3 style="font-size:18px;font-weight:600;color:#1f2937">添加病害</h3>
-                <button onclick="closeModal('add-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
-            </div>
-            <div style="padding:24px">
-                <div style="margin-bottom:16px">
-                    <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">病害名称 <span style="color:#ef4444">*</span></label>
-                    <input type="text" id="add-name" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box" placeholder="请输入病害名称">
-                </div>
-                <div style="margin-bottom:16px">
-                    <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">病害类型</label>
-                    <select id="add-type" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box">
-                        <option value="真菌病害">真菌病害</option>
-                        <option value="细菌病害">细菌病害</option>
-                        <option value="病毒病害">病毒病害</option>
-                    </select>
-                </div>
-                <div style="margin-bottom:16px">
-                    <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">发病温度</label>
-                    <input type="text" id="add-temperature" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box" placeholder="例如：25-30°C">
-                </div>
-                <div style="margin-bottom:16px">
-                    <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">发病季节</label>
-                    <input type="text" id="add-season" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box" placeholder="例如：夏季">
-                </div>
-                <div style="margin-bottom:16px">
-                    <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">风险等级</label>
-                    <select id="add-risk" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box">
-                        <option value="高风险">高风险</option>
-                        <option value="中风险">中风险</option>
-                        <option value="低风险">低风险</option>
-                    </select>
-                </div>
-                <div style="margin-bottom:16px">
-                    <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">病害描述</label>
-                    <textarea id="add-desc" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box;resize:vertical" rows="3" placeholder="请输入病害描述"></textarea>
-                </div>
-                <div style="margin-bottom:16px">
-                    <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">病害图片上传</label>
-                    <input type="file" id="add-images" accept="image/*" multiple style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box" onchange="previewAddImages(this)">
-                    <div id="add-image-preview" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:8px"></div>
-                </div>
-            </div>
-            <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:12px">
-                <button onclick="closeModal('add-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
-                <button onclick="saveDisease()" style="padding:8px 16px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">保存</button>
-            </div>
+    <!-- 4-Tab 表单模态（add/edit/detail 共用） -->
+    <div id="form-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center">
+      <div style="background:#fff;border-radius:12px;width:92%;max-width:760px;max-height:88vh;display:flex;flex-direction:column">
+        <div style="padding:14px 20px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+          <h3 style="font-size:17px;font-weight:600;color:#1f2937" id="form-title">添加病害</h3>
+          <button type="button" onclick="closeFormModal()" style="padding:4px;background:none;border:none;cursor:pointer;font-size:22px;color:#6b7280;line-height:1">&times;</button>
         </div>
-    </div>
-
-    <!-- 查看详情弹窗 -->
-    <div id="detail-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center">
-        <div style="background:#fff;border-radius:12px;width:90%;max-width:500px;max-height:85vh;overflow-y:auto">
-            <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
-                <h3 style="font-size:18px;font-weight:600;color:#1f2937">病害详情</h3>
-                <button onclick="closeModal('detail-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
-            </div>
-            <div style="padding:24px">
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
-                    <div>
-                        <span style="font-size:13px;color:#6b7280">病害名称</span>
-                        <p style="font-size:14px;font-weight:500;color:#1f2937;margin-top:2px" id="detail-name"></p>
-                    </div>
-                    <div>
-                        <span style="font-size:13px;color:#6b7280">病害类型</span>
-                        <p style="font-size:14px;font-weight:500;color:#1f2937;margin-top:2px" id="detail-type"></p>
-                    </div>
-                    <div>
-                        <span style="font-size:13px;color:#6b7280">发病温度</span>
-                        <p style="font-size:14px;font-weight:500;color:#1f2937;margin-top:2px" id="detail-temperature"></p>
-                    </div>
-                    <div>
-                        <span style="font-size:13px;color:#6b7280">发病季节</span>
-                        <p style="font-size:14px;font-weight:500;color:#1f2937;margin-top:2px" id="detail-season"></p>
-                    </div>
-                    <div>
-                        <span style="font-size:13px;color:#6b7280">风险等级</span>
-                        <p style="font-size:14px;font-weight:500;color:#1f2937;margin-top:2px" id="detail-risk"></p>
-                    </div>
-                </div>
-                <div style="margin-bottom:16px">
-                    <span style="font-size:13px;color:#6b7280">病害描述</span>
-                    <p style="font-size:14px;color:#1f2937;margin-top:2px" id="detail-desc"></p>
-                </div>
-                <div style="margin-bottom:16px">
-                    <span style="font-size:13px;color:#6b7280">危害情况</span>
-                    <p style="font-size:14px;color:#1f2937;margin-top:2px;white-space:pre-wrap" id="detail-harm"></p>
-                </div>
-                <div style="margin-bottom:16px">
-                    <span style="font-size:13px;color:#6b7280">防治方法</span>
-                    <p style="font-size:14px;color:#1f2937;margin-top:2px;white-space:pre-wrap" id="detail-control"></p>
-                </div>
-                <div>
-                    <span style="font-size:13px;color:#6b7280;display:block;margin-bottom:8px">病害图片</span>
-                    <div id="detail-images" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px"></div>
-                </div>
-            </div>
-            <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:12px">
-                <button onclick="closeModal('detail-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">关闭</button>
-            </div>
+        <!-- 顶部合规说明 -->
+        <div style="background:#fffbeb;border-bottom:1px solid #fde68a;padding:8px 20px;font-size:12px;color:#b45309;display:flex;align-items:flex-start;gap:8px;flex-shrink:0">
+          <svg style="width:16px;height:16px;flex-shrink:0;margin-top:1px" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <span>本知识库用于业务查询与农事指导，<b>请勿填写具体药剂剂量</b>（如克、毫升、ppm 等数值），仅记录药剂名称、使用时期与注意事项，避免合规风险。</span>
         </div>
-    </div>
-
-    <!-- 编辑病害弹窗 -->
-    <div id="edit-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center">
-        <div style="background:#fff;border-radius:12px;width:90%;max-width:500px;max-height:85vh;overflow-y:auto">
-            <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
-                <h3 style="font-size:18px;font-weight:600;color:#1f2937">编辑病害</h3>
-                <button onclick="closeModal('edit-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
-            </div>
-            <div style="padding:24px">
-                <div style="margin-bottom:16px">
-                    <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">病害名称 <span style="color:#ef4444">*</span></label>
-                    <input type="text" id="edit-name" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box">
-                </div>
-                <div style="margin-bottom:16px">
-                    <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">病害类型</label>
-                    <select id="edit-type" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box">
-                        <option value="真菌病害">真菌病害</option>
-                        <option value="细菌病害">细菌病害</option>
-                        <option value="病毒病害">病毒病害</option>
-                    </select>
-                </div>
-                <div style="margin-bottom:16px">
-                    <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">发病温度</label>
-                    <input type="text" id="edit-temperature" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box">
-                </div>
-                <div style="margin-bottom:16px">
-                    <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">发病季节</label>
-                    <input type="text" id="edit-season" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box">
-                </div>
-                <div style="margin-bottom:16px">
-                    <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">风险等级</label>
-                    <select id="edit-risk" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box">
-                        <option value="高风险">高风险</option>
-                        <option value="中风险">中风险</option>
-                        <option value="低风险">低风险</option>
-                    </select>
-                </div>
-                <div style="margin-bottom:16px">
-                    <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">病害描述</label>
-                    <textarea id="edit-desc" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box;resize:vertical" rows="3"></textarea>
-                </div>
-                <div style="margin-bottom:16px">
-                    <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">危害情况</label>
-                    <textarea id="edit-harm" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box;resize:vertical" rows="3" placeholder="请输入危害情况"></textarea>
-                </div>
-                <div style="margin-bottom:16px">
-                    <label style="display:block;font-size:14px;font-weight:500;color:#374151;margin-bottom:4px">防治方法</label>
-                    <textarea id="edit-control" style="width:100%;padding:8px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box;resize:vertical" rows="3" placeholder="请输入防治方法"></textarea>
-                </div>
-            </div>
-            <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:12px">
-                <button onclick="closeModal('edit-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
-                <button onclick="updateDisease()" style="padding:8px 16px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">保存</button>
-            </div>
+        <div style="padding:0 20px;border-bottom:1px solid #e5e7eb;flex-shrink:0">
+          <div id="form-tabs" class="flex gap-1" style="margin-bottom:-1px"></div>
         </div>
+        <div id="form-body" style="padding:20px;overflow-y:auto;flex:1"></div>
+        <div style="padding:14px 20px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:12px;flex-shrink:0">
+          <button type="button" onclick="closeFormModal()" style="padding:8px 18px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">关闭</button>
+          <button type="button" id="form-save-btn" onclick="saveForm()" style="padding:8px 18px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">保存</button>
+        </div>
+      </div>
     </div>
 
     <!-- 删除确认弹窗 -->
     <div id="delete-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center">
-        <div style="background:#fff;border-radius:12px;width:90%;max-width:400px;max-height:85vh;overflow-y:auto">
-            <div style="padding:24px;text-align:center">
-                <div style="width:64px;height:64px;background:#fee2e2;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
-                    <svg style="width:32px;height:32px;color:#ef4444" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.66 1.732-3L13.732 4c-.77-1.34-2.694-1.34-3.464 0L3.34 16c-.77 1.34.192 3 1.732 3z"/></svg>
-                </div>
-                <h3 style="font-size:18px;font-weight:600;color:#1f2937;margin-bottom:8px">确认删除</h3>
-                <p style="font-size:14px;color:#6b7280;margin-bottom:4px">确定要删除 "<span id="delete-name" style="color:#1f2937;font-weight:500"></span>" 吗？</p>
-                <p style="font-size:13px;color:#9ca3af;margin-bottom:24px">此操作不可撤销</p>
-            </div>
-            <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:12px">
-                <button onclick="closeModal('delete-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
-                <button onclick="confirmDelete()" style="padding:8px 16px;background:#ef4444;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">确认删除</button>
-            </div>
+      <div style="background:#fff;border-radius:12px;width:90%;max-width:400px">
+        <div style="padding:20px;text-align:center">
+          <div style="width:64px;height:64px;background:#fee2e2;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
+            <svg style="width:32px;height:32px;color:#ef4444" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.66 1.732-3L13.732 4c-.77-1.34-2.694-1.34-3.464 0L3.34 16c-.77 1.34.192 3 1.732 3z"/></svg>
+          </div>
+          <h3 style="font-size:18px;font-weight:600;color:#1f2937;margin-bottom:8px">确认删除</h3>
+          <p style="font-size:14px;color:#6b7280;margin-bottom:24px">确定要删除病害 <strong style="color:#1f2937" id="delete-name"></strong> 吗？此操作不可撤销。</p>
+          <div style="display:flex;justify-content:center;gap:12px">
+            <button type="button" onclick="closeDeleteModal()" style="padding:8px 18px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
+            <button type="button" onclick="confirmDelete()" style="padding:8px 18px;background:#ef4444;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">确认删除</button>
+          </div>
         </div>
+      </div>
     </div>
 
     <!-- 图片预览弹窗 -->
     <div id="image-preview-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:99999;align-items:center;justify-content:center">
-        <div style="position:relative;max-width:90vw;max-height:90vh">
-            <button onclick="closeModal('image-preview-modal')" style="position:absolute;top:-40px;right:0;padding:4px 8px;background:none;border:none;cursor:pointer;font-size:28px;color:#fff">&times;</button>
-            <img id="preview-image" src="" alt="预览图片" style="max-width:90vw;max-height:85vh;object-fit:contain;border-radius:8px" />
+        <div style="position:relative;width:90%;max-width:900px;max-height:90vh;display:flex;align-items:center;justify-content:center">
+            <button onclick="DBCommon.hideModal('image-preview-modal')" style="position:absolute;top:-40px;right:0;padding:4px 8px;background:none;border:none;cursor:pointer;font-size:28px;color:#fff">&times;</button>
+            <img id="preview-image" src="" alt="预览图片" style="max-width:100%;max-height:85vh;object-fit:contain;border-radius:8px" onerror="this.style.display='none'" />
         </div>
     </div>
 
+    <script src="disease_insect_common.js?v=20260828c"></script>
     <script>
-        function showModal(id) { var m = document.getElementById(id); if (m) m.style.display = 'flex'; }
-        function hideModal(id) { var m = document.getElementById(id); if (m) m.style.display = 'none'; }
-        function closeModal(id) { hideModal(id); }
-
-        const diseases = [
-            { id: 'disease-1', name: '黄龙病', type: '病毒病害', temperature: '25-30°C', season: '全年', risk: '高风险', desc: '由黄龙病病菌引起的毁灭性病害，主要通过木虱传播，严重影响蜜桔产量和品质。', harm: '叶片黄化、果实变小畸形、产量锐减、树势衰弱直至死亡，是蜜桔产业的毁灭性病害。', control: '1.严格检疫，禁止病苗进入；2.彻底防治木虱；3.及时挖除病株并烧毁；4.种植无病苗木；5.加强果园管理，增强树势。', images: [
+    /* =========================================================
+     * 病害数据库 · mock 数据（新 15 字段核心 schema）
+     * ========================================================= */
+    const diseases = [
+        {
+            id: 'B-001', name: '柑橘黄龙病', aliases: '黄梢病/黄化病',
+            type: '病毒性',
+            pathogen: '柑橘黄龙病韧皮部杆菌（Candidatus Liberibacter asiaticus）',
+            hostVarieties: ['南丰蜜桔', '砂糖橘', '脐橙', '温州蜜柑'],
+            parts: ['叶片', '果实', '枝干'],
+            leafSymptom: '新梢叶片出现不对称斑驳型黄化，老叶多从叶脉开始发黄',
+            fruitSymptom: '果实小、畸形，果蒂附近着色异常形成"红鼻子果"',
+            branchSymptom: '枝条细弱、节间缩短，无明显溃疡',
+            typicalFeature: '斑驳型不对称黄化 + 红鼻子果（最关键鉴别点）',
+            confusedWith: 'B-002/B-005',
+            peakSeason: ['春梢期', '秋梢期'],
+            monthNote: '4-6月、9-11月',
+            environment: '温度 25-30℃，温暖潮湿条件',
+            transmission: '柑橘木虱传播（主要媒介）',
+            trigger: '树势弱、偏施氮肥、苗木带病',
+            agriControl: '1.严格检疫，禁止病苗进入；2.彻底挖除病株并烧毁；3.种植无病苗木；4.加强果园管理增强树势',
+            bioControl: '无专门生物菌剂，主要保护木虱天敌',
+            chemControl: '春梢期喷施四环素族抗生素；新梢期防治木虱，使用噻虫嗪、联苯菊酯等药剂',
+            keyPeriod: '春梢抽发期、幼果期、晚秋梢期',
+            notes: '黄龙病无法治愈，务必以预防为主；禁止使用高毒农药',
+            harmLevel: '重',
+            lossImpact: '产量锐减、果实畸形、树体逐渐死亡、绝收',
+            source: '《柑橘病虫害防治手册》、农业农村部柑橘黄龙病防控指南',
+            status: '启用',
+            images: [
                 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=黄龙病早期症状特写，蜜桔叶片黄化不对称&image_size=square_hd',
                 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=黄龙病中期叶片斑驳黄化症状&image_size=square_hd',
                 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=黄龙病严重期果实畸形变小&image_size=square_hd',
                 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=黄龙病防治后蜜桔树恢复健康状态&image_size=square_hd'
-            ]},
-            { id: 'disease-2', name: '炭疽病', type: '真菌病害', temperature: '28-32°C', season: '夏季', risk: '中风险', desc: '由炭疽菌引起，危害叶片、枝梢和果实，高温高湿条件下易爆发。', harm: '叶片出现褐色斑点，严重时落叶；枝梢枯死；果实腐烂，影响品质和产量。', control: '1.加强栽培管理，增强树势；2.及时清除病叶病果；3.发病初期喷施代森锰锌、苯醚甲环唑等药剂；4.合理密植，改善通风透光。', images: [
+            ],
+            createdAt: '2024-03-15', updatedAt: '2025-12-20'
+        },
+        {
+            id: 'B-002', name: '柑橘炭疽病', aliases: '爆皮病',
+            type: '真菌性',
+            pathogen: '胶孢炭疽菌（Colletotrichum gloeosporioides）',
+            hostVarieties: ['南丰蜜桔', '砂糖橘', '沃柑', '脐橙'],
+            parts: ['叶片', '果实', '枝干'],
+            leafSymptom: '叶片出现褐色不规则病斑，严重时大量落叶',
+            fruitSymptom: '果实出现褐色凹陷病斑，湿度大时有粉红色黏孢团',
+            branchSymptom: '枝梢枯死，呈灰白色枯枝',
+            typicalFeature: '叶片 V 形或半圆形褐色病斑 + 潮湿时粉红色分生孢子团',
+            confusedWith: '',
+            peakSeason: ['夏梢期', '膨大期'],
+            monthNote: '5-9月',
+            environment: '温度 28-32℃，高湿多雨',
+            transmission: '风雨、雨水溅射、农事操作',
+            trigger: '树势弱、偏施氮肥、排水不良、伤口多',
+            agriControl: '1.加强栽培管理，增强树势；2.及时清除病叶、病果、病枝；3.合理修剪改善通风透光；4.增施磷钾肥',
+            bioControl: '保护天敌如捕食性螨，无专门生物菌剂',
+            chemControl: '发病初期喷施代森锰锌、苯醚甲环唑、咪鲜胺等药剂，注意轮换用药',
+            keyPeriod: '梅雨季前、新梢抽发期、幼果期',
+            notes: '避免连阴雨喷药；雨后及时补防；注意抗药性',
+            harmLevel: '中',
+            lossImpact: '落叶落果、枝条枯死、树势衰弱',
+            source: '《柑橘病虫害防治手册》',
+            status: '启用',
+            images: [
                 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=炭疽病早期症状特写，蜜桔叶片出现小斑点&image_size=square_hd',
                 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=炭疽病中期叶片病斑扩大呈褐色&image_size=square_hd',
                 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=炭疽病严重期果实腐烂凹陷&image_size=square_hd',
                 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=炭疽病防治后蜜桔恢复健康状态&image_size=square_hd'
-            ]},
-            { id: 'disease-3', name: '黑点病', type: '真菌病害', temperature: '20-25°C', season: '春季', risk: '中风险', desc: '又称沙皮病，在果实表面形成小黑点，影响外观品质和商品价值。', harm: '果实表面布满小黑点，影响外观和商品价值；严重时病斑连片，降低果实等级。', control: '1.加强冬季清园，减少越冬病菌；2.春梢期喷施石硫合剂；3.谢花后喷施代森锰锌、嘧菌酯等药剂；4.合理施肥，增强树势。', images: [
+            ],
+            createdAt: '2024-03-15', updatedAt: '2025-08-10'
+        },
+        {
+            id: 'B-003', name: '柑橘黑点病', aliases: '沙皮病/树脂病',
+            type: '真菌性',
+            pathogen: '柑橘间座壳菌（Diaporthe citri）',
+            hostVarieties: ['南丰蜜桔', '砂糖橘', '温州蜜柑', '椪柑'],
+            parts: ['果实', '枝干', '叶片'],
+            leafSymptom: '叶面散生黑色硬质小点，叶片生长受阻',
+            fruitSymptom: '果面密布黑褐色硬质小点（沙皮状），严重影响商品价值',
+            branchSymptom: '枝干流胶，形成沙皮状病斑',
+            typicalFeature: '果实表面沙粒状黑点 + 流胶型枝干病斑',
+            confusedWith: '',
+            peakSeason: ['春梢期', '开花期', '幼果期'],
+            monthNote: '3-6月',
+            environment: '温度 20-25℃，阴雨高湿',
+            transmission: '风雨、雨水溅射',
+            trigger: '冻害、涝害、伤口、树势衰弱',
+            agriControl: '1.加强冬季清园，减少越冬病菌；2.树干涂白防冻；4.合理修剪增强通风',
+            bioControl: '无',
+            chemControl: '春梢期喷施石硫合剂；谢花后喷施代森锰锌、嘧菌酯、苯醚甲环唑等',
+            keyPeriod: '春梢萌动期、谢花后、幼果期',
+            notes: '雨季抢晴喷药；轮换用药延缓抗药性',
+            harmLevel: '中',
+            lossImpact: '果实外观品质下降、商品价值降低',
+            source: '《柑橘病虫害防治手册》',
+            status: '启用',
+            images: [
                 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=黑点病早期症状特写，蜜桔叶片出现小黑点&image_size=square_hd',
                 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=黑点病中期果实表面密集黑点病斑&image_size=square_hd',
                 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=黑点病严重期蜜桔果实布满沙皮&image_size=square_hd',
                 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=黑点病防治后蜜桔果实恢复光滑状态&image_size=square_hd'
-            ]},
-            { id: 'disease-4', name: '溃疡病', type: '细菌病害', temperature: '25-30°C', season: '夏梢期', risk: '高风险', desc: '由细菌引起，在叶片和果实上形成隆起的溃疡斑，影响光合作用和果实品质。', harm: '叶片穿孔，影响光合作用；果实表面形成隆起病斑，降低商品价值；严重时导致落叶落果。', control: '1.种植无病苗木；2.加强检疫；3.新梢期和幼果期喷施春雷霉素、噻唑锌等药剂；4.及时剪除病枝病叶。', images: [
+            ],
+            createdAt: '2024-04-02', updatedAt: '2025-09-15'
+        },
+        {
+            id: 'B-004', name: '柑橘溃疡病', aliases: '',
+            type: '细菌性',
+            pathogen: '柑橘溃疡病菌（Xanthomonas citri pv. citri）',
+            hostVarieties: ['脐橙', '柚类', '柠檬', '沃柑'],
+            parts: ['叶片', '果实', '枝干'],
+            leafSymptom: '叶背初现水渍状小点，扩大成近圆形褐色病斑，叶片穿孔',
+            fruitSymptom: '果实表面隆起木栓化病斑，火山口状开裂',
+            branchSymptom: '枝梢出现褐色隆起病斑，严重时枯梢',
+            typicalFeature: '叶片火山口状穿孔 + 果实隆起木栓化病斑',
+            confusedWith: 'B-009',
+            peakSeason: ['春梢期', '夏梢期', '幼果期'],
+            monthNote: '4-9月',
+            environment: '温度 25-30℃，高湿多雨、台风',
+            transmission: '风雨、雨水溅射、农事操作、苗木调运',
+            trigger: '幼嫩组织多、风雨频繁、伤口',
+            agriControl: '1.种植无病苗木；2.加强检疫；3.及时剪除病枝病叶并销毁；4.合理修剪',
+            bioControl: '无',
+            chemControl: '新梢期和幼果期喷施春雷霉素、噻唑锌、氢氧化铜等药剂',
+            keyPeriod: '新梢抽发期、幼果期、台风暴雨前后',
+            notes: '脐橙、柚类等感病品种重点防控；与疮痂病鉴别诊断',
+            harmLevel: '重',
+            lossImpact: '落叶落果、果实商品价值降低、苗木销毁',
+            source: '《柑橘病虫害防治手册》、植物检疫条例',
+            status: '启用',
+            images: [
                 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=溃疡病早期症状特写，蜜桔叶片水渍状斑点&image_size=square_hd',
                 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=溃疡病中期叶片隆起木栓化病斑&image_size=square_hd',
                 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=溃疡病严重期蜜桔果实溃烂穿孔&image_size=square_hd',
                 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=溃疡病防治后蜜桔树恢复健康状态&image_size=square_hd'
-            ]},
-            { id: 'disease-5', name: '疮痂病', type: '真菌病害', temperature: '15-25°C', season: '春季', risk: '中风险', desc: '由真菌引起，主要危害幼嫩组织，导致叶片和果实畸形。', harm: '叶片畸形卷曲，影响光合作用；果实表面粗糙畸形，降低商品价值；新梢生长受阻。', control: '1.冬季清园，减少越冬病菌；2.春梢萌动期和谢花后喷施代森锰锌、苯醚甲环唑等药剂；3.合理修剪，改善通风透光。', images: [
+            ],
+            createdAt: '2024-04-10', updatedAt: '2025-10-08'
+        },
+        {
+            id: 'B-005', name: '柑橘疮痂病', aliases: '',
+            type: '真菌性',
+            pathogen: '柑橘痂圆孢菌（Sphaceloma fawcettii）',
+            hostVarieties: ['南丰蜜桔', '温州蜜柑', '椪柑'],
+            parts: ['叶片', '果实', '花'],
+            leafSymptom: '叶片出现油渍状小斑点，后变蜡黄色至黄褐色，叶片畸形',
+            fruitSymptom: '果面出现散生瘤状突起，果皮粗糙畸形',
+            branchSymptom: '新梢生长受阻',
+            typicalFeature: '叶片油渍状突起 + 果实散生瘤状病斑（与溃疡病区别）',
+            confusedWith: 'B-004',
+            peakSeason: ['春梢期', '开花期', '幼果期'],
+            monthNote: '3-5月',
+            environment: '温度 15-25℃，阴雨高湿',
+            transmission: '风雨、雨水溅射',
+            trigger: '春寒多雨、树势弱、幼嫩组织多',
+            agriControl: '1.冬季清园，减少越冬病菌；2.修剪病枝病叶销毁；3.合理修剪改善通风',
+            bioControl: '无',
+            chemControl: '春梢萌动期和谢花后喷施代森锰锌、苯醚甲环唑、多菌灵等',
+            keyPeriod: '春梢萌动期、谢花后、幼果期',
+            notes: '花期、幼果期避免使用高毒药剂；轮换用药',
+            harmLevel: '中',
+            lossImpact: '叶片畸形、果实外观品质下降',
+            source: '《柑橘病虫害防治手册》',
+            status: '启用',
+            images: [
                 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=疮痂病早期症状特写，蜜桔幼叶出现小突起&image_size=square_hd',
                 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=疮痂病中期叶片病斑凸起粗糙&image_size=square_hd',
                 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=疮痂病严重期蜜桔果实畸形结痂&image_size=square_hd',
                 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=疮痂病防治后蜜桔恢复健康状态&image_size=square_hd'
-            ]},
-            { id: 'disease-6', name: '褐斑病', type: '真菌病害', temperature: '22-28°C', season: '秋季', risk: '中风险', desc: '导致叶片出现褐色斑点，严重时造成落叶，影响树势。', harm: '叶片出现褐色斑点，严重时大量落叶；树势衰弱，影响来年产量。', control: '1.加强栽培管理，增强树势；2.及时清除病叶；3.发病初期喷施代森锰锌、吡唑醚菌酯等药剂；4.合理灌溉，避免湿度过大。', images: [
+            ],
+            createdAt: '2024-04-15', updatedAt: '2025-07-20'
+        },
+        {
+            id: 'B-006', name: '柑橘褐斑病', aliases: '',
+            type: '真菌性',
+            pathogen: '柑橘链格孢菌（Alternaria citri）',
+            hostVarieties: ['南丰蜜桔', '脐橙', '温州蜜柑'],
+            parts: ['叶片', '果实'],
+            leafSymptom: '叶面初现褐色小点，扩大成圆形或不规则病斑，边缘深褐色',
+            fruitSymptom: '果实出现褐色病斑，贮藏期引起腐烂',
+            branchSymptom: '无明显症状',
+            typicalFeature: '叶片圆形褐色病斑 + 黄色晕圈',
+            confusedWith: '',
+            peakSeason: ['膨大期', '秋梢期'],
+            monthNote: '7-10月',
+            environment: '温度 22-28℃，温暖潮湿',
+            transmission: '风雨、农事操作',
+            trigger: '树势弱、排水不良、偏施氮肥',
+            agriControl: '1.加强栽培管理，增强树势；2.及时清除病叶；4.合理灌溉避免湿度过大',
+            bioControl: '无',
+            chemControl: '发病初期喷施代森锰锌、吡唑醚菌酯、苯醚甲环唑等',
+            keyPeriod: '夏末秋初、秋梢期',
+            notes: '与黑点病症状相似，需鉴别诊断',
+            harmLevel: '中',
+            lossImpact: '大量落叶、影响树势和来年产量',
+            source: '《柑橘病虫害防治手册》',
+            status: '启用',
+            images: [
                 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=褐斑病早期症状特写，蜜桔叶片出现褐色小点&image_size=square_hd',
                 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=褐斑病中期叶片大面积褐色病斑&image_size=square_hd',
                 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=褐斑病严重期蜜桔树大量落叶&image_size=square_hd',
                 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=褐斑病防治后蜜桔恢复健康状态&image_size=square_hd'
-            ]},
-            { id: 'disease-7', name: '灰霉病', type: '真菌病害', temperature: '15-20°C', season: '冬季', risk: '低风险', desc: '在低温高湿条件下发生，危害花器和幼果，导致落花落果。', harm: '花器腐烂，导致落花；幼果腐烂脱落；严重时影响坐果率和产量。', control: '1.加强通风降湿；2.及时清除病花病果；3.花期喷施腐霉利、异菌脲等药剂；4.合理密植，改善通风透光。', images: [
+            ],
+            createdAt: '2024-05-01', updatedAt: '2025-09-22'
+        },
+        {
+            id: 'B-007', name: '柑橘灰霉病', aliases: '',
+            type: '真菌性',
+            pathogen: '灰葡萄孢菌（Botrytis cinerea）',
+            hostVarieties: ['南丰蜜桔', '温州蜜柑', '椪柑'],
+            parts: ['花', '果实'],
+            leafSymptom: '无明显症状',
+            fruitSymptom: '幼果表面形成灰褐色霉层，引起落果；贮藏期果实腐烂',
+            branchSymptom: '无明显症状',
+            typicalFeature: '花瓣和幼果覆盖灰色霉层',
+            confusedWith: '',
+            peakSeason: ['开花期', '采后期'],
+            monthNote: '4-5月、11-12月',
+            environment: '温度 15-20℃，低温高湿',
+            transmission: '风雨、气流',
+            trigger: '花期多雨、果园郁闭通风差',
+            agriControl: '1.加强通风降湿；2.及时清除病花病果；3.合理密植改善通风',
+            bioControl: '无',
+            chemControl: '花期喷施腐霉利、异菌脲、嘧霉胺等药剂；贮藏期用抑霉唑处理',
+            keyPeriod: '开花期、采后贮藏期',
+            notes: '避免在花期过多喷药影响授粉；贮藏期注意通风',
+            harmLevel: '轻',
+            lossImpact: '落花落果、贮藏期果实腐烂',
+            source: '《柑橘病虫害防治手册》',
+            status: '启用',
+            images: [
                 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=灰霉病早期症状特写，蜜桔花瓣出现灰霉&image_size=square_hd',
                 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=灰霉病中期幼果覆盖灰色霉层病斑&image_size=square_hd',
                 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=灰霉病严重期蜜桔花朵幼果腐烂&image_size=square_hd',
                 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=灰霉病防治后蜜桔恢复健康状态&image_size=square_hd'
-            ]},
-            { id: 'disease-8', name: '白粉病', type: '真菌病害', temperature: '18-25°C', season: '春末夏初', risk: '低风险', desc: '叶片表面产生白色粉状物，影响光合作用和树体生长。', harm: '叶片表面覆盖白色粉状物，影响光合作用；严重时叶片卷曲枯黄，树势衰弱。', control: '1.加强通风透光；2.及时清除病叶；3.发病初期喷施三唑酮、醚菌酯等药剂；4.合理施肥，增强树势。', images: [
+            ],
+            createdAt: '2024-05-10', updatedAt: '2025-11-05'
+        },
+        {
+            id: 'B-008', name: '柑橘白粉病', aliases: '',
+            type: '真菌性',
+            pathogen: '柑橘白粉菌（Oidium citri）',
+            hostVarieties: ['南丰蜜桔', '砂糖橘', '椪柑'],
+            parts: ['叶片'],
+            leafSymptom: '叶面初现白色粉状斑，后覆盖整个叶片，叶片卷曲枯黄',
+            fruitSymptom: '无明显症状',
+            branchSymptom: '新梢生长受阻',
+            typicalFeature: '叶片表面白色粉状物（可擦掉）',
+            confusedWith: '',
+            peakSeason: ['春梢期', '开花期'],
+            monthNote: '4-6月',
+            environment: '温度 18-25℃，温暖干燥、闷热',
+            transmission: '气流',
+            trigger: '果园郁闭、干旱后闷热',
+            agriControl: '1.加强通风透光；2.及时清除病叶；3.合理修剪；4.合理施肥增强树势',
+            bioControl: '无',
+            chemControl: '发病初期喷施三唑酮、醚菌酯、戊唑醇等药剂',
+            keyPeriod: '春末夏初、秋梢期',
+            notes: '注意与其他粉状病症（煤烟病）鉴别',
+            harmLevel: '轻',
+            lossImpact: '叶片光合作用下降、树势衰弱',
+            source: '《柑橘病虫害防治手册》',
+            status: '启用',
+            images: [
                 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=白粉病早期症状特写，蜜桔叶片出现白粉&image_size=square_hd',
                 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=白粉病中期叶片布满白色粉状病斑&image_size=square_hd',
                 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=白粉病严重期蜜桔树叶片卷曲枯黄&image_size=square_hd',
                 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=白粉病防治后蜜桔恢复健康状态&image_size=square_hd'
-            ]},
-            { id: 'disease-9', name: '煤烟病', type: '真菌病害', temperature: '20-28°C', season: '全年', risk: '低风险', desc: '由蚜虫、介壳虫等害虫分泌的蜜露引起，影响叶片光合作用。', harm: '叶片表面覆盖黑色霉层，影响光合作用；树势衰弱，影响产量和品质。', control: '1.及时防治蚜虫、介壳虫等害虫；2.加强通风透光；3.喷施矿物油或石硫合剂清洗霉层；4.合理修剪，改善通风条件。', images: [
+            ],
+            createdAt: '2024-05-18', updatedAt: '2025-08-28'
+        },
+        {
+            id: 'B-009', name: '柑橘煤烟病', aliases: '煤污病',
+            type: '真菌性',
+            pathogen: '多种煤污菌（Capnodium spp. 等，多为附生）',
+            hostVarieties: ['南丰蜜桔', '砂糖橘', '脐橙'],
+            parts: ['叶片', '果实', '枝干'],
+            leafSymptom: '叶片表面覆盖黑色煤灰状霉层，可剥落',
+            fruitSymptom: '果实表面覆盖黑色霉层，影响外观品质',
+            branchSymptom: '枝干表面覆盖黑色霉层',
+            typicalFeature: '叶片/果实黑色煤灰状霉层 + 伴有蚜虫/介壳虫/粉虱为害',
+            confusedWith: '',
+            peakSeason: ['夏梢期', '膨大期'],
+            monthNote: '6-10月',
+            environment: '温度 20-28℃，高湿',
+            transmission: '随蚜虫、粉虱、介壳虫蜜露滋生',
+            trigger: '蚜虫/介壳虫/粉虱严重发生、果园郁闭',
+            agriControl: '1.及时防治蚜虫、粉虱、介壳虫等害虫（治虫防病）；2.加强通风透光；3.合理修剪',
+            bioControl: '保护瓢虫、草蛉等天敌',
+            chemControl: '喷施矿物油或石硫合剂清洗霉层；先治虫再清洗',
+            keyPeriod: '害虫高发期同步防治',
+            notes: '煤烟病为次生病害，防治关键在治虫',
+            harmLevel: '轻',
+            lossImpact: '光合作用下降、果实品质降低',
+            source: '《柑橘病虫害防治手册》',
+            status: '启用',
+            images: [
                 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=煤烟病早期症状特写，蜜桔叶片出现黑色霉层&image_size=square_hd',
                 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=煤烟病中期叶片覆盖黑色煤灰层病斑&image_size=square_hd',
                 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=煤烟病严重期蜜桔叶片完全变黑枯萎&image_size=square_hd',
                 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=煤烟病防治后蜜桔恢复健康状态&image_size=square_hd'
-            ]},
-            { id: 'disease-10', name: '蒂腐病', type: '真菌病害', temperature: '25-30°C', season: '成熟期', risk: '中风险', desc: '危害果实蒂部，导致果实腐烂，严重影响果实储存和销售。', harm: '果实蒂部腐烂，影响储存和运输；严重时整果腐烂，损失较大。', control: '1.适时采收，避免过熟；2.采收时避免损伤果蒂；3.采后及时预冷；4.贮藏前用咪鲜胺等药剂处理。', images: [
+            ],
+            createdAt: '2024-06-01', updatedAt: '2025-09-30'
+        },
+        {
+            id: 'B-010', name: '柑橘蒂腐病', aliases: '褐色蒂腐病',
+            type: '真菌性',
+            pathogen: '柑橘蒂腐菌（Phomopsis citri）',
+            hostVarieties: ['南丰蜜桔', '脐橙', '温州蜜柑'],
+            parts: ['果实'],
+            leafSymptom: '无明显症状',
+            fruitSymptom: '果实蒂部出现褐色水渍状病斑，向果面扩展，整果腐烂',
+            branchSymptom: '枝条染病后枯死',
+            typicalFeature: '果实蒂部褐色腐烂（贮藏期典型症状）',
+            confusedWith: '',
+            peakSeason: ['成熟期', '采后期'],
+            monthNote: '10-12月',
+            environment: '温度 25-30℃，高湿贮藏环境',
+            transmission: '风雨、贮藏期接触传染',
+            trigger: '采收过晚、果实带伤、贮藏温湿度高',
+            agriControl: '1.适时采收，避免过熟；2.采收时避免损伤果蒂；3.采后及时预冷；4.贮藏前分选',
+            bioControl: '无',
+            chemControl: '贮藏前用咪鲜胺、抑霉唑等药剂处理',
+            keyPeriod: '采收期、贮藏期',
+            notes: '贮藏温度建议 5-8℃；注意通风',
+            harmLevel: '中',
+            lossImpact: '贮藏期果实腐烂、损失较大',
+            source: '《柑橘病虫害防治手册》',
+            status: '启用',
+            images: [
                 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=蒂腐病早期症状特写，蜜桔果实蒂部变色&image_size=square_hd',
                 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=蒂腐病中期果实蒂部腐烂扩散病斑&image_size=square_hd',
                 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=蒂腐病严重期蜜桔果实完全腐烂脱落&image_size=square_hd',
                 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=蒂腐病防治后蜜桔恢复健康状态&image_size=square_hd'
-            ]},
-            { id: 'disease-11', name: '黑星病', type: '真菌病害', temperature: '20-25°C', season: '夏季', risk: '中风险', desc: '在果实表面形成黑色星状斑点，影响果实外观和商品价值。', harm: '果实表面形成黑色星状斑点，影响外观和商品价值；严重时病斑扩大，降低果实等级。', control: '1.冬季清园，减少越冬病菌；2.谢花后喷施代森锰锌、嘧菌酯等药剂；3.及时摘除病果；4.合理密植，改善通风透光。', images: [
+            ],
+            createdAt: '2024-06-15', updatedAt: '2025-12-01'
+        },
+        {
+            id: 'B-011', name: '柑橘黑星病', aliases: '',
+            type: '真菌性',
+            pathogen: '柑橘球座菌（Guignardia citricarpa）',
+            hostVarieties: ['南丰蜜桔', '脐橙', '柠檬'],
+            parts: ['果实'],
+            leafSymptom: '叶片偶见小型褐色病斑',
+            fruitSymptom: '果面形成黑色星状病斑，周围有黄色晕圈',
+            branchSymptom: '无明显症状',
+            typicalFeature: '果实黑色星状斑点 + 黄色晕圈',
+            confusedWith: '',
+            peakSeason: ['膨大期', '着色期', '成熟期'],
+            monthNote: '7-11月',
+            environment: '温度 20-25℃，温暖潮湿',
+            transmission: '风雨、雨水溅射',
+            trigger: '果园郁闭、偏施氮肥、排水不良',
+            agriControl: '1.冬季清园，减少越冬病菌；2.及时摘除病果销毁；3.合理密植改善通风',
+            bioControl: '无',
+            chemControl: '谢花后喷施代森锰锌、嘧菌酯、苯醚甲环唑等',
+            keyPeriod: '谢花后、幼果期、膨大期',
+            notes: '贮藏期继续发展，需提前防治',
+            harmLevel: '中',
+            lossImpact: '果实外观品质下降、贮藏期腐烂',
+            source: '《柑橘病虫害防治手册》',
+            status: '启用',
+            images: [
                 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=黑星病早期症状特写，蜜桔果实出现黑星小点&image_size=square_hd',
                 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=黑星病中期果实星状黑色病斑扩大&image_size=square_hd',
                 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=黑星病严重期蜜桔果实布满黑星腐烂&image_size=square_hd',
                 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=黑星病防治后蜜桔恢复健康状态&image_size=square_hd'
-            ]},
-            { id: 'disease-12', name: '疫病', type: '真菌病害', temperature: '28-32°C', season: '夏季', risk: '高风险', desc: '高温高湿条件下快速蔓延，导致枝梢枯萎和果实腐烂。', harm: '枝梢枯萎，果实腐烂；严重时整株死亡，损失惨重。', control: '1.加强排水，避免积水；2.及时清除病株病果；3.发病初期喷施甲霜灵锰锌、烯酰吗啉等药剂；4.合理密植，改善通风透光。', images: [
-                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=疫病早期症状特写，蜜桔枝梢出现水渍状斑&image_size=square_hd',
-                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=疫病中期枝干流胶皮层腐烂病斑&image_size=square_hd',
-                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=疫病严重期蜜桔树整株枯萎果实腐烂&image_size=square_hd',
-                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=疫病防治后蜜桔恢复健康状态&image_size=square_hd'
-            ]},
-            { id: 'disease-13', name: '锈壁虱', type: '真菌病害', temperature: '25-30°C', season: '夏季', risk: '中风险', desc: '危害叶片和果实，导致叶片发黄和果实变黑。', harm: '叶片发黄，果实表皮变黑粗糙，影响外观品质和商品价值。', control: '1.加强果园管理，保持树冠通风透光；2.及时防治；3.喷施阿维菌素、螺螨酯等药剂；4.冬季清园。', images: [
-                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=锈壁虱病害早期症状特写，蜜桔叶片发黄&image_size=square_hd',
-                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=锈壁虱病害中期果实表皮锈色病斑&image_size=square_hd',
-                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=锈壁虱病害严重期蜜桔果实完全变黑&image_size=square_hd',
-                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=锈壁虱病害防治后蜜桔恢复健康状态&image_size=square_hd'
-            ]},
-            { id: 'disease-14', name: '叶斑病', type: '真菌病害', temperature: '22-26°C', season: '春秋季', risk: '低风险', desc: '叶片出现圆形或不规则斑点，严重时导致落叶。', harm: '叶片出现斑点，严重时大量落叶；树势衰弱，影响光合作用和产量。', control: '1.加强栽培管理，增强树势；2.及时清除病叶；3.发病初期喷施代森锰锌、苯醚甲环唑等药剂；4.合理灌溉。', images: [
-                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=叶斑病早期症状特写，蜜桔叶片出现圆形斑点&image_size=square_hd',
-                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=叶斑病中期叶片斑点扩大连片病斑&image_size=square_hd',
-                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=叶斑病严重期蜜桔树大量落叶枯枝&image_size=square_hd',
-                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=叶斑病防治后蜜桔恢复健康状态&image_size=square_hd'
-            ]},
-            { id: 'disease-15', name: '轮纹病', type: '真菌病害', temperature: '20-25°C', season: '春季', risk: '中风险', desc: '枝干和果实上形成轮纹状病斑，影响树势和果实品质。', harm: '枝干形成轮纹状病斑，影响养分输送；果实腐烂，影响品质和产量。', control: '1.冬季清园，刮除病斑；2.树干涂白或涂抹药剂；3.谢花后喷施代森锰锌、苯醚甲环唑等药剂；4.加强栽培管理，增强树势。', images: [
-                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=轮纹病早期症状特写，蜜桔枝干出现轮纹斑点&image_size=square_hd',
-                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=轮纹病中期果实轮纹状病斑扩散&image_size=square_hd',
-                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=轮纹病严重期蜜桔果实腐烂枝干枯死&image_size=square_hd',
-                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=轮纹病防治后蜜桔恢复健康状态&image_size=square_hd'
-            ]}
-        ];
-
-        let currentPage = 1;
-        let pageSize = 6;
-        let currentId = null;
-        let filteredDiseases = [...diseases];
-
-        function getTypeColor(type) {
-            switch(type) {
-                case '真菌病害': return 'bg-orange-100 text-orange-700';
-                case '细菌病害': return 'bg-blue-100 text-blue-700';
-                case '病毒病害': return 'bg-red-100 text-red-700';
-                default: return 'bg-gray-100 text-gray-700';
-            }
+            ],
+            createdAt: '2024-07-01', updatedAt: '2025-10-20'
+        },
+        {
+            id: 'B-012', name: '柑橘脚腐病', aliases: '裙腐病',
+            type: '真菌性',
+            pathogen: '疫霉菌（Phytophthora spp.）',
+            hostVarieties: ['南丰蜜桔', '脐橙', '温州蜜柑'],
+            parts: ['根系', '枝干'],
+            leafSymptom: '叶片黄化、变小，叶缘焦枯',
+            fruitSymptom: '果实变小、品质下降',
+            branchSymptom: '根颈部树皮腐烂，褐色水渍状，有酒糟味，整株黄化',
+            typicalFeature: '根颈部皮层腐烂 + 酒糟味 + 全株黄化',
+            confusedWith: '',
+            peakSeason: ['夏梢期', '膨大期'],
+            monthNote: '5-9月',
+            environment: '温度 28-32℃，高温高湿、土壤积水',
+            transmission: '土壤、雨水流动、苗木调运',
+            trigger: '土壤排水不良、栽植过深、根部伤口',
+            agriControl: '1.改良土壤、改善排水；2.避免栽植过深；3.扒土晾根；4.选用抗病砧木',
+            bioControl: '无',
+            chemControl: '刮除病斑后涂抹甲霜灵锰锌、乙膦铝等药剂；树盘喷淋烯酰吗啉',
+            keyPeriod: '梅雨季、台风暴雨后',
+            notes: '注意与天牛根部危害、根结线虫等鉴别',
+            harmLevel: '重',
+            lossImpact: '整株枯死、毁园',
+            source: '《柑橘病虫害防治手册》',
+            status: '启用',
+            images: [
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=脚腐病早期症状特写，根颈部褐色树皮腐烂&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=脚腐病中期主干流胶腐烂扩散&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=脚腐病严重期蜜桔整株黄化枯死&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=脚腐病防治后蜜桔恢复健康状态&image_size=square_hd'
+            ],
+            createdAt: '2024-07-10', updatedAt: '2025-11-15'
+        },
+        {
+            id: 'B-013', name: '柑橘缺铁黄化病', aliases: '黄化病',
+            type: '缺素',
+            pathogen: '缺铁（土壤碱性、铁元素有效性低）',
+            hostVarieties: ['南丰蜜桔', '脐橙', '柚类'],
+            parts: ['叶片'],
+            leafSymptom: '新梢叶片叶肉发黄，叶脉保持绿色（典型网状黄化）',
+            fruitSymptom: '果实小、品质差',
+            branchSymptom: '新梢细弱、节间缩短',
+            typicalFeature: '新叶叶肉黄化 + 叶脉绿色（典型缺铁特征）',
+            confusedWith: 'B-014',
+            peakSeason: ['春梢期', '秋梢期'],
+            monthNote: '3-5月、9-11月',
+            environment: '土壤 pH 偏高（碱性）、排水不良、积水',
+            transmission: '非传染性（生理病害）',
+            trigger: '土壤碱性、积水、磷肥过量、其他微量元素缺乏',
+            agriControl: '1.改良土壤，降低 pH；2.增施有机肥；3.合理排灌；4.选用抗缺铁砧木',
+            bioControl: '无',
+            chemControl: '叶面喷施螯合铁（EDDHA-Fe）；土壤施用硫酸亚铁',
+            keyPeriod: '新梢抽发期',
+            notes: '注意与缺锌、缺锰、缺镁黄化的鉴别诊断',
+            harmLevel: '中',
+            lossImpact: '树势衰弱、产量品质下降',
+            source: '《柑橘营养与施肥》、柑橘缺素症图谱',
+            status: '启用',
+            images: [
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=柑橘缺铁黄化病早期，新叶叶肉发黄叶脉绿&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=柑橘缺铁黄化中期，新梢整片黄化&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=柑橘缺铁严重期，整株黄化&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=柑橘缺铁防治后叶色恢复翠绿&image_size=square_hd'
+            ],
+            createdAt: '2024-08-01', updatedAt: '2025-12-12'
+        },
+        {
+            id: 'B-014', name: '柑橘缺锌小叶病', aliases: '',
+            type: '缺素',
+            pathogen: '缺锌（土壤锌不足或磷肥过量诱发）',
+            hostVarieties: ['南丰蜜桔', '砂糖橘', '温州蜜柑'],
+            parts: ['叶片'],
+            leafSymptom: '叶片变小、簇生、节间缩短，叶肉出现黄色斑驳',
+            fruitSymptom: '果实小、畸形',
+            branchSymptom: '新梢节间缩短、丛生',
+            typicalFeature: '叶片簇生小叶 + 节间缩短 + 斑驳黄化',
+            confusedWith: 'B-013',
+            peakSeason: ['春梢期', '秋梢期'],
+            monthNote: '3-6月、9-11月',
+            environment: '土壤锌不足、磷肥过量、碱性土壤',
+            transmission: '非传染性（生理病害）',
+            trigger: '磷肥过量、土壤碱性、有机质少',
+            agriControl: '1.增施有机肥；2.合理施用磷肥；3.改良土壤；4.选用健康苗木',
+            bioControl: '无',
+            chemControl: '叶面喷施硫酸锌溶液；萌芽前喷施',
+            keyPeriod: '春梢萌芽前、抽发期',
+            notes: '注意与缺铁、缺锰、病毒病（黄龙病）鉴别',
+            harmLevel: '中',
+            lossImpact: '树势衰弱、产量品质下降',
+            source: '《柑橘营养与施肥》',
+            status: '启用',
+            images: [
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=柑橘缺锌小叶病早期，新叶变小斑驳&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=柑橘缺锌中期，新梢簇生节间短&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=柑橘缺锌严重期，小叶丛生&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=柑橘缺锌防治后叶片恢复正常&image_size=square_hd'
+            ],
+            createdAt: '2024-08-12', updatedAt: '2025-11-25'
+        },
+        {
+            id: 'B-015', name: '柑橘日灼病', aliases: '日烧病',
+            type: '生理性',
+            pathogen: '强光高温灼伤（生理诱因：烈日直射 + 高温干旱）',
+            hostVarieties: ['南丰蜜桔', '脐橙', '沃柑'],
+            parts: ['果实', '枝干'],
+            leafSymptom: '无明显症状',
+            fruitSymptom: '果实向阳面出现褐色凹陷斑块，果皮粗糙硬化',
+            branchSymptom: '枝干向阳面树皮爆裂、枯死',
+            typicalFeature: '果实/枝干向阳面灼伤斑块 + 凹陷硬化',
+            confusedWith: '',
+            peakSeason: ['膨大期', '着色期'],
+            monthNote: '7-9月',
+            environment: '强光、高温（35℃以上）、干旱',
+            transmission: '非传染性（生理病害）',
+            trigger: '烈日直射、干旱、修剪过重致果实裸露',
+            agriControl: '1.合理修剪保留枝叶遮阴；2.夏季灌溉保持水分；3.树干涂白；4.果园生草降温',
+            bioControl: '无',
+            chemControl: '喷施石灰水或白色反光剂保护果实',
+            keyPeriod: '高温干旱季节',
+            notes: '注意与药害、缺素症、热害鉴别',
+            harmLevel: '轻',
+            lossImpact: '果实外观品质下降、枝干枯死',
+            source: '《柑橘病虫害防治手册》',
+            status: '启用',
+            images: [
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=柑橘日灼病早期，果实向阳面褐色斑块&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=柑橘日灼中期，果皮凹陷硬化&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=柑橘日灼严重期，果实大面积灼伤&image_size=square_hd',
+                'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=柑橘日灼防治后果实恢复保护&image_size=square_hd'
+            ],
+            createdAt: '2024-09-01', updatedAt: '2025-12-05'
         }
+    ];
 
-        function getTypeBgColor(type) {
-            switch(type) {
-                case '真菌病害': return 'bg-orange-100';
-                case '细菌病害': return 'bg-blue-100';
-                case '病毒病害': return 'bg-red-100';
-                default: return 'bg-gray-100';
-            }
-        }
+    /* =========================================================
+     * 渲染、筛选、分页
+     * ========================================================= */
+    let currentPage = 1;
+    let pageSize = 6;
+    let currentEditId = null;
+    let currentDeleteId = null;
+    let currentFormMode = 'add'; // add / edit / detail
+    let currentKeyword = '';
+    let currentImages = [];        // 图片 Tab 暂存的图片数组
+    let filteredDiseases = diseases.slice();
 
-        function getRiskColor(risk) {
-            switch(risk) {
-                case '高风险': return 'text-red';
-                case '中风险': return 'text-yellow';
-                case '低风险': return 'text-green';
-                default: return 'text-gray-600';
-            }
-        }
+    // 收集多选下拉的选中值
+    function getMultiValues(id) {
+        const el = document.getElementById(id);
+        if (!el) return [];
+        return Array.from(el.selectedOptions).map(function (o) { return o.value; }).filter(Boolean);
+    }
 
-        function renderDiseases() {
-            const container = document.getElementById('disease-list');
-            const start = (currentPage - 1) * pageSize;
-            const end = start + pageSize;
-            const pageData = filteredDiseases.slice(start, end);
-
-            container.innerHTML = pageData.map(disease => `
-                <div class="border border-gray-200 rounded-xl p-4 hover:border-green-300 hover:shadow-md transition" data-id="${disease.id}" data-name="${disease.name}" data-type="${disease.type}" data-temperature="${disease.temperature}" data-season="${disease.season}" data-risk="${disease.risk}" data-desc="${disease.desc}">
-                    <div class="flex items-start justify-between mb-3">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-12 h-12 ${getTypeBgColor(disease.type)} rounded-lg flex items-center justify-center">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7h-9m0 0V5a3 3 0 016 0v2m-6 0a3 3 0 00-6 0v10a3 3 0 006 0m10-3a2 2 0 11-4 0 2 2 0 014 0zM17 10H7m0 0l3-3m-3 3l3 3"/></svg>
-                            </div>
-                            <div>
-                                <h3 class="font-semibold text-gray-800">${disease.name}</h3>
-                                <span class="px-2 py-0.5 ${getTypeColor(disease.type)} text-xs rounded">${disease.type}</span>
-                            </div>
-                        </div>
-                        <div class="flex items-center space-x-2">
-                            <button onclick="openDetailModal('${disease.id}')" class="px-3 py-1 text-green hover:bg-green-50 rounded text-xs font-medium transition-colors">查看</button>
-                            <button onclick="openEditModal('${disease.id}')" class="px-3 py-1 text-blue hover:bg-blue-50 rounded text-xs font-medium transition-colors">编辑</button>
-                            <button onclick="openDeleteModal('${disease.id}')" class="px-3 py-1 text-red hover:bg-red-50 rounded text-xs font-medium transition-colors">删除</button>
-                        </div>
-                    </div>
-                    <p class="text-sm text-gray-600 mb-3">${disease.desc}</p>
-                    <div class="flex items-center space-x-4 text-xs text-gray-500 mb-3">
-                        <span class="flex items-center"><svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>${disease.temperature}</span>
-                        <span class="flex items-center"><svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>${disease.season}</span>
-                        <span class="flex items-center ${getRiskColor(disease.risk)}"><svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.66 1.732-3L13.732 4c-.77-1.34-2.694-1.34-3.464 0L3.34 16c-.77 1.34.192 3 1.732 3z"/></svg>${disease.risk}</span>
-                    </div>
-                    <div class="grid grid-cols-4 gap-2">
-                        ${disease.images.map((img, idx) => `<img src="${img}" alt="病害图片${idx + 1}" class="w-full h-20 object-cover rounded cursor-pointer" onclick="openImagePreview('${img}')" onerror="this.style.display='none'" />`).join('')}
-                    </div>
-                </div>
-            `).join('');
-
-            updatePagination();
-        }
-
-        function updatePagination() {
-            const totalPages = Math.ceil(filteredDiseases.length / pageSize);
-            document.getElementById('total-count').textContent = filteredDiseases.length;
-            document.getElementById('current-page').textContent = currentPage;
-            document.getElementById('total-pages').textContent = totalPages;
-        }
-
-        function openImagePreview(url) {
-            document.getElementById('preview-image').src = url;
-            showModal('image-preview-modal');
-        }
-
-        function previewAddImages(input) {
-            const container = document.getElementById('add-image-preview');
-            container.innerHTML = '';
-            if (input.files && input.files.length > 0) {
-                const maxFiles = Math.min(input.files.length, 4);
-                for (let i = 0; i < maxFiles; i++) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        const img = document.createElement('img');
-                        img.src = e.target.result;
-                        img.style.width = '100%';
-                        img.style.height = '64px';
-                        img.style.objectFit = 'cover';
-                        img.style.borderRadius = '6px';
-                        container.appendChild(img);
-                    };
-                    reader.readAsDataURL(input.files[i]);
-                }
-            }
-        }
-
-        function openAddModal() {
-            document.getElementById('add-name').value = '';
-            document.getElementById('add-type').value = '真菌病害';
-            document.getElementById('add-temperature').value = '';
-            document.getElementById('add-season').value = '';
-            document.getElementById('add-risk').value = '中风险';
-            document.getElementById('add-desc').value = '';
-            document.getElementById('add-images').value = '';
-            document.getElementById('add-image-preview').innerHTML = '';
-            showModal('add-modal');
-        }
-
-        function openEditModal(id) {
-            currentId = id;
-            const disease = diseases.find(d => d.id === id);
-            if (disease) {
-                document.getElementById('edit-name').value = disease.name;
-                document.getElementById('edit-type').value = disease.type;
-                document.getElementById('edit-temperature').value = disease.temperature;
-                document.getElementById('edit-season').value = disease.season;
-                document.getElementById('edit-risk').value = disease.risk;
-                document.getElementById('edit-desc').value = disease.desc;
-                document.getElementById('edit-harm').value = disease.harm || '';
-                document.getElementById('edit-control').value = disease.control || '';
-            }
-            showModal('edit-modal');
-        }
-
-        function openDetailModal(id) {
-            const disease = diseases.find(d => d.id === id);
-            if (disease) {
-                document.getElementById('detail-name').textContent = disease.name;
-                document.getElementById('detail-type').textContent = disease.type;
-                document.getElementById('detail-temperature').textContent = disease.temperature;
-                document.getElementById('detail-season').textContent = disease.season;
-                document.getElementById('detail-risk').textContent = disease.risk;
-                document.getElementById('detail-desc').textContent = disease.desc;
-                document.getElementById('detail-harm').textContent = disease.harm || '暂无';
-                document.getElementById('detail-control').textContent = disease.control || '暂无';
-                document.getElementById('detail-images').innerHTML = disease.images.map((img, idx) => `<img src="${img}" alt="病害图片${idx + 1}" style="width:100%;height:80px;object-fit:cover;border-radius:6px;cursor:pointer" onclick="openImagePreview('${img}')" onerror="this.style.display='none'" />`).join('');
-            }
-            showModal('detail-modal');
-        }
-
-        function openDeleteModal(id) {
-            currentId = id;
-            const disease = diseases.find(d => d.id === id);
-            document.getElementById('delete-name').textContent = disease ? disease.name : '';
-            showModal('delete-modal');
-        }
-
-        function saveDisease() {
-            const name = document.getElementById('add-name').value;
-            if (!name) {
-                alert('请填写病害名称');
-                return;
-            }
-            alert('病害数据添加成功！\n名称: ' + name);
-            closeModal('add-modal');
-        }
-
-        function updateDisease() {
-            alert('病害数据更新成功！');
-            closeModal('edit-modal');
-        }
-
-        function confirmDelete() {
-            alert('病害数据删除成功！');
-            closeModal('delete-modal');
-        }
-
-        function filterDiseases() {
-            const searchTerm = document.getElementById('search-input').value.toLowerCase();
-            const typeFilter = document.getElementById('type-filter').value;
-
-            filteredDiseases = diseases.filter(d => {
-                const matchesSearch = d.name.toLowerCase().includes(searchTerm) || d.desc.toLowerCase().includes(searchTerm);
-                const matchesType = !typeFilter || d.type === typeFilter;
-                return matchesSearch && matchesType;
-            });
-
-            currentPage = 1;
-            renderDiseases();
-        }
-
-        function resetFilter() {
-            document.getElementById('search-input').value = '';
-            document.getElementById('type-filter').value = '';
-            filteredDiseases = [...diseases];
-            currentPage = 1;
-            renderDiseases();
-        }
-
-        function prevPage() {
-            const totalPages = Math.ceil(filteredDiseases.length / pageSize);
-            if (currentPage > 1) {
-                currentPage--;
-                renderDiseases();
-            }
-        }
-
-        function nextPage() {
-            const totalPages = Math.ceil(filteredDiseases.length / pageSize);
-            if (currentPage < totalPages) {
-                currentPage++;
-                renderDiseases();
-            }
-        }
-
-        function changePageSize() {
-            pageSize = parseInt(document.getElementById('page-size').value);
-            currentPage = 1;
-            renderDiseases();
-        }
-
-        document.addEventListener('click', function(e) {
-            ['add-modal', 'detail-modal', 'edit-modal', 'delete-modal', 'image-preview-modal'].forEach(function(modalId) {
-                var m = document.getElementById(modalId);
-                if (m && e.target === m) {
-                    hideModal(modalId);
-                }
-            });
+    // 图片 Tab 操作：上传 / 删除 / 预览（页面挂在 window 上，方便 inline onclick 调用）
+    window.__handleFormImages = function (files) {
+        if (!files || !files.length) return;
+        const MAX = 8;
+        Array.from(files).forEach(function (file) {
+            if (!file.type.startsWith('image/')) return;
+            if (currentImages.length >= MAX) return;
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                currentImages.push(e.target.result);
+                rerenderImagesPanel();
+            };
+            reader.readAsDataURL(file);
         });
+    };
+    window.__removeFormImage = function (idx) {
+        if (typeof idx !== 'number' || idx < 0 || idx >= currentImages.length) return;
+        currentImages.splice(idx, 1);
+        rerenderImagesPanel();
+    };
+    window.__previewFormImage = function (url) {
+        openImagePreview(url);
+    };
 
+    function rerenderImagesPanel() {
+        const panel = document.querySelector('#form-body .form-tab-panel[data-panel="images"]');
+        if (!panel) return;
+        const isReadonly = currentFormMode === 'detail';
+        panel.innerHTML = DBCommon.renderImagesSection(currentImages, isReadonly);
+    }
+
+    function renderDiseases() {
+        const container = document.getElementById('disease-list');
+        const start = (currentPage - 1) * pageSize;
+        const end = start + pageSize;
+        const pageData = filteredDiseases.slice(start, end);
+        if (pageData.length === 0) {
+            container.innerHTML = '<div class="col-span-full text-center py-16 text-gray-400">没有匹配的病害记录</div>';
+        } else {
+            container.innerHTML = pageData.map(function (d) {
+                return DBCommon.renderItemCard(d, { kind: 'disease', keyword: currentKeyword });
+            }).join('');
+        }
+        document.getElementById('total-count').textContent = filteredDiseases.length;
+        document.getElementById('current-page').textContent = currentPage;
+        document.getElementById('total-pages').textContent = Math.max(1, Math.ceil(filteredDiseases.length / pageSize));
+        // 检索摘要
+        document.getElementById('search-summary').innerHTML = DBCommon.renderSearchSummary(currentKeyword, filteredDiseases.length, diseases.length);
+    }
+
+    function openImagePreview(url) {
+        document.getElementById('preview-image').src = url;
+        DBCommon.showModal('image-preview-modal');
+    }
+
+    /* =========================================================
+     * 4-Tab 表单模态（add/edit/detail 共用）
+     * ========================================================= */
+    function openFormModal(id, mode) {
+        currentFormMode = mode;
+        currentEditId = id;
+        const data = (mode === 'add') ? {
+            status: '启用', harmLevel: '中',
+            hostVarieties: [], parts: [], peakSeason: [], images: []
+        } : (diseases.find(d => d.id === id) || {});
+        currentImages = Array.isArray(data.images) ? data.images.slice() : [];
+
+        const titles = { add: '添加病害', edit: '编辑病害 · ' + data.id, detail: '查看病害 · ' + data.id };
+        document.getElementById('form-title').textContent = titles[mode];
+
+        // 渲染 Tab 头（填入预留容器 #form-tabs）
+        document.getElementById('form-tabs').innerHTML = DBCommon.renderFormTabs();
+
+        // 渲染面板（填入预留容器 #form-body）
+        document.getElementById('form-body').innerHTML = DBCommon.renderFormPanels(DBCommon.DISEASE_SCHEMA, data, mode);
+
+        // Tab 切换
+        DBCommon.bindFormTabs(document.getElementById('form-modal'));
+
+        // 隐藏/显示保存按钮
+        const saveBtn = document.getElementById('form-save-btn');
+        saveBtn.style.display = (mode === 'detail') ? 'none' : 'inline-block';
+
+        DBCommon.showModal('form-modal');
+    }
+
+    function closeFormModal() {
+        DBCommon.hideModal('form-modal');
+        currentEditId = null;
+        currentImages = [];
+    }
+
+    function saveForm() {
+        DBCommon.collectChipData();
+        const data = DBCommon.collectFormData();
+
+        // 数组字段拆分
+        ['hostVarieties', 'parts', 'peakSeason'].forEach(function (k) {
+            if (typeof data[k] === 'string') {
+                data[k] = data[k].split(',').filter(Boolean);
+            }
+        });
+        // 图片字段（来自 currentImages 暂存，不在表单 DOM 中）
+        data.images = currentImages.slice();
+
+        // 校验
+        const result = DBCommon.validate(DBCommon.DISEASE_SCHEMA, data);
+        if (!result.ok) {
+            alert('必填字段缺失：' + result.missing.join('、'));
+            return;
+        }
+
+        // 模拟保存
+        const existsIdx = diseases.findIndex(d => d.id === data.id);
+        if (currentFormMode === 'add') {
+            if (existsIdx >= 0) { alert('病害ID 已存在：' + data.id); return; }
+            data.createdAt = new Date().toISOString().slice(0, 10);
+            data.updatedAt = data.createdAt;
+            diseases.push(data);
+            alert('病害添加成功！\nID：' + data.id + '\n名称：' + data.name);
+        } else {
+            if (existsIdx < 0) { alert('未找到该病害'); return; }
+            data.createdAt = diseases[existsIdx].createdAt;
+            data.updatedAt = new Date().toISOString().slice(0, 10);
+            diseases[existsIdx] = data;
+            alert('病害更新成功！\nID：' + data.id);
+        }
+        filteredDiseases = diseases.slice();
         renderDiseases();
+        closeFormModal();
+    }
+
+    /* =========================================================
+     * 删除
+     * ========================================================= */
+    function openDeleteModal(id) {
+        currentDeleteId = id;
+        const d = diseases.find(x => x.id === id);
+        document.getElementById('delete-name').textContent = d ? d.name : '';
+        DBCommon.showModal('delete-modal');
+    }
+    function closeDeleteModal() { DBCommon.hideModal('delete-modal'); currentDeleteId = null; }
+    function confirmDelete() {
+        const idx = diseases.findIndex(d => d.id === currentDeleteId);
+        if (idx >= 0) diseases.splice(idx, 1);
+        filteredDiseases = diseases.slice();
+        if (currentPage > Math.ceil(filteredDiseases.length / pageSize)) currentPage = Math.max(1, Math.ceil(filteredDiseases.length / pageSize) || 1);
+        renderDiseases();
+        closeDeleteModal();
+        alert('病害删除成功');
+    }
+
+    /* =========================================================
+     * 筛选 / 分页
+     * ========================================================= */
+    function filterDiseases() {
+        currentKeyword = document.getElementById('search-input').value.trim();
+        const filters = {
+            type: document.getElementById('type-filter').value,
+            parts: getMultiValues('parts-filter'),
+            peakSeason: getMultiValues('season-filter'),
+            harmLevel: document.getElementById('harm-filter').value,
+            status: document.getElementById('status-filter').value
+        };
+        filteredDiseases = DBCommon.searchItems(diseases, currentKeyword, filters);
+        currentPage = 1;
+        renderDiseases();
+    }
+
+    function resetFilter() {
+        document.getElementById('search-input').value = '';
+        document.getElementById('type-filter').value = '';
+        ['parts-filter', 'season-filter'].forEach(function (id) {
+            const el = document.getElementById(id);
+            if (el) Array.from(el.options).forEach(function (o) { o.selected = false; });
+        });
+        document.getElementById('harm-filter').value = '';
+        document.getElementById('status-filter').value = '';
+        currentKeyword = '';
+        filteredDiseases = diseases.slice();
+        currentPage = 1;
+        renderDiseases();
+    }
+
+    function prevPage() {
+        if (currentPage > 1) { currentPage--; renderDiseases(); }
+    }
+    function nextPage() {
+        const totalPages = Math.ceil(filteredDiseases.length / pageSize);
+        if (currentPage < totalPages) { currentPage++; renderDiseases(); }
+    }
+    function changePageSize() {
+        pageSize = parseInt(document.getElementById('page-size').value);
+        currentPage = 1;
+        renderDiseases();
+    }
+
+    renderDiseases();
     </script>
 </body>
 </html>

@@ -75,6 +75,8 @@
       width: 100%;
       height: 80px;
       object-fit: cover;
+      display: block;
+      background: var(--bg);
     }
     .course-info { padding: var(--space-3); }
     .course-name { font-size: var(--font-sm); font-weight: 500; color: var(--text); margin-bottom: var(--space-1); }
@@ -322,36 +324,28 @@
           </div>
           <div class="course-grid" id="courseGrid">
             <div class="course-item" onclick="viewCourse()">
-              <div class="course-image" style="background: linear-gradient(135deg, #e8f5e9, #c8e6c9); height: 80px; display: flex; align-items: center; justify-content: center;">
-                <svg viewBox="0 0 24 24" fill="none" stroke="%2366bb6a" stroke-width="1.5" style="width: 28px; height: 28px; opacity: 0.5;"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-              </div>
+              <img src="images/course_basic.jpg" class="course-image" alt="南丰蜜桔种植基础">
               <div class="course-info">
                 <div class="course-name">南丰蜜桔种植基础</div>
                 <div class="course-meta">3课时 · 2,580人学习</div>
               </div>
             </div>
             <div class="course-item" onclick="viewCourse()">
-              <div class="course-image" style="background: linear-gradient(135deg, #ffebee, #ffcdd2); height: 80px; display: flex; align-items: center; justify-content: center;">
-                <svg viewBox="0 0 24 24" fill="none" stroke="%23e57373" stroke-width="1.5" style="width: 28px; height: 28px; opacity: 0.5;"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-              </div>
+              <img src="images/course_disease.jpg" class="course-image" alt="病虫害综合防治">
               <div class="course-info">
                 <div class="course-name">病虫害综合防治</div>
                 <div class="course-meta">4课时 · 3,120人学习</div>
               </div>
             </div>
             <div class="course-item" onclick="viewCourse()">
-              <div class="course-image" style="background: linear-gradient(135deg, #fff8e1, #ffecb3); height: 80px; display: flex; align-items: center; justify-content: center;">
-                <svg viewBox="0 0 24 24" fill="none" stroke="%23ffb74d" stroke-width="1.5" style="width: 28px; height: 28px; opacity: 0.5;"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-              </div>
+              <img src="images/course_fertilizer.jpg" class="course-image" alt="科学施肥管理">
               <div class="course-info">
                 <div class="course-name">科学施肥管理</div>
                 <div class="course-meta">3课时 · 1,890人学习</div>
               </div>
             </div>
             <div class="course-item" onclick="viewCourse()">
-              <div class="course-image" style="background: linear-gradient(135deg, #e3f2fd, #bbdefb); height: 80px; display: flex; align-items: center; justify-content: center;">
-                <svg viewBox="0 0 24 24" fill="none" stroke="%2364b5f6" stroke-width="1.5" style="width: 28px; height: 28px; opacity: 0.5;"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-              </div>
+              <img src="images/course_quality.jpg" class="course-image" alt="品质提升专家课">
               <div class="course-info">
                 <div class="course-name">品质提升专家课</div>
                 <div class="course-meta">5课时 · 980人学习</div>
@@ -367,21 +361,21 @@
             实操视频
           </div>
           <div class="video-card" onclick="viewVideo()">
-            <div class="video-thumb" style="background: linear-gradient(135deg, #e8f5e9, #a5d6a7);"></div>
+            <div class="video-thumb" style="background-image: url('images/video_heat.jpg'); background-size: cover; background-position: center;"></div>
             <div class="video-info">
               <div class="video-title">蜜桔夏季高温管理实操</div>
               <div class="video-meta">播放量：12,680 | 时长：25:30</div>
             </div>
           </div>
           <div class="video-card" onclick="viewVideo()">
-            <div class="video-thumb" style="background: linear-gradient(135deg, #e3f2fd, #90caf9);"></div>
+            <div class="video-thumb" style="background-image: url('images/video_pruning.jpg'); background-size: cover; background-position: center;"></div>
             <div class="video-info">
               <div class="video-title">夏季修剪技术实操演示</div>
               <div class="video-meta">播放量：8,520 | 时长：18:45</div>
             </div>
           </div>
           <div class="video-card" onclick="viewVideo()">
-            <div class="video-thumb" style="background: linear-gradient(135deg, #fff8e1, #ffe082);"></div>
+            <div class="video-thumb" style="background-image: url('images/video_spray.jpg'); background-size: cover; background-position: center;"></div>
             <div class="video-info">
               <div class="video-title">科学施肥方法指导</div>
               <div class="video-meta">播放量：6,340 | 时长：22:10</div>

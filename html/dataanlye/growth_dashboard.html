@@ -916,86 +916,70 @@
             </div>
 
             <div class="card compact-card">
-                <div class="card-header"><span><i class="fas fa-sensors"></i> 环境监测数据</span>
-                    <span class="header-extra">
-                        <select id="envStationSelect" class="ds-select-sm" style="font-size:12px;color:#475569;background:#fff;border:1px solid #d1d5db;border-radius:6px;padding:3px 8px;cursor:pointer;outline:none;">
-                            <option value="orchard-central">南丰蜜桔种质园</option>
-                            <option value="qinchen">琴城果园监测点</option>
-                            <option value="qiawan">洽湾示范园监测点</option>
-                            <option value="taihe">太和基地监测点</option>
-                            <option value="baishe">白舍科技园监测点</option>
-                            <option value="shishan">市山核心园监测点</option>
-                            <option value="laixi">莱溪示范乡监测点</option>
-                        </select>
-                    </span>
-                </div>
-                <div class="env-grid">
-                    <div class="env-card">
-                        <div class="env-icon"><i class="fas fa-temperature-three-quarters"></i></div>
-                        <div class="env-info">
-                            <div class="env-value" data-env-key="soilTemp">26.8°C</div>
-                            <div class="env-label">土壤温度</div>
+                <div class="card-header"><span><i class="fas fa-chart-column"></i> 综合评价子项分析</span><span class="header-extra">满分10分</span></div>
+                <div id="qualityTrendChart" class="chart-box"></div>
+            </div>
+
+            <div class="card side-card">
+                <div class="card-header"><span><i class="fas fa-seedling"></i> 监测植株品系分布</span><span class="header-extra">综合评分</span></div>
+                <div class="phenology-stage-list">
+                    <div class="phenology-stage-item">
+                        <div class="phenology-dot" style="background:#3b82f6;"></div>
+                        <span class="phenology-name">小果系（杨小2-6、金钱蜜桔）</span>
+                        <span class="phenology-count">6株</span>
+                        <span class="phenology-score" style="color:#22c55e;">88.2</span>
+                        <div class="phenology-bar-wrapper">
+                            <div class="phenology-bar"><div class="phenology-bar-fill" style="width:23%;background:#3b82f6;"></div></div>
                         </div>
                     </div>
-                    <div class="env-card">
-                        <div class="env-icon"><i class="fas fa-droplet"></i></div>
-                        <div class="env-info">
-                            <div class="env-value" data-env-key="soilHum">68.5%</div>
-                            <div class="env-label">土壤湿度</div>
+                    <div class="phenology-stage-item">
+                        <div class="phenology-dot" style="background:#8b5cf6;"></div>
+                        <span class="phenology-name">大果系</span>
+                        <span class="phenology-count">5株</span>
+                        <span class="phenology-score" style="color:#22c55e;">85.6</span>
+                        <div class="phenology-bar-wrapper">
+                            <div class="phenology-bar"><div class="phenology-bar-fill" style="width:19%;background:#8b5cf6;"></div></div>
                         </div>
                     </div>
-                    <div class="env-card">
-                        <div class="env-icon"><i class="fas fa-flask"></i></div>
-                        <div class="env-info">
-                            <div class="env-value" data-env-key="soilNutri" style="font-size:0.85rem;">N:25 P:18 K:92</div>
-                            <div class="env-label">土壤养分 (mg/kg)</div>
+                    <div class="phenology-stage-item">
+                        <div class="phenology-dot" style="background:#ec4899;"></div>
+                        <span class="phenology-name">桂花蒂系（柿蒂蜜桔）</span>
+                        <span class="phenology-count">5株</span>
+                        <span class="phenology-score" style="color:#22c55e;">86.8</span>
+                        <div class="phenology-bar-wrapper">
+                            <div class="phenology-bar"><div class="phenology-bar-fill" style="width:19%;background:#ec4899;"></div></div>
                         </div>
                     </div>
-                    <div class="env-card">
-                        <div class="env-icon"><i class="fas fa-sun"></i></div>
-                        <div class="env-info">
-                            <div class="env-value" data-env-key="light">856 W/m²</div>
-                            <div class="env-label">光照强度</div>
+                    <div class="phenology-stage-item">
+                        <div class="phenology-dot" style="background:#f59e0b;"></div>
+                        <span class="phenology-name">早熟系（普通早熟蜜桔）</span>
+                        <span class="phenology-count">4株</span>
+                        <span class="phenology-score" style="color:#f59e0b;">84.3</span>
+                        <div class="phenology-bar-wrapper">
+                            <div class="phenology-bar"><div class="phenology-bar-fill" style="width:15%;background:#f59e0b;"></div></div>
                         </div>
                     </div>
-                    <div class="env-card">
-                        <div class="env-icon" style="background:#e0f2fe;color:#0284c7;"><i class="fas fa-vial"></i></div>
-                        <div class="env-info">
-                            <div class="env-value" data-env-key="soilPh">6.2</div>
-                            <div class="env-label">土壤pH值</div>
+                    <div class="phenology-stage-item">
+                        <div class="phenology-dot" style="background:#22c55e;"></div>
+                        <span class="phenology-name">桂月红（特早熟芽变）</span>
+                        <span class="phenology-count">3株</span>
+                        <span class="phenology-score" style="color:#16a34a;">90.1</span>
+                        <div class="phenology-bar-wrapper">
+                            <div class="phenology-bar"><div class="phenology-bar-fill" style="width:12%;background:#22c55e;"></div></div>
                         </div>
                     </div>
-                    <div class="env-card">
-                        <div class="env-icon" style="background:#dbeafe;color:#2563eb;"><i class="fas fa-arrows-up-down"></i></div>
-                        <div class="env-info">
-                            <div class="env-value" data-env-key="diffTemp">9.6°C</div>
-                            <div class="env-label">昼夜温差</div>
+                    <div class="phenology-stage-item">
+                        <div class="phenology-dot" style="background:#10b981;"></div>
+                        <span class="phenology-name">蜜广1号</span>
+                        <span class="phenology-count">3株</span>
+                        <span class="phenology-score" style="color:#22c55e;">87.5</span>
+                        <div class="phenology-bar-wrapper">
+                            <div class="phenology-bar"><div class="phenology-bar-fill" style="width:12%;background:#10b981;"></div></div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="card side-card">
-                <div class="card-header"><span><i class="fas fa-lightbulb"></i> 模型农事建议</span><span class="header-extra">共4项建议</span></div>
-                <div class="warning-list" id="warningList">
-                    <div class="warning-item">
-                        <div class="warning-title"><span style="color:#ef4444;font-weight:600;">[一项]</span> 重视果实负载，优先疏除小果、伤果与过密果</div>
-                        <div class="warning-time">7天内完成</div>
-                    </div>
-                    <div class="warning-item">
-                        <div class="warning-title"><span style="color:#ef4444;font-weight:600;">[一项]</span> 确保充足钾钙供应，预防裂果和浮皮</div>
-                        <div class="warning-time">7天内完成</div>
-                    </div>
-                    <div class="warning-item warning-warning">
-                        <div class="warning-title"><span style="color:#f59e0b;font-weight:600;">[二项]</span> 午间适度遮阴降温，避免高温伤害改善通风</div>
-                        <div class="warning-time">持续执行</div>
-                    </div>
-                    <div class="warning-item warning-warning">
-                        <div class="warning-title"><span style="color:#f59e0b;font-weight:600;">[二项]</span> 保持水分平衡，优化水分分配提升根系活力</div>
-                        <div class="warning-time">持续执行</div>
-                    </div>
-                </div>
-            </div>
         </div>
 
         <div class="card center-map-card">
@@ -1104,71 +1088,88 @@
         </div>
 
         <div class="side-col">
-            <div class="card compact-card">
-                <div class="card-header"><span><i class="fas fa-chart-column"></i> 综合评价子项分析</span><span class="header-extra">满分10分</span></div>
-                <div id="qualityTrendChart" class="chart-box"></div>
-            </div>
-
             <div class="card side-card">
                 <div class="card-header"><span><i class="fas fa-list-check"></i> 农事建议落地统计</span><span class="header-extra">本月</span></div>
                 <div id="farmingSuggestionChart" class="chart-box"></div>
             </div>
 
             <div class="card side-card">
-                <div class="card-header"><span><i class="fas fa-seedling"></i> 监测植株品系分布</span><span class="header-extra">综合评分</span></div>
-                <div class="phenology-stage-list">
-                    <div class="phenology-stage-item">
-                        <div class="phenology-dot" style="background:#3b82f6;"></div>
-                        <span class="phenology-name">小果系（杨小2-6、金钱蜜桔）</span>
-                        <span class="phenology-count">6株</span>
-                        <span class="phenology-score" style="color:#22c55e;">88.2</span>
-                        <div class="phenology-bar-wrapper">
-                            <div class="phenology-bar"><div class="phenology-bar-fill" style="width:23%;background:#3b82f6;"></div></div>
+                <div class="card-header"><span><i class="fas fa-lightbulb"></i> 模型农事建议</span><span class="header-extra">共4项建议</span></div>
+                <div class="warning-list" id="warningList">
+                    <div class="warning-item">
+                        <div class="warning-title"><span style="color:#ef4444;font-weight:600;">[一项]</span> 重视果实负载，优先疏除小果、伤果与过密果</div>
+                        <div class="warning-time">7天内完成</div>
+                    </div>
+                    <div class="warning-item">
+                        <div class="warning-title"><span style="color:#ef4444;font-weight:600;">[一项]</span> 确保充足钾钙供应，预防裂果和浮皮</div>
+                        <div class="warning-time">7天内完成</div>
+                    </div>
+                    <div class="warning-item warning-warning">
+                        <div class="warning-title"><span style="color:#f59e0b;font-weight:600;">[二项]</span> 午间适度遮阴降温，避免高温伤害改善通风</div>
+                        <div class="warning-time">持续执行</div>
+                    </div>
+                    <div class="warning-item warning-warning">
+                        <div class="warning-title"><span style="color:#f59e0b;font-weight:600;">[二项]</span> 保持水分平衡，优化水分分配提升根系活力</div>
+                        <div class="warning-time">持续执行</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card compact-card">
+                <div class="card-header"><span><i class="fas fa-sensors"></i> 环境监测数据</span>
+                    <span class="header-extra">
+                        <select id="envStationSelect" class="ds-select-sm" style="font-size:12px;color:#475569;background:#fff;border:1px solid #d1d5db;border-radius:6px;padding:3px 8px;cursor:pointer;outline:none;">
+                            <option value="orchard-central">南丰蜜桔种质园</option>
+                            <option value="qinchen">琴城果园监测点</option>
+                            <option value="qiawan">洽湾示范园监测点</option>
+                            <option value="taihe">太和基地监测点</option>
+                            <option value="baishe">白舍科技园监测点</option>
+                            <option value="shishan">市山核心园监测点</option>
+                            <option value="laixi">莱溪示范乡监测点</option>
+                        </select>
+                    </span>
+                </div>
+                <div class="env-grid">
+                    <div class="env-card">
+                        <div class="env-icon"><i class="fas fa-temperature-three-quarters"></i></div>
+                        <div class="env-info">
+                            <div class="env-value" data-env-key="soilTemp">26.8°C</div>
+                            <div class="env-label">土壤温度</div>
                         </div>
                     </div>
-                    <div class="phenology-stage-item">
-                        <div class="phenology-dot" style="background:#8b5cf6;"></div>
-                        <span class="phenology-name">大果系</span>
-                        <span class="phenology-count">5株</span>
-                        <span class="phenology-score" style="color:#22c55e;">85.6</span>
-                        <div class="phenology-bar-wrapper">
-                            <div class="phenology-bar"><div class="phenology-bar-fill" style="width:19%;background:#8b5cf6;"></div></div>
+                    <div class="env-card">
+                        <div class="env-icon"><i class="fas fa-droplet"></i></div>
+                        <div class="env-info">
+                            <div class="env-value" data-env-key="soilHum">68.5%</div>
+                            <div class="env-label">土壤湿度</div>
                         </div>
                     </div>
-                    <div class="phenology-stage-item">
-                        <div class="phenology-dot" style="background:#ec4899;"></div>
-                        <span class="phenology-name">桂花蒂系（柿蒂蜜桔）</span>
-                        <span class="phenology-count">5株</span>
-                        <span class="phenology-score" style="color:#22c55e;">86.8</span>
-                        <div class="phenology-bar-wrapper">
-                            <div class="phenology-bar"><div class="phenology-bar-fill" style="width:19%;background:#ec4899;"></div></div>
+                    <div class="env-card">
+                        <div class="env-icon"><i class="fas fa-flask"></i></div>
+                        <div class="env-info">
+                            <div class="env-value" data-env-key="soilNutri" style="font-size:0.85rem;">N:25 P:18 K:92</div>
+                            <div class="env-label">土壤养分 (mg/kg)</div>
                         </div>
                     </div>
-                    <div class="phenology-stage-item">
-                        <div class="phenology-dot" style="background:#f59e0b;"></div>
-                        <span class="phenology-name">早熟系（普通早熟蜜桔）</span>
-                        <span class="phenology-count">4株</span>
-                        <span class="phenology-score" style="color:#f59e0b;">84.3</span>
-                        <div class="phenology-bar-wrapper">
-                            <div class="phenology-bar"><div class="phenology-bar-fill" style="width:15%;background:#f59e0b;"></div></div>
+                    <div class="env-card">
+                        <div class="env-icon"><i class="fas fa-sun"></i></div>
+                        <div class="env-info">
+                            <div class="env-value" data-env-key="light">856 W/m²</div>
+                            <div class="env-label">光照强度</div>
                         </div>
                     </div>
-                    <div class="phenology-stage-item">
-                        <div class="phenology-dot" style="background:#22c55e;"></div>
-                        <span class="phenology-name">桂月红（特早熟芽变）</span>
-                        <span class="phenology-count">3株</span>
-                        <span class="phenology-score" style="color:#16a34a;">90.1</span>
-                        <div class="phenology-bar-wrapper">
-                            <div class="phenology-bar"><div class="phenology-bar-fill" style="width:12%;background:#22c55e;"></div></div>
+                    <div class="env-card">
+                        <div class="env-icon" style="background:#e0f2fe;color:#0284c7;"><i class="fas fa-vial"></i></div>
+                        <div class="env-info">
+                            <div class="env-value" data-env-key="soilPh">6.2</div>
+                            <div class="env-label">土壤pH值</div>
                         </div>
                     </div>
-                    <div class="phenology-stage-item">
-                        <div class="phenology-dot" style="background:#10b981;"></div>
-                        <span class="phenology-name">蜜广1号（晚熟蜜广）</span>
-                        <span class="phenology-count">3株</span>
-                        <span class="phenology-score" style="color:#22c55e;">87.5</span>
-                        <div class="phenology-bar-wrapper">
-                            <div class="phenology-bar"><div class="phenology-bar-fill" style="width:12%;background:#10b981;"></div></div>
+                    <div class="env-card">
+                        <div class="env-icon" style="background:#dbeafe;color:#2563eb;"><i class="fas fa-arrows-up-down"></i></div>
+                        <div class="env-info">
+                            <div class="env-value" data-env-key="diffTemp">9.6°C</div>
+                            <div class="env-label">昼夜温差</div>
                         </div>
                     </div>
                 </div>

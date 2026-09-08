@@ -45,11 +45,11 @@
     .search-bar {
       background: var(--bg-white);
       margin: 12px 16px;
-      padding: 10px 14px;
+      padding: 6px 14px;
       border-radius: var(--radius-lg);
       display: flex;
-      align-items: center;
-      gap: 12px;
+      flex-direction: column;
+      gap: 6px;
       border: 1px solid var(--border);
       position: relative;
     }
@@ -59,13 +59,13 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      padding-right: 12px;
-      border-right: 1px solid var(--border-light);
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border-light);
       cursor: pointer;
     }
 
     .search-item:last-child {
-      border-right: none;
+      border-bottom: none;
     }
 
     .search-item svg {
@@ -93,6 +93,7 @@
       transform: rotate(180deg);
     }
 
+    .market-dropdown,
     .variety-dropdown {
       position: absolute;
       top: calc(100% + 6px);
@@ -105,8 +106,11 @@
       padding: 6px;
       display: none;
       z-index: 20;
+      max-height: 240px;
+      overflow-y: auto;
     }
 
+    .market-dropdown.show,
     .variety-dropdown.show {
       display: block;
     }
@@ -122,16 +126,19 @@
       justify-content: space-between;
     }
 
+    .market-option:hover,
     .variety-option:hover {
       background: var(--gray-50);
     }
 
+    .market-option.active,
     .variety-option.active {
       background: var(--primary-light);
       color: var(--primary);
       font-weight: var(--font-medium);
     }
 
+    .market-option .check,
     .variety-option .check {
       width: 16px;
       height: 16px;
@@ -139,6 +146,7 @@
       display: none;
     }
 
+    .market-option.active .check,
     .variety-option.active .check {
       display: block;
     }
@@ -220,6 +228,7 @@
     .price-value.min { color: var(--error); }
     .price-value.avg { color: var(--text); }
     .price-value.max { color: var(--success); }
+    .price-value.change { color: var(--success); }
 
     .price-unit {
       font-size: var(--font-sm);
@@ -297,7 +306,7 @@
 
     .chart-line {
       fill: none;
-      stroke-width: 2;
+      stroke-width: 2.5;
       stroke-linecap: round;
       stroke-linejoin: round;
       cursor: pointer;
@@ -529,28 +538,30 @@
       </div>
 
     <div class="search-bar">
+      <div class="search-item" id="marketTrigger" onclick="toggleMarketDropdown(event)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        <span class="search-text" id="marketLabel">全部批发市场</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="search-arrow"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
       <div class="search-item" id="varietyTrigger" onclick="toggleVarietyDropdown(event)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
         <span class="search-text" id="varietyLabel">南丰蜜桔</span>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="search-arrow"><polyline points="6 9 12 15 18 9"/></svg>
       </div>
+      <div class="market-dropdown" id="marketDropdown"></div>
       <div class="variety-dropdown" id="varietyDropdown"></div>
     </div>
 
     <div class="price-summary">
       <div class="price-date">2026-07-23<span class="price-alert">预警提醒</span></div>
       <div class="price-info">
-        <div class="price-item">
-          <div class="price-label">最低</div>
-          <div class="price-value min" id="priceMin">13.60<span class="price-unit">元/公斤</span></div>
-        </div>
-        <div class="price-item">
-          <div class="price-label">均价</div>
+        <div class="price-item price-item-wide">
+          <div class="price-label">当日均价</div>
           <div class="price-value avg" id="priceAvg">21.14<span class="price-unit">元/公斤</span></div>
         </div>
-        <div class="price-item">
-          <div class="price-label">最高</div>
-          <div class="price-value max" id="priceMax">32.60<span class="price-unit">元/公斤</span></div>
+        <div class="price-item price-item-wide">
+          <div class="price-label">相比前日</div>
+          <div class="price-value change" id="priceChange">+0.32<span class="price-unit">元/公斤</span></div>
         </div>
       </div>
     </div>
@@ -570,14 +581,10 @@
           <div class="chart-content">
             <div class="chart-tooltip" id="chartTooltip">
               <div class="chart-tooltip-date" id="tooltipDate"></div>
-              <div class="chart-tooltip-item"><span class="chart-tooltip-label">最高价</span><span class="chart-tooltip-value" style="color:var(--success)" id="tooltipHigh"></span></div>
               <div class="chart-tooltip-item"><span class="chart-tooltip-label">均价</span><span class="chart-tooltip-value" style="color:var(--primary)" id="tooltipAvg"></span></div>
-              <div class="chart-tooltip-item"><span class="chart-tooltip-label">最低价</span><span class="chart-tooltip-value" style="color:var(--error)" id="tooltipLow"></span></div>
             </div>
             <svg id="chartSvg" viewBox="0 0 280 140" preserveAspectRatio="none" style="width:100%;height:100%;">
-              <path class="chart-line high" id="lineHigh" d=""/>
               <path class="chart-line avg" id="lineAvg" d=""/>
-              <path class="chart-line low" id="lineLow" d=""/>
             </svg>
             <div class="chart-points" id="chartPoints"></div>
           </div>
@@ -585,9 +592,7 @@
         </div>
       </div>
       <div class="chart-legend">
-        <div class="legend-item"><div class="legend-dot high"></div><span>最高价</span></div>
-        <div class="legend-item"><div class="legend-dot avg"></div><span>均价</span></div>
-        <div class="legend-item"><div class="legend-dot low"></div><span>最低价</span></div>
+        <div class="legend-item"><div class="legend-dot avg"></div><span>当日均价</span></div>
       </div>
     </div>
 
@@ -623,20 +628,20 @@
 <script>
     function navigateTo(page) { window.location.href = page; }
 
-    // 品种数据：包含当日价格、近8天趋势、各市场详细列表
+    // 品种数据：包含当日均价/相比前日、近8天趋势、各市场详细列表
     var varietyData = {
       'nanfeng': {
         name: '南丰蜜桔',
-        today: { min: 13.60, avg: 21.14, max: 32.60 },
+        today: { avg: 21.14, prev: 20.82, change: 0.32 },
         trend: [
-          { date: '06-15', high: 28.5, avg: 23.2, low: 18.0 },
-          { date: '06-18', high: 27.8, avg: 22.8, low: 17.5 },
-          { date: '06-21', high: 29.0, avg: 24.0, low: 18.8 },
-          { date: '06-24', high: 29.5, avg: 24.5, low: 19.2 },
-          { date: '06-27', high: 30.2, avg: 25.0, low: 19.8 },
-          { date: '07-01', high: 28.8, avg: 23.8, low: 18.5 },
-          { date: '07-04', high: 27.5, avg: 22.5, low: 17.2 },
-          { date: '07-07', high: 28.2, avg: 23.0, low: 17.8 }
+          { date: '06-15', avg: 23.2 },
+          { date: '06-18', avg: 22.8 },
+          { date: '06-21', avg: 24.0 },
+          { date: '06-24', avg: 24.5 },
+          { date: '06-27', avg: 25.0 },
+          { date: '07-01', avg: 23.8 },
+          { date: '07-04', avg: 22.5 },
+          { date: '07-07', avg: 23.0 }
         ],
         markets: [
           { fruit: '南丰蜜桔', origin: '江西南丰市场', market: '江西南丰市...', price: 17.00 },
@@ -648,16 +653,16 @@
       },
       'huangyan': {
         name: '黄岩蜜桔',
-        today: { min: 16.20, avg: 24.50, max: 36.80 },
+        today: { avg: 24.50, prev: 24.18, change: 0.32 },
         trend: [
-          { date: '06-15', high: 32.0, avg: 26.5, low: 21.0 },
-          { date: '06-18', high: 31.5, avg: 26.0, low: 20.5 },
-          { date: '06-21', high: 33.2, avg: 27.4, low: 21.8 },
-          { date: '06-24', high: 34.0, avg: 28.0, low: 22.4 },
-          { date: '06-27', high: 34.8, avg: 28.6, low: 23.0 },
-          { date: '07-01', high: 33.5, avg: 27.6, low: 22.0 },
-          { date: '07-04', high: 32.0, avg: 26.2, low: 20.6 },
-          { date: '07-07', high: 32.6, avg: 26.8, low: 21.2 }
+          { date: '06-15', avg: 26.5 },
+          { date: '06-18', avg: 26.0 },
+          { date: '06-21', avg: 27.4 },
+          { date: '06-24', avg: 28.0 },
+          { date: '06-27', avg: 28.6 },
+          { date: '07-01', avg: 27.6 },
+          { date: '07-04', avg: 26.2 },
+          { date: '07-07', avg: 26.8 }
         ],
         markets: [
           { fruit: '黄岩蜜桔', origin: '浙江黄岩市场', market: '浙江黄岩市...', price: 19.80 },
@@ -669,16 +674,16 @@
       },
       'shimen': {
         name: '石门蜜桔',
-        today: { min: 11.80, avg: 18.60, max: 28.40 },
+        today: { avg: 18.60, prev: 18.80, change: -0.20 },
         trend: [
-          { date: '06-15', high: 25.0, avg: 20.5, low: 15.6 },
-          { date: '06-18', high: 24.5, avg: 20.0, low: 15.2 },
-          { date: '06-21', high: 25.8, avg: 21.2, low: 16.4 },
-          { date: '06-24', high: 26.2, avg: 21.6, low: 16.8 },
-          { date: '06-27', high: 26.8, avg: 22.0, low: 17.2 },
-          { date: '07-01', high: 25.5, avg: 20.8, low: 16.0 },
-          { date: '07-04', high: 24.2, avg: 19.6, low: 14.8 },
-          { date: '07-07', high: 24.8, avg: 20.2, low: 15.4 }
+          { date: '06-15', avg: 20.5 },
+          { date: '06-18', avg: 20.0 },
+          { date: '06-21', avg: 21.2 },
+          { date: '06-24', avg: 21.6 },
+          { date: '06-27', avg: 22.0 },
+          { date: '07-01', avg: 20.8 },
+          { date: '07-04', avg: 19.6 },
+          { date: '07-07', avg: 20.2 }
         ],
         markets: [
           { fruit: '石门蜜桔', origin: '湖南石门市场', market: '湖南石门市...', price: 14.60 },
@@ -690,16 +695,16 @@
       },
       'yongquan': {
         name: '涌泉蜜桔',
-        today: { min: 18.40, avg: 28.80, max: 42.00 },
+        today: { avg: 28.80, prev: 28.50, change: 0.30 },
         trend: [
-          { date: '06-15', high: 38.0, avg: 31.0, low: 24.5 },
-          { date: '06-18', high: 37.5, avg: 30.5, low: 24.0 },
-          { date: '06-21', high: 39.2, avg: 32.0, low: 25.4 },
-          { date: '06-24', high: 40.0, avg: 32.8, low: 26.0 },
-          { date: '06-27', high: 40.8, avg: 33.4, low: 26.6 },
-          { date: '07-01', high: 39.5, avg: 32.2, low: 25.4 },
-          { date: '07-04', high: 38.0, avg: 30.8, low: 24.0 },
-          { date: '07-07', high: 38.6, avg: 31.4, low: 24.6 }
+          { date: '06-15', avg: 31.0 },
+          { date: '06-18', avg: 30.5 },
+          { date: '06-21', avg: 32.0 },
+          { date: '06-24', avg: 32.8 },
+          { date: '06-27', avg: 33.4 },
+          { date: '07-01', avg: 32.2 },
+          { date: '07-04', avg: 30.8 },
+          { date: '07-07', avg: 31.4 }
         ],
         markets: [
           { fruit: '涌泉蜜桔', origin: '浙江涌泉市场', market: '浙江涌泉市...', price: 22.50 },
@@ -714,6 +719,73 @@
     var varietyKeys = ['nanfeng', 'huangyan', 'shimen', 'yongquan'];
     var currentVariety = 'nanfeng';
     var chartData = varietyData[currentVariety].trend;
+
+    // 从所有品种里汇总去重批发市场列表
+    var marketList = (function() {
+      var set = {};
+      var arr = [];
+      varietyKeys.forEach(function(k) {
+        varietyData[k].markets.forEach(function(m) {
+          if (!set[m.origin]) {
+            set[m.origin] = true;
+            arr.push(m.origin);
+          }
+        });
+      });
+      return arr;
+    })();
+    var currentMarket = 'all';
+
+    // 构建市场下拉
+    function buildMarketDropdown() {
+      var dd = document.getElementById('marketDropdown');
+      var html = '';
+      html += '<div class="market-option' + (currentMarket === 'all' ? ' active' : '') +
+              '" data-key="all" onclick="selectMarket(\'all\', event)">' +
+              '<span>全部批发市场</span>' +
+              '<svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' +
+              '</div>';
+      marketList.forEach(function(name) {
+        html += '<div class="market-option' + (currentMarket === name ? ' active' : '') +
+                '" data-key="' + name + '" onclick="selectMarket(\'' + name.replace(/'/g, "\\'") + '\', event)">' +
+                '<span>' + name + '</span>' +
+                '<svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' +
+                '</div>';
+      });
+      dd.innerHTML = html;
+    }
+
+    function openMarketDropdown() {
+      closeVarietyDropdown();
+      document.getElementById('marketDropdown').classList.add('show');
+      document.getElementById('marketTrigger').classList.add('open');
+    }
+
+    function closeMarketDropdown() {
+      var dd = document.getElementById('marketDropdown');
+      var trigger = document.getElementById('marketTrigger');
+      if (dd) dd.classList.remove('show');
+      if (trigger) trigger.classList.remove('open');
+    }
+
+    function toggleMarketDropdown(e) {
+      if (e) { e.stopPropagation(); }
+      var dd = document.getElementById('marketDropdown');
+      if (dd.classList.contains('show')) {
+        closeMarketDropdown();
+      } else {
+        openMarketDropdown();
+      }
+    }
+
+    function selectMarket(key, e) {
+      if (e) { e.stopPropagation(); }
+      currentMarket = key;
+      document.getElementById('marketLabel').textContent = key === 'all' ? '全部批发市场' : key;
+      buildMarketDropdown();
+      renderPriceList();
+      closeMarketDropdown();
+    }
 
     // 构建品种下拉
     function buildVarietyDropdown() {
@@ -731,6 +803,7 @@
     }
 
     function openVarietyDropdown() {
+      closeMarketDropdown();
       document.getElementById('varietyDropdown').classList.add('show');
       document.getElementById('varietyTrigger').classList.add('open');
     }
@@ -762,19 +835,27 @@
     }
 
     document.addEventListener('click', function(e) {
-      var trigger = document.getElementById('varietyTrigger');
-      var dd = document.getElementById('varietyDropdown');
-      if (trigger && dd && !trigger.contains(e.target) && !dd.contains(e.target)) {
+      var vTrigger = document.getElementById('varietyTrigger');
+      var vDd = document.getElementById('varietyDropdown');
+      if (vTrigger && vDd && !vTrigger.contains(e.target) && !vDd.contains(e.target)) {
         closeVarietyDropdown();
+      }
+      var mTrigger = document.getElementById('marketTrigger');
+      var mDd = document.getElementById('marketDropdown');
+      if (mTrigger && mDd && !mTrigger.contains(e.target) && !mDd.contains(e.target)) {
+        closeMarketDropdown();
       }
     });
 
     // 渲染当日价格
     function renderTodayPrice() {
       var d = varietyData[currentVariety].today;
-      document.getElementById('priceMin').innerHTML = d.min.toFixed(2) + '<span class="price-unit">元/公斤</span>';
       document.getElementById('priceAvg').innerHTML = d.avg.toFixed(2) + '<span class="price-unit">元/公斤</span>';
-      document.getElementById('priceMax').innerHTML = d.max.toFixed(2) + '<span class="price-unit">元/公斤</span>';
+      var changeEl = document.getElementById('priceChange');
+      var sign = d.change > 0 ? '+' : (d.change < 0 ? '' : '±');
+      var changeColor = d.change > 0 ? 'var(--success)' : (d.change < 0 ? 'var(--error)' : 'var(--text-secondary)');
+      changeEl.style.color = changeColor;
+      changeEl.innerHTML = sign + d.change.toFixed(2) + '<span class="price-unit">元/公斤</span>';
     }
 
     // 渲染近8天图表
@@ -799,10 +880,8 @@
     }
 
     function renderChart() {
-      var highs = chartData.map(function(d) { return d.high; });
       var avgs = chartData.map(function(d) { return d.avg; });
-      var lows = chartData.map(function(d) { return d.low; });
-      var allVals = highs.concat(avgs).concat(lows);
+      var allVals = avgs;
       var minV = Math.min.apply(null, allVals);
       var maxV = Math.max.apply(null, allVals);
       var step = Math.max(1, Math.ceil((maxV - minV) / 5));
@@ -827,9 +906,7 @@
       document.getElementById('chartXAxis').innerHTML = xHtml;
 
       // 折线
-      document.getElementById('lineHigh').setAttribute('d', buildLinePath(highs, minV, maxV));
       document.getElementById('lineAvg').setAttribute('d', buildLinePath(avgs, minV, maxV));
-      document.getElementById('lineLow').setAttribute('d', buildLinePath(lows, minV, maxV));
 
       // 交互点
       var container = document.getElementById('chartPoints');
@@ -849,8 +926,16 @@
     // 渲染价格列表
     function renderPriceList() {
       var list = document.getElementById('priceList');
+      var markets = varietyData[currentVariety].markets;
+      var filtered = currentMarket === 'all'
+        ? markets
+        : markets.filter(function(m) { return m.origin === currentMarket; });
+      if (filtered.length === 0) {
+        list.innerHTML = '<div style="padding:24px;text-align:center;color:var(--text-tertiary);font-size:var(--font-sm);">该批发市场暂无数据</div>';
+        return;
+      }
       var html = '';
-      varietyData[currentVariety].markets.forEach(function(m) {
+      filtered.forEach(function(m) {
         html += '<div class="list-item">' +
                   '<div class="col-1">' +
                     '<div class="fruit-name">' + m.fruit + '</div>' +
@@ -874,14 +959,12 @@
       var data = chartData[index];
       var tooltip = document.getElementById('chartTooltip');
       document.getElementById('tooltipDate').textContent = data.date;
-      document.getElementById('tooltipHigh').textContent = data.high.toFixed(2) + ' 元/公斤';
       document.getElementById('tooltipAvg').textContent = data.avg.toFixed(2) + ' 元/公斤';
-      document.getElementById('tooltipLow').textContent = data.low.toFixed(2) + ' 元/公斤';
       tooltip.classList.add('show');
       var rect = event.currentTarget.getBoundingClientRect();
       var containerRect = document.querySelector('.chart-content').getBoundingClientRect();
       tooltip.style.left = (rect.left - containerRect.left + rect.width / 2 - 60) + 'px';
-      tooltip.style.top = (rect.top - containerRect.top - 80) + 'px';
+      tooltip.style.top = (rect.top - containerRect.top - 50) + 'px';
     }
 
     function hideTooltip() {
@@ -889,6 +972,7 @@
     }
 
     buildVarietyDropdown();
+    buildMarketDropdown();
     renderAll();
 
     (function() {

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
@@ -16,12 +16,12 @@
     .mb-header-home::before { display: none; }
     .mb-header-home::after { display: none; }
 
-    /* 顶部：天气 + 地块状态 */
+    /* 顶部：我的果园 + 天气 */
     .header-top {
       display: flex;
-      align-items: center;
+      align-items: stretch;
       justify-content: space-between;
-      padding: 4px 0 14px;
+      padding: 4px 0 0;
       gap: 10px;
     }
 
@@ -31,12 +31,13 @@
       gap: 8px;
       font-size: var(--font-sm);
       background: rgba(255,255,255,0.18);
-      padding: 8px 12px;
+      padding: 8px 10px;
       border-radius: var(--radius-lg);
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
       border: 1px solid rgba(255,255,255,0.18);
-      flex: 1;
+      flex: 0 0 132px;
+      box-sizing: border-box;
     }
     .header-weather svg { width: 20px; height: 20px; opacity: 0.95; }
     .weather-temp { font-weight: 700; font-size: var(--font-lg); text-shadow: 0 1px 2px rgba(0,0,0,0.08); }
@@ -74,17 +75,24 @@
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
       border: 1px solid rgba(255,255,255,0.2);
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      box-sizing: border-box;
     }
     .orchard-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 10px;
+      width: 100%;
+      margin-bottom: 0;
     }
     .orchard-title-wrap {
       display: flex;
       align-items: center;
       gap: 8px;
+      min-width: 0;
     }
     .orchard-icon {
       width: 32px;
@@ -375,61 +383,32 @@
 </head>
 <body>
   <div class="mb-app">
-    <!-- Header：今日天气 + 地块状态 + 我的果园（统一品牌色） -->
+    <!-- Header：今日天气 + 我的果园（统一品牌色） -->
     <div class="mb-header-home">
       <div class="header-top">
+        <!-- 我的果园：与天气同排 -->
+        <div class="orchard-card" onclick="navigateTo('mb_data_orchard.html')">
+          <div class="orchard-header">
+            <div class="orchard-title-wrap">
+              <div class="orchard-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2z"/><circle cx="12" cy="12" r="3"/></svg>
+              </div>
+              <div>
+                <div class="orchard-title">我的果园</div>
+                <div class="orchard-subtitle">南丰县 · 白舍镇 · 4块地块</div>
+              </div>
+            </div>
+            <div class="orchard-action">
+              >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+            </div>
+          </div>
+        </div>
         <div class="header-weather">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 2.83 2.83"/><path d="m16.24 16.24 2.83 2.83"/><path d="M2 12h2"/><path d="M20 12h2"/></svg>
           <div class="weather-info">
             <span class="weather-temp">35°C</span>
             <span class="weather-desc">晴 · 湿度45%</span>
-          </div>
-        </div>
-        <div class="plot-status">
-          <div class="plot-status-chip alert" onclick="navigateTo('mb_messages.html')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/></svg>
-            <span class="plot-status-num">2</span>
-          </div>
-          <div class="plot-status-chip warn" onclick="navigateTo('mb_messages.html')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-            <span class="plot-status-num">3</span>
-          </div>
-          <div class="plot-status-chip ok">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            <span class="plot-status-num">4</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- 我的果园：嵌入 Header 内 -->
-      <div class="orchard-card" onclick="navigateTo('mb_data_orchard.html')">
-        <div class="orchard-header">
-          <div class="orchard-title-wrap">
-            <div class="orchard-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2z"/><circle cx="12" cy="12" r="3"/></svg>
-            </div>
-            <div>
-              <div class="orchard-title">我的果园</div>
-              <div class="orchard-subtitle">南丰县 · 白舍镇 · 4块地块</div>
-            </div>
-          </div>
-          <div class="orchard-action">
-            >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-          </div>
-        </div>
-        <div class="orchard-stats">
-          <div class="orchard-stat">
-            <div class="orchard-stat-value">52</div>
-            <div class="orchard-stat-label">总面积(亩)</div>
-          </div>
-          <div class="orchard-stat">
-            <div class="orchard-stat-value">3</div>
-            <div class="orchard-stat-label">今日待办</div>
-          </div>
-          <div class="orchard-stat">
-            <div class="orchard-stat-value">6</div>
-            <div class="orchard-stat-label">待上报</div>
           </div>
         </div>
       </div>
@@ -599,26 +578,8 @@
     window.location.href = page;
   }
 
-  // 今日待办数据：预警/农事/上报三类
+  // 今日待办数据：农事/上报两类，风险预警由引擎动态注入
   var todoItems = [
-    {
-      type: 'alert',
-      tagText: '预警',
-      title: 'A2区土壤湿度严重偏低',
-      desc: '土壤湿度仅 28%，低于适宜范围下限 40%',
-      icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
-      action: '立即处理',
-      task: {
-        id: 't-alert-soil',
-        title: 'A2区土壤湿度严重偏低',
-        status: 'pending',
-        time: '今日 18:00 前',
-        area: '适用区域：A2区',
-        source: '来源：土壤传感器',
-        desc: '土壤湿度仅 28%，低于适宜范围下限 (40%)，可能影响果实膨大。建议立即进行灌溉作业。',
-        suggestion: '1. 立即启动滴灌系统，单株灌溉 30-40L；\n2. 灌溉后 2 小时复测土壤湿度；\n3. 若湿度仍低于 40%，二次灌溉；\n4. 关注近 3 天天气，避免雨前过度灌溉。'
-      }
-    },
     {
       type: 'farm',
       tagText: '农事',
@@ -737,7 +698,7 @@
       }
     };
     var results = window.PestRiskEngine.assess(envData, historyData);
-    var high = results.filter(function(r) { return r.level === 'high' && r.key !== '红蜘蛛'; }); // 排除已在硬编码 todo 里的红蜘蛛
+    var high = results.filter(function(r) { return r.level === 'high' && r.key !== '红蜘蛛'; });
     high.slice(0, 1).forEach(function(r) {
       var icons = {
         '锈壁虱': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/></svg>',

@@ -1,4 +1,4 @@
-﻿﻿<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
@@ -88,6 +88,7 @@
       border-radius: var(--radius-md);
       object-fit: cover;
       flex-shrink: 0;
+      background: var(--bg);
     }
     
     .news-content { flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
@@ -249,21 +250,17 @@
     </div>
   </div>
 <script>
-    var imgA = 'data:image/svg+xml,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 75%27><rect fill=%27%23e8f5e9%27 width=%27100%27 height=%2775%27/><path fill=%27%23a5d6a7%27 d=%27M0 50 Q25 40 50 50 T100 50 V75 H0z%27 opacity=%270.4%27/><circle cx=%2778%27 cy=%2722%27 r=%277%27 fill=%27%2366bb6a%27 opacity=%270.25%27/></svg>';
-    var imgB = 'data:image/svg+xml,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 75%27><rect fill=%27%23fff8e1%27 width=%27100%27 height=%2775%27/><path fill=%27%23ffe082%27 d=%27M0 50 Q25 40 50 50 T100 50 V75 H0z%27 opacity=%270.4%27/><circle cx=%2778%27 cy=%2722%27 r=%277%27 fill=%27%23ffb74d%27 opacity=%270.25%27/></svg>';
-    var imgC = 'data:image/svg+xml,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 75%27><rect fill=%27%23ffebee%27 width=%27100%27 height=%2775%27/><path fill=%27%23ef9a9a%27 d=%27M0 50 Q25 40 50 50 T100 50 V75 H0z%27 opacity=%270.4%27/><circle cx=%2778%27 cy=%2722%27 r=%277%27 fill=%27%23e57373%27 opacity=%270.25%27/></svg>';
-    
     var newsData = [
-      { title: '南丰蜜桔夏季病虫害综合防治技术要点', image: imgC, date: '2026-07-22', views: '3258', summary: '高温高湿天气易引发多种病虫害，需加强监测和防治工作。本文详细介绍了夏季常见病虫害的识别特征和防治方法。', category: 'disease' },
-      { title: '果实膨大期科学施肥指南', image: imgB, date: '2026-07-21', views: '2196', summary: '根据土壤养分状况，合理搭配氮磷钾肥料，促进果实膨大，提高产量和品质。', category: 'fertilizer' },
-      { title: '高温天气果园管理注意事项', image: imgA, date: '2026-07-20', views: '1856', summary: '持续高温对蜜桔生长不利，需采取降温措施，保护果树健康生长。', category: 'weather' },
-      { title: '精准灌溉技术在蜜桔种植中的应用', image: imgA, date: '2026-07-19', views: '1562', summary: '根据土壤湿度数据，智能控制灌溉时机和水量，实现精准灌溉，节约水资源。', category: 'irrigation' },
-      { title: '南丰蜜桔品质提升关键技术', image: imgB, date: '2026-07-18', views: '2081', summary: '通过科学管理，提高蜜桔甜度和外观品质，增强市场竞争力。', category: 'all' },
-      { title: '蜜桔夏季高温热害防范与补救措施', image: imgA, date: '2026-07-17', views: '2156', summary: '持续高温影响蜜桔生长，需及时采取降温措施，减轻热害影响。', category: 'weather' },
-      { title: '蜜桔夏季修剪技术要点', image: imgC, date: '2026-07-16', views: '1723', summary: '夏季修剪可改善通风透光，促进果实发育，提高产量。', category: 'pruning' },
-      { title: '红蜘蛛综合防治方案', image: imgC, date: '2026-07-15', views: '2890', summary: '红蜘蛛是夏季主要害虫，需综合运用农业、物理和化学防治方法。', category: 'disease' },
-      { title: '叶面喷肥技术详解', image: imgB, date: '2026-07-14', views: '1654', summary: '叶面喷肥可快速补充养分，提高肥料利用率，增强树势。', category: 'fertilizer' },
-      { title: '果园夏季排水管理', image: imgA, date: '2026-07-13', views: '1432', summary: '夏季多雨需加强排水，防止根系积水导致烂根。', category: 'irrigation' }
+      { title: '南丰蜜桔夏季病虫害综合防治技术要点', image: 'images/news_disease_summer.jpg', date: '2026-07-22', views: '3258', summary: '高温高湿天气易引发多种病虫害，需加强监测和防治工作。本文详细介绍了夏季常见病虫害的识别特征和防治方法。', category: 'disease' },
+      { title: '果实膨大期科学施肥指南', image: 'images/news_fertilizer_fruit.jpg', date: '2026-07-21', views: '2196', summary: '根据土壤养分状况，合理搭配氮磷钾肥料，促进果实膨大，提高产量和品质。', category: 'fertilizer' },
+      { title: '高温天气果园管理注意事项', image: 'images/news_weather_heat.jpg', date: '2026-07-20', views: '1856', summary: '持续高温对蜜桔生长不利，需采取降温措施，保护果树健康生长。', category: 'weather' },
+      { title: '精准灌溉技术在蜜桔种植中的应用', image: 'images/news_irrigation_drip.jpg', date: '2026-07-19', views: '1562', summary: '根据土壤湿度数据，智能控制灌溉时机和水量，实现精准灌溉，节约水资源。', category: 'irrigation' },
+      { title: '南丰蜜桔品质提升关键技术', image: 'images/news_quality.jpg', date: '2026-07-18', views: '2081', summary: '通过科学管理，提高蜜桔甜度和外观品质，增强市场竞争力。', category: 'all' },
+      { title: '蜜桔夏季高温热害防范与补救措施', image: 'images/news_heat_protection.jpg', date: '2026-07-17', views: '2156', summary: '持续高温影响蜜桔生长，需及时采取降温措施，减轻热害影响。', category: 'weather' },
+      { title: '蜜桔夏季修剪技术要点', image: 'images/news_pruning.jpg', date: '2026-07-16', views: '1723', summary: '夏季修剪可改善通风透光，促进果实发育，提高产量。', category: 'pruning' },
+      { title: '红蜘蛛综合防治方案', image: 'images/news_red_spider.jpg', date: '2026-07-15', views: '2890', summary: '红蜘蛛是夏季主要害虫，需综合运用农业、物理和化学防治方法。', category: 'disease' },
+      { title: '叶面喷肥技术详解', image: 'images/news_spray.jpg', date: '2026-07-14', views: '1654', summary: '叶面喷肥可快速补充养分，提高肥料利用率，增强树势。', category: 'fertilizer' },
+      { title: '果园夏季排水管理', image: 'images/news_drainage.jpg', date: '2026-07-13', views: '1432', summary: '夏季多雨需加强排水，防止根系积水导致烂根。', category: 'irrigation' }
     ];
 
     var currentCategory = 'all';

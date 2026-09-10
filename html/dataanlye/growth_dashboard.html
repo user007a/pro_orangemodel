@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -1356,18 +1356,49 @@
         }]
     });
 
+    // ===== 评价对象生成（弹窗与滚动表格共用，保证两者一致）=====
+    var evalObjBuilder = {
+        // 6 个品系及其细分品种（与 typeNames 保持一致；同品系下多个监测点用 townIdx 区分）
+        typeConfig: [
+            { type: 'service',       name: '小果系',   subVarieties: ['杨小2-6', '金钱蜜桔'] },
+            { type: 'enterprise',    name: '大果系',   subVarieties: ['蜜广1号', '粗皮大果'] },
+            { type: 'cooperative',   name: '桂花蒂系', subVarieties: ['柿蒂蜜桔', '桂花蒂'] },
+            { type: 'demonstration', name: '早熟系',   subVarieties: ['普通早熟蜜桔', '日南1号'] },
+            { type: 'largegrower',   name: '桂月红',   subVarieties: ['特早熟芽变', '桂月红优系'] },
+            { type: 'iot',           name: '蜜广1号',  subVarieties: ['晚熟蜜广', '蜜广优系'] }
+        ],
+        // 砧木/树龄/地块/栽培方式（按监测点 townIdx 循环）
+        rootstocks:    ['枳砧', '枳砧', '枳橙砧', '枳砧', '红橘砧', '酸橘砧'],
+        ages:          ['6年生', '8年生', '10年生', '12年生', '15年生', '4年生'],
+        plots:         ['A001地块', 'B002地块', 'C003地块', 'D004地块', 'E005地块', 'F006地块', 'G007地块'],
+        cultivations:  ['露地', '避雨栽培', '露地', '设施栽培', '露地', '避雨栽培'],
+        // 根据品系 type + townIdx 生成评价对象
+        build: function(type, townIdx) {
+            var tc = this.typeConfig.filter(function(t) { return t.type === type; })[0];
+            var sub = tc.subVarieties[townIdx % tc.subVarieties.length];
+            var strainName = tc.name + '（' + sub + '）';
+            var rootstock = this.rootstocks[townIdx % this.rootstocks.length];
+            var age = this.ages[townIdx % this.ages.length];
+            var plot = this.plots[townIdx % this.plots.length];
+            var cultivation = this.cultivations[townIdx % this.cultivations.length];
+            return strainName + '－' + rootstock + '－' + age + '－' + plot + '－' + cultivation;
+        },
+        typeName: function(type) {
+            var tc = this.typeConfig.filter(function(t) { return t.type === type; })[0];
+            return tc ? tc.name : '';
+        }
+    };
+
     var entityData = (function() {
         // 11 个监测点（每个乡镇一个），每点 2-4 株，共 26 株
         // entityData[type][pointIndex] 返回该监测点的植株信息汇总
-        // type 含义：service=小果系, enterprise=大果系, cooperative=桂花蒂系,
-        //           demonstration=早熟系, largegrower=桂月红, iot=蜜广1号
         var typeConfig = [
-            { type: 'service',       age: '小果系',     counts: [2, 2] },
-            { type: 'enterprise',    age: '大果系',     counts: [3, 2] },
-            { type: 'cooperative',   age: '桂花蒂系',   counts: [2, 3] },
-            { type: 'demonstration', age: '早熟系',     counts: [2, 2] },
-            { type: 'largegrower',   age: '桂月红',     counts: [2, 2] },
-            { type: 'iot',           age: '蜜广1号',    counts: [4] }
+            { type: 'service',       counts: [2, 2] },
+            { type: 'enterprise',    counts: [3, 2] },
+            { type: 'cooperative',   counts: [2, 3] },
+            { type: 'demonstration', counts: [2, 2] },
+            { type: 'largegrower',   counts: [2, 2] },
+            { type: 'iot',           counts: [4] }
         ];
         // 11 个乡镇对应的监测点（与地图气泡坐标顺序一致），用于分配固定分数
         var townScores = [92, 78, 85, 90, 88, 76, 72, 68, 84, 80, 95];
@@ -1381,9 +1412,10 @@
             tc.counts.forEach(function(pointCount, pointIdx) {
                 var score = townScores[townIdx % townScores.length];
                 var grade = score >= 90 ? '优秀' : (score >= 80 ? '良好' : '一般');
+                var evalObj = evalObjBuilder.build(tc.type, townIdx);
                 data[tc.type].push({
                     evalId: 'PF-2026-' + ('000' + num).slice(-4),
-                    evalObj: '南丰蜜桔-' + tc.age + '·监测点' + (pointIdx + 1),
+                    evalObj: evalObj,
                     plantCount: pointCount,
                     score: score,
                     grade: grade,
@@ -1404,16 +1436,10 @@
         var content = document.getElementById('popupContent');
         var data = entityData[type][index];
 
-        var typeNames = {
-            service:       '小果系（杨小2-6、金钱蜜桔）',
-            enterprise:    '大果系',
-            cooperative:   '桂花蒂系（柿蒂蜜桔）',
-            demonstration: '早熟系（普通早熟蜜桔）',
-            largegrower:   '桂月红（特早熟芽变）',
-            iot:           '蜜广1号（晚熟蜜广）'
-        };
-
-        title.textContent = typeNames[type] + ' - ' + data.evalObj;
+        // 标题仅展示细分品种名称（去除品系前缀），避免与下方"评价对象"重复
+        var subMatch = data.evalObj.match(/（(.*?)）/);
+        var subVariety = subMatch ? subMatch[1] : data.evalObj;
+        title.textContent = '植株评价信息 - ' + subVariety;
 
         var gradeColor = data.grade === '优秀' ? '#22c55e' : (data.grade === '良好' ? '#3b82f6' : '#f59e0b');
         content.innerHTML =
@@ -1453,24 +1479,27 @@
     var scrollingEntities = (function() {
         // 按监测点展示，11 个监测点合计 26 株
         var typeConfig = [
-            { type: 'service',       age: '小果系',   counts: [2, 2] },
-            { type: 'enterprise',    age: '大果系',   counts: [3, 2] },
-            { type: 'cooperative',   age: '桂花蒂系', counts: [2, 3] },
-            { type: 'demonstration', age: '早熟系',   counts: [2, 2] },
-            { type: 'largegrower',   age: '桂月红',   counts: [2, 2] },
-            { type: 'iot',           age: '蜜广1号',  counts: [4] }
+            { type: 'service',       counts: [2, 2] },
+            { type: 'enterprise',    counts: [3, 2] },
+            { type: 'cooperative',   counts: [2, 3] },
+            { type: 'demonstration', counts: [2, 2] },
+            { type: 'largegrower',   counts: [2, 2] },
+            { type: 'iot',           counts: [4] }
         ];
         var persons = ['张明华','陈大山','周建国','刘芳','黄小明','赵晓峰','吴丽华','林秀英','孙伟','郑伟','李志强','王大海','刘海龙','陈小燕','杨伟','张建国','刘艳','李明','王强','陈秀英','张磊','刘强','周芳','王小军'];
         var entities = [];
         var num = 101;
         var pIdx = 0;
+        var townIdx = 0;
         typeConfig.forEach(function(tc) {
             tc.counts.forEach(function(pointCount, pointIdx) {
                 var score = 78 + (num * 7 + 3) % 18;
                 var grade = score >= 90 ? '优秀' : (score >= 80 ? '良好' : '一般');
+                // 复用 evalObjBuilder，与弹窗保持完全一致
+                var evalObj = evalObjBuilder.build(tc.type, townIdx);
                 entities.push({
                     evalId: 'PF-2026-' + ('000' + num).slice(-4),
-                    evalObj: '南丰蜜桔-' + tc.age + '·监测点' + (pointIdx + 1),
+                    evalObj: evalObj,
                     plantCount: pointCount,
                     score: score.toFixed(1),
                     grade: grade,
@@ -1480,6 +1509,7 @@
                 });
                 num++;
                 pIdx++;
+                townIdx++;
             });
         });
         return entities;

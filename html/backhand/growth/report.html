@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -23,16 +23,16 @@
             <div class="flex flex-wrap items-center gap-3">
                 <div class="flex items-center gap-2">
                     <label class="text-sm text-gray-600">地块:</label>
-                    <select class="px-3 py-2 border border-gray-300 rounded-lg text-sm w-56">
-                        <option>NF-001 东坡A-03地块</option>
-                        <option>NF-002 东坡A-05地块</option>
-                        <option>NF-003 南塘B-01地块</option>
-                        <option>NF-004 南塘B-07地块</option>
+                    <select class="px-3 py-2 border border-gray-300 rounded-lg text-sm w-96">
+                        <option>南丰蜜桔－小果系（杨小2-6，金钱蜜桔）－枳砧－10年生－D004地块－露地</option>
+                        <option>南丰蜜桔－大果系－枳砧－8年生－D005地块－设施</option>
+                        <option>南丰蜜桔－桂月红（特早熟芽变）－红桔砧－5年生－D006地块－露地</option>
+                        <option>南丰蜜桔－桂花蒂系（柿蒂蜜桔）－枳砧－12年生－D007地块－设施</option>
                     </select>
                 </div>
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 ml-8">
                     <label class="text-sm text-gray-600">日期:</label>
-                    <input type="date" value="2026-08-04" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                    <input type="date" value="2026-08-22" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
                 </div>
             </div>
         </div>
@@ -76,14 +76,14 @@
 
 <script>
 const historyData = [
-    { id: 'NF-001', name: '东坡A-03地块', date: '2026-08-04', score: 78, grade: '良好', gradeColor: 'bg-green-100 text-green-700' },
-    { id: 'NF-001', name: '东坡A-03地块', date: '2026-07-15', score: 81, grade: '良好', gradeColor: 'bg-green-100 text-green-700' },
-    { id: 'NF-001', name: '东坡A-03地块', date: '2026-06-20', score: 83, grade: '良好', gradeColor: 'bg-green-100 text-green-700' },
-    { id: 'NF-002', name: '东坡A-05地块', date: '2026-08-04', score: 86, grade: '优秀', gradeColor: 'bg-blue-100 text-blue-700' },
-    { id: 'NF-002', name: '东坡A-05地块', date: '2026-07-15', score: 85, grade: '优秀', gradeColor: 'bg-blue-100 text-blue-700' },
-    { id: 'NF-003', name: '南塘B-01地块', date: '2026-08-04', score: 72, grade: '一般', gradeColor: 'bg-yellow-100 text-yellow-700' },
-    { id: 'NF-003', name: '南塘B-01地块', date: '2026-07-15', score: 75, grade: '良好', gradeColor: 'bg-green-100 text-green-700' },
-    { id: 'NF-004', name: '南塘B-07地块', date: '2026-08-04', score: 65, grade: '需改进', gradeColor: 'bg-orange-100 text-orange-700' },
+    { id: 'NF-001', name: '南丰蜜桔－小果系（杨小2-6，金钱蜜桔）－枳砧－10年生－D004地块－露地', date: '2026-08-22', score: 78, grade: '良好', gradeColor: 'bg-green-100 text-green-700' },
+    { id: 'NF-001', name: '南丰蜜桔－小果系（杨小2-6，金钱蜜桔）－枳砧－10年生－D004地块－露地', date: '2026-09-02', score: 81, grade: '良好', gradeColor: 'bg-green-100 text-green-700' },
+    { id: 'NF-001', name: '南丰蜜桔－小果系（杨小2-6，金钱蜜桔）－枳砧－10年生－D004地块－露地', date: '2026-06-20', score: 83, grade: '良好', gradeColor: 'bg-green-100 text-green-700' },
+    { id: 'NF-002', name: '南丰蜜桔－大果系－枳砧－8年生－D005地块－设施', date: '2026-08-22', score: 86, grade: '优秀', gradeColor: 'bg-blue-100 text-blue-700' },
+    { id: 'NF-002', name: '南丰蜜桔－大果系－枳砧－8年生－D005地块－设施', date: '2026-09-02', score: 85, grade: '优秀', gradeColor: 'bg-blue-100 text-blue-700' },
+    { id: 'NF-003', name: '南丰蜜桔－桂月红（特早熟芽变）－红桔砧－5年生－D006地块－露地', date: '2026-08-22', score: 72, grade: '一般', gradeColor: 'bg-yellow-100 text-yellow-700' },
+    { id: 'NF-003', name: '南丰蜜桔－桂月红（特早熟芽变）－红桔砧－5年生－D006地块－露地', date: '2026-09-02', score: 75, grade: '良好', gradeColor: 'bg-green-100 text-green-700' },
+    { id: 'NF-004', name: '南丰蜜桔－桂花蒂系（柿蒂蜜桔）－枳砧－12年生－D007地块－设施', date: '2026-08-22', score: 65, grade: '需改进', gradeColor: 'bg-orange-100 text-orange-700' },
 ];
 
 function renderHistory() {

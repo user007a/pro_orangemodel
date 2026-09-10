@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -48,14 +48,13 @@
     <div class="flex items-center justify-between mb-6">
         <div>
             <h1 class="text-xl font-bold text-gray-800">模型说明</h1>
-            <p class="text-gray-500 text-sm mt-1">管理南丰蜜桔生长模型的运行状态和参数配置</p>
+            <p class="text-gray-500 text-sm mt-1">用通俗的语言说明南丰蜜桔生长模型的作用、算法、参数、使用方式和目的</p>
         </div>
     </div>
 
     <!-- Tab 切换 -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 mb-6">
         <div class="border-b border-gray-100 flex items-center px-6">
-            <div class="tab-item px-5 py-3 text-sm mr-6 cursor-pointer tab-active whitespace-nowrap" data-tab="memo" onclick="switchTab('memo')">模型说明</div>
         </div>
     </div>
 
@@ -65,10 +64,7 @@
             <div class="lg:col-span-1">
                 <div class="toc-container">
                     <div class="toc-header">
-                        <div class="toc-header-title">
-                            <svg class="toc-header-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
-                            </svg>
+                        <div class="toc-header-title" style="font-size:18px">
                             目录导航
                         </div>
                     </div>
@@ -109,6 +105,10 @@
                         <div class="toc-sub-subitem" onclick="scrollToSection('section2_2_2', event)">
                             <span>◦</span>
                             2.2.2 所有数据都要采集吗
+                        </div>
+                        <div class="toc-sub-subitem" onclick="scrollToSection('section2_2_3', event)">
+                            <span>◦</span>
+                            2.2.3 典型农事类型与适用阶段
                         </div>
                         <div class="toc-subitem" onclick="scrollToSection('section2_3', event)">
                             <span class="toc-subitem-icon">•</span>
@@ -279,17 +279,11 @@
                     <div id="section1_2" class="bg-white rounded-xl shadow-sm p-6 mt-6 scroll-mt-20">
                         <h2 class="text-xl font-bold text-gray-800 mb-4">1.2 模型每天怎么工作</h2>
                         <p class="text-gray-600 mb-6">可以把模型理解为一名每天巡园、会记账的农技员。它每天按以下顺序工作：</p>
-                        <div class="overflow-x-auto mb-8">
-                            <table class="table-blue w-full text-sm rounded-lg overflow-hidden">
-                                <thead><tr><th>顺序</th><th>模型动作</th><th>大白话</th></tr></thead>
-                                <tbody><tr><td>第1步</td><td>确认对象</td><td>先确认是哪一个品系、什么砧木、几年树、处于什么阶段</td></tr></tbody>
-                            </table>
-                        </div>
-                        <div class="text-center text-gray-400 mb-8 py-4 border-t border-b border-gray-200">南丰蜜桔生长—环境—品质统一模型（模拟示例）</div>
                         <div class="overflow-x-auto mb-6">
                             <table class="table-blue w-full text-sm rounded-lg overflow-hidden">
                                 <thead><tr><th>顺序</th><th>模型动作</th><th>大白话</th></tr></thead>
                                 <tbody>
+                                    <tr><td>第1步</td><td>确认对象</td><td>先确认是哪一个品系、什么砧木、几年树、处于什么阶段</td></tr>
                                     <tr><td>第2步</td><td>检查温湿度</td><td>先看果树是否还具备正常生长的基本条件</td></tr>
                                     <tr><td>第3步</td><td>评价整株表现</td><td>从100分开始，树势、根、叶、果和环境哪里不好就在哪里扣分</td></tr>
                                     <tr><td>第4步</td><td>更新生长状态</td><td>计算枝、叶、根和果实今天实际长了多少</td></tr>
@@ -323,7 +317,7 @@
                             <div class="formula-box text-center text-lg">Uₜ＝[品种、生育阶段、温湿度、土壤水分、光照、土壤养分、地块属性、农事管理、当前树体状态]</div>
                             <div id="section2_2_1" class="scroll-mt-20">
                                 <h4 class="font-semibold text-gray-800 mb-4 mt-6">2.2.1 对象信息怎样填写</h4>
-                                <p class="text-gray-600 mb-4">模型对象编码为"南丰蜜桔－品系/株系－砧木－树龄－地块－栽培方式"。例如："南丰蜜桔－品系A－枳砧－6年生－01地块－露地"。品系数据充足时使用专属参数；数据不足时使用南丰蜜桔基础参数加修正量：</p>
+                                <p class="text-gray-600 mb-4">模型对象编码为"南丰蜜桔－品系/株系－砧木－树龄－地块－栽培方式"。例如："南丰蜜桔－品系A－枳砧－10年生－01地块－露地"。品系数据充足时使用专属参数；数据不足时使用南丰蜜桔基础参数加修正量：</p>
                                 <div class="formula-box">对象参数＝南丰蜜桔基础参数＋品系修正＋砧木修正＋树龄修正＋地块修正</div>
                                 <p class="text-gray-600 mt-4">因此，系统仍然使用一套统一公式，但不同品系、砧木和树龄调用的最适区间、权重、生长速度和品质输出系数不同。</p>
                             </div>
@@ -349,11 +343,37 @@
                                     <p class="text-gray-600 text-sm">温度、湿度、土壤水分、光照、降雨和灌溉记录，再配合品系、砧木、树龄、生育阶段以及定期果径、糖度抽样。缺失的非核心因子可以使用最近一次检测值或地块档案值，但模型必须同步降低结果置信度。</p>
                                 </div>
                             </div>
+                            <div id="section2_2_3" class="scroll-mt-20">
+                                <h4 class="font-semibold text-gray-800 mb-4 mt-6">2.2.3 典型农事类型与适用阶段</h4>
+                                <p class="text-gray-600 mb-4">系统支持 7 种典型农事类型，每种类型在不同生育阶段的重要程度和适用条件不同。具体阈值以农事建议配置为准。</p>
+                                <div class="overflow-x-auto">
+                                    <table class="table-blue w-full text-sm rounded-lg overflow-hidden">
+                                        <thead><tr><th>农事类型</th><th>主要目的</th><th>典型适用阶段</th><th>触发条件</th></tr></thead>
+                                        <tbody>
+                                            <tr><td>灌溉</td><td>补充土壤水分，缓解干旱胁迫</td><td>果实膨大期、成熟期</td><td>土壤含水量持续低于适宜下限</td></tr>
+                                            <tr><td>施肥</td><td>补充氮磷钾养分，调整碳氮比</td><td>生长期、果实膨大期、成熟期</td><td>叶片SPAD偏低、土壤养分检测不足</td></tr>
+                                            <tr><td>疏果</td><td>控制挂果负载，保证单果品质</td><td>落果期、果实膨大期</td><td>挂果量超目标值 110% 以上</td></tr>
+                                            <tr><td>修剪</td><td>打开内膛光照，改善通风</td><td>生长期、果实膨大期</td><td>冠层光照低于适宜下限、枝条过密</td></tr>
+                                            <tr><td>遮阳</td><td>降低冠层温度与光照强度</td><td>果实膨大期、成熟期</td><td>温度持续超过严重上限、果实日灼风险高</td></tr>
+                                            <tr><td>打药</td><td>防治病虫害</td><td>全生育期</td><td>病虫害指数上升、叶片受害率超阈值</td></tr>
+                                            <tr><td>排水</td><td>降低根区湿度，避免涝害</td><td>开花期、果实膨大期</td><td>土壤水分持续偏高、根系活力下降</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="bg-blue-50 rounded-xl p-4 border border-blue-100 mt-4">
+                                    <p class="text-blue-800 font-medium">农事记录与模型的关系</p>
+                                    <p class="text-blue-700 text-sm mt-2">系统记录每次农事操作的类型、时间、详情和操作人，作为模型判断"问题由环境引起还是管理引起"的关键依据。当模型发现某项指标异常时，会自动在时间线上回溯最近的农事记录，辅助推断原因链。</p>
+                                </div>
+                            </div>
                         </div>
                         <div id="section2_3" class="scroll-mt-20">
                             <h3 class="text-lg font-semibold text-gray-800 mb-4 mt-6">2.3 模型内部记录哪些状态</h3>
                             <p class="text-gray-600 mb-4">模型把一株或一个地块的南丰蜜桔状态写成一个向量：</p>
                             <div class="formula-box text-center text-lg mb-6">Zₜ＝[Bₜ，Lₜ，Rₜ，Nₜ，Dₜ，Wₜ，Sₜ，Aₜ]</div>
+                            <div class="bg-blue-50 rounded-xl p-4 border border-blue-100 mb-4">
+                                <p class="text-blue-800 font-medium">状态分量数据来源说明</p>
+                                <p class="text-blue-700 text-sm mt-2">实际系统中，果径(D)、糖度(S)、挂果量(N) 由人工采样录入；果重(W)、外观(A) 由人工录入或现场评分；枝干(B)、叶片(L)、根系(R) 由模型根据温湿度、土壤水、SPAD 等指标自动推算，并在阶段参数中给出推算公式与权重。</p>
+                            </div>
                             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                                 <div class="bg-indigo-50 rounded-xl p-4 border border-indigo-200"><div class="text-2xl font-bold text-indigo-600 text-center mb-2">Bₜ</div><div class="text-gray-800 font-medium text-center">枝干状态</div></div>
                                 <div class="bg-green-50 rounded-xl p-4 border border-green-200"><div class="text-2xl font-bold text-green-600 text-center mb-2">Lₜ</div><div class="text-gray-800 font-medium text-center">叶片状态</div></div>
@@ -369,6 +389,17 @@
                             <h3 class="text-lg font-semibold text-gray-800 mb-4 mt-6">2.4 植株综合评价怎样得到100分</h3>
                             <p class="text-gray-600 mb-4">植株综合评价不是只评价环境，也不是把几个数据简单平均。模型从100分开始，分别评价树势与枝干、叶片、根系、花果与负载、环境与土壤、病虫害与管理。哪里出现异常，就在对应维度扣分。</p>
                             <div class="formula-box text-center text-lg mb-6">植株综合分＝100－树势枝干扣分－叶片扣分－根系扣分－花果扣分－环境土壤扣分－病虫害管理扣分</div>
+                            <div class="bg-gray-50 rounded-xl p-4 mb-4">
+                                <p class="text-gray-800 font-medium mb-2">六维度标准名称（系统统一使用）</p>
+                                <div class="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm text-gray-700">
+                                    <div><span class="font-mono">PB</span> · 树势与枝干（满分 15）</div>
+                                    <div><span class="font-mono">PL</span> · 叶片（满分 15）</div>
+                                    <div><span class="font-mono">PR</span> · 根系（满分 15）</div>
+                                    <div><span class="font-mono">PF</span> · 花果与负载（满分 25）</div>
+                                    <div><span class="font-mono">PE</span> · 环境与土壤（满分 20）</div>
+                                    <div><span class="font-mono">PM</span> · 病虫害与管理（满分 10）</div>
+                                </div>
+                            </div>
                             <p class="text-gray-600">模型不只显示一个总分，还必须列出每个维度的得分、每一项扣分、直接原因、可能的深层原因、建议采取的农事措施、执行优先级和建议复查时间。</p>
                         </div>
                         <div id="section2_5" class="scroll-mt-20">
@@ -422,20 +453,21 @@
                             <div class="bg-gray-50 rounded-xl p-6">
                                 <div class="overflow-x-auto">
                                     <table class="w-full text-sm">
-                                        <thead><tr class="border-b border-gray-200"><th class="text-left py-3 px-4 font-semibold text-gray-600">生育阶段</th><th class="text-left py-3 px-4 font-semibold text-gray-600">温度最适</th><th class="text-left py-3 px-4 font-semibold text-gray-600">湿度最适</th><th class="text-left py-3 px-4 font-semibold text-gray-600">主要关注</th></tr></thead>
+                                        <thead><tr class="border-b border-gray-200"><th class="text-left py-3 px-4 font-semibold text-gray-600">生育阶段</th><th class="text-left py-3 px-4 font-semibold text-gray-600">温度最适 (°C)</th><th class="text-left py-3 px-4 font-semibold text-gray-600">湿度最适 (%)</th><th class="text-left py-3 px-4 font-semibold text-gray-600">光照最适 (klx)</th><th class="text-left py-3 px-4 font-semibold text-gray-600">钾营养最适 (mg/kg)</th><th class="text-left py-3 px-4 font-semibold text-gray-600">pH 最适</th><th class="text-left py-3 px-4 font-semibold text-gray-600">主要关注</th></tr></thead>
                                         <tbody>
-                                            <tr class="border-b border-gray-100"><td class="py-3 px-4">萌芽期</td><td class="py-3 px-4">15-22°C</td><td class="py-3 px-4">65-80%</td><td class="py-3 px-4">有效积温、萌芽率</td></tr>
-                                            <tr class="border-b border-gray-100"><td class="py-3 px-4">开花期</td><td class="py-3 px-4">18-25°C</td><td class="py-3 px-4">60-75%</td><td class="py-3 px-4">坐果率、授粉</td></tr>
-                                            <tr class="border-b border-gray-100"><td class="py-3 px-4">果实膨大期</td><td class="py-3 px-4">24-29°C</td><td class="py-3 px-4">60-80%</td><td class="py-3 px-4">果径增长、养分</td></tr>
-                                            <tr><td class="py-3 px-4">成熟期</td><td class="py-3 px-4">20-25°C</td><td class="py-3 px-4">55-75%</td><td class="py-3 px-4">糖度、着色</td></tr>
+                                            <tr class="border-b border-gray-100"><td class="py-3 px-4">萌芽期</td><td class="py-3 px-4">15-22</td><td class="py-3 px-4">65-80</td><td class="py-3 px-4">15-30</td><td class="py-3 px-4">150-250</td><td class="py-3 px-4">5.5-7.0</td><td class="py-3 px-4">有效积温、萌芽率</td></tr>
+                                            <tr class="border-b border-gray-100"><td class="py-3 px-4">开花期</td><td class="py-3 px-4">18-25</td><td class="py-3 px-4">60-75</td><td class="py-3 px-4">25-40</td><td class="py-3 px-4">160-260</td><td class="py-3 px-4">5.5-7.0</td><td class="py-3 px-4">坐果率、授粉</td></tr>
+                                            <tr class="border-b border-gray-100"><td class="py-3 px-4">果实膨大期</td><td class="py-3 px-4">24-29</td><td class="py-3 px-4">60-80</td><td class="py-3 px-4">25-40</td><td class="py-3 px-4">220-350</td><td class="py-3 px-4">5.5-7.0</td><td class="py-3 px-4">果径增长、养分</td></tr>
+                                            <tr><td class="py-3 px-4">成熟期</td><td class="py-3 px-4">20-25</td><td class="py-3 px-4">55-75</td><td class="py-3 px-4">30-45</td><td class="py-3 px-4">180-300</td><td class="py-3 px-4">5.5-7.0</td><td class="py-3 px-4">糖度、着色</td></tr>
                                         </tbody>
                                     </table>
                                 </div>
+                                <p class="text-xs text-gray-500 mt-3">注：光照单位统一为 klx（千勒克斯），钾营养单位为 mg/kg。土壤水分、土壤 pH、根系等其他因子因生育阶段差异较小，详见阶段参数配置。</p>
                             </div>
                         </div>
                         <div id="section2_10" class="scroll-mt-20">
                             <h3 class="text-lg font-semibold text-gray-800 mb-4 mt-6">2.10 为什么每个因子的分量不一样</h3>
-                            <p class="text-gray-600 mb-4">各因子的重要性并不相同。权重由"品系/株系v、生育阶段s、评价目标q、因子k"共同决定，写成w(v,s,q,k)。例如，土壤水分在膨大期对果径权重较高，光照在成熟期对糖度和着色权重较高，钙对外观和裂果风险更重要。</p>
+                            <p class="text-gray-600 mb-4">各因子的重要性并不相同。权重由"品系/株系v、生育阶段s、评价目标q、因子k"共同决定，写成w(v,s,q,k)。例如，土壤水分在糖度积累期对果径权重较高，光照在成熟期对糖度和着色权重较高，钙对外观和裂果风险更重要。</p>
                             <div class="formula-box mb-4">PlantScore＝max[0，100－PB－PLf－PRt－PF－PE－PM]</div>
                             <p class="text-gray-600 mb-4">普通因子的扣分公式为：</p>
                             <div class="formula-box mb-4">P<sub>k</sub>＝P<sub>k,max</sub> × w(v,s,q,k) × [1－S<sub>k</sub>(x)] × C<sub>k</sub></div>
@@ -452,7 +484,7 @@
                         <p class="text-gray-600 mb-4">下面不要求读者先懂公式。只需记住三件事：第一，正常时从100分逐项扣分；第二，扣分越多说明限制越严重；第三，温湿度越过严重阈值且持续时间达标时，最终有效分直接变成0。</p>
                         <div id="section3_1" class="scroll-mt-20">
                             <h3 class="text-lg font-semibold text-gray-800 mb-4 mt-6">3.1 模拟对象和初始状态</h3>
-                            <p class="text-gray-600 mb-4">模拟对象编码为"南丰蜜桔－品系A－枳砧－6年生－01地块－露地栽培"，处于果实膨大期。"品系A"仅为演示性对象名称，不指代某个已认定株系。假设当前平均果径为48.00 mm，模拟潜在最大果径为68.00 mm，当前平均单果重为76.0 g，糖度为9.20 °Brix，外观评分为92分。果实膨大期模拟最大果径增长速度 r<sub>D</sub>=1.10 mm/天。</p>
+                            <p class="text-gray-600 mb-4">模拟对象编码为"南丰蜜桔－品系A－枳砧－10年生－01地块－露地栽培"，处于果实膨大期。"品系A"仅为演示性对象名称，不指代某个已认定株系。假设当前平均果径为48.00 mm，模拟潜在最大果径为68.00 mm，当前平均单果重为76.0 g，糖度为9.20 °Brix，外观评分为92分。果实膨大期模拟最大果径增长速度 r<sub>D</sub>=1.10 mm/天。</p>
                         </div>
                         <div id="section3_2" class="scroll-mt-20">
                             <h3 class="text-lg font-semibold text-gray-800 mb-4 mt-6">3.2 连续7天模拟输入</h3>
@@ -538,7 +570,7 @@
                             <p class="text-gray-600 mb-4">系统最终不应只显示一个数字，而应生成一张任何果园管理人员都能读懂的评价单，至少包含以下内容：</p>
                             <div class="bg-gray-50 rounded-xl p-6">
                                 <div class="space-y-4">
-                                    <div class="bg-white rounded-lg p-4"><p class="font-medium text-gray-800">评价对象：南丰蜜桔－品系A－枳砧－6年生－01地块</p><p class="text-gray-500 text-sm">评价时间：模拟第7天</p></div>
+                                    <div class="bg-white rounded-lg p-4"><p class="font-medium text-gray-800">评价对象：南丰蜜桔－品系A－枳砧－10年生－01地块</p><p class="text-gray-500 text-sm">评价时间：模拟第7天</p></div>
                                     <div class="bg-white rounded-lg p-4">
                                         <p class="font-medium text-gray-800">综合得分：87分 | 评价等级：良好</p>
                                         <div class="mt-3 space-y-2 text-sm">
@@ -572,7 +604,7 @@
                         </div>
                         <div id="section3_10" class="scroll-mt-20">
                             <h3 class="text-lg font-semibold text-gray-800 mb-4 mt-6">3.10 第二个独立模拟：成熟期植株评价</h3>
-                            <p class="text-gray-600 mb-4">为了进一步说明模型怎样实际运行，再模拟一个不同对象和不同生育阶段。模拟对象为"南丰蜜桔－品系B－枳砧－8年生－02坡地－露地栽培"，当前处于成熟期。"品系B"同样只是算法演示名称。评价目标是判断植株健康、成熟品质和近期应该采取的农事措施。</p>
+                            <p class="text-gray-600 mb-4">为了进一步说明模型怎样实际运行，再模拟一个不同对象和不同生育阶段。模拟对象为"南丰蜜桔－品系B－枳砧－10年生－02坡地－露地栽培"，当前处于成熟期。"品系B"同样只是算法演示名称。评价目标是判断植株健康、成熟品质和近期应该采取的农事措施。</p>
                             <div id="section3_10_1" class="scroll-mt-20">
                                 <h4 class="font-semibold text-gray-800 mb-4 mt-6">3.10.1 第一步：输入当天数据</h4>
                                 <div class="bg-gray-50 rounded-xl p-6">
@@ -752,7 +784,7 @@ function initMemoCharts(){
         data: {
             labels: ['土壤水分', '光照', '钾营养', 'pH', '根系', '温湿度'],
             datasets: [
-                { label: '膨大期', data: [35, 25, 20, 10, 10, 0], backgroundColor: 'rgba(59, 130, 246, 0.2)', borderColor: '#3B82F6', borderWidth: 2 },
+                { label: '果实膨大期', data: [35, 25, 20, 10, 10, 0], backgroundColor: 'rgba(59, 130, 246, 0.2)', borderColor: '#3B82F6', borderWidth: 2 },
                 { label: '开花期', data: [20, 20, 15, 10, 10, 25], backgroundColor: 'rgba(16, 185, 129, 0.2)', borderColor: '#10B981', borderWidth: 2 },
                 { label: '成熟期', data: [15, 35, 20, 10, 10, 10], backgroundColor: 'rgba(139, 92, 246, 0.2)', borderColor: '#8B5CF6', borderWidth: 2 }
             ]
@@ -807,3 +839,4 @@ function closeModal(id){
 </script>
 </body>
 </html>
+

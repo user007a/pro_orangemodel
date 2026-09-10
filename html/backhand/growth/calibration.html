@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -66,12 +66,13 @@
                 <div class="flex items-center space-x-4">
                     <div>
                         <label class="block text-xs text-gray-500 mb-1">选择地块</label>
-                        <select id="compare-plot" class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 min-w-[180px]">
-                            <option value="NF-001">NF-001 东坡A-03地块</option>
-                            <option value="NF-003">NF-003 南坡B-01地块</option>
-                            <option value="NF-008">NF-008 南坡B-04地块</option>
-                            <option value="NF-015">NF-015 南坡B-06地块</option>
-                            <option value="NF-030">NF-030 北坡D-05地块</option>
+                        <select id="compare-plot" class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 min-w-[420px]">
+                            <option value="NF-001">南丰蜜桔－小果系（杨小2-6，金钱蜜桔）－枳砧－10年生－D004地块－露天栽培</option>
+                            <option value="NF-002">南丰蜜桔－大果系－枳砧－8年生－B002地块－避雨栽培</option>
+                            <option value="NF-003">南丰蜜桔－桂月红（特早熟芽变）－红桔砧－5年生－C003地块－滴灌栽培</option>
+                            <option value="NF-004">南丰蜜桔－桂花蒂系（柿蒂蜜桔）－枳砧－12年生－E005地块－设施栽培</option>
+                            <option value="NF-005">南丰蜜桔－早熟系（普通早熟蜜桔）－枳砧－4年生－F006地块－露天栽培</option>
+                            <option value="NF-006">南丰蜜桔－蜜广1号（晚熟蜜广）－酸橙砧－6年生－G007地块－避雨栽培</option>
                         </select>
                     </div>
                     <div>
@@ -88,7 +89,7 @@
                     </button>
                 </div>
                 <div class="text-sm text-gray-500">
-                    数据截止: <span class="font-medium text-gray-700">2025-11-30</span>
+                    数据截止: <span class="font-medium text-gray-700">2026-08-30</span>
                 </div>
             </div>
 
@@ -263,7 +264,7 @@ var stages = [
     { id: 'growth', name: '生长期', icon: '🌿' },
     { id: 'flower', name: '开花期', icon: '🌸' },
     { id: 'fruit-drop', name: '落果期', icon: '🍃' },
-    { id: 'enlarge', name: '膨大期', icon: '🍊' },
+    { id: 'enlarge', name: '果实膨大期', icon: '🍊' },
     { id: 'mature', name: '成熟期', icon: '🍊' }
 ];
 
@@ -293,35 +294,35 @@ stages.forEach(function(s) {
 });
 
 var paramHistory = [
-    { time: '2025-11-28 14:35', stage: '膨大期', factor: '钾', item: '权重w', before: '0.85', after: '0.88', operator: '张明' },
-    { time: '2025-11-25 10:12', stage: '成熟期', factor: '温度', item: '日生长速度r', before: '0.95', after: '0.97', operator: '李伟' },
-    { time: '2025-11-20 16:48', stage: '膨大期', factor: '土壤水', item: '生长上限Zmax', before: '75', after: '78', operator: '王芳' },
-    { time: '2025-11-15 09:30', stage: '开花期', factor: '湿度', item: '权重w', before: '0.78', after: '0.80', operator: '张明' },
-    { time: '2025-11-10 15:22', stage: '生长期', factor: '光照', item: '日生长速度r', before: '0.90', after: '0.92', operator: '刘洋' },
-    { time: '2025-11-05 11:05', stage: '成熟期', factor: 'PH值', item: '权重w', before: '0.72', after: '0.75', operator: '陈强' },
-    { time: '2025-10-30 13:40', stage: '落果期', factor: '温度', item: '生长上限Zmax', before: '28', after: '30', operator: '赵丽' },
-    { time: '2025-10-25 08:55', stage: '幼苗期', factor: '湿度', item: '权重w', before: '0.65', after: '0.70', operator: '孙杰' }
+    { time: '2026-08-28 14:35', stage: '果实膨大期', factor: '钾', item: '权重w', before: '0.85', after: '0.88', operator: '张明' },
+    { time: '2026-08-25 10:12', stage: '成熟期', factor: '温度', item: '日生长速度r', before: '0.95', after: '0.97', operator: '李伟' },
+    { time: '2026-08-20 16:48', stage: '果实膨大期', factor: '土壤水', item: '生长上限Zmax', before: '75', after: '78', operator: '王芳' },
+    { time: '2026-08-15 09:30', stage: '开花期', factor: '湿度', item: '权重w', before: '0.78', after: '0.80', operator: '张明' },
+    { time: '2026-08-10 15:22', stage: '生长期', factor: '光照', item: '日生长速度r', before: '0.90', after: '0.92', operator: '刘洋' },
+    { time: '2026-08-05 11:05', stage: '成熟期', factor: 'PH值', item: '权重w', before: '0.72', after: '0.75', operator: '陈强' },
+    { time: '2026-08-30 13:40', stage: '落果期', factor: '温度', item: '生长上限Zmax', before: '28', after: '30', operator: '赵丽' },
+    { time: '2026-08-25 08:55', stage: '幼苗期', factor: '湿度', item: '权重w', before: '0.65', after: '0.70', operator: '孙杰' }
 ];
 
 var calibrationLogs = [
-    { time: '2025-11-28 14:35', plot: 'NF-001 / 2025', param: '膨大期-钾', change: '权重w: 0.85 → 0.88', operator: '张明', status: '已生效' },
-    { time: '2025-11-25 10:12', plot: 'NF-003 / 2025', param: '成熟期-温度', change: '日生长速度r: 0.95 → 0.97', operator: '李伟', status: '已生效' },
-    { time: '2025-11-22 16:20', plot: 'NF-008 / 2025', param: '膨大期-光照', change: '权重w: 0.88 → 0.90', operator: '王芳', status: '待计算' },
-    { time: '2025-11-20 16:48', plot: 'NF-001 / 2025', param: '膨大期-土壤水', change: 'Zmax: 75 → 78', operator: '王芳', status: '已生效' },
-    { time: '2025-11-18 11:30', plot: 'NF-015 / 2025', param: '开花期-温度', change: '权重w: 0.90 → 0.92', operator: '张明', status: '已生效' },
-    { time: '2025-11-15 09:30', plot: 'NF-003 / 2025', param: '开花期-湿度', change: '权重w: 0.78 → 0.80', operator: '张明', status: '已生效' },
-    { time: '2025-11-12 14:05', plot: 'NF-030 / 2025', param: '生长期-钾', change: 'Zmax: 180 → 200', operator: '李伟', status: '已生效' },
-    { time: '2025-11-10 15:22', plot: 'NF-008 / 2025', param: '生长期-光照', change: '日生长速度r: 0.90 → 0.92', operator: '刘洋', status: '已生效' },
-    { time: '2025-11-08 10:45', plot: 'NF-001 / 2025', param: '成熟期-糖度模型', change: '预测偏差: +3.2% → +1.8%', operator: '陈强', status: '已生效' },
-    { time: '2025-11-05 11:05', plot: 'NF-015 / 2025', param: '成熟期-PH值', change: '权重w: 0.72 → 0.75', operator: '陈强', status: '已生效' },
-    { time: '2025-11-02 13:20', plot: 'NF-003 / 2025', param: '落果期-土壤水', change: '权重w: 0.85 → 0.90', operator: '赵丽', status: '已回滚' },
-    { time: '2025-10-30 13:40', plot: 'NF-001 / 2025', param: '落果期-温度', change: 'Zmax: 28 → 30', operator: '赵丽', status: '已生效' },
-    { time: '2025-10-28 09:15', plot: 'NF-030 / 2025', param: '幼苗期-湿度', change: '权重w: 0.65 → 0.68', operator: '孙杰', status: '已生效' },
-    { time: '2025-10-25 08:55', plot: 'NF-008 / 2025', param: '幼苗期-湿度', change: '权重w: 0.65 → 0.70', operator: '孙杰', status: '已生效' },
-    { time: '2025-10-22 15:30', plot: 'NF-001 / 2025', param: '膨大期-温度', change: '日生长速度r: 0.96 → 0.98', operator: '张明', status: '已生效' },
-    { time: '2025-10-20 10:00', plot: 'NF-003 / 2025', param: '生长期-PH值', change: '权重w: 0.65 → 0.68', operator: '刘洋', status: '已生效' },
-    { time: '2025-10-18 14:25', plot: 'NF-015 / 2025', param: '开花期-钾', change: 'Zmax: 200 → 220', operator: '王芳', status: '已生效' },
-    { time: '2025-10-15 11:40', plot: 'NF-030 / 2025', param: '成熟期-土壤水', change: '权重w: 0.82 → 0.85', operator: '陈强', status: '已生效' }
+    { time: '2026-08-28 14:35', plot: '南丰蜜桔－小果系（杨小2-6，金钱蜜桔）－枳砧－10年生－D004地块－露天栽培 / 2025', param: '糖度积累期-钾', change: '权重w: 0.85 → 0.88', operator: '张明', status: '已生效' },
+    { time: '2026-08-25 10:12', plot: '南丰蜜桔－大果系－枳砧－8年生－B002地块－避雨栽培 / 2025', param: '成熟期-温度', change: '日生长速度r: 0.95 → 0.97', operator: '李伟', status: '已生效' },
+    { time: '2026-08-22 16:20', plot: '南丰蜜桔－桂月红（特早熟芽变）－红桔砧－5年生－C003地块－滴灌栽培 / 2025', param: '糖度积累期-光照', change: '权重w: 0.88 → 0.90', operator: '王芳', status: '待计算' },
+    { time: '2026-08-20 16:48', plot: '南丰蜜桔－小果系（杨小2-6，金钱蜜桔）－枳砧－10年生－D004地块－露天栽培 / 2025', param: '糖度积累期-土壤水', change: 'Zmax: 75 → 78', operator: '王芳', status: '已生效' },
+    { time: '2026-08-18 11:30', plot: '南丰蜜桔－桂花蒂系（柿蒂蜜桔）－枳砧－12年生－E005地块－设施栽培 / 2025', param: '开花期-温度', change: '权重w: 0.90 → 0.92', operator: '张明', status: '已生效' },
+    { time: '2026-08-15 09:30', plot: '南丰蜜桔－大果系－枳砧－8年生－B002地块－避雨栽培 / 2025', param: '开花期-湿度', change: '权重w: 0.78 → 0.80', operator: '张明', status: '已生效' },
+    { time: '2026-08-12 14:05', plot: '南丰蜜桔－早熟系（普通早熟蜜桔）－枳砧－4年生－F006地块－露天栽培 / 2025', param: '生长期-钾', change: 'Zmax: 180 → 200', operator: '李伟', status: '已生效' },
+    { time: '2026-08-10 15:22', plot: '南丰蜜桔－桂月红（特早熟芽变）－红桔砧－5年生－C003地块－滴灌栽培 / 2025', param: '生长期-光照', change: '日生长速度r: 0.90 → 0.92', operator: '刘洋', status: '已生效' },
+    { time: '2026-08-08 10:45', plot: '南丰蜜桔－小果系（杨小2-6，金钱蜜桔）－枳砧－10年生－D004地块－露天栽培 / 2025', param: '成熟期-糖度模型', change: '预测偏差: +3.2% → +1.8%', operator: '陈强', status: '已生效' },
+    { time: '2026-08-05 11:05', plot: '南丰蜜桔－桂花蒂系（柿蒂蜜桔）－枳砧－12年生－E005地块－设施栽培 / 2025', param: '成熟期-PH值', change: '权重w: 0.72 → 0.75', operator: '陈强', status: '已生效' },
+    { time: '2026-08-02 13:20', plot: '南丰蜜桔－大果系－枳砧－8年生－B002地块－避雨栽培 / 2025', param: '落果期-土壤水', change: '权重w: 0.85 → 0.90', operator: '赵丽', status: '已回滚' },
+    { time: '2026-08-30 13:40', plot: '南丰蜜桔－小果系（杨小2-6，金钱蜜桔）－枳砧－10年生－D004地块－露天栽培 / 2025', param: '落果期-温度', change: 'Zmax: 28 → 30', operator: '赵丽', status: '已生效' },
+    { time: '2026-08-28 09:15', plot: '南丰蜜桔－早熟系（普通早熟蜜桔）－枳砧－4年生－F006地块－露天栽培 / 2025', param: '幼苗期-湿度', change: '权重w: 0.65 → 0.68', operator: '孙杰', status: '已生效' },
+    { time: '2026-08-25 08:55', plot: '南丰蜜桔－桂月红（特早熟芽变）－红桔砧－5年生－C003地块－滴灌栽培 / 2025', param: '幼苗期-湿度', change: '权重w: 0.65 → 0.70', operator: '孙杰', status: '已生效' },
+    { time: '2026-08-22 15:30', plot: '南丰蜜桔－小果系（杨小2-6，金钱蜜桔）－枳砧－10年生－D004地块－露天栽培 / 2025', param: '糖度积累期-温度', change: '日生长速度r: 0.96 → 0.98', operator: '张明', status: '已生效' },
+    { time: '2026-08-20 10:00', plot: '南丰蜜桔－大果系－枳砧－8年生－B002地块－避雨栽培 / 2025', param: '生长期-PH值', change: '权重w: 0.65 → 0.68', operator: '刘洋', status: '已生效' },
+    { time: '2026-08-18 14:25', plot: '南丰蜜桔－桂花蒂系（柿蒂蜜桔）－枳砧－12年生－E005地块－设施栽培 / 2025', param: '开花期-钾', change: 'Zmax: 200 → 220', operator: '王芳', status: '已生效' },
+    { time: '2026-08-15 11:40', plot: '南丰蜜桔－蜜广1号（晚熟蜜广）－酸橙砧－6年生－G007地块－避雨栽培 / 2025', param: '成熟期-土壤水', change: '权重w: 0.82 → 0.85', operator: '陈强', status: '已生效' }
 ];
 
 var currentStage = 'enlarge';
@@ -540,9 +541,11 @@ function saveParams() {
             operator: '当前用户'
         });
 
+        var _plotSel = document.getElementById('compare-plot');
+        var _yearSel = document.getElementById('compare-year');
         calibrationLogs.unshift({
             time: timeStr,
-            plot: '当前地块 / ' + now.getFullYear(),
+            plot: _plotSel.options[_plotSel.selectedIndex].text + ' / ' + _yearSel.value,
             param: stage.name + '-' + factor.name,
             change: c.item + ': ' + c.before + ' → ' + c.after,
             operator: '当前用户',

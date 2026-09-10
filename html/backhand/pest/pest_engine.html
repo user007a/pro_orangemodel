@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
@@ -47,8 +47,8 @@ input:checked+.toggle-slider:before{transform:translateX(22px)}
     <div class="p-5 grid grid-cols-1 lg:grid-cols-3 gap-6">
       <div class="grid grid-cols-3 gap-4">
         <div><p class="text-xs text-gray-500 mb-1">任务状态</p><p class="text-sm font-bold text-green-600">运行中</p></div>
-        <div><p class="text-xs text-gray-500 mb-1">下次执行时间</p><p class="text-sm font-bold text-gray-800">2026-08-04 06:00</p></div>
-        <div><p class="text-xs text-gray-500 mb-1">最近执行时间</p><p class="text-sm font-bold text-gray-800">2026-08-03 06:00</p></div>
+        <div><p class="text-xs text-gray-500 mb-1">下次执行时间</p><p class="text-sm font-bold text-gray-800">2026-08-22 06:00</p></div>
+        <div><p class="text-xs text-gray-500 mb-1">最近执行时间</p><p class="text-sm font-bold text-gray-800">2026-08-21 06:00</p></div>
       </div>
       <div>
         <div class="flex items-center justify-between mb-4">
@@ -145,16 +145,16 @@ var STEPS=[
 ];
 var ST_DONE=STEPS.map(function(s){return s.t;});
 var LOGS=[
- {t:'2026-08-04 06:00',tp:'自动',sc:'6种病虫害',cy:'3+7天',ok:1,d:'12.4s',w:45,st:ST_DONE},
- {t:'2026-08-03 06:00',tp:'自动',sc:'6种病虫害',cy:'3+7天',ok:1,d:'12.5s',w:41,st:ST_DONE},
- {t:'2026-08-02 06:00',tp:'自动',sc:'6种病虫害',cy:'3+7天',ok:1,d:'13.1s',w:38,st:ST_DONE},
- {t:'2026-08-01 06:00',tp:'自动',sc:'6种病虫害',cy:'3+7天',ok:0,d:'5.2s',w:0,st:['1.8s','2.5s','2.2s','失败','','',''],err:'气象数据接口超时（超时阈值 5s），数据读取中断，本次计算终止'},
- {t:'2026-07-31 06:00',tp:'自动',sc:'6种病虫害',cy:'3+7天',ok:1,d:'12.0s',w:44,st:ST_DONE},
- {t:'2026-07-30 14:20',tp:'手动',sc:'3种病虫害',cy:'7天',ok:1,d:'8.6s',w:12,st:ST_DONE},
- {t:'2026-07-30 06:00',tp:'自动',sc:'6种病虫害',cy:'3+7天',ok:1,d:'12.8s',w:39,st:ST_DONE},
- {t:'2026-07-29 09:15',tp:'手动',sc:'6种病虫害',cy:'3天',ok:0,d:'3.1s',w:0,st:['1.8s','失败','','','','',''],err:'乡镇虫源数据缺失（太源乡、东坪乡未上传），虫源压力计算中断'},
- {t:'2026-07-29 06:00',tp:'自动',sc:'6种病虫害',cy:'3+7天',ok:1,d:'12.2s',w:36,st:ST_DONE},
- {t:'2026-07-28 06:00',tp:'自动',sc:'6种病虫害',cy:'3+7天',ok:1,d:'12.6s',w:42,st:ST_DONE}
+ {t:'2026-08-22 06:00',tp:'自动',sc:'6种病虫害',cy:'3+7天',ok:1,d:'12.4s',w:45,st:ST_DONE},
+ {t:'2026-08-21 06:00',tp:'自动',sc:'6种病虫害',cy:'3+7天',ok:1,d:'12.5s',w:41,st:ST_DONE},
+ {t:'2026-08-20 06:00',tp:'自动',sc:'6种病虫害',cy:'3+7天',ok:1,d:'13.1s',w:38,st:ST_DONE},
+ {t:'2026-08-19 06:00',tp:'自动',sc:'6种病虫害',cy:'3+7天',ok:0,d:'5.2s',w:0,st:['1.8s','2.5s','2.2s','失败','','',''],err:'气象数据接口超时（超时阈值 5s），数据读取中断，本次计算终止'},
+ {t:'2026-08-18 06:00',tp:'自动',sc:'6种病虫害',cy:'3+7天',ok:1,d:'12.0s',w:44,st:ST_DONE},
+ {t:'2026-08-17 14:20',tp:'手动',sc:'3种病虫害',cy:'7天',ok:1,d:'8.6s',w:12,st:ST_DONE},
+ {t:'2026-08-17 06:00',tp:'自动',sc:'6种病虫害',cy:'3+7天',ok:1,d:'12.8s',w:39,st:ST_DONE},
+ {t:'2026-08-16 09:15',tp:'手动',sc:'6种病虫害',cy:'3天',ok:0,d:'3.1s',w:0,st:['1.8s','失败','','','','',''],err:'乡镇虫源数据缺失（太源乡、东坪乡未上传），虫源压力计算中断'},
+ {t:'2026-08-16 06:00',tp:'自动',sc:'6种病虫害',cy:'3+7天',ok:1,d:'12.2s',w:36,st:ST_DONE},
+ {t:'2026-08-15 06:00',tp:'自动',sc:'6种病虫害',cy:'3+7天',ok:1,d:'12.6s',w:42,st:ST_DONE}
 ];
 var LOG_PAGE=1,LOG_SIZE=8;
 

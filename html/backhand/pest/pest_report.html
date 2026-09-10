@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
@@ -48,7 +48,7 @@ body { margin: 0; padding: 0; background-color: #F0F2F5; font-family: -apple-sys
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
         <span>一键发布预警</span>
       </button>
-      <span class="text-sm text-gray-600 bg-white border border-gray-200 rounded-lg px-3 py-2 whitespace-nowrap">报告日期：2026-08-04</span>
+      <span class="text-sm text-gray-600 bg-white border border-gray-200 rounded-lg px-3 py-2 whitespace-nowrap">报告日期：2026-08-22</span>
     </div>
   </div>
 
@@ -128,15 +128,15 @@ body { margin: 0; padding: 0; background-color: #F0F2F5; font-family: -apple-sys
 var PESTS=['红蜘蛛','黄龙病','炭疽病','潜叶蛾','溃疡病','疮痂病'];
 var TOWNS=['琴城镇','市山镇','洽湾镇','太和镇','桑田镇','白舍镇','紫霄镇','三溪乡','傅坊乡','太源乡','莱溪乡','东坪乡'];
 var RL={'低':'bg-green-100 text-green-600','中':'bg-yellow-100 text-yellow-600','高':'bg-orange-100 text-orange-600','极高':'bg-red-100 text-red-600'};
-var PB={'一级·紧急':'bg-red-100 text-red-600','二级·重要':'bg-orange-100 text-orange-600','三级·常规':'bg-yellow-100 text-yellow-600'};
+var PB={'一级·紧急':'bg-red-100 text-red-600','二级·重要':'bg-orange-100 text-orange-600','三级·常规':'bg-yellow-100 text-yellow-600','四级·可选':'bg-gray-100 text-gray-600'};
 var BAR={'低':'#22c55e','中':'#f59e0b','高':'#f97316','极高':'#dc2626'};
 var META={
 '红蜘蛛':{f:['高温干旱','虫口基数高','叶面受损'],c:['温度×湿度','温度×降雨','湿度×叶面湿润'],m:'喷施阿维菌素'},
-'黄龙病':{f:['木虱密度高','嫩梢抽发','虫源基数大'],c:['木虱密度×嫩梢','木虱×温度×湿度'],m:'释放捕食螨'},
-'炭疽病':{f:['高温高湿','降雨偏多','菌源量大'],c:['湿度×温度','温度×湿度×降雨'],m:'剪除病枝'},
-'潜叶蛾':{f:['嫩梢比例高','虫口基数高','气温回升'],c:['嫩梢比例×虫口基数','温度×嫩梢比例'],m:'释放捕食螨'},
-'溃疡病':{f:['台风降雨','叶面伤口','大风天气'],c:['降雨×风速','降雨×风速×湿度'],m:'剪除病枝'},
-'疮痂病':{f:['多雨高湿','幼果感病','菌源量大'],c:['湿度×幼果期','温度×湿度×幼果期'],m:'涂白树干'}
+'黄龙病':{f:['木虱密度高','嫩梢抽发','虫源基数大'],c:['木虱密度×嫩梢','木虱×温度×湿度'],m:'砍除销毁病株'},
+'炭疽病':{f:['高温高湿','降雨偏多','菌源量大'],c:['湿度×温度','温度×湿度×降雨'],m:'喷施代森锰锌'},
+'潜叶蛾':{f:['嫩梢比例高','虫口基数高','气温回升'],c:['嫩梢比例×虫口基数','温度×嫩梢比例'],m:'统一抹芽控梢'},
+'溃疡病':{f:['台风降雨','叶面伤口','大风天气'],c:['降雨×风速','降雨×风速×湿度'],m:'风雨后清园剪枝'},
+'疮痂病':{f:['多雨高湿','幼果感病','菌源量大'],c:['湿度×幼果期','温度×湿度×幼果期'],m:'幼果期喷施保护剂'}
 };
 /* 12 乡镇发生概率，与 TOWNS 顺序一致 */
 var P3={
@@ -166,14 +166,14 @@ var SUG={
 };
 var GADV=['对重点区域开展连片统防统治，加密监测频次','剪除病枝病叶并集中销毁，减少田间病源','释放捕食螨等天敌，压低虫口基数','雨后及时补喷保护性药剂，防止再次侵染','加强果园通风降湿，规范田间农事操作'];
 var HIST=[
-{r:'PR2026072701',d:'2026-07-27',p:'7天',ex:3,hi:3,st:'已查看',pr:[.92,.88,.82,.75,.68,.62,.55,.48,.42,.36,.30,.24]},
-{r:'PR2026072401',d:'2026-07-24',p:'3天',ex:3,hi:2,st:'已查看',pr:[.90,.86,.80,.72,.66,.58,.50,.44,.38,.32,.26,.20]},
-{r:'PR2026072001',d:'2026-07-20',p:'7天',ex:2,hi:3,st:'已查看',pr:[.88,.80,.74,.68,.60,.55,.48,.42,.36,.30,.25,.20]},
-{r:'PR2026071301',d:'2026-07-13',p:'7天',ex:1,hi:3,st:'已查看',pr:[.84,.78,.70,.64,.58,.50,.44,.38,.34,.28,.22,.18]},
-{r:'PR2026070601',d:'2026-07-06',p:'7天',ex:1,hi:3,st:'未查看',pr:[.80,.74,.68,.60,.54,.48,.42,.36,.30,.26,.20,.16]},
-{r:'PR2026062901',d:'2026-06-29',p:'7天',ex:0,hi:3,st:'已查看',pr:[.74,.68,.62,.55,.50,.44,.38,.34,.28,.24,.20,.16]},
-{r:'PR2026062201',d:'2026-06-22',p:'7天',ex:0,hi:2,st:'已查看',pr:[.68,.62,.56,.50,.44,.40,.36,.32,.28,.22,.18,.15]},
-{r:'PR2026060101',d:'2026-06-01',p:'7天',ex:0,hi:1,st:'未查看',pr:[.62,.55,.50,.44,.40,.36,.32,.28,.24,.20,.16,.12]}
+{r:'PR2026081401',d:'2026-08-14',p:'7天',ex:3,hi:3,st:'已查看',pr:[.92,.88,.82,.75,.68,.62,.55,.48,.42,.36,.30,.24]},
+{r:'PR2026081101',d:'2026-08-11',p:'3天',ex:3,hi:2,st:'已查看',pr:[.90,.86,.80,.72,.66,.58,.50,.44,.38,.32,.26,.20]},
+{r:'PR2026080701',d:'2026-08-07',p:'7天',ex:2,hi:3,st:'已查看',pr:[.88,.80,.74,.68,.60,.55,.48,.42,.36,.30,.25,.20]},
+{r:'PR2026083101',d:'2026-08-31',p:'7天',ex:1,hi:3,st:'已查看',pr:[.84,.78,.70,.64,.58,.50,.44,.38,.34,.28,.22,.18]},
+{r:'PR2026081201',d:'2026-08-12',p:'7天',ex:1,hi:3,st:'未查看',pr:[.80,.74,.68,.60,.54,.48,.42,.36,.30,.26,.20,.16]},
+{r:'PR2026082901',d:'2026-06-29',p:'7天',ex:0,hi:3,st:'已查看',pr:[.74,.68,.62,.55,.50,.44,.38,.34,.28,.24,.20,.16]},
+{r:'PR2026082201',d:'2026-06-22',p:'7天',ex:0,hi:2,st:'已查看',pr:[.68,.62,.56,.50,.44,.40,.36,.32,.28,.22,.18,.15]},
+{r:'PR2026080101',d:'2026-06-01',p:'7天',ex:0,hi:1,st:'未查看',pr:[.62,.55,.50,.44,.40,.36,.32,.28,.24,.20,.16,.12]}
 ];
 var curPest='红蜘蛛',curPer='3',doughs={3:null,7:null};
 
@@ -269,7 +269,7 @@ function openReport(i){
   var probsH=rows.map(function(r){return '<div class="flex items-center justify-between py-1.5 border-b border-gray-50 text-sm"><span class="text-gray-700">'+r.t+'</span><span class="text-gray-400 text-xs">'+(r.p*100).toFixed(0)+'%</span>'+badge(lvl(r.p),RL[lvl(r.p)])+'</div>';}).join('');
   var keys=rows.filter(function(r){return r.p>.7;});
   var keysH=keys.length?keys.map(function(r){return '<div class="flex items-center justify-between py-1.5 border-b border-gray-50 text-sm"><span class="font-medium text-gray-800">'+r.t+'</span>'+badge(lvl(r.p),RL[lvl(r.p)])+'<span class="text-gray-400 text-xs">'+keyAdv(lvl(r.p))+'</span></div>';}).join(''):'<p class="text-sm text-gray-400 py-2">无重点风险乡镇</p>';
-  var sugH=['一级·紧急','一级·紧急','二级·重要','二级·重要','三级·常规'].map(function(pr,j){return '<div class="flex items-center justify-between py-1.5 border-b border-gray-50 text-sm">'+badge(pr,PB[pr])+'<span class="text-gray-700 flex-1 ml-3">'+GADV[j]+'</span></div>';}).join('');
+  var sugH=['一级·紧急','一级·紧急','二级·重要','二级·重要','三级·常规','四级·可选'].map(function(pr,j){return '<div class="flex items-center justify-between py-1.5 border-b border-gray-50 text-sm">'+badge(pr,PB[pr])+'<span class="text-gray-700 flex-1 ml-3">'+GADV[j]+'</span></div>';}).join('');
   document.getElementById('rm-body').innerHTML=
     '<div class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">'
     +infoItem('报告编号',x.r)+infoItem('生成日期',x.d)+infoItem('预测周期',x.p)
@@ -287,7 +287,7 @@ function exportReport(){
   if(curPer==='7')arr=P7[p];
   var rows=TOWNS.map(function(t,i){return {t:t,p:arr[i]};}).sort(function(a,b){return b.p-a.p;});
   var txt='南丰蜜桔病虫害预测报告\n========================================\n';
-  txt+='报告日期：2026-08-04\n';
+  txt+='报告日期：2026-08-22\n';
   txt+='预测周期：'+per+'\n';
   txt+='病虫害类型：'+p+'\n';
   txt+='县域综合风险指数：0.72（高）\n';
@@ -301,7 +301,7 @@ function exportReport(){
   var blob=new Blob([txt],{type:'text/plain;charset=utf-8'});
   var link=document.createElement('a');
   link.href=URL.createObjectURL(blob);
-  link.download='预测报告_'+p+'_2026-08-04.txt';
+  link.download='预测报告_'+p+'_2026-08-22.txt';
   link.click();
   showToast('预测报告已导出');
 }
@@ -344,6 +344,8 @@ function publishAsAlerts(){
   if(!confirm('确认将本报告中的所有高/极高风险条目发布为预警？\n将自动写入预警管理、推送至移动端待办。')) return;
   var arr = curPer==='7' ? P7[curPest] : P3[curPest];
   var rows = TOWNS.map(function(t,i){return {t:t,p:arr[i]};}).sort(function(a,b){return b.p-a.p;});
+  var meta = META[curPest] || {f:[],c:[],m:''};
+  var diagSummary = '主要风险因子：' + (meta.f||[]).join('、') + '；主导耦合：' + (meta.c||[]).join('、') + '。';
   var alerts = [];
   var now = new Date();
   var ymd = now.getFullYear()+''+String(now.getMonth()+1).padStart(2,'0')+String(now.getDate()).padStart(2,'0');
@@ -362,6 +364,10 @@ function publishAsAlerts(){
         prob: r.p,
         area: r.t + '全乡镇',
         content: '基于' + curPer + '天' + curPest + '预测模型，' + r.t + '发生概率为 ' + (r.p*100).toFixed(0) + '%，风险等级' + level + '。建议：' + advOf(curPest, level) + '。',
+        diagnosis: diagSummary,
+        riskFactors: meta.f || [],
+        couplings: meta.c || [],
+        mainMeasure: meta.m || '',
         status: '已发布',
         createdAt: now.toISOString().substring(0,19).replace('T',' '),
         publishedAt: now.toISOString().substring(0,19).replace('T',' '),

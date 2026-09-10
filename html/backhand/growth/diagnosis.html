@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -51,18 +51,18 @@
             <div class="flex flex-wrap items-center gap-3">
                 <div class="flex items-center space-x-2">
                     <label class="text-sm text-gray-600">地块：</label>
-                    <select id="plotSelect" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 bg-white min-w-[180px]">
-                        <option value="NF-001">NF-001 · 东坡A-03地块</option>
-                        <option value="NF-003">NF-003 · 南坡B-01地块</option>
-                        <option value="NF-006">NF-006 · 东坡A-05地块</option>
-                        <option value="NF-008">NF-008 · 南坡B-04地块</option>
-                        <option value="NF-009" selected>NF-009 · 东坡A-02地块</option>
-                        <option value="NF-015">NF-015 · 南坡B-06地块</option>
+                    <select id="plotSelect" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 bg-white w-96">
+                        <option value="NF-001">南丰蜜桔－小果系（杨小2-6，金钱蜜桔）－枳砧－10年生－01地块－露地</option>
+                        <option value="NF-002">南丰蜜桔－大果系－枳砧－8年生－02地块－设施</option>
+                        <option value="NF-003">南丰蜜桔－桂月红（特早熟芽变）－红桔砧－5年生－03地块－露地</option>
+                        <option value="NF-004">南丰蜜桔－桂花蒂系（柿蒂蜜桔）－枳砧－12年生－04地块－设施</option>
+                        <option value="NF-005">南丰蜜桔－早熟系（普通早熟蜜桔）－枳砧－4年生－05地块－露地</option>
+                        <option value="NF-009" selected>南丰蜜桔－蜜广1号（晚熟蜜广）－酸橙砧－6年生－09地块－避雨</option>
                     </select>
                 </div>
                 <div class="flex items-center space-x-2">
                     <label class="text-sm text-gray-600">日期：</label>
-                    <input type="date" id="dateSelect" value="2026-08-04" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+                    <input type="date" id="dateSelect" value="2026-08-22" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
                 </div>
                 <button onclick="runDiagnosis()" class="px-5 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium flex items-center space-x-2 transition shadow-sm hover:shadow-md">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
@@ -84,7 +84,7 @@
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-base font-semibold text-gray-800">综合健康评分</h2>
-                <span class="text-xs text-gray-400">诊断时间：2026-08-04 10:30</span>
+                <span class="text-xs text-gray-400">诊断时间：2026-08-22 10:30</span>
             </div>
             <div class="flex flex-col items-center justify-center py-4">
                 <div class="score-ring mb-4">
@@ -271,16 +271,16 @@
 // 诊断数据
 var plotData = {
     'NF-009': {
-        name: '东坡A-02地块',
+        name: '南丰蜜桔－蜜广1号（晚熟蜜广）－酸橙砧－6年生－09地块－避雨栽培',
         area: '南丰镇',
         orchard: '南丰镇示范果园',
         treeAge: '6年',
-        variety: '南丰蜜桔',
+        variety: '蜜广1号（晚熟蜜广）',
         stage: '果实膨大期',
         score: 78,
         scoreChange: -3,
         healthLevel: '良好',
-        todayDate: '2026-08-04',
+        todayDate: '2026-08-22',
         radarScores: [85, 78, 90, 82, 72, 95],
         deductions: [
             { factor: '空气湿度', actual: '82%', range: '60%-75%', deduction: 5, severity: 'severe', deviation: 28, phenomenon: '空气湿度偏高', directCause: '连续8小时湿度超80%', rootCause: '冠层枝叶过密 / 傍晚灌溉 / 通风不畅' },
@@ -311,26 +311,26 @@ var plotData = {
 
 // ============ 农事建议数据库（对应 t_farm_scheme 表）============
 var farmSchemeDB = [
-    { id: 'S001', factorType: '空气湿度', deviation: '偏高', stages: ['膨大期', '成熟期', '生长期'], priority: 'urgent', priorityText: '一级·紧急', measures: ['立即开启通风设施降湿', '树冠喷施代森锰锌 800 倍液预防炭疽病', '暂停叶面灌水，避免增加冠层湿度'], cycle: '24小时内复查', indicators: '空气湿度、叶片病害指数', effect: '预计 48 小时内湿度降至适宜区间' },
-    { id: 'S002', factorType: '空气湿度', deviation: '偏低', stages: ['膨大期', '成熟期'], priority: 'normal', priorityText: '三级·常规', measures: ['早晚进行叶面喷水增湿', '树冠覆盖遮阳网减少蒸发', '检查灌溉系统是否正常'], cycle: '3天后复查', indicators: '空气湿度、土壤含水量', effect: '预计 3 天内湿度回升至适宜区间' },
-    { id: 'S003', factorType: '叶片叶绿素', deviation: '偏低', stages: ['膨大期', '成熟期', '生长期'], priority: 'important', priorityText: '二级·重要', measures: ['叶面追施 0.3% 尿素 + 0.2% 磷酸二氢钾', '配合芸苔素内酯促进新梢生长', '检查根系活力，必要时进行根部追肥'], cycle: '3天后复查', indicators: '叶绿素含量、新梢长度、叶面积指数', effect: '预计 7 天后叶绿素提升至 4.2 mg/g' },
-    { id: 'S004', factorType: '叶片叶绿素', deviation: '偏高', stages: ['膨大期'], priority: 'low', priorityText: '四级·可选', measures: ['适当增加钾肥比例', '控制氮肥施用量', '观察叶片状态变化'], cycle: '7天后复查', indicators: '叶绿素含量、叶片厚度', effect: '叶绿素偏高通常为健康状态，定期监测即可' },
-    { id: 'S005', factorType: '土壤pH值', deviation: '偏低', stages: ['膨大期', '成熟期', '生长期', '开花期'], priority: 'important', priorityText: '二级·重要', measures: ['全园撒施石灰粉 50kg/亩', '结合中耕培土改良酸性土壤', '增施有机肥提高土壤缓冲能力'], cycle: '7天后复查', indicators: '土壤pH值、土壤养分有效性', effect: '预计 30 天内 pH 回升至 5.6 以上' },
-    { id: 'S006', factorType: '土壤pH值', deviation: '偏高', stages: ['膨大期', '成熟期'], priority: 'normal', priorityText: '三级·常规', measures: ['施用石膏或硫磺粉调节碱性', '增施酸性有机肥', '检测灌溉水PH值'], cycle: '14天后复查', indicators: '土壤PH值、微量元素有效性', effect: '预计 30 天内 pH 降至 7.0 以下' },
-    { id: 'S007', factorType: '果实可溶性固形物', deviation: '偏低', stages: ['膨大期', '成熟期'], priority: 'important', priorityText: '二级·重要', measures: ['调整施肥方案，增加钾肥比例', '控制氮肥用量，避免营养生长过旺', '增加光照，促进糖分积累'], cycle: '7天后复查', indicators: '果实糖度、可溶性固形物含量', effect: '预计成熟期糖度可达 14°Brix 以上' },
+    { id: 'S001', factorType: '空气湿度', deviation: '偏高', stages: ['果实膨大期', '成熟期', '生长期'], priority: 'urgent', priorityText: '一级·紧急', measures: ['立即开启通风设施降湿', '树冠喷施代森锰锌 800 倍液预防炭疽病', '暂停叶面灌水，避免增加冠层湿度'], cycle: '24小时内复查', indicators: '空气湿度、叶片病害指数', effect: '预计 48 小时内湿度降至适宜区间' },
+    { id: 'S002', factorType: '空气湿度', deviation: '偏低', stages: ['果实膨大期', '成熟期'], priority: 'normal', priorityText: '三级·常规', measures: ['早晚进行叶面喷水增湿', '树冠覆盖遮阳网减少蒸发', '检查灌溉系统是否正常'], cycle: '3天后复查', indicators: '空气湿度、土壤含水量', effect: '预计 3 天内湿度回升至适宜区间' },
+    { id: 'S003', factorType: '叶片叶绿素', deviation: '偏低', stages: ['果实膨大期', '成熟期', '生长期'], priority: 'important', priorityText: '二级·重要', measures: ['叶面追施 0.3% 尿素 + 0.2% 磷酸二氢钾', '配合芸苔素内酯促进新梢生长', '检查根系活力，必要时进行根部追肥'], cycle: '3天后复查', indicators: '叶绿素含量、新梢长度、叶面积指数', effect: '预计 7 天后叶绿素提升至 4.2 mg/g' },
+    { id: 'S004', factorType: '叶片叶绿素', deviation: '偏高', stages: ['果实膨大期'], priority: 'low', priorityText: '四级·可选', measures: ['适当增加钾肥比例', '控制氮肥施用量', '观察叶片状态变化'], cycle: '7天后复查', indicators: '叶绿素含量、叶片厚度', effect: '叶绿素偏高通常为健康状态，定期监测即可' },
+    { id: 'S005', factorType: '土壤pH值', deviation: '偏低', stages: ['果实膨大期', '成熟期', '生长期', '开花期'], priority: 'important', priorityText: '二级·重要', measures: ['全园撒施石灰粉 50kg/亩', '结合中耕培土改良酸性土壤', '增施有机肥提高土壤缓冲能力'], cycle: '7天后复查', indicators: '土壤pH值、土壤养分有效性', effect: '预计 30 天内 pH 回升至 5.6 以上' },
+    { id: 'S006', factorType: '土壤pH值', deviation: '偏高', stages: ['果实膨大期', '成熟期'], priority: 'normal', priorityText: '三级·常规', measures: ['施用石膏或硫磺粉调节碱性', '增施酸性有机肥', '检测灌溉水PH值'], cycle: '14天后复查', indicators: '土壤PH值、微量元素有效性', effect: '预计 30 天内 pH 降至 7.0 以下' },
+    { id: 'S007', factorType: '果实可溶性固形物', deviation: '偏低', stages: ['果实膨大期', '成熟期'], priority: 'important', priorityText: '二级·重要', measures: ['调整施肥方案，增加钾肥比例', '控制氮肥用量，避免营养生长过旺', '增加光照，促进糖分积累'], cycle: '7天后复查', indicators: '果实糖度、可溶性固形物含量', effect: '预计成熟期糖度可达 14°Brix 以上' },
     { id: 'S008', factorType: '果实可溶性固形物', deviation: '偏高', stages: ['成熟期'], priority: 'low', priorityText: '四级·可选', measures: ['适当提前采收', '增加灌溉量稀释糖度', '注意防治裂果'], cycle: '3天后复查', indicators: '果实糖度、裂果率', effect: '糖度偏高为优质表现，注意防控裂果' },
-    { id: 'S009', factorType: '冠层光照', deviation: '偏低', stages: ['膨大期', '成熟期', '生长期'], priority: 'normal', priorityText: '三级·常规', measures: ['修剪徒长枝、交叉枝，打开内膛光照', '保留 3-4 个健壮主枝', '必要时进行疏枝增加透光'], cycle: '14天后复查', indicators: '冠层光照强度、叶面积系数', effect: '预计冠层透光率提升 15-20%' },
+    { id: 'S009', factorType: '冠层光照', deviation: '偏低', stages: ['果实膨大期', '成熟期', '生长期'], priority: 'normal', priorityText: '三级·常规', measures: ['修剪徒长枝、交叉枝，打开内膛光照', '保留 3-4 个健壮主枝', '必要时进行疏枝增加透光'], cycle: '14天后复查', indicators: '冠层光照强度、叶面积系数', effect: '预计冠层透光率提升 15-20%' },
     { id: 'S010', factorType: '冠层光照', deviation: '偏高', stages: ['成熟期'], priority: 'normal', priorityText: '三级·常规', measures: ['适当增加叶面积指数', '树冠外围保留更多结果枝', '注意防止日灼病'], cycle: '7天后复查', indicators: '冠层光照、果实日灼率', effect: '光照充足利于品质形成，注意防晒' },
-    { id: 'S011', factorType: '土壤水分', deviation: '偏低', stages: ['膨大期', '成熟期', '开花期'], priority: 'urgent', priorityText: '一级·紧急', measures: ['立即进行滴灌或喷灌补水', '地表覆盖秸秆或地膜减少蒸发', '检查灌溉系统运行状态'], cycle: '24小时内复查', indicators: '土壤含水量、叶片萎蔫指数', effect: '预计 24 小时内土壤水分回升' },
-    { id: 'S012', factorType: '土壤水分', deviation: '偏高', stages: ['膨大期', '成熟期'], priority: 'important', priorityText: '二级·重要', measures: ['清理排水沟，保证排水通畅', '检查果园积水情况', '减少灌溉频率和用量'], cycle: '48小时内复查', indicators: '土壤含水量、根系活力', effect: '预计 48 小时内土壤水分下降' },
-    { id: 'S013', factorType: '温度', deviation: '偏高', stages: ['膨大期', '成熟期', '生长期'], priority: 'urgent', priorityText: '一级·紧急', measures: ['树冠喷水降温', '搭建遮阳网（遮光率 30-50%）', '增加灌溉频率'], cycle: '24小时内复查', indicators: '冠层温度、叶片温度、日灼率', effect: '预计 24 小时内冠层温度降低 3-5℃' },
-    { id: 'S014', factorType: '温度', deviation: '偏低', stages: ['膨大期', '成熟期'], priority: 'important', priorityText: '二级·重要', measures: ['夜间进行熏烟或覆盖保温', '检查是否有冻害风险', '增施磷钾肥提高抗寒能力'], cycle: '48小时内复查', indicators: '最低温度、叶片受冻指数', effect: '预计 48 小时内温度回升' },
-    { id: 'S015', factorType: '氮含量', deviation: '偏高', stages: ['膨大期', '成熟期'], priority: 'important', priorityText: '二级·重要', measures: ['减少氮肥施用量', '增加钾肥比例调整 N:P:K', '促进果实成熟和糖分积累'], cycle: '7天后复查', indicators: '氮含量、碳氮比、果实糖度', effect: '预计 7 天后碳氮比趋于合理' },
-    { id: 'S016', factorType: '氮含量', deviation: '偏低', stages: ['膨大期', '生长期'], priority: 'normal', priorityText: '三级·常规', measures: ['追施速效氮肥（尿素）', '叶面喷施 0.2-0.3% 尿素溶液', '促进新梢生长'], cycle: '7天后复查', indicators: '氮含量、新梢生长量', effect: '预计 7 天后氮水平回升' },
-    { id: 'S017', factorType: '钾含量', deviation: '偏低', stages: ['膨大期', '成熟期'], priority: 'important', priorityText: '二级·重要', measures: ['叶面追施 0.3% 磷酸二氢钾', '土壤追施钾肥（硫酸钾）', '促进果实膨大、糖分积累和着色'], cycle: '7天后复查', indicators: '钾含量、果实糖度、着色率', effect: '预计 7 天后钾水平提升' },
+    { id: 'S011', factorType: '土壤水分', deviation: '偏低', stages: ['果实膨大期', '成熟期', '开花期'], priority: 'urgent', priorityText: '一级·紧急', measures: ['立即进行滴灌或喷灌补水', '地表覆盖秸秆或地膜减少蒸发', '检查灌溉系统运行状态'], cycle: '24小时内复查', indicators: '土壤含水量、叶片萎蔫指数', effect: '预计 24 小时内土壤水分回升' },
+    { id: 'S012', factorType: '土壤水分', deviation: '偏高', stages: ['果实膨大期', '成熟期'], priority: 'important', priorityText: '二级·重要', measures: ['清理排水沟，保证排水通畅', '检查果园积水情况', '减少灌溉频率和用量'], cycle: '48小时内复查', indicators: '土壤含水量、根系活力', effect: '预计 48 小时内土壤水分下降' },
+    { id: 'S013', factorType: '温度', deviation: '偏高', stages: ['果实膨大期', '成熟期', '生长期'], priority: 'urgent', priorityText: '一级·紧急', measures: ['树冠喷水降温', '搭建遮阳网（遮光率 30-50%）', '增加灌溉频率'], cycle: '24小时内复查', indicators: '冠层温度、叶片温度、日灼率', effect: '预计 24 小时内冠层温度降低 3-5℃' },
+    { id: 'S014', factorType: '温度', deviation: '偏低', stages: ['果实膨大期', '成熟期'], priority: 'important', priorityText: '二级·重要', measures: ['夜间进行熏烟或覆盖保温', '检查是否有冻害风险', '增施磷钾肥提高抗寒能力'], cycle: '48小时内复查', indicators: '最低温度、叶片受冻指数', effect: '预计 48 小时内温度回升' },
+    { id: 'S015', factorType: '氮含量', deviation: '偏高', stages: ['果实膨大期', '成熟期'], priority: 'important', priorityText: '二级·重要', measures: ['减少氮肥施用量', '增加钾肥比例调整 N:P:K', '促进果实成熟和糖分积累'], cycle: '7天后复查', indicators: '氮含量、碳氮比、果实糖度', effect: '预计 7 天后碳氮比趋于合理' },
+    { id: 'S016', factorType: '氮含量', deviation: '偏低', stages: ['果实膨大期', '生长期'], priority: 'normal', priorityText: '三级·常规', measures: ['追施速效氮肥（尿素）', '叶面喷施 0.2-0.3% 尿素溶液', '促进新梢生长'], cycle: '7天后复查', indicators: '氮含量、新梢生长量', effect: '预计 7 天后氮水平回升' },
+    { id: 'S017', factorType: '钾含量', deviation: '偏低', stages: ['果实膨大期', '成熟期'], priority: 'important', priorityText: '二级·重要', measures: ['叶面追施 0.3% 磷酸二氢钾', '土壤追施钾肥（硫酸钾）', '促进果实膨大、糖分积累和着色'], cycle: '7天后复查', indicators: '钾含量、果实糖度、着色率', effect: '预计 7 天后钾水平提升' },
     { id: 'S018', factorType: '磷含量', deviation: '偏低', stages: ['开花期', '落果期'], priority: 'normal', priorityText: '三级·常规', measures: ['追施磷肥（过磷酸钙）', '叶面喷施 0.2% 磷酸二氢钾', '促进花芽分化和根系发育'], cycle: '14天后复查', indicators: '磷含量、花芽数量', effect: '预计 14 天后磷水平回升' },
-    { id: 'S019', factorType: '病虫害', deviation: '偏高', stages: ['膨大期', '成熟期', '生长期'], priority: 'urgent', priorityText: '一级·紧急', measures: ['立即进行田间巡查', '识别病虫害类型，对症用药', '喷施广谱杀菌剂或杀虫剂'], cycle: '72小时内复查', indicators: '病虫指数、叶片受害率', effect: '预计 72 小时内控制病情' },
-    { id: 'S020', factorType: '氮磷钾比例', deviation: '失调', stages: ['膨大期', '成熟期'], priority: 'important', priorityText: '二级·重要', measures: ['进行土壤养分检测', '根据检测结果调整施肥方案', '使用复合肥或配方肥'], cycle: '14天后复查', indicators: '氮磷钾比例、果实品质', effect: '预计 14 天后养分比例趋于平衡' }
+    { id: 'S019', factorType: '病虫害', deviation: '偏高', stages: ['果实膨大期', '成熟期', '生长期'], priority: 'urgent', priorityText: '一级·紧急', measures: ['立即进行田间巡查', '识别病虫害类型，对症用药', '喷施广谱杀菌剂或杀虫剂'], cycle: '72小时内复查', indicators: '病虫指数、叶片受害率', effect: '预计 72 小时内控制病情' },
+    { id: 'S020', factorType: '氮磷钾比例', deviation: '失调', stages: ['果实膨大期', '成熟期'], priority: 'important', priorityText: '二级·重要', measures: ['进行土壤养分检测', '根据检测结果调整施肥方案', '使用复合肥或配方肥'], cycle: '14天后复查', indicators: '氮磷钾比例、果实品质', effect: '预计 14 天后养分比例趋于平衡' }
 ];
 
 // 因子名称映射（扣分项 factor → 农事建议 factorType）
@@ -403,7 +403,7 @@ function inferDeviation(deduction) {
 function matchFarmScheme(deduction, stage) {
     var factorType = factorMapping[deduction.factor] || deduction.factor;
     var deviation = inferDeviation(deduction);
-    var stageMap = { '果实膨大期': '膨大期', '成熟期': '成熟期', '生长期': '生长期', '开花期': '开花期', '落果期': '落果期', '幼苗期': '幼苗期' };
+    var stageMap = { '果实膨大期': '果实膨大期', '成熟期': '成熟期', '生长期': '生长期', '开花期': '开花期', '落果期': '落果期', '幼苗期': '幼苗期' };
     var stageKey = stageMap[stage] || stage;
 
     var matched = farmSchemeDB.filter(function(scheme) {

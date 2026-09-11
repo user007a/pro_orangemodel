@@ -431,15 +431,31 @@
       <div class="mb-quick-grid">
         <div class="mb-quick-item" onclick="navigateTo('mb_disease_ai.html')">
           <div class="mb-quick-icon red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
-          <div class="mb-quick-name">病虫害识别</div>
+          <div class="mb-quick-name">病虫识别</div>
         </div>
         <div class="mb-quick-item" onclick="navigateTo('mb_judge_input.html')">
           <div class="mb-quick-icon purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></div>
-          <div class="mb-quick-name">长势评价</div>
+          <div class="mb-quick-name">生长评价</div>
         </div>
-        <div class="mb-quick-item" onclick="navigateTo('mb_data_input.html')">
-          <div class="mb-quick-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="20" x2="4" y2="10"/><line x1="10" y1="20" x2="10" y2="4"/><line x1="16" y1="20" x2="16" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg></div>
-          <div class="mb-quick-name">数据上报</div>
+        <div class="mb-quick-item" onclick="navigateTo('mb_market.html')">
+          <div class="mb-quick-icon orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+          <div class="mb-quick-name">价格指数</div>
+        </div>
+        <div class="mb-quick-item" onclick="navigateTo('mb_data.html')">
+          <div class="mb-quick-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 22h20"/><path d="M6 18V8a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v10"/><path d="M9 22v-4h6v4"/><path d="M9 12h.01"/><path d="M15 12h.01"/></svg></div>
+          <div class="mb-quick-name">环境监测</div>
+        </div>
+        <div class="mb-quick-item" onclick="navigateTo('mb_disease_knowledge.html')">
+          <div class="mb-quick-icon cyan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
+          <div class="mb-quick-name">病虫害库</div>
+        </div>
+        <div class="mb-quick-item" onclick="navigateTo('mb_data_input.html?tab=disease')">
+          <div class="mb-quick-icon red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg></div>
+          <div class="mb-quick-name">病虫上报</div>
+        </div>
+        <div class="mb-quick-item" onclick="navigateTo('mb_data_input.html?tab=farming')">
+          <div class="mb-quick-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+          <div class="mb-quick-name">农事上报</div>
         </div>
         <div class="mb-quick-item" onclick="navigateTo('mb_news.html')">
           <div class="mb-quick-icon cyan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
@@ -452,7 +468,7 @@
     <div class="mb-section">
       <div class="flex justify-between items-center mb-3">
         <div class="mb-section-title" style="margin-bottom:0;">
-          <span class="mb-section-dot"></span>价格速递
+          <span class="mb-section-dot"></span>今日价格
           <span id="price-date" class="text-xs text-gray-400 ml-1"></span>
         </div>
         <span class="text-xs text-secondary" onclick="navigateTo('mb_market.html')">查看全部 ›</span>

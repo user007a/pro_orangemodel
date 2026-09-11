@@ -1194,6 +1194,22 @@
         app.classList.remove('loading');
       }, 600);
     })();
+
+    // 支持通过 URL 参数（如 ?tab=disease / ?tab=farming）定位到指定 Tab
+    (function() {
+      var params = new URLSearchParams(window.location.search);
+      var tab = params.get('tab');
+      var validTabs = ['soil', 'weather', 'farming', 'disease', 'sales'];
+      if (tab && validTabs.indexOf(tab) !== -1) {
+        var tabItems = document.querySelectorAll('.tab-bar .tab-item');
+        for (var i = 0; i < tabItems.length; i++) {
+          if (tabItems[i].getAttribute('onclick') && tabItems[i].getAttribute('onclick').indexOf("'" + tab + "'") !== -1) {
+            switchTab(tab, tabItems[i]);
+            break;
+          }
+        }
+      }
+    })();
   </script>
 </body>
 </html>

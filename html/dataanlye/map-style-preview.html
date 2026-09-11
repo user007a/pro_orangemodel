@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>地图样式预览 · 南丰县</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+    <link rel="stylesheet" href="css/fonts.css">
+    <link rel="stylesheet" href="css/cockpit-theme.css">
+    <style>
+        body { padding: 24px; }
+        .wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 1600px; margin: 0 auto; }
+        .pane { position: relative; }
+        .pane h2 {
+            font-size: 16px; font-weight: 500; color: var(--ck-accent-cyan);
+            letter-spacing: 1px; margin-bottom: 10px;
+        }
+        .pane .sub { font-size: 13px; color: var(--ck-text-secondary); margin-bottom: 12px; }
+        .chart { width: 100%; height: 620px; }
+    </style>
+</head>
+<body class="cockpit">
+<div class="wrap">
+    <div class="pane ck-panel">
+        <h2>生长模型 · 植株评价</h2>
+        <div class="sub">单一青色系 5 级色阶，深浅即评分高低</div>
+        <div id="chartScore" class="chart"></div>
+    </div>
+    <div class="pane ck-panel">
+        <h2>病虫害 · 风险分布</h2>
+        <div class="sub">同一套色阶，语义为风险等级；绿环为高发区域</div>
+        <div id="chartRisk" class="chart"></div>
+    </div>
+</div>
+
+<script src="data/nanfeng-map.js"></script>
+<script src="js/nf-map.js"></script>
+<script>
+NFMap.register();
+
+var scoreData = [
+    { name: '琴城镇', value: 72 }, { name: '太和镇', value: 85 },
+    { name: '白舍镇', value: 65 }, { name: '市山镇', value: 68 },
+    { name: '洽湾镇', value: 55 }, { name: '桑田镇', value: 82 },
+    { name: '紫霄镇', value: 62 }, { name: '三溪乡', value: 48 },
+    { name: '东坪乡', value: 45 }, { name: '莱溪乡', value: 52 },
+    { name: '太源乡', value: 58 }, { name: '傅坊乡', value: 58 }
+];
+
+var riskData = [
+    { name: '琴城镇', value: 72 }, { name: '太和镇', value: 85 },
+    { name: '白舍镇', value: 65 }, { name: '市山镇', value: 68 },
+    { name: '洽湾镇', value: 55 }, { name: '桑田镇', value: 82 },
+    { name: '紫霄镇', value: 60 }, { name: '三溪乡', value: 48 },
+    { name: '东坪乡', value: 45 }, { name: '莱溪乡', value: 52 },
+    { name: '太源乡', value: 58 }, { name: '傅坊乡', value: 50 }
+];
+
+var scoreMarkers = [
+    { name: '太和镇监测点', coord: NFMap.pointIn('太和镇', -0.012, 0.008), count: 2 },
+    { name: '桑田镇监测点', coord: NFMap.pointIn('桑田镇', 0.006, 0.004), count: 3 },
+    { name: '白舍镇监测点', coord: NFMap.pointIn('白舍镇', -0.02, 0.012), count: 2 },
+    { name: '市山镇监测点', coord: NFMap.pointIn('市山镇', 0.008, -0.006), count: 2 },
+    { name: '太源乡监测点', coord: NFMap.pointIn('太源乡', -0.01, 0.006), count: 2 },
+    { name: '琴城镇监测点', coord: NFMap.pointIn('琴城镇', -0.014, 0.004), count: 3, alert: true },
+    { name: '紫霄镇监测点', coord: NFMap.pointIn('紫霄镇', 0.01, -0.004), count: 2 },
+    { name: '洽湾镇监测点', coord: NFMap.pointIn('洽湾镇', 0.004, 0.01), count: 3 },
+    { name: '东坪乡监测点', coord: NFMap.pointIn('东坪乡', -0.006, -0.008), count: 2 },
+    { name: '莱溪乡监测点', coord: NFMap.pointIn('莱溪乡', -0.004, 0.01), count: 2 },
+    { name: '三溪乡监测点', coord: NFMap.pointIn('三溪乡', 0.01, 0.008), count: 4 }
+];
+
+var scoreChart = echarts.init(document.getElementById('chartScore'));
+var scoreOpt = NFMap.option({
+    pieces: NFMap.scorePieces(),
+    data: scoreData,
+    markers: scoreMarkers,
+    seriesName: '植株评分',
+    markerName: '监测点',
+    emphasisLabel: function (p) {
+        return p.name + '\n' + (p.data ? p.data.value + ' 分' : '');
+    }
+});
+scoreChart.setOption(scoreOpt);
+scoreChart.setOption({
+    series: [
+        scoreOpt.series[0],
+        Object.assign({}, scoreOpt.series[1], {
+            data: scoreOpt.series[1].data.map(function (d) {
+                return d.alert ? Object.assign({}, d, NFMap.alertMarkerStyle()) : d;
+            })
+        })
+    ]
+});
+
+var riskMarkers = [
+    { name: '红蜘蛛', coord: NFMap.pointIn('桑田镇', -0.006, 0.01), count: 28, alert: true },
+    { name: '锈壁虱', coord: NFMap.pointIn('市山镇', 0.01, -0.008), count: 22, alert: true },
+    { name: '潜叶蛾', coord: NFMap.pointIn('市山镇', 0.002, 0.006), count: 16 },
+    { name: '炭疽病', coord: NFMap.pointIn('白舍镇', 0.004, 0.006), count: 12 },
+    { name: '柑桔木虱', coord: NFMap.pointIn('市山镇', -0.004, 0.014), count: 8 },
+    { name: '黑点病', coord: NFMap.pointIn('洽湾镇', -0.008, 0.004), count: 5 },
+    { name: '溃疡病', coord: NFMap.pointIn('太和镇', 0.004, 0.012), count: 3 },
+    { name: '树脂病', coord: NFMap.pointIn('洽湾镇', -0.006, -0.006), count: 5 },
+    { name: '灰霉病', coord: NFMap.pointIn('太和镇', -0.012, 0.006), count: 7 },
+    { name: '黑斑病', coord: NFMap.pointIn('白舍镇', -0.008, 0.01), count: 6 },
+    { name: '毒蛾', coord: NFMap.pointIn('市山镇', 0.002, -0.002), count: 5 },
+    { name: '粉虱', coord: NFMap.pointIn('东坪乡', -0.004, 0.002), count: 3 },
+    { name: '蚜虫', coord: NFMap.pointIn('琴城镇', -0.006, -0.006), count: 2 },
+    { name: '疮痂病', coord: NFMap.pointIn('太源乡', 0.008, -0.006), count: 1 },
+    { name: '介壳虫', coord: NFMap.pointIn('琴城镇', 0.004, -0.002), count: 1 },
+    { name: '天牛', coord: NFMap.pointIn('东坪乡', 0.004, 0.004), count: 2 },
+    { name: '卷叶蛾', coord: NFMap.pointIn('琴城镇', 0.002, -0.01), count: 1 },
+    { name: '流胶病', coord: NFMap.pointIn('太和镇', 0.008, -0.006), count: 2 },
+    { name: '裂皮病', coord: NFMap.pointIn('白舍镇', 0.01, -0.008), count: 1 },
+    { name: '煤污病', coord: NFMap.pointIn('洽湾镇', -0.01, -0.008), count: 1 },
+    { name: '凤蝶', coord: NFMap.pointIn('琴城镇', 0.01, -0.008), count: 1 }
+];
+
+var riskChart = echarts.init(document.getElementById('chartRisk'));
+var riskOpt = NFMap.option({
+    pieces: NFMap.riskPieces(),
+    data: riskData,
+    markers: riskMarkers,
+    seriesName: '病虫风险',
+    markerName: '病虫监测',
+    emphasisLabel: function (p) {
+        return p.name + '\n' + (p.data ? '风险值 ' + p.data.value : '');
+    }
+});
+riskChart.setOption(riskOpt);
+riskChart.setOption({
+    series: [
+        riskOpt.series[0],
+        Object.assign({}, riskOpt.series[1], {
+            data: riskOpt.series[1].data.map(function (d) {
+                return d.alert ? Object.assign({}, d, NFMap.alertMarkerStyle()) : d;
+            })
+        })
+    ]
+});
+
+window.addEventListener('resize', function () {
+    scoreChart.resize();
+    riskChart.resize();
+});
+</script>
+</body>
+</html>

@@ -3,29 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>南丰蜜桔生长模型监测</title>
+    <title>南丰蜜桔全产业链大数据平台 · 生长模型</title>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- 自托管字体（离线可用）：Noto Sans SC 中文 + Barlow Condensed 数字 -->
+    <link rel="preload" href="fonts/NotoSansSC-400.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="fonts/BarlowCondensed-600.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="css/fonts.css">
     <link rel="stylesheet" href="css/dashboard-design-system.css">
+    <link rel="stylesheet" href="css/cockpit-theme.css">
+    <!-- 南丰县真实乡镇边界 + 统一地图模块（两个大屏共用） -->
+    <script src="data/nanfeng-map.js"></script>
+    <script src="js/nf-map.js"></script>
     <style>
+        /* ========== 深色驾驶舱主题 - 兼容层 ==========
+         * 这里只做「旧变量名 -> 设计 token」的映射，不再重复定义颜色与字体，
+         * 真正的取值统一由 css/cockpit-theme.css 与 css/fonts.css 提供。
+         */
         :root {
-            --bg-base: #f0fdf4;
-            --bg-white: #ffffff;
-            --text: #1e293b;
-            --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            --space-sm: 0.5rem;
-            --space-lg: 1rem;
-            --space-xl: 1.5rem;
-            --space-2xl: 2rem;
-            --radius-full: 9999px;
-            --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
-            --primary-700: #166534;
+            --bg-base: var(--ck-bg-deep);
+            --bg-white: var(--ck-bg-elevated);
+            --text: var(--ck-text-primary);
+            --font-family: var(--ck-font-family);
+            --space-sm: var(--ck-space-sm);
+            --space-lg: var(--ck-space-lg);
+            --space-xl: var(--ck-space-xl);
+            --space-2xl: var(--ck-space-2xl);
+            --radius-full: var(--ck-radius-full);
+            --shadow-sm: var(--ck-glow-cyan-soft);
+            --primary-700: var(--ck-accent-cyan);
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            background: var(--bg-base);
+            background: transparent;
             font-family: var(--font-family);
-            padding: var(--space-2xl) var(--space-lg);
+            padding: 0;
             color: var(--text);
         }
         
@@ -70,7 +82,7 @@
         .title-section h1 {
             font-size: 28px;
             font-weight: 600;
-            background: linear-gradient(135deg, #146c31, #22a84a);
+            background: linear-gradient(135deg, #00d4ff, #39e6c8);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
@@ -79,7 +91,7 @@
             gap: 10px;
         }
         .title-section p {
-            color: #434343;
+            color: #94a3b8;
             margin-top: 6px;
             font-size: 20px;
         }
@@ -103,26 +115,26 @@
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            background: white;
+            background: rgba(16, 40, 78, 0.85);
             padding: 8px 16px;
             border-radius: 40px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+            box-shadow: 0 2px 8px rgba(0, 10, 30, 0.35);
             font-weight: 500;
-            color: #2c6e3c;
+            color: #7dd3fc;
             text-decoration: none;
             transition: all 0.2s;
-            border: 1px solid #e2e8f0;
+            border: 1px solid rgba(148, 163, 184, 0.18);
         }
         .platform-entry:hover {
-            background: #2b6e3c;
-            color: white;
-            border-color: #2b6e3c;
+            background: #00d4ff;
+            color: #e6f1ff;
+            border-color: #00d4ff;
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(43,110,60,0.2);
+            box-shadow: 0 4px 12px rgba(0, 212, 255,0.2);
         }
         .platform-entry i { font-size: 0.9rem; }
         .drill-panel {
-            background: white;
+            background: rgba(16, 40, 78, 0.85);
             border-radius: 28px;
             padding: 1rem 1.5rem;
             margin-bottom: 28px;
@@ -130,39 +142,39 @@
             flex-wrap: wrap;
             align-items: center;
             gap: 16px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-            border: 1px solid #eef2f6;
+            box-shadow: 0 4px 16px rgba(0, 10, 30, 0.40);
+            border: 1px solid rgba(148, 163, 184, 0.14);
         }
         .drill-item {
             display: flex;
             align-items: center;
             gap: 12px;
-            background: #f8fafc;
+            background: rgba(15, 35, 75, 0.60);
             padding: 6px 18px;
             border-radius: 40px;
         }
         .drill-item label {
             font-weight: 600;
-            color: #2c6e3c;
+            color: #7dd3fc;
         }
         select {
             padding: 8px 14px;
             border-radius: 32px;
-            border: 1px solid #cbd5e1;
-            background: white;
+            border: 1px solid rgba(148, 163, 184, 0.35);
+            background: rgba(16, 40, 78, 0.85);
             font-weight: 500;
             cursor: pointer;
             outline: none;
         }
         .card {
-            background: white;
+            background: rgba(16, 40, 78, 0.85);
             border-radius: 24px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.03);
+            box-shadow: 0 8px 24px rgba(0, 10, 30, 0.45);
             padding: 1rem;
-            border: 1px solid rgba(0,0,0,0.03);
+            border: 1px solid rgba(148, 163, 184, 0.16);
             transition: all 0.2s;
         }
-        .card:hover { box-shadow: 0 12px 28px rgba(0,0,0,0.06); }
+        .card:hover { box-shadow: 0 12px 30px rgba(0, 10, 30, 0.55); }
         .card-header {
             display: flex;
             justify-content: space-between;
@@ -170,7 +182,7 @@
             margin-bottom: 0.8rem;
             font-weight: 600;
             font-size: 0.95rem;
-            border-left: 4px solid #2b6e3c;
+            border-left: 4px solid #00d4ff;
             padding-left: 12px;
         }
         .kpi-grid {
@@ -180,14 +192,14 @@
             margin-bottom: 28px;
         }
         .kpi-card {
-            background: linear-gradient(145deg, #ffffff 0%, #f0fdf4 100%);
+            background: linear-gradient(145deg, rgba(16, 40, 78, 0.85) 0%, rgba(13, 48, 82, 0.90) 100%);
             border-radius: 20px;
             padding: 16px 18px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            box-shadow: 0 4px 16px rgba(43,110,60,0.06);
-            border: 1px solid rgba(43,110,60,0.08);
+            box-shadow: 0 4px 16px rgba(0, 212, 255,0.06);
+            border: 1px solid rgba(0, 212, 255,0.08);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
             position: relative;
@@ -200,7 +212,7 @@
             right: -50%;
             width: 100%;
             height: 100%;
-            background: radial-gradient(circle, rgba(43,110,60,0.06) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(0, 212, 255,0.06) 0%, transparent 70%);
             opacity: 0;
             transition: opacity 0.3s;
         }
@@ -209,28 +221,28 @@
         }
         .kpi-card:hover {
             transform: translateY(-6px) scale(1.02);
-            box-shadow: 0 12px 32px rgba(43,110,60,0.15);
-            border-color: rgba(43,110,60,0.2);
+            box-shadow: 0 12px 32px rgba(0, 212, 255,0.15);
+            border-color: rgba(0, 212, 255,0.2);
         }
         .kpi-card.warning {
-            background: linear-gradient(145deg, #ffffff 0%, #fffbeb 100%);
+            background: linear-gradient(145deg, rgba(16, 40, 78, 0.85) 0%, rgba(54, 42, 16, 0.90) 100%);
             border-color: rgba(245,158,11,0.2);
         }
         .kpi-card.warning:hover {
             box-shadow: 0 12px 32px rgba(245,158,11,0.15);
         }
         .kpi-card.danger {
-            background: linear-gradient(145deg, #ffffff 0%, #fef2f2 100%);
+            background: linear-gradient(145deg, rgba(16, 40, 78, 0.85) 0%, rgba(58, 22, 28, 0.90) 100%);
             border-color: rgba(239,68,68,0.2);
         }
         .kpi-card.danger:hover {
             box-shadow: 0 12px 32px rgba(239,68,68,0.15);
         }
-        .kpi-info h4 { font-size: 13px; color: #64748b; margin-bottom: 6px; font-weight: 600; letter-spacing: 0.5px; }
+        .kpi-info h4 { font-size: 13px; color: #94a3b8; margin-bottom: 6px; font-weight: 600; letter-spacing: 0.5px; }
         .kpi-number { 
             font-size: 1.7rem; 
             font-weight: 400; 
-            background: linear-gradient(135deg, #166534, #22c55e);
+            background: linear-gradient(135deg, #00d4ff, #22c55e);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
@@ -251,27 +263,27 @@
         .kpi-icon { 
             width: 48px; 
             height: 48px; 
-            background: linear-gradient(135deg, #eef6ef 0%, #d1fae5 100%);
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.16) 0%, rgba(0, 212, 255, 0.22) 100%);
             border-radius: 28px; 
             display: flex; 
             align-items: center; 
             justify-content: center; 
             font-size: 1.5rem; 
-            color: #2b6e3c;
-            box-shadow: 0 4px 12px rgba(43,110,60,0.12);
+            color: #00d4ff;
+            box-shadow: 0 4px 12px rgba(0, 212, 255,0.12);
             transition: all 0.3s;
         }
         .kpi-card:hover .kpi-icon {
             transform: scale(1.1);
-            box-shadow: 0 6px 16px rgba(43,110,60,0.2);
+            box-shadow: 0 6px 16px rgba(0, 212, 255,0.2);
         }
         .kpi-card.warning .kpi-icon {
-            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+            background: linear-gradient(135deg, rgba(54, 42, 16, 0.90) 0%, rgba(54, 42, 16, 0.90) 100%);
             color: #d97706;
             box-shadow: 0 4px 12px rgba(245,158,11,0.15);
         }
         .kpi-card.danger .kpi-icon {
-            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            background: linear-gradient(135deg, rgba(58, 22, 28, 0.90) 0%, rgba(255, 71, 87, 0.25) 100%);
             color: #dc2626;
             box-shadow: 0 4px 12px rgba(239,68,68,0.15);
         }
@@ -290,26 +302,26 @@
         }
         .modal-overlay.active { display: flex; }
         .modal-container {
-            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            background: linear-gradient(135deg, rgba(16, 40, 78, 0.85) 0%, rgba(15, 35, 75, 0.60) 100%);
             border-radius: 20px;
             padding: 0;
             width: 680px;
             max-height: 85vh;
             overflow: hidden;
             box-shadow: 0 25px 80px rgba(0,0,0,0.2);
-            border: 1px solid rgba(255,255,255,0.5);
+            border: 1px solid rgba(0, 212, 255, 0.28);
         }
         .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 20px 24px;
-            background: linear-gradient(135deg, #2b6e3c 0%, #1e5a2e 100%);
+            background: linear-gradient(135deg, #00d4ff 0%, #0d3b66 100%);
         }
         .modal-title {
             font-size: 1.15rem;
             font-weight: 600;
-            color: white;
+            color: #e6f1ff;
             display: flex;
             align-items: center;
             gap: 10px;
@@ -328,7 +340,7 @@
             background: rgba(255,255,255,0.2);
             border: none;
             font-size: 1rem;
-            color: white;
+            color: #e6f1ff;
             cursor: pointer;
             transition: all 0.2s;
             display: flex;
@@ -347,7 +359,7 @@
         .modal-chart {
             width: 100%;
             height: 320px;
-            background: white;
+            background: rgba(16, 40, 78, 0.85);
             border-radius: 16px;
             padding: 16px;
             box-shadow: 0 2px 12px rgba(0,0,0,0.04);
@@ -356,7 +368,7 @@
         .modal-section-title {
             font-size: 0.9rem;
             font-weight: 600;
-            color: #475569;
+            color: #94a3b8;
             margin-bottom: 14px;
             display: flex;
             align-items: center;
@@ -366,7 +378,7 @@
             content: '';
             flex: 1;
             height: 1px;
-            background: #e2e8f0;
+            background: rgba(148, 163, 184, 0.18);
         }
         .modal-stats {
             display: grid;
@@ -375,19 +387,19 @@
             margin-bottom: 20px;
         }
         .modal-stat-item {
-            background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+            background: linear-gradient(135deg, rgba(13, 48, 82, 0.90) 0%, rgba(13, 48, 82, 0.90) 100%);
             border-radius: 14px;
             padding: 16px;
             text-align: center;
-            border: 1px solid #d1fae5;
+            border: 1px solid rgba(0, 212, 255, 0.22);
             transition: all 0.2s;
         }
         .modal-stat-item:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(43,110,60,0.1);
+            box-shadow: 0 4px 12px rgba(0, 212, 255,0.1);
         }
-        .modal-stat-value { font-size: 1.5rem; font-weight: 700; color: #166534; }
-        .modal-stat-label { font-size: 0.8rem; color: #64748b; margin-top: 6px; }
+        .modal-stat-value { font-size: 1.5rem; font-weight: 700; color: #7dd3fc; }
+        .modal-stat-label { font-size: 0.8rem; color: #94a3b8; margin-top: 6px; }
         .modal-detail-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -398,13 +410,13 @@
             justify-content: space-between;
             align-items: center;
             padding: 10px 14px;
-            background: white;
+            background: rgba(16, 40, 78, 0.85);
             border-radius: 10px;
-            border: 1px solid #f1f5f9;
+            border: 1px solid rgba(148, 163, 184, 0.22);
         }
-        .modal-detail-label { font-size: 0.85rem; color: #64748b; }
-        .modal-detail-value { font-size: 0.9rem; font-weight: 600; color: #334155; }
-        .trend-badge { font-size: 0.7rem; background: #e6f7e6; display: inline-block; padding: 2px 8px; border-radius: 20px; margin-top: 5px; color: #1f7840; }
+        .modal-detail-label { font-size: 0.85rem; color: #94a3b8; }
+        .modal-detail-value { font-size: 0.9rem; font-weight: 600; color: #cbd5e1; }
+        .trend-badge { font-size: 0.75rem; background: rgba(34, 197, 94, 0.16); display: inline-block; padding: 2px 8px; border-radius: 20px; margin-top: 5px; color: #4ade80; }
         .map-core-grid {
             display: grid;
             grid-template-columns: 1fr 2.2fr 1fr;
@@ -442,11 +454,11 @@
             background: 
                 radial-gradient(circle at 25% 30%, rgba(34,197,94,0.05) 0%, transparent 50%),
                 radial-gradient(circle at 75% 65%, rgba(34,197,94,0.04) 0%, transparent 50%),
-                linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #f0fdf4 100%);
+                linear-gradient(135deg, rgba(15, 35, 75, 0.60) 0%, rgba(13, 39, 69, 0.75) 50%, rgba(13, 48, 82, 0.90) 100%);
             position: relative;
             overflow: hidden;
             flex-shrink: 0;
-            border: 1px solid #e2e8f0;
+            border: 1px solid rgba(148, 163, 184, 0.18);
         }
         #orchardMap::before {
             content: '';
@@ -487,7 +499,7 @@
             position: absolute;
             bottom: 16px;
             left: 16px;
-            background: rgba(255,255,255,0.88);
+            background: rgba(10, 28, 60, 0.92);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             padding: 12px 18px;
@@ -495,11 +507,11 @@
             display: flex;
             flex-wrap: wrap;
             gap: 14px;
-            font-size: 11px;
-            color: #475569;
+            font-size: 12px;
+            color: #cbd5e1;
             z-index: 10;
-            border: 1px solid rgba(0,0,0,0.06);
-            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            border: 1px solid rgba(0, 212, 255, 0.35);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
         }
         .legend-item {
             display: flex;
@@ -515,16 +527,16 @@
         .map-popup {
             display: none;
             position: absolute;
-            background: rgba(255,255,255,0.96);
+            background: rgba(10, 28, 60, 0.94);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             border-radius: 12px;
             padding: 16px;
-            box-shadow: 0 8px 28px rgba(0,0,0,0.12);
+            box-shadow: 0 8px 28px rgba(0,0,0,0.5);
             z-index: 100;
             min-width: 260px;
             max-width: 320px;
-            border: 1px solid rgba(0,0,0,0.06);
+            border: 1px solid rgba(0, 212, 255, 0.22);
         }
         .map-popup.active { display: block; }
         .popup-header {
@@ -533,11 +545,11 @@
             align-items: center;
             margin-bottom: 12px;
             padding-bottom: 8px;
-            border-bottom: 1px solid #e2e8f0;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.18);
         }
-        .popup-title { font-weight: 600; color: #166534; font-size: 13px; }
+        .popup-title { font-weight: 600; color: #7dd3fc; font-size: 13px; }
         .popup-close { cursor: pointer; color: #94a3b8; }
-        .popup-close:hover { color: #64748b; }
+        .popup-close:hover { color: #94a3b8; }
         .popup-content { font-size: 12px; }
         .popup-row {
             display: flex;
@@ -545,18 +557,18 @@
             margin-bottom: 6px;
             padding: 4px 0;
         }
-        .popup-label { color: #64748b; }
-        .popup-value { color: #1e293b; font-weight: 500; }
+        .popup-label { color: #94a3b8; }
+        .popup-value { color: #e6f1ff; font-weight: 500; }
         .scrolling-cards {
             margin-top: 16px;
-            background: white;
+            background: rgba(16, 40, 78, 0.85);
             border-radius: 20px;
             padding: 0;
             position: relative;
             overflow: hidden;
             box-shadow: 0 4px 16px rgba(0,0,0,0.06);
             flex: 1;
-            border: 1px solid #e2e8f0;
+            border: 1px solid rgba(148, 163, 184, 0.18);
             min-height: 0;
         }
         .scrolling-header {
@@ -564,13 +576,13 @@
             justify-content: space-between;
             align-items: center;
             padding: 14px 18px;
-            border-bottom: 2px solid #f1f5f9;
-            background: #fafafa;
+            border-bottom: 2px solid rgba(148, 163, 184, 0.22);
+            background: rgba(15, 35, 75, 0.55);
         }
         .scrolling-title {
             font-size: 14px;
             font-weight: 600;
-            color: #334155;
+            color: #cbd5e1;
         }
         .scrolling-tabs {
             display: flex;
@@ -582,17 +594,17 @@
             font-size: 12px;
             cursor: pointer;
             transition: all 0.2s;
-            color: #64748b;
-            background: white;
-            border: 1px solid #e2e8f0;
+            color: #94a3b8;
+            background: rgba(16, 40, 78, 0.85);
+            border: 1px solid rgba(148, 163, 184, 0.18);
         }
         .scrolling-tab.active {
-            background: #2b6e3c;
-            color: white;
+            background: #00d4ff;
+            color: #e6f1ff;
             font-weight: 500;
-            border-color: #2b6e3c;
+            border-color: #00d4ff;
         }
-        .scrolling-tab:hover { background: #f1f5f9; }
+        .scrolling-tab:hover { background: rgba(13, 39, 69, 0.75); }
         .scrolling-tab.active:hover { background: #22c55e; }
         .scrolling-container {
             height: calc(100% - 52px);
@@ -613,15 +625,15 @@
             width: 6px;
         }
         .scrolling-container::-webkit-scrollbar-track {
-            background: #f1f5f9;
+            background: rgba(13, 39, 69, 0.75);
             border-radius: 3px;
         }
         .scrolling-container::-webkit-scrollbar-thumb {
-            background: linear-gradient(180deg, #cbd5e1, #94a3b8);
+            background: linear-gradient(180deg, rgba(148, 163, 184, 0.35), rgba(148, 163, 184, 0.45));
             border-radius: 3px;
         }
         .scrolling-container::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(180deg, #94a3b8, #64748b);
+            background: linear-gradient(180deg, rgba(148, 163, 184, 0.45), rgba(148, 163, 184, 0.55));
         }
         .scrolling-table {
             width: 100%;
@@ -629,30 +641,30 @@
             font-size: 13px;
         }
         .scrolling-table th {
-            background: #f8fafc;
+            background: rgba(15, 35, 75, 0.60);
             padding: 10px 14px;
             text-align: left;
             font-weight: 600;
-            color: #475569;
+            color: #94a3b8;
             position: sticky;
             top: 0;
             z-index: 1;
             white-space: nowrap;
-            border-bottom: 2px solid #e2e8f0;
+            border-bottom: 2px solid rgba(148, 163, 184, 0.18);
             font-size: 12px;
         }
         .scrolling-table td {
             padding: 10px 14px;
-            border-bottom: 1px solid #f1f5f9;
-            color: #334155;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.22);
+            color: #cbd5e1;
             white-space: nowrap;
             font-size: 12px;
         }
-        .scrolling-table tr:hover td { background: #f8fafc; }
+        .scrolling-table tr:hover td { background: rgba(15, 35, 75, 0.60); }
         .scrolling-table .warning-cell { color: #ef4444; font-weight: 500; }
         .scrolling-table .normal-cell { color: #22c55e; font-weight: 500; }
-        .scrolling-table .highlight-row { background: #fffbeb; }
-        .scrolling-table .highlight-row:hover td { background: #fef3c7; }
+        .scrolling-table .highlight-row { background: rgba(54, 42, 16, 0.90); }
+        .scrolling-table .highlight-row:hover td { background: rgba(54, 42, 16, 0.90); }
         .map-stats {
             margin-top: 12px;
             display: flex;
@@ -661,19 +673,19 @@
             align-items: center;
             gap: 12px;
             font-size: 12px;
-            background: rgba(255,255,255,0.92);
+            background: rgba(10, 28, 60, 0.86);
             padding: 10px 12px;
             border-radius: 20px;
             position: relative;
             z-index: 1;
         }
         .city-tag {
-            background: white;
+            background: rgba(16, 40, 78, 0.85);
             padding: 4px 12px;
             border-radius: 24px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
             font-weight: 500;
-            color: #2c6e3c;
+            color: #7dd3fc;
         }
         .chart-box { width: 100%; height: 240px; }
         .side-card .chart-box { height: 220px; }
@@ -689,13 +701,13 @@
             gap: 8px;
         }
         .env-card {
-            background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+            background: linear-gradient(145deg, rgba(16, 40, 78, 0.85) 0%, rgba(15, 35, 75, 0.60) 100%);
             border-radius: 10px;
             padding: 10px;
             display: flex;
             align-items: center;
             gap: 10px;
-            border: 1px solid #e2e8f0;
+            border: 1px solid rgba(148, 163, 184, 0.18);
             transition: all 0.2s ease;
         }
         .env-card:hover {
@@ -710,26 +722,76 @@
             align-items: center;
             justify-content: center;
             font-size: 1.1rem;
-            background: linear-gradient(135deg, #eef6ef 0%, #d1fae5 100%);
-            color: #2b6e3c;
-            box-shadow: 0 2px 8px rgba(43,110,60,0.1);
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.16) 0%, rgba(0, 212, 255, 0.22) 100%);
+            color: #00d4ff;
+            box-shadow: 0 2px 8px rgba(0, 212, 255,0.1);
         }
         .env-info { flex: 1; }
-        .env-value { font-size: 1rem; font-weight: 700; color: #1e293b; background: linear-gradient(135deg, #1e293b, #475569); -webkit-background-clip: text; background-clip: text; color: transparent; }
-        .env-label { font-size: 0.65rem; color: #64748b; margin-top: 1px; }
+        .env-value { font-size: 1rem; font-weight: 700; background: linear-gradient(135deg, #7dd3fc, #e6f1ff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .env-label { font-size: 0.75rem; color: #94a3b8; margin-top: 1px; }
         .health-index-container {
             display: flex;
             align-items: center;
             gap: 16px;
             padding: 16px;
-            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+            background: linear-gradient(135deg, rgba(13, 48, 82, 0.90), rgba(0, 212, 255, 0.22));
             border-radius: 16px;
             margin-bottom: 8px;
         }
         .health-ring { width: 90px; height: 90px; position: relative; }
         .health-info { flex: 1; }
-        .health-score { font-size: 1.8rem; font-weight: 700; color: #2b6e3c; }
-        .health-status { font-size: 0.9rem; color: #16a34a; font-weight: 500; }
+        .health-score { font-size: 1.8rem; font-weight: 700; color: #00d4ff; }
+        .health-status { font-size: 0.9rem; color: #4ade80; font-weight: 500; }
+        /* 评分口径说明：这是 26 株抽样结果，不是全县普查，必须在数字旁写清楚 */
+        .health-caveat { font-size: 12px; color: #94a3b8; margin-top: 2px; }
+        /* 短板结论：大屏要给结论，不能只给数据 */
+        .health-shortboard {
+            display: flex; align-items: flex-start; gap: 6px;
+            margin-top: 10px; padding: 7px 10px;
+            background: rgba(251,191,36,0.10);
+            border: 1px solid rgba(251,191,36,0.30);
+            border-left: 3px solid #fbbf24;
+            border-radius: 6px;
+            font-size: 12px; line-height: 1.6; color: #fcd34d;
+        }
+        .health-shortboard i { margin-top: 3px; color: #fbbf24; }
+        .health-shortboard b { color: #fbbf24; font-weight: 600; }
+        /* ===== 一句话结论播报：让领导扫一眼就知道「现在怎样、要做什么」===== */
+        .ck-brief {
+            display: flex; align-items: center; gap: 10px;
+            margin-bottom: 14px; padding: 10px 16px;
+            background: rgba(0,212,255,0.07);
+            border: 1px solid rgba(0,212,255,0.22);
+            border-left: 3px solid #00d4ff;
+            border-radius: 8px;
+            font-size: 14px; line-height: 1.7; color: #cbd5e1;
+        }
+        .ck-brief > i { color: #00d4ff; flex-shrink: 0; }
+        .ck-brief-text { flex: 1; }
+        .ck-brief b { color: #7dd3fc; font-weight: 600; }
+        .ck-brief-warn { color: #ff9b9b; font-weight: 600; }
+        /* 两屏联动：长势短板 → 病虫害防控，形成闭环 */
+        .ck-brief-link {
+            flex-shrink: 0; display: inline-flex; align-items: center; gap: 6px;
+            padding: 6px 14px; border-radius: 6px; text-decoration: none; white-space: nowrap;
+            background: rgba(0,212,255,0.14);
+            border: 1px solid rgba(0,212,255,0.40);
+            color: #7dd3fc; font-size: 13px; font-weight: 500;
+        }
+        .ck-brief-link:hover { background: rgba(0,212,255,0.24); color: #5AD7F0; }
+        /* 同比标注：向好=青绿，需关注=红（如病虫管理得分下降即为需关注） */
+        .kpi-yoy { display: block; margin-top: 3px; font-size: 12px; font-weight: 500; letter-spacing: 0.2px; }
+        .kpi-yoy.good { color: #33D69F; }
+        .kpi-yoy.bad  { color: #ff6b6b; }
+        /* 环境指标：适宜区间标注与越界提示（后组样式带 !important，此处需同级别覆盖） */
+        .env-range { font-size: 12px; color: #94a3b8; margin-top: 2px; }
+        .env-range.warn { color: #fbbf24; }
+        .env-card.env-ok { border-color: rgba(51,214,159,0.50) !important; }
+        .env-card.env-warn { border-color: rgba(251,191,36,0.55) !important; background: rgba(58,44,16,0.40) !important; }
+        .env-card.env-warn .env-value {
+            background: linear-gradient(135deg, #fbbf24, #fde68a);
+            -webkit-background-clip: text; background-clip: text; color: transparent;
+        }
         .health-breakdown {
             display: flex;
             gap: 12px;
@@ -740,7 +802,7 @@
         .health-dot { width: 8px; height: 8px; border-radius: 50%; }
         .warning-list { flex: 1; overflow-y: hidden; }
         .warning-item {
-            background: #fff5f5;
+            background: rgba(16, 40, 78, 0.85)5f5;
             border-left: 3px solid #ef4444;
             padding: 10px 12px;
             margin-bottom: 10px;
@@ -749,16 +811,16 @@
         }
         .warning-item.warning-warning {
             border-left-color: #f59e0b;
-            background: #fffbeb;
+            background: rgba(54, 42, 16, 0.90);
         }
         .warning-item.warning-info {
             border-left-color: #22c55e;
-            background: #f0fdf4;
+            background: rgba(13, 48, 82, 0.90);
         }
         .warning-title { font-weight: 600; color: #dc2626; margin-bottom: 4px; }
         .warning-warning .warning-title { color: #d97706; }
-        .warning-info .warning-title { color: #166534; }
-        .warning-time { font-size: 0.75rem; color: #64748b; }
+        .warning-info .warning-title { color: #7dd3fc; }
+        .warning-time { font-size: 0.75rem; color: #94a3b8; }
         .phenology-stage-list {
             display: flex;
             flex-direction: column;
@@ -777,13 +839,13 @@
             border-radius: 50%;
             flex-shrink: 0;
         }
-        .phenology-name { flex: 1; color: #475569; }
-        .phenology-count { font-weight: 600; color: #2b6e3c; min-width: 32px; text-align: right; font-size: 0.78rem; }
+        .phenology-name { flex: 1; color: #94a3b8; }
+        .phenology-count { font-weight: 600; color: #00d4ff; min-width: 32px; text-align: right; font-size: 0.78rem; }
         .phenology-score { font-weight: 700; min-width: 36px; text-align: right; font-size: 0.82rem; }
         .phenology-bar-wrapper { flex: 2; }
         .phenology-bar {
             height: 6px;
-            background: #e2e8f0;
+            background: rgba(148, 163, 184, 0.18);
             border-radius: 3px;
             overflow: hidden;
         }
@@ -803,70 +865,422 @@
             .row-grid { grid-template-columns: 1fr; }
             .kpi-grid { grid-template-columns: repeat(2, 1fr); }
         }
+
+        /* ============================================================
+         * 深色驾驶舱覆盖样式 (Dark Cockpit Overrides)
+         * ============================================================ */
+
+        /* Header / Title section */
+        .dashboard-container .header {
+            background: rgba(10, 28, 60, 0.6);
+            border: 1px solid rgba(0, 212, 255, 0.18);
+            border-radius: 12px;
+            padding: 14px 24px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+        .title-section h1 { letter-spacing: 1px; }
+        .title-section p { color: #7dd3fc !important; }
+
+        /* Platform entry */
+        .platform-entry {
+            background: rgba(0, 212, 255, 0.06) !important;
+            border: 1px solid rgba(0, 212, 255, 0.3) !important;
+            color: #7dd3fc !important;
+            box-shadow: none !important;
+        }
+        .platform-entry:hover {
+            background: rgba(0, 212, 255, 0.18) !important;
+            color: #e6f1ff !important;
+            border-color: #00d4ff !important;
+            box-shadow: 0 0 12px rgba(0, 212, 255, 0.4) !important;
+        }
+
+        /* KPI 网格与卡片 */
+        .kpi-grid { gap: 16px; margin-bottom: 20px; }
+        .kpi-card {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.08) 0%, rgba(15, 35, 75, 0.85) 100%) !important;
+            border: 1px solid rgba(0, 212, 255, 0.25) !important;
+            border-radius: 12px !important;
+            box-shadow: 0 4px 16px rgba(0, 10, 30, 0.4), 0 0 8px rgba(0, 212, 255, 0.1) !important;
+            color: #e6f1ff !important;
+            position: relative;
+            overflow: hidden;
+        }
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #00d4ff, transparent);
+            opacity: 0.6;
+        }
+        .kpi-card:hover {
+            border-color: rgba(0, 212, 255, 0.7) !important;
+            box-shadow: 0 8px 24px rgba(0, 10, 30, 0.5), 0 0 16px rgba(0, 212, 255, 0.3) !important;
+            transform: translateY(-3px);
+        }
+        .kpi-info h4 { color: #94a3b8 !important; }
+        .kpi-number {
+            font-family: var(--ck-font-num) !important;
+            font-weight: 700 !important;
+            background: linear-gradient(135deg, #00d4ff, #4fc3f7) !important;
+            -webkit-background-clip: text !important;
+            background-clip: text !important;
+            color: transparent !important;
+            text-shadow: 0 0 12px rgba(0, 212, 255, 0.3);
+            filter: drop-shadow(0 0 8px rgba(0, 212, 255, 0.4));
+        }
+        .kpi-card.danger .kpi-number {
+            background: linear-gradient(135deg, #ff6b6b, #ff4757) !important;
+            -webkit-background-clip: text !important;
+            background-clip: text !important;
+            color: transparent !important;
+            filter: drop-shadow(0 0 8px rgba(255, 71, 87, 0.5));
+        }
+        .kpi-card.danger {
+            background: linear-gradient(135deg, rgba(255, 71, 87, 0.08) 0%, rgba(15, 35, 75, 0.85) 100%) !important;
+            border-color: rgba(255, 71, 87, 0.5) !important;
+            box-shadow: 0 4px 16px rgba(0, 10, 30, 0.4), 0 0 8px rgba(255, 71, 87, 0.2) !important;
+        }
+        .kpi-icon {
+            background: rgba(0, 212, 255, 0.15) !important;
+            border: 1px solid rgba(0, 212, 255, 0.4) !important;
+            color: #00d4ff !important;
+            box-shadow: 0 0 12px rgba(0, 212, 255, 0.3) !important;
+        }
+        .kpi-card.danger .kpi-icon {
+            background: rgba(255, 71, 87, 0.15) !important;
+            border-color: rgba(255, 71, 87, 0.5) !important;
+            color: #ff6b6b !important;
+            box-shadow: 0 0 12px rgba(255, 71, 87, 0.3) !important;
+            animation: ck-pulse-dot 2s ease-in-out infinite;
+        }
+        .trend-badge {
+            background: rgba(0, 212, 255, 0.15) !important;
+            color: #7dd3fc !important;
+            border: 1px solid rgba(0, 212, 255, 0.3) !important;
+        }
+
+        /* 通用卡片 */
+        .map-core-grid { gap: 16px; }
+        .card, .side-card, .center-map-card, .phenology-card {
+            background: rgba(15, 35, 75, 0.72) !important;
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 212, 255, 0.2) !important;
+            border-radius: 12px !important;
+            box-shadow: 0 8px 32px rgba(0, 10, 30, 0.5) !important;
+            color: #e6f1ff !important;
+        }
+        .card-header {
+            color: #e6f1ff !important;
+            border-left: 3px solid #00d4ff !important;
+        }
+        .card-header > span:first-child { color: #e6f1ff !important; }
+        .card-header > span i { color: #00d4ff !important; }
+        .header-extra { color: #7dd3fc !important; }
+
+        /* 健康 / 物候 / 评价条目 */
+        .health-index-container {
+            background: linear-gradient(135deg, rgba(74, 222, 128, 0.08), rgba(15, 35, 75, 0.6)) !important;
+            border: 1px solid rgba(74, 222, 128, 0.25) !important;
+        }
+        .health-score {
+            color: #4ade80 !important;
+            text-shadow: 0 0 12px rgba(74, 222, 128, 0.4);
+            font-family: var(--ck-font-num);
+        }
+        .health-status { color: #86efac !important; }
+        .health-item {
+            background: rgba(0, 212, 255, 0.04) !important;
+            border: 1px solid rgba(0, 212, 255, 0.15) !important;
+            color: #e6f1ff !important;
+        }
+        .health-item:hover {
+            background: rgba(0, 212, 255, 0.08) !important;
+            border-color: rgba(0, 212, 255, 0.4) !important;
+        }
+        .health-dot { box-shadow: 0 0 6px currentColor; }
+
+        .phenology-item {
+            background: rgba(0, 212, 255, 0.04) !important;
+            border: 1px solid rgba(0, 212, 255, 0.15) !important;
+            border-radius: 8px !important;
+            color: #e6f1ff !important;
+        }
+        .phenology-item:hover {
+            background: rgba(0, 212, 255, 0.08) !important;
+            border-color: rgba(0, 212, 255, 0.4) !important;
+        }
+        .phenology-name { color: #e6f1ff !important; }
+        .phenology-count { color: #7dd3fc !important; }
+        .phenology-score { font-family: var(--ck-font-num); }
+        .phenology-bar { background: rgba(148, 163, 184, 0.15) !important; }
+        .phenology-bar-fill { box-shadow: 0 0 6px currentColor; }
+
+        /* 评价监测地图 */
+        #orchardMap {
+            background: rgba(10, 28, 60, 0.5) !important;
+            border: 1px solid rgba(127, 228, 245, 0.18) !important;
+            border-radius: 12px !important;
+        }
+        /* 网格与扫描装饰已移除，地图本身不再叠加底纹 */
+        #orchardMap::before { display: none !important; }
+        #plantMap {
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            position: relative;
+            z-index: 2;
+        }
+        .map-title-overlay > div:first-child {
+            color: #7FE4F5 !important;
+            font-size: 16px !important;
+            font-weight: 500 !important;
+            text-shadow: none !important;
+        }
+        .map-title-overlay > div:last-child { color: #94a3b8 !important; font-size: 12px !important; }
+        .map-overlay {
+            background: rgba(10, 28, 60, 0.92) !important;
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(127, 228, 245, 0.25) !important;
+            color: #e6f1ff !important;
+        }
+        .map-panel-title, .map-overlay-title { color: #7FE4F5 !important; font-size: 12px !important; }
+        .map-panel-row, .map-overlay-row { color: #94a3b8 !important; font-size: 12px !important; }
+        .legend-item { color: #94a3b8 !important; font-size: 12px !important; }
+
+        /* 弹窗 */
+        .popup {
+            background: rgba(10, 28, 60, 0.96) !important;
+            border: 1px solid rgba(0, 212, 255, 0.45) !important;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 16px rgba(0, 212, 255, 0.2) !important;
+            color: #e6f1ff !important;
+        }
+        .popup-title { color: #7dd3fc !important; border-bottom: 1px solid rgba(0, 212, 255, 0.25) !important; }
+        .popup-row {
+            background: rgba(0, 212, 255, 0.04) !important;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.1) !important;
+        }
+        .popup-label { color: #94a3b8 !important; }
+        .popup-value { color: #e6f1ff !important; }
+
+        /* 表格 / 滚动卡 */
+        .scrolling-cards {
+            background: rgba(15, 35, 75, 0.72) !important;
+            border: 1px solid rgba(0, 212, 255, 0.2) !important;
+            border-radius: 12px !important;
+            box-shadow: 0 4px 16px rgba(0, 10, 30, 0.4) !important;
+            color: #e6f1ff !important;
+            overflow: hidden !important;
+        }
+        .scrolling-container,
+        .scrolling-wrapper,
+        .scrolling-table {
+            background: transparent !important;
+        }
+        .scrolling-table thead tr {
+            background: rgba(0, 212, 255, 0.08) !important;
+        }
+        .scrolling-table tbody tr {
+            background: transparent !important;
+        }
+        .scrolling-table tbody tr:hover td {
+            background: rgba(0, 212, 255, 0.06) !important;
+        }
+        .scrolling-header {
+            background: rgba(0, 212, 255, 0.05) !important;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.25) !important;
+            color: #e6f1ff !important;
+        }
+        .scrolling-title { color: #e6f1ff !important; }
+        .scrolling-table { color: #e6f1ff !important; }
+        .scrolling-table th {
+            background: rgba(0, 212, 255, 0.08) !important;
+            color: #7dd3fc !important;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.25) !important;
+        }
+        .scrolling-table td {
+            border-bottom: 1px solid rgba(148, 163, 184, 0.1) !important;
+            color: #e6f1ff !important;
+        }
+        .scrolling-table tbody tr:hover { background: rgba(0, 212, 255, 0.06) !important; }
+        .highlight-row { background: rgba(245, 158, 11, 0.1) !important; }
+        .highlight-row:hover td { background: rgba(245, 158, 11, 0.15) !important; }
+        .warning-item {
+            background: rgba(255, 71, 87, 0.08) !important;
+            border-left-color: #ff6b6b !important;
+        }
+        .warning-item.warning { background: rgba(245, 158, 11, 0.08) !important; }
+        .warning-item.info { background: rgba(0, 212, 255, 0.08) !important; }
+        .warning-title { color: #ff6b6b !important; }
+        .warning-warning .warning-title { color: #fbbf24 !important; }
+        .warning-info .warning-title { color: #00d4ff !important; }
+        .warning-time { color: #94a3b8 !important; }
+
+        /* 环境监测 */
+        .env-card {
+            background: rgba(0, 212, 255, 0.04) !important;
+            border: 1px solid rgba(0, 212, 255, 0.2) !important;
+            border-radius: 8px !important;
+        }
+        .env-card:hover {
+            background: rgba(0, 212, 255, 0.08) !important;
+            border-color: rgba(0, 212, 255, 0.5) !important;
+        }
+        .env-icon {
+            background: rgba(0, 212, 255, 0.15) !important;
+            border: 1px solid rgba(0, 212, 255, 0.3) !important;
+            color: #00d4ff !important;
+            box-shadow: 0 0 8px rgba(0, 212, 255, 0.3) !important;
+        }
+        .env-value {
+            color: #00d4ff !important;
+            font-family: var(--ck-font-num) !important;
+            font-weight: 700 !important;
+        }
+        .env-label { color: #94a3b8 !important; }
+
+        /* 模态弹窗 */
+        .modal-overlay {
+            background: rgba(0, 5, 15, 0.85) !important;
+            backdrop-filter: blur(6px);
+        }
+        .modal-container {
+            background: rgba(10, 28, 60, 0.96) !important;
+            border: 1px solid rgba(0, 212, 255, 0.45) !important;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5), 0 0 16px rgba(0, 212, 255, 0.2) !important;
+            color: #e6f1ff !important;
+        }
+        .modal-header {
+            background: linear-gradient(90deg, rgba(0, 212, 255, 0.18) 0%, rgba(0, 212, 255, 0.05) 100%) !important;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.25) !important;
+            color: #e6f1ff !important;
+        }
+        .modal-title { color: #e6f1ff !important; }
+        .modal-title::before { background: linear-gradient(180deg, #00d4ff, #4fc3f7) !important; box-shadow: 0 0 8px #00d4ff !important; }
+        .modal-close {
+            background: rgba(0, 212, 255, 0.1) !important;
+            border: 1px solid rgba(0, 212, 255, 0.3) !important;
+            color: #7dd3fc !important;
+        }
+        .modal-close:hover {
+            background: rgba(255, 71, 87, 0.2) !important;
+            color: #ff6b6b !important;
+            border-color: #ff6b6b !important;
+        }
+        .modal-chart { background: rgba(0, 212, 255, 0.02) !important; border: 1px solid rgba(0, 212, 255, 0.15); border-radius: 8px; }
+        .modal-section-title { color: #7dd3fc !important; }
+        .modal-section-title::after { background: rgba(0, 212, 255, 0.2) !important; }
+        .modal-stat-item {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.06), rgba(15, 35, 75, 0.5)) !important;
+            border: 1px solid rgba(0, 212, 255, 0.2) !important;
+            color: #e6f1ff !important;
+        }
+        .modal-stat-item:hover {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.12), rgba(15, 35, 75, 0.6)) !important;
+            border-color: rgba(0, 212, 255, 0.5) !important;
+        }
+        .modal-stat-value {
+            background: linear-gradient(135deg, #00d4ff, #4fc3f7) !important;
+            -webkit-background-clip: text !important;
+            background-clip: text !important;
+            color: transparent !important;
+        }
+        .modal-stat-label { color: #94a3b8 !important; }
+        .modal-detail-item {
+            background: rgba(0, 212, 255, 0.04) !important;
+            border: 1px solid rgba(0, 212, 255, 0.15) !important;
+        }
+        .modal-detail-label { color: #94a3b8 !important; }
+        .modal-detail-value { color: #e6f1ff !important; }
+
+        /* 滚动条 (深色) */
+        .table-responsive::-webkit-scrollbar-track,
+        .scrolling-container::-webkit-scrollbar-track { background: rgba(0, 212, 255, 0.05); }
+        .table-responsive::-webkit-scrollbar-thumb,
+        .scrolling-container::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #00d4ff, #4fc3f7);
+            box-shadow: 0 0 6px rgba(0, 212, 255, 0.5);
+        }
     </style>
 </head>
-<body>
-<div class="dashboard-container">
-    <div class="header">
-        <div class="title-section">
-            <h1><i class="fas fa-leaf" style="color:#2b6e3c;"></i> 南丰蜜桔生长模型</h1>
-            <p>演算生长规律，铸就蜜桔优品</p>
-        </div>
-        <div class="platform-entries">
-            <a href="pest_dashboard.html" class="platform-entry" title="病虫害与气象灾害预警">
-                <i class="fas fa-bug"></i> 病虫害监测
-            </a>
-            <a href="../backhand/login.html" class="platform-entry" title="进入电脑端系统">
-                <i class="fas fa-desktop"></i> 电脑端入口
-            </a>
-            <a href="../mobile/mb_home.html" class="platform-entry" title="进入微信小程序">
-                <i class="fas fa-mobile-alt"></i> 移动端入口
-            </a>
-            <button class="platform-entry" onclick="toggleFullscreen()" title="全屏显示" style="cursor:pointer;">
-                <i class="fas fa-expand"></i> 全屏
-            </button>
-            <div class="date-badge" id="dateBadge"><i class="far fa-calendar-alt"></i> <span id="currentDate">2026年9月11日</span> · 果实转色期</div>
-        </div>
+<body class="cockpit">
+
+<!-- ==================== 顶部导航栏 ==================== -->
+<header class="ck-topbar">
+  <div class="ck-topbar-title">
+    <i class="fas fa-leaf"></i>
+    <span>南丰蜜桔全产业链大数据平台 · 生长模型</span>
+  </div>
+  <nav class="ck-topbar-nav">
+    <a href="javascript:void(0)" class="active"><i class="fas fa-leaf"></i> 生长模型</a>
+    <a href="pest_dashboard.html"><i class="fas fa-bug"></i> 病虫害模型</a>
+    <a href="javascript:void(0)" onclick="toggleFullscreen()"><i class="fas fa-expand"></i> 全屏</a>
+    <a href="../backhand/login.html" target="_blank"><i class="fas fa-cogs"></i> 模型后台</a>
+    <a href="../mobile/mb_home.html" target="_blank"><i class="fas fa-mobile-alt"></i> 蜜桔助手</a>
+  </nav>
+  <div class="ck-topbar-right">
+    <div class="ck-topbar-clock" id="ckClock">
+      <i class="far fa-calendar-alt"></i>
+      <span id="ckDateText">2026-09-11</span>
+      <span style="margin: 0 8px; color: rgba(0,212,255,0.5);">|</span>
+      <span style="color:#7dd3fc;">果实转色期</span>
+    </div>
+  </div>
+</header>
+
+<div class="dashboard-container" style="max-width:1920px;padding-top:24px;">
+
+    <div class="ck-brief">
+        <i class="fas fa-bullhorn"></i>
+        <span class="ck-brief-text">当前处于<b>果实转色期</b>：26 株监测样本综合评分 <b>77.9 分</b>（样本量有限，属抽样结果而非全县普查）；
+        10 项评价中 9 项良好，唯一短板为 <span class="ck-brief-warn">「病虫管理」4.7 分</span>，单项拉低综合分约 3.4 分，建议尽快组织统防统治。</span>
+        <a class="ck-brief-link" href="pest_dashboard.html">查看病虫害防控大屏 <i class="fas fa-arrow-right"></i></a>
     </div>
 
     <div class="kpi-grid">
-        <div class="kpi-card animate-fade-in-up" style="animation-delay: 0.1s;" onclick="openModal('主体')">
+        <div class="kpi-card animate-fade-in-up" style="animation-delay: 0.1s;" onclick="openModal('面积')">
             <div class="kpi-info">
-                <h4>用户主体</h4>
-                <div class="kpi-number" data-value="1205">0</div>
-                <span class="trend-badge">个</span>
+                <h4>监测果园面积</h4>
+                <div class="kpi-number" data-value="1280">0</div>
+                <span class="trend-badge">亩</span>
+                <span class="kpi-yoy good">同比 +6.2%</span>
             </div>
-            <div class="kpi-icon"><i class="fas fa-users"></i></div>
+            <div class="kpi-icon"><i class="fas fa-draw-polygon"></i></div>
         </div>
-        <div class="kpi-card animate-fade-in-up" style="animation-delay: 0.2s;" onclick="openModal('活跃度')">
+        <div class="kpi-card animate-fade-in-up" style="animation-delay: 0.2s;" onclick="openModal('优质果率')">
             <div class="kpi-info">
-                <h4>用户活跃度</h4>
-                <div class="kpi-number" data-value="68.3">0</div>
+                <h4>优质果率预期</h4>
+                <div class="kpi-number" data-value="82.4">0</div>
                 <span class="trend-badge">%</span>
+                <span class="kpi-yoy good">同比 +3.1</span>
             </div>
-            <div class="kpi-icon"><i class="fas fa-bolt"></i></div>
+            <div class="kpi-icon"><i class="fas fa-award"></i></div>
         </div>
         <div class="kpi-card animate-fade-in-up" style="animation-delay: 0.3s;" onclick="openModal('植株')">
             <div class="kpi-info">
-                <h4>监控植株数量</h4>
+                <h4>监测植株数量</h4>
                 <div class="kpi-number" data-value="26">0</div>
                 <span class="trend-badge">株</span>
+                <span class="kpi-yoy good">同比 +2 株</span>
             </div>
             <div class="kpi-icon"><i class="fas fa-seedling"></i></div>
         </div>
-        <div class="kpi-card animate-fade-in-up" style="animation-delay: 0.4s;" onclick="openModal('报告')">
+        <div class="kpi-card animate-fade-in-up" style="animation-delay: 0.4s;" onclick="openModal('产量')">
             <div class="kpi-info">
-                <h4>报告生成数量</h4>
-                <div class="kpi-number" data-value="2553">0</div>
-                <span class="trend-badge">次</span>
+                <h4>全县预计产量</h4>
+                <div class="kpi-number" data-value="31.6">0</div>
+                <span class="trend-badge">万吨</span>
+                <span class="kpi-yoy good">同比 +4.5%</span>
             </div>
-            <div class="kpi-icon"><i class="fas fa-file-alt"></i></div>
+            <div class="kpi-icon"><i class="fas fa-weight-hanging"></i></div>
         </div>
         <div class="kpi-card animate-fade-in-up" style="animation-delay: 0.5s;" onclick="openModal('评分')">
             <div class="kpi-info">
-                <h4>整体评分</h4>
+                <h4>长势综合评分</h4>
                 <div class="kpi-number" data-value="77.9">0</div>
                 <span class="trend-badge">分</span>
+                <span class="kpi-yoy good">同比 +1.8</span>
             </div>
             <div class="kpi-icon"><i class="fas fa-star"></i></div>
         </div>
@@ -875,6 +1289,7 @@
                 <h4>农事建议数量</h4>
                 <div class="kpi-number" data-value="868">0</div>
                 <span class="trend-badge">条</span>
+                <span class="kpi-yoy good">同比 +8.2%</span>
             </div>
             <div class="kpi-icon"><i class="fas fa-lightbulb"></i></div>
         </div>
@@ -883,32 +1298,39 @@
                 <h4>农事采纳率</h4>
                 <div class="kpi-number" data-value="73.6">0</div>
                 <span class="trend-badge">%</span>
+                <span class="kpi-yoy good">同比 +2.4</span>
             </div>
             <div class="kpi-icon"><i class="fas fa-check-circle"></i></div>
         </div>
-        <div class="kpi-card animate-fade-in-up" style="animation-delay: 0.8s;" onclick="openModal('学习')">
+        <div class="kpi-card warning animate-fade-in-up" style="animation-delay: 0.8s;" onclick="openModal('病虫管理')">
             <div class="kpi-info">
-                <h4>农户学习次数</h4>
-                <div class="kpi-number" data-value="1420">0</div>
-                <span class="trend-badge">次</span>
+                <h4>病虫管理得分</h4>
+                <div class="kpi-number" data-value="4.7">0</div>
+                <span class="trend-badge warning">分</span>
+                <span class="kpi-yoy bad">同比 -0.9</span>
             </div>
-            <div class="kpi-icon"><i class="fas fa-book-reader"></i></div>
+            <div class="kpi-icon"><i class="fas fa-bug-slash"></i></div>
         </div>
     </div>
 
     <div class="map-core-grid">
         <div class="side-col">
             <div class="card side-card">
-                <div class="card-header"><span><i class="fas fa-square-poll-vertical"></i> 植株综合评测分析</span><span class="header-extra">全县平均</span></div>
+                <div class="card-header"><span><i class="fas fa-square-poll-vertical"></i> 植株综合评测分析</span><span class="header-extra">监测样本均值 n=26</span></div>
                 <div class="health-index-container">
                     <div class="health-ring" id="healthRingChart"></div>
                     <div class="health-info">
                         <div class="health-score">77.9</div>
                         <div class="health-status">综合一般</div>
+                        <div class="health-caveat">监测样本均值（n=26），非全县普查结果</div>
                         <div class="health-breakdown">
-                            <div class="health-item"><span class="health-dot" style="background:#22c55e;"></span>优秀 0%</div>
-                            <div class="health-item"><span class="health-dot" style="background:#f59e0b;"></span>良好 38.5%</div>
-                            <div class="health-item"><span class="health-dot" style="background:#ef4444;"></span>一般 61.5%</div>
+                            <div class="health-item"><span class="health-dot" style="background:#4ade80;"></span>优秀 0%</div>
+                            <div class="health-item"><span class="health-dot" style="background:#fbbf24;"></span>良好 38.5%</div>
+                            <div class="health-item"><span class="health-dot" style="background:#ff6b6b;"></span>一般 61.5%</div>
+                        </div>
+                        <div class="health-shortboard">
+                            <i class="fas fa-triangle-exclamation"></i>
+                            <span>主要短板：<b>病虫管理 4.7 分</b>，低于其余 9 项均值（8.1）约 3.4 分，单项拉低综合分约 3.4 分，建议优先开展病虫统防统治</span>
                         </div>
                     </div>
                 </div>
@@ -921,60 +1343,60 @@
             </div>
 
             <div class="card side-card">
-                <div class="card-header"><span><i class="fas fa-seedling"></i> 监测植株品系分布</span><span class="header-extra">综合评分</span></div>
+                <div class="card-header"><span><i class="fas fa-seedling"></i> 监测植株品系分布</span><span class="header-extra">进度条为株数占比 · 数字为综合评分</span></div>
                 <div class="phenology-stage-list">
                     <div class="phenology-stage-item">
-                        <div class="phenology-dot" style="background:#3b82f6;"></div>
+                        <div class="phenology-dot" style="background:#4fc3f7;"></div>
                         <span class="phenology-name">小果系（杨小2-6、金钱蜜桔）</span>
                         <span class="phenology-count">4株</span>
-                        <span class="phenology-score" style="color:#ef4444;">78.0</span>
+                        <span class="phenology-score" style="color:#fbbf24;">78.0</span>
                         <div class="phenology-bar-wrapper">
-                            <div class="phenology-bar"><div class="phenology-bar-fill" style="width:15%;background:#3b82f6;"></div></div>
+                            <div class="phenology-bar"><div class="phenology-bar-fill" style="width:15%;background:#4fc3f7;"></div></div>
                         </div>
                     </div>
                     <div class="phenology-stage-item">
-                        <div class="phenology-dot" style="background:#8b5cf6;"></div>
+                        <div class="phenology-dot" style="background:#a78bfa;"></div>
                         <span class="phenology-name">大果系</span>
                         <span class="phenology-count">5株</span>
-                        <span class="phenology-score" style="color:#f59e0b;">80.2</span>
+                        <span class="phenology-score" style="color:#4ade80;">80.2</span>
                         <div class="phenology-bar-wrapper">
-                            <div class="phenology-bar"><div class="phenology-bar-fill" style="width:19%;background:#8b5cf6;"></div></div>
+                            <div class="phenology-bar"><div class="phenology-bar-fill" style="width:19%;background:#a78bfa;"></div></div>
                         </div>
                     </div>
                     <div class="phenology-stage-item">
                         <div class="phenology-dot" style="background:#ec4899;"></div>
                         <span class="phenology-name">桂花蒂系（柿蒂蜜桔）</span>
                         <span class="phenology-count">5株</span>
-                        <span class="phenology-score" style="color:#ef4444;">77.6</span>
+                        <span class="phenology-score" style="color:#fbbf24;">77.6</span>
                         <div class="phenology-bar-wrapper">
                             <div class="phenology-bar"><div class="phenology-bar-fill" style="width:19%;background:#ec4899;"></div></div>
                         </div>
                     </div>
                     <div class="phenology-stage-item">
-                        <div class="phenology-dot" style="background:#f59e0b;"></div>
+                        <div class="phenology-dot" style="background:#fbbf24;"></div>
                         <span class="phenology-name">早熟系（普通早熟蜜桔）</span>
                         <span class="phenology-count">4株</span>
-                        <span class="phenology-score" style="color:#ef4444;">72.0</span>
+                        <span class="phenology-score" style="color:#fbbf24;">72.0</span>
                         <div class="phenology-bar-wrapper">
-                            <div class="phenology-bar"><div class="phenology-bar-fill" style="width:15%;background:#f59e0b;"></div></div>
+                            <div class="phenology-bar"><div class="phenology-bar-fill" style="width:15%;background:#fbbf24;"></div></div>
                         </div>
                     </div>
                     <div class="phenology-stage-item">
-                        <div class="phenology-dot" style="background:#22c55e;"></div>
+                        <div class="phenology-dot" style="background:#4ade80;"></div>
                         <span class="phenology-name">桂月红（特早熟芽变）</span>
                         <span class="phenology-count">4株</span>
-                        <span class="phenology-score" style="color:#ef4444;">79.5</span>
+                        <span class="phenology-score" style="color:#fbbf24;">79.5</span>
                         <div class="phenology-bar-wrapper">
-                            <div class="phenology-bar"><div class="phenology-bar-fill" style="width:15%;background:#22c55e;"></div></div>
+                            <div class="phenology-bar"><div class="phenology-bar-fill" style="width:15%;background:#4ade80;"></div></div>
                         </div>
                     </div>
                     <div class="phenology-stage-item">
-                        <div class="phenology-dot" style="background:#10b981;"></div>
+                        <div class="phenology-dot" style="background:#39e6c8;"></div>
                         <span class="phenology-name">蜜广1号</span>
                         <span class="phenology-count">4株</span>
-                        <span class="phenology-score" style="color:#f59e0b;">80.0</span>
+                        <span class="phenology-score" style="color:#4ade80;">80.0</span>
                         <div class="phenology-bar-wrapper">
-                            <div class="phenology-bar"><div class="phenology-bar-fill" style="width:15%;background:#10b981;"></div></div>
+                            <div class="phenology-bar"><div class="phenology-bar-fill" style="width:15%;background:#39e6c8;"></div></div>
                         </div>
                     </div>
                 </div>
@@ -983,100 +1405,22 @@
         </div>
 
         <div class="card center-map-card">
-            <div class="card-header"><span><i class="fas fa-map-pin"></i> 植株评价监测总览</span><span style="font-size:0.8rem;color:#64748b;">实时监控</span></div>
-            <div id="orchardMap">
-                <div class="map-title-overlay" style="position:absolute;top:14px;left:50%;transform:translateX(-50%);z-index:10;text-align:center;pointer-events:none;">
-                    <div style="font-size:18px;font-weight:700;color:#166534;letter-spacing:2px;">南丰县植株评价监测总览</div>
-                    <div style="font-size:11px;color:#94a3b8;margin-top:2px;letter-spacing:1px;">NANFENG · PLANT EVALUATION OVERVIEW</div>
+            <div class="card-header"><span><i class="fas fa-map-pin"></i> 植株评价监测总览</span><span style="font-size:0.8rem;color:#7dd3fc;">实时监控</span></div>
+            <div id="orchardMap" style="position:relative;height:650px;">
+                <div class="map-title-overlay" style="position:absolute;top:16px;left:50%;transform:translateX(-50%);z-index:10;text-align:center;pointer-events:none;">
+                    <div style="font-size:16px;font-weight:500;color:#7FE4F5;letter-spacing:2px;">南丰县植株评价监测总览</div>
+                    <div style="font-size:12px;color:#94a3b8;margin-top:4px;letter-spacing:1px;">NANFENG · PLANT EVALUATION OVERVIEW</div>
                 </div>
-                <svg class="nanfeng-map" viewBox="0 0 500 320">
-                    <defs>
-                        <pattern id="grid" width="15" height="15" patternUnits="userSpaceOnUse">
-                            <path d="M 15 0 L 0 0 0 15" fill="none" stroke="rgba(148,163,184,0.06)" stroke-width="0.5"/>
-                        </pattern>
-                        <linearGradient id="mapAreaGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stop-color="#e8f5e9" stop-opacity="0.9"/>
-                            <stop offset="50%" stop-color="#d4ead4" stop-opacity="0.7"/>
-                            <stop offset="100%" stop-color="#e0f2e0" stop-opacity="0.9"/>
-                        </linearGradient>
-                        <linearGradient id="townGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stop-color="#c8e6c9" stop-opacity="0.5"/>
-                            <stop offset="100%" stop-color="#a5d6a7" stop-opacity="0.3"/>
-                        </linearGradient>
-                        <filter id="mapGlow" x="-20%" y="-20%" width="140%" height="140%">
-                            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
-                            <feMerge>
-                                <feMergeNode in="coloredBlur"/>
-                                <feMergeNode in="SourceGraphic"/>
-                            </feMerge>
-                        </filter>
-                        <filter id="bubbleGlow" x="-50%" y="-50%" width="200%" height="200%">
-                            <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
-                            <feMerge>
-                                <feMergeNode in="coloredBlur"/>
-                                <feMergeNode in="SourceGraphic"/>
-                            </feMerge>
-                        </filter>
-                    </defs>
-                    <rect width="100%" height="100%" fill="url(#grid)"/>
-                    <g filter="url(#mapGlow)">
-                        <path d="M35,120 Q60,70 100,55 Q150,40 200,45 Q250,50 300,45 Q350,40 400,55 Q440,70 465,110 Q480,160 470,200 Q455,240 420,260 Q370,280 310,275 Q250,270 190,275 Q130,280 80,260 Q45,240 30,200 Q20,160 35,120 Z" fill="url(#mapAreaGrad)" stroke="#86b89a" stroke-width="1.5"/>
-                    </g>
-                    <path d="M110,70 L160,60 L185,90 L135,100 L110,80 Z" fill="url(#townGrad)" stroke="rgba(134,184,154,0.5)" stroke-width="1" opacity="0.8"/>
-                    <path d="M190,65 L250,55 L275,85 L225,95 L190,75 Z" fill="url(#townGrad)" stroke="rgba(134,184,154,0.5)" stroke-width="1" opacity="0.8"/>
-                    <path d="M280,60 L340,50 L365,80 L315,90 L280,70 Z" fill="url(#townGrad)" stroke="rgba(134,184,154,0.5)" stroke-width="1" opacity="0.8"/>
-                    <path d="M370,70 L420,85 L440,120 L390,115 L370,90 Z" fill="url(#townGrad)" stroke="rgba(134,184,154,0.5)" stroke-width="1" opacity="0.8"/>
-                    <path d="M90,160 L140,150 L165,185 L125,195 L100,175 Z" fill="url(#townGrad)" stroke="rgba(134,184,154,0.5)" stroke-width="1" opacity="0.8"/>
-                    <path d="M175,155 L235,145 L260,180 L220,190 L185,165 Z" fill="url(#townGrad)" stroke="rgba(134,184,154,0.5)" stroke-width="1" opacity="0.8"/>
-                    <path d="M260,150 L320,140 L345,175 L305,185 L270,155 Z" fill="url(#townGrad)" stroke="rgba(134,184,154,0.5)" stroke-width="1" opacity="0.8"/>
-                    <path d="M355,160 L415,175 L435,210 L395,205 L365,180 Z" fill="url(#townGrad)" stroke="rgba(134,184,154,0.5)" stroke-width="1" opacity="0.8"/>
-                    <path d="M80,220 L130,230 L155,260 L115,265 L90,245 Z" fill="url(#townGrad)" stroke="rgba(134,184,154,0.5)" stroke-width="1" opacity="0.8"/>
-                    <path d="M165,225 L225,235 L250,265 L210,270 L180,250 Z" fill="url(#townGrad)" stroke="rgba(134,184,154,0.5)" stroke-width="1" opacity="0.8"/>
-                    <path d="M250,230 L310,240 L335,270 L295,275 L265,250 Z" fill="url(#townGrad)" stroke="rgba(134,184,154,0.5)" stroke-width="1" opacity="0.8"/>
-                    <text x="135" y="78" fill="#475569" font-size="11" font-weight="500">太和镇</text>
-                    <text x="220" y="72" fill="#475569" font-size="11" font-weight="500">桑田镇</text>
-                    <text x="310" y="67" fill="#475569" font-size="11" font-weight="500">白舍镇</text>
-                    <text x="400" y="95" fill="#475569" font-size="11" font-weight="500">市山镇</text>
-                    <text x="115" y="175" fill="#475569" font-size="11" font-weight="500">莱溪乡</text>
-                    <text x="200" y="170" fill="#475569" font-size="11" font-weight="500">太源乡</text>
-                    <text x="290" y="165" fill="#475569" font-size="11" font-weight="500">三溪乡</text>
-                    <text x="385" y="185" fill="#475569" font-size="11" font-weight="500">傅坊乡</text>
-                    <text x="405" y="230" fill="#475569" font-size="11" font-weight="500">洽湾镇</text>
-                    <text x="110" y="245" fill="#475569" font-size="11" font-weight="500">东坪乡</text>
-                    <text x="230" y="250" fill="#475569" font-size="11" font-weight="500">紫霄镇</text>
-                    <text x="250" y="170" text-anchor="middle" fill="rgba(22,101,52,0.08)" font-size="40" font-weight="bold">南丰县</text>
-                    <g filter="url(#bubbleGlow)">
-                        <!-- 每个乡镇一个监测点（11 个乡镇共 11 个气泡），按评分着色：优秀=绿/良好=橙/一般=红 -->
-                        <circle cx="135" cy="85"  r="8"  class="map-bubble" data-type="service"       data-index="0" data-count="2" fill="#f59e0b"/>
-                        <circle cx="290" cy="170" r="7"  class="map-bubble" data-type="service"       data-index="1" data-count="2" fill="#ef4444"/>
-                        <circle cx="225" cy="80"  r="10" class="map-bubble" data-type="enterprise"    data-index="0" data-count="3" fill="#ef4444"/>
-                        <circle cx="380" cy="185" r="8"  class="map-bubble" data-type="enterprise"    data-index="1" data-count="2" fill="#f59e0b"/>
-                        <circle cx="315" cy="75"  r="9"  class="map-bubble" data-type="cooperative"   data-index="0" data-count="2" fill="#ef4444"/>
-                        <circle cx="405" cy="235" r="8"  class="map-bubble" data-type="cooperative"   data-index="1" data-count="3" fill="#ef4444"/>
-                        <circle cx="395" cy="95"  r="9"  class="map-bubble" data-type="demonstration" data-index="0" data-count="2" fill="#ef4444"/>
-                        <circle cx="115" cy="250" r="7"  class="map-bubble" data-type="demonstration" data-index="1" data-count="2" fill="#ef4444"/>
-                        <circle cx="120" cy="180" r="8"  class="map-bubble" data-type="largegrower"   data-index="0" data-count="2" fill="#f59e0b"/>
-                        <circle cx="230" cy="250" r="7"  class="map-bubble" data-type="largegrower"   data-index="1" data-count="2" fill="#ef4444"/>
-                        <circle cx="205" cy="170" r="7"  class="map-bubble" data-type="iot"           data-index="0" data-count="4" fill="#f59e0b"/>
-                    </g>
-                </svg>
-                <div class="map-legend">
-                    <div class="legend-item"><div class="legend-dot" style="background:#22c55e;color:#22c55e;"></div>优秀 (≥90分)</div>
-                    <div class="legend-item"><div class="legend-dot" style="background:#f59e0b;color:#f59e0b;"></div>良好 (80-89)</div>
-                    <div class="legend-item"><div class="legend-dot" style="background:#ef4444;color:#ef4444;"></div>一般 (&lt;80)</div>
-                </div>
-                <div style="position:absolute;top:14px;right:14px;z-index:10;display:flex;gap:10px;pointer-events:none;">
-                    <div style="background:rgba(255,255,255,0.88);backdrop-filter:blur(10px);border:1px solid rgba(0,0,0,0.06);border-radius:10px;padding:8px 14px;text-align:center;box-shadow:0 2px 12px rgba(0,0,0,0.06);">
-                        <div style="font-size:20px;font-weight:700;color:#166534;">26</div>
-                        <div style="font-size:10px;color:#94a3b8;margin-top:1px;">植株总数</div>
+                <div id="plantMap" style="width:100%;height:650px;"></div>
+                <div style="position:absolute;top:16px;right:16px;z-index:10;display:flex;gap:10px;pointer-events:none;">
+                    <div style="background:rgba(10,28,60,0.92);backdrop-filter:blur(10px);border:1px solid rgba(127,228,245,0.25);border-radius:8px;padding:10px 16px;text-align:center;box-shadow:0 2px 12px rgba(0,0,0,0.4);">
+                        <div style="font-size:24px;font-weight:500;color:#5AD7F0;">26</div>
+                        <div style="font-size:12px;color:#94a3b8;margin-top:2px;">植株总数</div>
                     </div>
                 </div>
-                <div class="map-popup" id="mapPopup">
-                    <div class="popup-header">
-                        <div class="popup-title" id="popupTitle">植株评价信息</div>
-                        <div class="popup-close" onclick="closePopup()"><i class="fas fa-times"></i></div>
-                    </div>
-                    <div class="popup-content" id="popupContent"></div>
+                <div style="position:absolute;bottom:16px;right:16px;z-index:10;pointer-events:none;display:flex;align-items:center;gap:8px;font-size:12px;color:#94a3b8;">
+                    <span style="width:12px;height:12px;border-radius:2px;background:#3F4A5C;border:1px dashed rgba(203,213,225,0.75);display:inline-block;box-sizing:border-box;"></span>
+                    灰色区块为暂无监测数据
                 </div>
             </div>
             <div class="scrolling-cards">
@@ -1097,19 +1441,19 @@
                 <div class="card-header"><span><i class="fas fa-lightbulb"></i> 模型农事建议</span><span class="header-extra">共4项建议</span></div>
                 <div class="warning-list" id="warningList">
                     <div class="warning-item">
-                        <div class="warning-title"><span style="color:#ef4444;font-weight:600;">[一项]</span> 重施高钾壮果肥，控氮增甜防浮皮</div>
+                        <div class="warning-title"><span style="color:#ff6b6b;font-weight:600;">[一项]</span> 重施高钾壮果肥，控氮增甜防浮皮</div>
                         <div class="warning-time">7天内完成</div>
                     </div>
                     <div class="warning-item">
-                        <div class="warning-title"><span style="color:#ef4444;font-weight:600;">[一项]</span> 抓紧防治红蜘蛛、锈壁虱及炭疽病</div>
+                        <div class="warning-title"><span style="color:#ff6b6b;font-weight:600;">[一项]</span> 抓紧防治红蜘蛛、锈壁虱及炭疽病</div>
                         <div class="warning-time">7天内完成</div>
                     </div>
                     <div class="warning-item warning-warning">
-                        <div class="warning-title"><span style="color:#f59e0b;font-weight:600;">[二项]</span> 均衡供水防裂果，干旱时小水勤灌</div>
+                        <div class="warning-title"><span style="color:#fbbf24;font-weight:600;">[二项]</span> 均衡供水防裂果，干旱时小水勤灌</div>
                         <div class="warning-time">持续执行</div>
                     </div>
                     <div class="warning-item warning-warning">
-                        <div class="warning-title"><span style="color:#f59e0b;font-weight:600;">[二项]</span> 撑枝吊果防断枝，疏除日灼果与病虫果</div>
+                        <div class="warning-title"><span style="color:#fbbf24;font-weight:600;">[二项]</span> 撑枝吊果防断枝，疏除日灼果与病虫果</div>
                         <div class="warning-time">持续执行</div>
                     </div>
                 </div>
@@ -1118,7 +1462,7 @@
             <div class="card compact-card">
                 <div class="card-header"><span><i class="fas fa-sensors"></i> 环境监测数据</span>
                     <span class="header-extra">
-                        <select id="envStationSelect" class="ds-select-sm" style="font-size:12px;color:#475569;background:#fff;border:1px solid #d1d5db;border-radius:6px;padding:3px 8px;cursor:pointer;outline:none;">
+                        <select id="envStationSelect" class="ds-select-sm" style="font-size:12px;color:#7dd3fc;background:rgba(10,28,60,0.8);border:1px solid rgba(0,212,255,0.3);border-radius:6px;padding:3px 8px;cursor:pointer;outline:none;">
                             <option value="orchard-central">南丰蜜桔种质园</option>
                             <option value="qinchen">琴城果园监测点</option>
                             <option value="qiawan">洽湾示范园监测点</option>
@@ -1159,14 +1503,14 @@
                         </div>
                     </div>
                     <div class="env-card">
-                        <div class="env-icon" style="background:#e0f2fe;color:#0284c7;"><i class="fas fa-vial"></i></div>
+                        <div class="env-icon"><i class="fas fa-vial"></i></div>
                         <div class="env-info">
                             <div class="env-value" data-env-key="soilPh">6.2</div>
                             <div class="env-label">土壤pH值</div>
                         </div>
                     </div>
                     <div class="env-card">
-                        <div class="env-icon" style="background:#dbeafe;color:#2563eb;"><i class="fas fa-arrows-up-down"></i></div>
+                        <div class="env-icon"><i class="fas fa-arrows-up-down"></i></div>
                         <div class="env-info">
                             <div class="env-value" data-env-key="diffTemp">8.9°C</div>
                             <div class="env-label">昼夜温差</div>
@@ -1181,7 +1525,8 @@
 </div>
 
 <script>
-    document.getElementById('currentDate').textContent = new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' });
+    var currentDateEl = document.getElementById('currentDate');
+    if (currentDateEl) currentDateEl.textContent = new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' });
 
     // ===== 生长模型统一数据源 =====
     var growthDataSource = {
@@ -1189,26 +1534,26 @@
         monitoringPoints: 11,
         // 6 个监测点（植株综合评价表格里可见的样本）
         samplePoints: [
-            { key: 'service',       type: '服务',    color: '#3b82f6' },
-            { key: 'enterprise',    type: '企业',    color: '#ef4444' },
-            { key: 'cooperative',   type: '合作社',  color: '#f59e0b' },
-            { key: 'demonstration', type: '示范户',  color: '#22c55e' },
-            { key: 'largegrower',   type: '种植大户', color: '#8b5cf6' },
-            { key: 'iot',           type: '物联网',  color: '#06b6d4' }
+            { key: 'service',       type: '服务',    color: '#00d4ff' },
+            { key: 'enterprise',    type: '企业',    color: '#ff6b6b' },
+            { key: 'cooperative',   type: '合作社',  color: '#fbbf24' },
+            { key: 'demonstration', type: '示范户',  color: '#4ade80' },
+            { key: 'largegrower',   type: '种植大户', color: '#a78bfa' },
+            { key: 'iot',           type: '物联网',  color: '#39e6c8' }
         ],
         // 乡镇（与监测植株品系分布卡片对应位置），加权平均=77.9
         varieties: [
-            { key: 'taihe',    name: '太和镇',  detail: '南丰东南部',            count: 2, color: '#3b82f6', avgScore: 80.0 },
-            { key: 'taiyuan',  name: '太源乡',  detail: '丘陵过渡带',            count: 2, color: '#8b5cf6', avgScore: 76.0 },
+            { key: 'taihe',    name: '太和镇',  detail: '南丰东南部',            count: 2, color: '#00d4ff', avgScore: 80.0 },
+            { key: 'taiyuan',  name: '太源乡',  detail: '丘陵过渡带',            count: 2, color: '#a78bfa', avgScore: 76.0 },
             { key: 'sangtian', name: '桑田镇',  detail: '中部蜜桔带',            count: 3, color: '#ec4899', avgScore: 79.0 },
-            { key: 'fufang',   name: '傅坊乡',  detail: '南部门户乡镇',          count: 2, color: '#f59e0b', avgScore: 82.0 },
-            { key: 'baishe',   name: '白舍镇',  detail: '南大门·昌厦沿线',       count: 2, color: '#22c55e', avgScore: 77.0 },
-            { key: 'qiawan',   name: '洽湾镇',  detail: '东郊蜜桔带',            count: 3, color: '#10b981', avgScore: 78.0 },
-            { key: 'shishan',  name: '市山镇',  detail: '蜜桔核心产区',          count: 2, color: '#ef4444', avgScore: 72.0 },
-            { key: 'dongping', name: '东坪乡',  detail: '西部山地乡',            count: 2, color: '#f59e0b', avgScore: 72.0 },
-            { key: 'laixi',    name: '莱溪乡',  detail: '城郊农业乡',            count: 2, color: '#22c55e', avgScore: 82.0 },
-            { key: 'zixiao',   name: '紫霄镇',  detail: '西北丘陵镇',            count: 2, color: '#3b82f6', avgScore: 77.0 },
-            { key: 'sanxi',    name: '三溪乡',  detail: '中部示范乡',            count: 4, color: '#f59e0b', avgScore: 80.0 }
+            { key: 'fufang',   name: '傅坊乡',  detail: '南部门户乡镇',          count: 2, color: '#fbbf24', avgScore: 82.0 },
+            { key: 'baishe',   name: '白舍镇',  detail: '南大门·昌厦沿线',       count: 2, color: '#4ade80', avgScore: 77.0 },
+            { key: 'qiawan',   name: '洽湾镇',  detail: '东郊蜜桔带',            count: 3, color: '#39e6c8', avgScore: 78.0 },
+            { key: 'shishan',  name: '市山镇',  detail: '蜜桔核心产区',          count: 2, color: '#ff6b6b', avgScore: 72.0 },
+            { key: 'dongping', name: '东坪乡',  detail: '西部山地乡',            count: 2, color: '#fbbf24', avgScore: 72.0 },
+            { key: 'laixi',    name: '莱溪乡',  detail: '城郊农业乡',            count: 2, color: '#4ade80', avgScore: 82.0 },
+            { key: 'zixiao',   name: '紫霄镇',  detail: '西北丘陵镇',            count: 2, color: '#00d4ff', avgScore: 77.0 },
+            { key: 'sanxi',    name: '三溪乡',  detail: '中部示范乡',            count: 4, color: '#fbbf24', avgScore: 80.0 }
         ],
         // KPI（8 个核心指标）
         kpis: {
@@ -1232,11 +1577,21 @@
         envStations: {
             'orchard-central': { soilTemp: '24.6°C', soilHum: '72.4%', soilNutri: 'N:27 P:16 K:95', light: '742 W/m²', soilPh: '6.2', diffTemp: '8.9°C' },
             'qinchen':         { soilTemp: '23.8°C', soilHum: '74.8%', soilNutri: 'N:29 P:15 K:91', light: '698 W/m²', soilPh: '6.0', diffTemp: '8.5°C' },
-            'qiawan':          { soilTemp: '25.2°C', soilHum: '69.6%', soilNutri: 'N:24 P:18 K:98', light: '775 W/m²', soilPh: '6.4', diffTemp: '9.3°C' },
+            'qiawan':          { soilTemp: '25.2°C', soilHum: '69.6%', soilNutri: 'N:24 P:18 K:98', light: '775 W/m²', soilPh: '5.2', diffTemp: '9.3°C' },
             'taihe':           { soilTemp: '24.3°C', soilHum: '73.1%', soilNutri: 'N:26 P:16 K:93', light: '724 W/m²', soilPh: '6.1', diffTemp: '8.8°C' },
             'baishe':          { soilTemp: '25.9°C', soilHum: '67.2%', soilNutri: 'N:22 P:19 K:100', light: '796 W/m²', soilPh: '6.5', diffTemp: '9.6°C' },
             'shishan':         { soilTemp: '23.5°C', soilHum: '75.4%', soilNutri: 'N:31 P:13 K:88', light: '665 W/m²', soilPh: '5.9', diffTemp: '8.2°C' },
-            'laixi':           { soilTemp: '24.8°C', soilHum: '71.7%', soilNutri: 'N:28 P:17 K:96', light: '735 W/m²', soilPh: '6.3', diffTemp: '9.0°C' }
+            'laixi':           { soilTemp: '24.8°C', soilHum: '82.1%', soilNutri: 'N:28 P:17 K:96', light: '735 W/m²', soilPh: '6.3', diffTemp: '9.0°C' }
+        },
+        /* 环境指标适宜区间（柑橘果实转色期参考值）。
+         * 没有参照区间的监测值是没有判断价值的——「24.6°C」本身不说明任何问题，
+         * 必须与「适宜 20~28」比对后才能得出「正常 / 偏高 / 偏低」的结论。 */
+        envRanges: {
+            soilTemp: { min: 20,  max: 28,   label: '适宜 20~28°C' },
+            soilHum:  { min: 60,  max: 80,   label: '适宜 60~80%' },
+            light:    { min: 600, max: 1000, label: '适宜 600~1000 W/m²' },
+            soilPh:   { min: 5.5, max: 6.5,  label: '适宜 pH 5.5~6.5' },
+            diffTemp: { min: 8,   max: 12,   label: '适宜 8~12°C' }
         },
         // 农事建议落地（柱状图），合计 868 条
         farmingAdopt: [
@@ -1260,6 +1615,12 @@
         }
     }
 
+    // ===== 深色主题图表配色 =====
+    var ckChartText = '#cbd5e1';
+    var ckChartAxis = 'rgba(0, 212, 255, 0.2)';
+    var ckChartGridLine = 'rgba(0, 212, 255, 0.06)';
+    var ckTooltipStyle = { backgroundColor: 'rgba(10,28,60,0.95)', borderColor: '#00d4ff', textStyle: { color: '#e6f1ff' } };
+
     var healthRingChart = echarts.init(document.getElementById('healthRingChart'));
     healthRingChart.setOption({
         series: [{
@@ -1273,21 +1634,28 @@
             axisLine: {
                 lineStyle: {
                     width: 8,
-                    color: [[0.3, '#ef4444'], [0.7, '#f59e0b'], [1, '#22c55e']]
+                    color: [[0.3, '#1E7FB8'], [0.7, '#35B4DE'], [1, '#5AD7F0']],
+                    shadowBlur: 12, shadowColor: 'rgba(90, 215, 240, 0.45)'
                 }
             },
             pointer: { show: false },
             axisTick: { show: false },
             splitLine: { show: false },
             axisLabel: { show: false },
-            detail: {
-                show: false
-            },
+            detail: { show: false },
             title: {
                 show: true,
                 offsetCenter: ['0%', '70%'],
                 fontSize: 12,
-                color: '#64748b'
+                color: '#94a3b8'
+            },
+            detail: {
+                show: true,
+                offsetCenter: ['0%', '-5%'],
+                fontSize: 32,
+                fontWeight: 700,
+                color: '#5AD7F0',
+                formatter: '{value}'
             },
             data: [{ value: 77.9, name: '综合评分' }]
         }]
@@ -1295,71 +1663,195 @@
 
     var healthTrendChart = echarts.init(document.getElementById('healthTrendChart'));
     healthTrendChart.setOption({
-        tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: function(p){ return p[0].name + '：' + p[0].value + ' 分'; } },
+        tooltip: Object.assign({ trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: function(p){ return p[0].name + '：' + p[0].value + ' 分'; } }, ckTooltipStyle),
         grid: { left: '3%', right: '8%', bottom: '3%', top: '5%', containLabel: true },
-        xAxis: { type: 'value', max: 100, axisLabel: { formatter: '{value}分' } },
+        xAxis: { type: 'value', max: 100, axisLabel: { formatter: '{value}分', color: ckChartText }, splitLine: { lineStyle: { color: ckChartGridLine } }, axisLine: { lineStyle: { color: ckChartAxis } } },
         yAxis: {
             type: 'category',
-            data: growthDataSource.varieties.map(function(v) { return v.name; })
+            data: growthDataSource.varieties.map(function(v) { return v.name; }),
+            axisLabel: { color: ckChartText }, axisLine: { lineStyle: { color: ckChartAxis } }
         },
         series: [{
             type: 'bar',
-            data: growthDataSource.varieties.map(function(v) {
-                var color = v.avgScore >= 90 ? '#22c55e' : v.avgScore >= 80 ? '#f59e0b' : '#ef4444';
-                return { value: v.avgScore, itemStyle: { color: color, borderRadius: [0, 4, 4, 0] } };
-            }),
-            label: { show: true, position: 'right', fontSize: 10, formatter: '{c}' },
+            /* 与地图同一套语义：评分高低用青色深浅表达，不用红黄绿三分档，
+             * 避免同一指标在大屏里出现两套配色。 */
+            data: (function () {
+                var vs = growthDataSource.varieties;
+                var cols = NFMap.rampByRank(vs.map(function (v) { return v.avgScore; }));
+                return vs.map(function (v, i) {
+                    return { value: v.avgScore, itemStyle: { color: cols[i], borderRadius: [0, 4, 4, 0] } };
+                });
+            })(),
+            label: { show: true, position: 'right', fontSize: 10, formatter: '{c}', color: ckChartText },
             barWidth: '55%'
         }]
     });
 
     var qualityTrendChart = echarts.init(document.getElementById('qualityTrendChart'));
     qualityTrendChart.setOption({
-        tooltip: { trigger: 'axis', formatter: function(params) { return params[0].name + ': ' + params[0].value + '分'; } },
+        tooltip: Object.assign({ trigger: 'axis', formatter: function(params) { return params[0].name + ': ' + params[0].value + '分'; } }, ckTooltipStyle),
         grid: { left: '3%', right: '4%', bottom: '22%', top: '8%', containLabel: true },
         xAxis: {
             type: 'category',
             data: ['树势枝干', '叶片状态', '根系状态', '花果状态', '果实品质', '膨果品质', '温湿度', '水分光照', '土壤养分', '病虫管理'],
-            axisLabel: { interval: 0, rotate: 35, fontSize: 10 }
+            axisLabel: { interval: 0, rotate: 35, fontSize: 10, color: ckChartText }, axisLine: { lineStyle: { color: ckChartAxis } }
         },
-        yAxis: { type: 'value', max: 10, axisLabel: { formatter: '{value}分' } },
+        yAxis: { type: 'value', max: 10, axisLabel: { formatter: '{value}分', color: ckChartText }, splitLine: { lineStyle: { color: ckChartGridLine } } },
         series: [{
             type: 'bar',
-            data: [
-                { value: 8.7, itemStyle: { color: '#22c55e' } },
-                { value: 8.1, itemStyle: { color: '#3b82f6' } },
-                { value: 7.8, itemStyle: { color: '#3b82f6' } },
-                { value: 7.7, itemStyle: { color: '#3b82f6' } },
-                { value: 8.6, itemStyle: { color: '#22c55e' } },
-                { value: 8.4, itemStyle: { color: '#22c55e' } },
-                { value: 7.5, itemStyle: { color: '#3b82f6' } },
-                { value: 7.9, itemStyle: { color: '#3b82f6' } },
-                { value: 8.5, itemStyle: { color: '#22c55e' } },
-                { value: 4.7, itemStyle: { color: '#ef4444' } }
-            ],
+            data: (function () {
+                var vals = [8.7, 8.1, 7.8, 7.7, 8.6, 8.4, 7.5, 7.9, 8.5, 4.7];
+                var cols = NFMap.rampByRank(vals);
+                return vals.map(function (v, i) { return { value: v, itemStyle: { color: cols[i] } }; });
+            })(),
             barWidth: '55%',
             itemStyle: { borderRadius: [4, 4, 0, 0] },
-            label: { show: true, position: 'top', fontSize: 10, formatter: '{c}' }
+            label: { show: true, position: 'top', fontSize: 10, formatter: '{c}', color: ckChartText }
         }]
     });
 
     var farmingSuggestionChart = echarts.init(document.getElementById('farmingSuggestionChart'));
     farmingSuggestionChart.setOption({
-        tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+        tooltip: Object.assign({ trigger: 'axis', axisPointer: { type: 'shadow' } }, ckTooltipStyle),
         grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
-        xAxis: { type: 'category', data: ['灌溉', '施肥', '修剪', '病虫害', '其他'] },
-        yAxis: { type: 'value', axisLabel: { formatter: '{value}条' } },
+        xAxis: { type: 'category', data: ['灌溉', '施肥', '修剪', '病虫害', '其他'], axisLabel: { color: ckChartText }, axisLine: { lineStyle: { color: ckChartAxis } } },
+        yAxis: { type: 'value', axisLabel: { formatter: '{value}条', color: ckChartText }, splitLine: { lineStyle: { color: ckChartGridLine } } },
         series: [{
             type: 'bar',
-            data: [286, 224, 142, 138, 78],
-            itemStyle: {
-                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                    { offset: 0, color: '#2b6e3c' }, { offset: 1, color: '#4ade80' }
-                ]),
-                borderRadius: [6, 6, 0, 0]
-            }
+            data: (function () {
+                var vals = [286, 224, 142, 138, 78];
+                var cols = NFMap.rampByRank(vals);
+                return vals.map(function (v, i) { return { value: v, itemStyle: { color: cols[i] } }; });
+            })(),
+            itemStyle: { borderRadius: [6, 6, 0, 0] }
         }]
     });
+
+    // ===== 南丰县地图（植株评价监测总览）=====
+    // 边界：data/nanfeng-map.js（真实乡镇边界，7 镇 5 乡）
+    // 样式：js/nf-map.js（与病虫害大屏共用同一套规范，防止样式漂移）
+    NFMap.register();
+
+    // 各乡镇植株评价数据（缺监测点的乡镇不参与着色）
+    /* 乡镇评分 + 监测样本量（samples，合计 26 株）。
+     * 样本量是这张地图的可信度前提：多数乡镇仅 2~3 株，
+     * 因此必须在 tooltip 中如实标注，样本 <3 株时额外提示「仅供参考」。
+     * 傅坊乡目前没有布设监测点（samples: 0），用哨兵值 -1 走 outOfRange 显示为灰色，
+     * 不参与色阶，避免出现「无监测数据却有评分」的情况。 */
+    var plantMapData = [
+        { name: '太和镇', value: 85, score: 85, grade: '优秀', samples: 2 },
+        { name: '桑田镇', value: 82, score: 82, grade: '优秀', samples: 3 },
+        { name: '白舍镇', value: 65, score: 65, grade: '良好', samples: 2 },
+        { name: '市山镇', value: 68, score: 68, grade: '良好', samples: 2 },
+        { name: '太源乡', value: 58, score: 58, grade: '一般', samples: 2 },
+        { name: '琴城镇', value: 72, score: 72, grade: '良好', samples: 3 },
+        { name: '紫霄镇', value: 60, score: 60, grade: '良好', samples: 2 },
+        { name: '洽湾镇', value: 55, score: 55, grade: '一般', samples: 3 },
+        { name: '东坪乡', value: 45, score: 45, grade: '一般', samples: 2 },
+        { name: '莱溪乡', value: 52, score: 52, grade: '一般', samples: 2 },
+        { name: '三溪乡', value: 48, score: 48, grade: '一般', samples: 3 },
+        {
+            name: '傅坊乡', value: -1, score: null, grade: '无监测点', samples: 0,
+            itemStyle: { areaColor: '#3F4A5C', borderColor: 'rgba(203, 213, 225, 0.75)', borderWidth: 1.2, borderType: 'dashed' },
+            label: { color: 'rgba(203, 213, 225, 0.90)' }
+        }
+    ];
+
+    // 监测点：锚定到所属乡镇的真实坐标（顺序与下方评价对象表格一一对应，勿调整）
+    var plantScatterData = [
+        { name: '太和镇监测点', coord: NFMap.pointIn('太和镇', -0.012, 0.008), score: 85, grade: '优秀', plants: 2, person: '李建国' },
+        { name: '桑田镇监测点', coord: NFMap.pointIn('桑田镇', 0.006, 0.004), score: 82, grade: '优秀', plants: 3, person: '陈国强' },
+        { name: '白舍镇监测点', coord: NFMap.pointIn('白舍镇', -0.020, 0.012), score: 65, grade: '良好', plants: 2, person: '刘建军' },
+        { name: '市山镇监测点', coord: NFMap.pointIn('市山镇', 0.008, -0.006), score: 68, grade: '良好', plants: 2, person: '黄国平' },
+        { name: '太源乡监测点', coord: NFMap.pointIn('太源乡', -0.010, 0.006), score: 58, grade: '一般', plants: 2, person: '吴建华' },
+        { name: '琴城镇监测点', coord: NFMap.pointIn('琴城镇', -0.014, 0.004), score: 72, grade: '良好', plants: 3, person: '张明华' },
+        { name: '紫霄镇监测点', coord: NFMap.pointIn('紫霄镇', 0.010, -0.004), score: 60, grade: '良好', plants: 2, person: '刘芳' },
+        { name: '洽湾镇监测点', coord: NFMap.pointIn('洽湾镇', 0.004, 0.010), score: 55, grade: '一般', plants: 3, person: '张志远' },
+        { name: '东坪乡监测点', coord: NFMap.pointIn('东坪乡', -0.006, -0.008), score: 45, grade: '一般', plants: 2, person: '陈伟明' },
+        { name: '莱溪乡监测点', coord: NFMap.pointIn('莱溪乡', -0.004, 0.010), score: 52, grade: '一般', plants: 2, person: '李大海' },
+        { name: '三溪乡监测点', coord: NFMap.pointIn('三溪乡', 0.010, 0.008), score: 48, grade: '一般', plants: 3, person: '周明辉' }
+    ];
+
+    var plantMapChart = echarts.init(document.getElementById('plantMap'));
+
+    var plantMapOption = NFMap.option({
+        pieces: NFMap.scorePieces(),
+        data: plantMapData,
+        markers: plantScatterData,
+        seriesName: '评分热力',
+        markerName: '监测点',
+        emphasisLabel: function(params) {
+            if (!params.data) return params.name;
+            var score = params.data.score || 0;
+            var grade = score >= 80 ? '优秀' : score >= 60 ? '良好' : '一般';
+            return params.name + '\n' + score + ' 分 · ' + grade;
+        },
+        tooltip: {
+            trigger: 'item',
+            backgroundColor: 'rgba(10, 28, 60, 0.96)',
+            borderColor: '#7FE4F5',
+            borderWidth: 1,
+            padding: [12, 16],
+            borderRadius: 8,
+            textStyle: { color: '#e6f1ff', fontSize: 13 },
+            extraCssText: 'box-shadow: 0 8px 24px rgba(0,0,0,0.45);',
+            formatter: function(params) {
+                if (params.seriesName === '评分热力') {
+                    var data = params.data;
+                    if (!data) return '';
+                    var head = '<div style="font-weight:600;font-size:15px;margin-bottom:8px;color:#5AD7F0;">' + data.name + '</div>';
+                    var n = data.samples;
+                    /* 没有监测点的乡镇不给评分 —— 避免「无监测数据却有评分」 */
+                    if (!n) {
+                        return head + '<div style="color:#94a3b8;">暂无监测点，未纳入评分</div>';
+                    }
+                    var score = data.score || 0;
+                    var grade = score >= 80 ? '优秀' : score >= 60 ? '良好' : '一般';
+                    var body = '<div style="display:flex;justify-content:space-between;gap:20px;">' +
+                               '<span style="color:#94a3b8;">综合评分</span>' +
+                               '<span style="color:#e6f1ff;font-weight:600;">' + score + ' 分 · ' + grade + '</span></div>' +
+                               '<div style="display:flex;justify-content:space-between;gap:20px;margin-top:4px;">' +
+                               '<span style="color:#94a3b8;">监测样本</span>' +
+                               '<span style="color:#e6f1ff;font-weight:600;">' + n + ' 株</span></div>';
+                    if (n < 3) {
+                        body += '<div style="margin-top:6px;color:#fbbf24;font-size:12px;">样本量偏少，该评分仅供参考</div>';
+                    }
+                    return head + body;
+                } else if (params.seriesName === '监测点') {
+                    var d = (params.data && params.data.raw) || {};
+                    var sc = d.score || 0;
+                    var gd = d.grade || (sc >= 80 ? '优秀' : sc >= 60 ? '良好' : '一般');
+                    return '<div style="font-weight:600;font-size:15px;margin-bottom:8px;color:#5AD7F0;">' + d.name + '</div>' +
+                           '<div style="display:flex;justify-content:space-between;gap:20px;margin-bottom:6px;">' +
+                           '<span style="color:#94a3b8;">监测植株</span>' +
+                           '<span style="font-weight:600;">' + d.plants + ' 株</span>' +
+                           '</div>' +
+                           '<div style="display:flex;justify-content:space-between;gap:20px;margin-bottom:6px;">' +
+                           '<span style="color:#94a3b8;">综合评分</span>' +
+                           '<span style="font-weight:600;">' + sc + ' 分 · ' + gd + '</span>' +
+                           '</div>' +
+                           '<div style="display:flex;justify-content:space-between;gap:20px;">' +
+                           '<span style="color:#94a3b8;">负责人员</span>' +
+                           '<span style="font-weight:600;">' + d.person + '</span>' +
+                           '</div>';
+                }
+                return '';
+            }
+        }
+    });
+    plantMapChart.setOption(plantMapOption);
+
+    // 全图仅一处发光：当前最需关注的监测点（东坪乡，评分最低）用绿色环标注
+    (function highlightWeakestPoint() {
+        var weakest = plantScatterData.slice().sort(function(a, b) { return a.score - b.score; })[0];
+        var styled = plantMapOption.series[1].data.map(function(d) {
+            if (d.name === weakest.name) {
+                return Object.assign({}, d, NFMap.alertMarkerStyle());
+            }
+            return d;
+        });
+        plantMapChart.setOption({ series: [{}, { data: styled }] });
+    })();
 
     // ===== 评价对象生成（弹窗与滚动表格共用，保证两者一致）=====
     var evalObjBuilder = {
@@ -1439,6 +1931,7 @@
         var popup = document.getElementById('mapPopup');
         var title = document.getElementById('popupTitle');
         var content = document.getElementById('popupContent');
+        if (!popup || !title || !content) return;
         var data = entityData[type][index];
 
         // 标题仅展示细分品种名称（去除品系前缀），避免与下方"评价对象"重复
@@ -1446,7 +1939,7 @@
         var subVariety = subMatch ? subMatch[1] : data.evalObj;
         title.textContent = '植株评价信息 - ' + subVariety;
 
-        var gradeColor = data.grade === '优秀' ? '#22c55e' : (data.grade === '良好' ? '#3b82f6' : '#f59e0b');
+        var gradeColor = data.grade === '优秀' ? '#4ade80' : (data.grade === '良好' ? '#fbbf24' : '#ff6b6b');
         content.innerHTML =
             '<div class="popup-row"><span class="popup-label">评分编号</span><span class="popup-value">' + data.evalId + '</span></div>' +
             '<div class="popup-row"><span class="popup-label">评价对象</span><span class="popup-value">' + data.evalObj + '</span></div>' +
@@ -1465,21 +1958,16 @@
     }
 
     function closePopup() {
-        document.getElementById('mapPopup').classList.remove('active');
+        var popup = document.getElementById('mapPopup');
+        if (popup) popup.classList.remove('active');
     }
 
-    document.querySelectorAll('.map-bubble').forEach(function(bubble) {
-        bubble.addEventListener('click', function(e) {
-            var type = this.getAttribute('data-type');
-            var index = parseInt(this.getAttribute('data-index'));
-            openPopup(type, index, e);
+    var orchardMapEl = document.getElementById('orchardMap');
+    if (orchardMapEl) {
+        orchardMapEl.addEventListener('click', function(e) {
+            closePopup();
         });
-    });
-
-    document.getElementById('orchardMap').addEventListener('click', function(e) {
-        if (e.target.classList.contains('map-bubble')) return;
-        closePopup();
-    });
+    }
 
     var scrollingEntities = (function() {
         // 按监测点展示，11 个监测点合计 26 株
@@ -1527,12 +2015,13 @@
         function generateRows(data) {
             var rows = '';
             data.forEach(function(entity) {
-                var gradeColor = entity.grade === '优秀' ? '#22c55e' : (entity.grade === '良好' ? '#3b82f6' : '#f59e0b');
+                var gradeColor = entity.grade === '优秀' ? '#4ade80' : (entity.grade === '良好' ? '#fbbf24' : '#ff6b6b');
+                var scoreColor = entity.score >= 90 ? '#4ade80' : (entity.score >= 60 ? '#fbbf24' : '#ff6b6b');
                 rows += '<tr>' +
                     '<td>' + entity.evalId + '</td>' +
                     '<td>' + entity.evalObj + '</td>' +
                     '<td>' + entity.plantCount + '株</td>' +
-                    '<td>' + entity.score + '分</td>' +
+                    '<td style="color:' + scoreColor + ';font-weight:600;font-family:var(--ck-font-num);">' + entity.score + '分</td>' +
                     '<td style="color:' + gradeColor + ';font-weight:500;">' + entity.grade + '</td>' +
                     '<td>' + entity.person + '</td>' +
                     '<td>' + entity.evalDate + '</td>' +
@@ -1572,12 +2061,34 @@
     (function bindEnvStationSelect() {
         var sel = document.getElementById('envStationSelect');
         if (!sel) return;
+
+        /* 把监测值与适宜区间比对：越界时数值转橙、卡片描边，并标注「偏高 / 偏低」 */
+        function applyEnvRange(el, key, raw) {
+            var r = (growthDataSource.envRanges || {})[key];
+            var card = el.closest ? el.closest('.env-card') : null;
+            if (!r || !card) return;
+            var v = parseFloat(String(raw).replace(/[^\d.\-]/g, ''));
+            if (isNaN(v)) return;
+            var state = (v < r.min) ? 'low' : (v > r.max) ? 'high' : 'ok';
+            card.classList.remove('env-ok', 'env-warn');
+            card.classList.add(state === 'ok' ? 'env-ok' : 'env-warn');
+            var badge = card.querySelector('.env-range');
+            if (!badge) {
+                badge = document.createElement('div');
+                card.querySelector('.env-info').appendChild(badge);
+            }
+            badge.textContent = r.label + (state === 'ok' ? '' : (state === 'low' ? ' · 偏低' : ' · 偏高'));
+            badge.className = 'env-range' + (state === 'ok' ? '' : ' warn');
+        }
+
         function applyStation(stationKey) {
             var data = (growthDataSource.envStations || {})[stationKey];
             if (!data) return;
             document.querySelectorAll('.env-value[data-env-key]').forEach(function (el) {
                 var key = el.getAttribute('data-env-key');
-                if (data[key] !== undefined) el.textContent = data[key];
+                if (data[key] === undefined) return;
+                el.textContent = data[key];
+                applyEnvRange(el, key, data[key]);
             });
         }
         sel.addEventListener('change', function () { applyStation(sel.value); });
@@ -1590,6 +2101,7 @@
         healthTrendChart.resize();
         qualityTrendChart.resize();
         farmingSuggestionChart.resize();
+        plantMapChart.resize();
     });
 
     function animateNumbers() {
@@ -1647,6 +2159,15 @@
 
     setTimeout(animateNumbers, 500);
 
+    // 确保 flex 布局中地图容器尺寸正确后再渲染
+    setTimeout(function() {
+        if (typeof plantMapChart !== 'undefined') plantMapChart.resize();
+        if (typeof healthRingChart !== 'undefined') healthRingChart.resize();
+        if (typeof healthTrendChart !== 'undefined') healthTrendChart.resize();
+        if (typeof qualityTrendChart !== 'undefined') qualityTrendChart.resize();
+        if (typeof farmingSuggestionChart !== 'undefined') farmingSuggestionChart.resize();
+    }, 300);
+
     var modalChartInstance = null;
 
     function openModal(type) {
@@ -1659,14 +2180,14 @@
         chartContainer.innerHTML = '';
         
         var titles = {
-            '主体': '系统用户分布统计',
-            '活跃度': '用户活跃度分析',
-            '植株': '监控植株数量分布',
-            '报告': '报告生成数量统计',
-            '评分': '整体评分分析',
+            '面积': '监测果园面积分布',
+            '优质果率': '优质果率预期分析',
+            '植株': '监测植株数量分布',
+            '产量': '全县预计产量测算',
+            '评分': '长势综合评分分析',
             '农事': '农事建议数量统计',
             '采纳率': '农事采纳率',
-            '学习': '农户学习次数统计'
+            '病虫管理': '病虫管理短板分析'
         };
         
         title.textContent = titles[type];
@@ -1693,40 +2214,41 @@
         switch(type) {
             case '主体':
                 option = {
-                    tooltip: { trigger: 'item' },
-                    legend: { bottom: '5%', left: 'center', width: '90%', textStyle: { fontSize: 12 } },
+                    tooltip: Object.assign({ trigger: 'item' }, ckTooltipStyle),
+                    legend: { bottom: '5%', left: 'center', width: '90%', textStyle: { fontSize: 12, color: ckChartText } },
                     series: [{
                         type: 'pie',
                         radius: ['40%', '70%'],
                         center: ['50%', '45%'],
                         data: [
-                            { value: 784, name: '种植户', itemStyle: { color: '#22c55e' } },
-                            { value: 242, name: '农技人员', itemStyle: { color: '#3b82f6' } },
-                            { value: 104, name: '合作社成员', itemStyle: { color: '#f59e0b' } },
-                            { value: 54, name: '企业员工', itemStyle: { color: '#8b5cf6' } },
-                            { value: 21, name: '管理员', itemStyle: { color: '#ef4444' } }
+                            { value: 784, name: '种植户', itemStyle: { color: '#00d4ff' } },
+                            { value: 242, name: '农技人员', itemStyle: { color: '#4fc3f7' } },
+                            { value: 104, name: '合作社成员', itemStyle: { color: '#7dd3fc' } },
+                            { value: 54, name: '企业员工', itemStyle: { color: '#39e6c8' } },
+                            { value: 21, name: '管理员', itemStyle: { color: '#fbbf24' } }
                         ],
-                        label: { show: true, formatter: '{b}: {c}', fontSize: 11 }
+                        label: { show: true, formatter: '{b}: {c}', fontSize: 11, color: ckChartText }
                     }]
                 };
                 break;
             case '活跃度':
                 option = {
-                    tooltip: { trigger: 'axis' },
-                    legend: { data: ['活跃用户', '新增用户'], bottom: '5%', textStyle: { fontSize: 12 } },
+                    tooltip: Object.assign({ trigger: 'axis' }, ckTooltipStyle),
+                    legend: { data: ['活跃用户', '新增用户'], bottom: '5%', textStyle: { fontSize: 12, color: ckChartText } },
                     grid: { left: '3%', right: '4%', bottom: '15%', containLabel: true },
-                    xAxis: { type: 'category', data: ['1日', '5日', '10日', '15日', '20日', '25日', '30日'] },
-                    yAxis: [{ type: 'value', name: '人', position: 'left' }, { type: 'value', name: '人', position: 'right' }],
+                    xAxis: { type: 'category', data: ['1日', '5日', '10日', '15日', '20日', '25日', '30日'], axisLine: { lineStyle: { color: ckChartAxis } }, axisLabel: { color: ckChartText } },
+                    yAxis: [{ type: 'value', name: '人', position: 'left', axisLabel: { color: ckChartText }, splitLine: { lineStyle: { color: ckChartGridLine } } }, { type: 'value', name: '人', position: 'right', axisLabel: { color: ckChartText }, splitLine: { show: false } }],
                     series: [{
                         name: '活跃用户',
                         type: 'line',
                         data: [128, 156, 132, 189, 165, 210, 195],
                         smooth: true,
-                        itemStyle: { color: '#3b82f6' },
-                        areaStyle: { 
+                        itemStyle: { color: '#00d4ff' },
+                        lineStyle: { width: 2, shadowBlur: 6, shadowColor: 'rgba(0,212,255,0.5)' },
+                        areaStyle: {
                             color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                                { offset: 0, color: 'rgba(59, 130, 246, 0.3)' },
-                                { offset: 1, color: 'rgba(59, 130, 246, 0.05)' }
+                                { offset: 0, color: 'rgba(0, 212, 255, 0.3)' },
+                                { offset: 1, color: 'rgba(0, 212, 255, 0.02)' }
                             ])
                         }
                     }, {
@@ -1734,26 +2256,124 @@
                         type: 'bar',
                         yAxisIndex: 1,
                         data: [23, 35, 18, 42, 29, 38, 25],
-                        itemStyle: { color: '#10b981', borderRadius: [4, 4, 0, 0] }
+                        itemStyle: { color: '#fbbf24', borderRadius: [4, 4, 0, 0] }
                     }]
                 };
                 break;
+            case '面积':
+                (function () {
+                    var towns = [
+                        { name: '太和镇', area: 156 }, { name: '市山镇', area: 142 }, { name: '桑田镇', area: 132 },
+                        { name: '白舍镇', area: 128 }, { name: '洽湾镇', area: 118 }, { name: '琴城镇', area: 116 },
+                        { name: '紫霄镇', area: 112 }, { name: '太源乡', area: 96 },  { name: '三溪乡', area: 96 },
+                        { name: '东坪乡', area: 94 },  { name: '莱溪乡', area: 90 }
+                    ];
+                    var cols = NFMap.rampByRank(towns.map(function (t) { return t.area; }));
+                    option = {
+                        tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: '{b}<br/>监测果园：{c} 亩' },
+                        grid: { left: '3%', right: '4%', bottom: '3%', top: '8%', containLabel: true },
+                        xAxis: { type: 'category', data: towns.map(function (t) { return t.name; }), axisLabel: { interval: 0, rotate: 30, fontSize: 11 } },
+                        yAxis: { type: 'value', name: '亩' },
+                        series: [{
+                            type: 'bar',
+                            data: towns.map(function (t, i) {
+                                return { value: t.area, itemStyle: { color: cols[i], borderRadius: [4, 4, 0, 0] } };
+                            }),
+                            barWidth: '55%',
+                            label: { show: true, position: 'top', fontSize: 11, formatter: '{c}' }
+                        }]
+                    };
+                })();
+                break;
+            case '优质果率':
+                (function () {
+                    var vs = [
+                        { name: '桂月红', rate: 85.3 }, { name: '小果系', rate: 84.2 }, { name: '桂花蒂', rate: 83.6 },
+                        { name: '蜜广1号', rate: 82.8 }, { name: '大果系', rate: 80.1 }, { name: '早熟系', rate: 78.4 }
+                    ];
+                    var cols = NFMap.rampByRank(vs.map(function (v) { return v.rate; }));
+                    option = {
+                        tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: '{b}<br/>优质果率：{c}%' },
+                        grid: { left: '3%', right: '4%', bottom: '3%', top: '8%', containLabel: true },
+                        xAxis: { type: 'category', data: vs.map(function (v) { return v.name; }), axisLabel: { interval: 0, fontSize: 11 } },
+                        yAxis: { type: 'value', min: 70, max: 90, axisLabel: { formatter: '{value}%' } },
+                        series: [{
+                            type: 'bar',
+                            data: vs.map(function (v, i) {
+                                return { value: v.rate, itemStyle: { color: cols[i], borderRadius: [4, 4, 0, 0] } };
+                            }),
+                            barWidth: '50%',
+                            label: { show: true, position: 'top', fontSize: 11, formatter: '{c}%' }
+                        }]
+                    };
+                })();
+                break;
+            case '产量':
+                option = {
+                    tooltip: { trigger: 'axis', formatter: '{b}<br/>{c} 万吨' },
+                    legend: { data: ['历史产量', '今年预计'], bottom: 0, textStyle: { fontSize: 11 } },
+                    grid: { left: '3%', right: '4%', bottom: '15%', top: '8%', containLabel: true },
+                    xAxis: { type: 'category', data: ['2021', '2022', '2023', '2024', '2025(预计)'] },
+                    yAxis: { type: 'value', name: '万吨', min: 24 },
+                    series: [
+                        { name: '历史产量', type: 'line', smooth: true, data: [27.8, 28.9, 29.6, 30.2, null], itemStyle: { color: '#35B4DE' }, lineStyle: { width: 2 } },
+                        { name: '今年预计', type: 'line', smooth: true, data: [null, null, null, 30.2, 31.6], itemStyle: { color: '#5AD7F0' }, lineStyle: { width: 2, type: 'dashed' } }
+                    ]
+                };
+                break;
+            case '病虫管理':
+                (function () {
+                    var items = [
+                        { name: '树势枝干', v: 8.7 }, { name: '叶片状态', v: 8.1 }, { name: '根系状态', v: 7.8 },
+                        { name: '花果状态', v: 7.7 }, { name: '果实品质', v: 8.6 }, { name: '膨果品质', v: 8.4 },
+                        { name: '温湿度', v: 7.5 },   { name: '水分光照', v: 7.9 }, { name: '土壤养分', v: 8.5 },
+                        { name: '病虫管理', v: 4.7 }
+                    ];
+                    option = {
+                        tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: '{b}<br/>{c} 分（满分 10）' },
+                        grid: { left: '3%', right: '4%', bottom: '3%', top: '8%', containLabel: true },
+                        xAxis: { type: 'category', data: items.map(function (i) { return i.name; }), axisLabel: { interval: 0, rotate: 30, fontSize: 11 } },
+                        yAxis: { type: 'value', max: 10 },
+                        series: [{
+                            type: 'bar',
+                            data: items.map(function (i) {
+                                return {
+                                    value: i.v,
+                                    itemStyle: {
+                                        color: i.v < 6 ? '#ff6b6b' : NFMap.barColor(i.v * 10),
+                                        borderRadius: [4, 4, 0, 0]
+                                    }
+                                };
+                            }),
+                            barWidth: '55%',
+                            label: { show: true, position: 'top', fontSize: 11, formatter: '{c}' },
+                            markLine: {
+                                silent: true, symbol: 'none',
+                                data: [{ yAxis: 8.1 }],
+                                lineStyle: { color: '#fbbf24', type: 'dashed' },
+                                label: { formatter: '其余 9 项均值 8.1', color: '#fbbf24', fontSize: 11 }
+                            }
+                        }]
+                    };
+                })();
+                break;
             case '植株':
                 option = {
-                    tooltip: { trigger: 'axis' },
-                    legend: { data: ['监控植株'], bottom: '5%', textStyle: { fontSize: 12 } },
+                    tooltip: Object.assign({ trigger: 'axis' }, ckTooltipStyle),
+                    legend: { data: ['监控植株'], bottom: '5%', textStyle: { fontSize: 12, color: ckChartText } },
                     grid: { left: '3%', right: '4%', bottom: '15%', containLabel: true },
-                    xAxis: { type: 'category', data: ['太和镇', '太源乡', '桑田镇', '傅坊乡', '白舍镇', '洽湾镇', '市山镇', '东坪乡', '莱溪乡', '紫霄镇', '三溪乡'] },
-                    yAxis: { type: 'value', name: '株' },
+                    xAxis: { type: 'category', data: ['太和镇', '太源乡', '桑田镇', '傅坊乡', '白舍镇', '洽湾镇', '市山镇', '东坪乡', '莱溪乡', '紫霄镇', '三溪乡'], axisLine: { lineStyle: { color: ckChartAxis } }, axisLabel: { color: ckChartText } },
+                    yAxis: { type: 'value', name: '株', axisLabel: { color: ckChartText }, splitLine: { lineStyle: { color: ckChartGridLine } } },
                     series: [{
                         name: '监控植株',
                         type: 'bar',
                         data: [2, 2, 3, 2, 2, 3, 2, 2, 2, 2, 4],
                         itemStyle: {
                             color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                                { offset: 0, color: '#22c55e' }, { offset: 1, color: '#4ade80' }
+                                { offset: 0, color: '#00d4ff' }, { offset: 1, color: '#39e6c8' }
                             ]),
-                            borderRadius: [4, 4, 0, 0]
+                            borderRadius: [4, 4, 0, 0],
+                            shadowBlur: 8, shadowColor: 'rgba(0,212,255,0.4)'
                         }
                     }]
                 };
@@ -1762,17 +2382,18 @@
                 option = {
                     tooltip: { trigger: 'axis' },
                     grid: { left: '3%', right: '4%', bottom: '10%', containLabel: true },
-                    xAxis: { type: 'category', data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月'] },
-                    yAxis: { type: 'value', name: '次' },
+                    xAxis: { type: 'category', data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月'], axisLine: { lineStyle: { color: ckChartAxis } }, axisLabel: { color: ckChartText } },
+                    yAxis: { type: 'value', name: '次', axisLabel: { color: ckChartText }, splitLine: { lineStyle: { color: ckChartGridLine } } },
                     series: [{
                         type: 'line',
                         data: [280, 322, 352, 383, 405, 436, 375],
                         smooth: true,
-                        itemStyle: { color: '#3b82f6' },
+                        itemStyle: { color: '#00d4ff' },
+                        lineStyle: { width: 2, shadowBlur: 6, shadowColor: 'rgba(0,212,255,0.5)' },
                         areaStyle: {
                             color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                                { offset: 0, color: 'rgba(59, 130, 246, 0.3)' },
-                                { offset: 1, color: 'rgba(59, 130, 246, 0.05)' }
+                                { offset: 0, color: 'rgba(0, 212, 255, 0.3)' },
+                                { offset: 1, color: 'rgba(0, 212, 255, 0.02)' }
                             ])
                         }
                     }]
@@ -1780,36 +2401,42 @@
                 break;
             case '评分':
                 option = {
-                    tooltip: { trigger: 'axis' },
+                    tooltip: Object.assign({ trigger: 'axis' }, ckTooltipStyle),
                     grid: { left: '3%', right: '4%', bottom: '15%', containLabel: true },
-                    xAxis: { type: 'category', data: ['太和镇', '太源乡', '桑田镇', '傅坊乡', '白舍镇', '洽湾镇', '市山镇', '东坪乡', '莱溪乡', '紫霄镇', '三溪乡'] },
-                    yAxis: { type: 'value', max: 100, axisLabel: { formatter: '{value}分' } },
+                    xAxis: { type: 'category', data: ['太和镇', '太源乡', '桑田镇', '傅坊乡', '白舍镇', '洽湾镇', '市山镇', '东坪乡', '莱溪乡', '紫霄镇', '三溪乡'], axisLine: { lineStyle: { color: ckChartAxis } }, axisLabel: { color: ckChartText } },
+                    yAxis: { type: 'value', max: 100, axisLabel: { formatter: '{value}分', color: ckChartText }, splitLine: { lineStyle: { color: ckChartGridLine } } },
                     series: [{
                         type: 'bar',
                         data: [80, 76, 79, 82, 77, 78, 72, 72, 82, 77, 80],
                         itemStyle: {
-                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                                { offset: 0, color: '#f59e0b' }, { offset: 1, color: '#fcd34d' }
-                            ]),
-                            borderRadius: [4, 4, 0, 0]
-                        }
+                            color: function(params) {
+                                var score = params.value;
+                                if (score >= 80) return '#4ade80';
+                                if (score >= 60) return '#fbbf24';
+                                return '#ff6b6b';
+                            },
+                            borderRadius: [4, 4, 0, 0],
+                            shadowBlur: 8, shadowColor: 'rgba(0,212,255,0.3)'
+                        },
+                        label: { show: true, position: 'top', fontSize: 10, formatter: '{c}分', color: ckChartText }
                     }]
                 };
                 break;
             case '农事':
                 option = {
-                    tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+                    tooltip: Object.assign({ trigger: 'axis', axisPointer: { type: 'shadow' } }, ckTooltipStyle),
                     grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
-                    xAxis: { type: 'category', data: ['灌溉', '施肥', '修剪', '病虫害', '其他'] },
-                    yAxis: { type: 'value', name: '条' },
+                    xAxis: { type: 'category', data: ['灌溉', '施肥', '修剪', '病虫害', '其他'], axisLine: { lineStyle: { color: ckChartAxis } }, axisLabel: { color: ckChartText } },
+                    yAxis: { type: 'value', name: '条', axisLabel: { color: ckChartText }, splitLine: { lineStyle: { color: ckChartGridLine } } },
                     series: [{
                         type: 'bar',
                         data: [286, 224, 142, 138, 78],
                         itemStyle: {
                             color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                                { offset: 0, color: '#2b6e3c' }, { offset: 1, color: '#4ade80' }
+                                { offset: 0, color: '#00d4ff' }, { offset: 1, color: '#39e6c8' }
                             ]),
-                            borderRadius: [6, 6, 0, 0]
+                            borderRadius: [6, 6, 0, 0],
+                            shadowBlur: 8, shadowColor: 'rgba(0,212,255,0.4)'
                         }
                     }]
                 };
@@ -1818,32 +2445,33 @@
                 option = {
                     tooltip: { trigger: 'axis' },
                     grid: { left: '3%', right: '4%', bottom: '10%', containLabel: true },
-                    xAxis: { type: 'category', data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月'] },
-                    yAxis: { type: 'value', max: 100, axisLabel: { formatter: '{value}%' } },
+                    xAxis: { type: 'category', data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月'], axisLine: { lineStyle: { color: ckChartAxis } }, axisLabel: { color: ckChartText } },
+                    yAxis: { type: 'value', max: 100, axisLabel: { formatter: '{value}%', color: ckChartText }, splitLine: { lineStyle: { color: ckChartGridLine } } },
                     series: [{
                         type: 'line',
                         data: [68.0, 69.5, 70.8, 71.6, 72.4, 73.1, 73.6],
                         smooth: true,
-                        itemStyle: { color: '#3b82f6' },
-                        areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: 'rgba(59,130,246,0.3)' }, { offset: 1, color: 'rgba(59,130,246,0)' }]) }
+                        itemStyle: { color: '#00d4ff' },
+                        lineStyle: { width: 2, shadowBlur: 6, shadowColor: 'rgba(0,212,255,0.5)' },
+                        areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: 'rgba(0,212,255,0.3)' }, { offset: 1, color: 'rgba(0,212,255,0)' }]) }
                     }]
                 };
                 break;
             case '学习':
                 option = {
-                    tooltip: { trigger: 'item' },
-                    legend: { bottom: '5%', left: 'center', width: '90%', textStyle: { fontSize: 11 } },
+                    tooltip: Object.assign({ trigger: 'item' }, ckTooltipStyle),
+                    legend: { bottom: '5%', left: 'center', width: '90%', textStyle: { fontSize: 11, color: ckChartText } },
                     series: [{
                         type: 'pie',
                         radius: ['40%', '70%'],
                         center: ['50%', '45%'],
                         data: [
-                            { value: 534, name: '资讯阅读', itemStyle: { color: '#3b82f6' } },
-                            { value: 354, name: '学习课程', itemStyle: { color: '#22c55e' } },
-                            { value: 310, name: '视频观看', itemStyle: { color: '#f59e0b' } },
-                            { value: 222, name: '政策查阅', itemStyle: { color: '#8b5cf6' } }
+                            { value: 534, name: '资讯阅读', itemStyle: { color: '#00d4ff' } },
+                            { value: 354, name: '学习课程', itemStyle: { color: '#4fc3f7' } },
+                            { value: 310, name: '视频观看', itemStyle: { color: '#fbbf24' } },
+                            { value: 222, name: '政策查阅', itemStyle: { color: '#a78bfa' } }
                         ],
-                        label: { show: true, formatter: '{b}: {c}次', fontSize: 11 }
+                        label: { show: true, formatter: '{b}: {c}次', fontSize: 11, color: ckChartText }
                     }]
                 };
                 break;
@@ -1855,44 +2483,64 @@
     function renderModalStats(type, container) {
         var stats = {
             '主体': [
-                { value: '1,205', label: '用户总数', color: '#166534' },
-                { value: '784', label: '种植户', color: '#22c55e' },
-                { value: '242', label: '农技人员', color: '#3b82f6' }
+                { value: '1,205', label: '用户总数', color: '#00d4ff' },
+                { value: '784', label: '种植户', color: '#4fc3f7' },
+                { value: '242', label: '农技人员', color: '#7dd3fc' }
             ],
             '活跃度': [
-                { value: '823', label: '总活跃用户', color: '#3b82f6' },
-                { value: '68.3%', label: '日活跃率', color: '#10b981' },
-                { value: '82.5%', label: '周活跃率', color: '#f59e0b' }
+                { value: '823', label: '总活跃用户', color: '#00d4ff' },
+                { value: '68.3%', label: '日活跃率', color: '#39e6c8' },
+                { value: '82.5%', label: '周活跃率', color: '#fbbf24' }
             ],
             '植株': [
-                { value: '26', label: '监控植株总数(株)', color: '#166534' },
-                { value: '11', label: '监测点数量', color: '#10b981' },
-                { value: '4', label: '三溪乡最多', color: '#f59e0b' }
+                { value: '26', label: '监控植株总数(株)', color: '#00d4ff' },
+                { value: '11', label: '监测点数量', color: '#39e6c8' },
+                { value: '4', label: '三溪乡最多', color: '#fbbf24' }
+            ],
+            '面积': [
+                { value: '1,280', label: '监测果园(亩)', color: '#00d4ff' },
+                { value: '156', label: '太和镇最广', color: '#4fc3f7' },
+                { value: '11', label: '覆盖乡镇数', color: '#39e6c8' }
+            ],
+            '优质果率': [
+                { value: '82.4%', label: '优质果率预期', color: '#00d4ff' },
+                { value: '85.3', label: '桂月红最高', color: '#4fc3f7' },
+                { value: '78.4', label: '早熟系最低', color: '#94a3b8' }
+            ],
+            '产量': [
+                { value: '31.6', label: '今年预计(万吨)', color: '#00d4ff' },
+                { value: '30.2', label: '去年实际', color: '#4fc3f7' },
+                { value: '+4.5%', label: '同比', color: '#4ade80' }
+            ],
+            '病虫管理': [
+                { value: '4.7', label: '病虫管理(分)', color: '#ef4444' },
+                { value: '8.1', label: '其余9项均值', color: '#00d4ff' },
+                { value: '-3.4', label: '拉低综合分', color: '#fbbf24' }
             ],
             '报告': [
-                { value: '2,553', label: '报告总数', color: '#166534' },
-                { value: '375', label: '本月生成', color: '#3b82f6' },
-                { value: '+8.6%', label: '较上月增长', color: '#22c55e' }
+                { value: '2,553', label: '报告总数', color: '#00d4ff' },
+                { value: '375', label: '本月生成', color: '#4fc3f7' },
+                { value: '+8.6%', label: '较上月增长', color: '#4ade80' }
             ],
             '评分': [
-                { value: '77.9', label: '全县平均(分)', color: '#166534' },
-                { value: '82', label: '傅坊乡最高', color: '#22c55e' },
-                { value: '72', label: '市山镇最低', color: '#64748b' }
+                { value: '77.9', label: '监测样本均值(分)', color: '#00d4ff' },
+                { value: '85', label: '太和镇最高', color: '#4fc3f7' },
+                { value: '45', label: '东坪乡最低', color: '#94a3b8' }
             ],
             '农事': [
-                { value: '868', label: '建议总数', color: '#166534' },
-                { value: '286', label: '灌溉建议', color: '#3b82f6' },
-                { value: '224', label: '施肥建议', color: '#f59e0b' }
+                { value: '868', label: '建议总数', color: '#00d4ff' },
+                { value: '286', label: '灌溉建议', color: '#4fc3f7' },
+                { value: '224', label: '施肥建议', color: '#fbbf24' }
             ],
             '采纳率': [
-                { value: '73.6%', label: '本月采纳率', color: '#166534' },
-                { value: '+0.5%', label: '较上月提升', color: '#22c55e' },
-                { value: '88%', label: '病虫害防治', color: '#f59e0b' }
+                { value: '73.6%', label: '本月采纳率', color: '#00d4ff' },
+                { value: '+0.5%', label: '较上月提升', color: '#4ade80' },
+                { value: '88%', label: '病虫害防治', color: '#fbbf24' }
             ],
             '学习': [
-                { value: '1,420', label: '学习总次数', color: '#166534' },
-                { value: '534', label: '资讯阅读', color: '#3b82f6' },
-                { value: '354', label: '学习课程', color: '#22c55e' }
+                { value: '1,420', label: '学习总次数', color: '#00d4ff' },
+                { value: '534', label: '资讯阅读', color: '#4fc3f7' },
+                { value: '354', label: '学习课程', color: '#39e6c8' }
             ]
         };
         
@@ -1908,6 +2556,39 @@
 
     function renderModalDetails(type, container) {
         var details = {
+            '面积': [
+                { label: '监测果园总面积', value: '1,280 亩' },
+                { label: '覆盖乡镇', value: '11 个（傅坊乡暂无监测点）' },
+                { label: '监测点数量', value: '11 个' },
+                { label: '面积最大乡镇', value: '太和镇 156 亩' },
+                { label: '同比', value: '+6.2%' }
+            ],
+            '优质果率': [
+                { label: '桂月红', value: '85.3%' },
+                { label: '小果系（杨小2-6、金钱蜜桔）', value: '84.2%' },
+                { label: '桂花蒂（柿蒂蜜桔）', value: '83.6%' },
+                { label: '蜜广1号', value: '82.8%' },
+                { label: '大果系', value: '80.1%' },
+                { label: '早熟系（普通早熟蜜桔）', value: '78.4%' },
+                { label: '全县预期', value: '82.4%（按品系面积加权）' }
+            ],
+            '产量': [
+                { label: '2021 年', value: '27.8 万吨' },
+                { label: '2022 年', value: '28.9 万吨' },
+                { label: '2023 年', value: '29.6 万吨' },
+                { label: '2024 年', value: '30.2 万吨' },
+                { label: '2025 年（预计）', value: '31.6 万吨' },
+                { label: '同比', value: '+4.5%' },
+                { label: '测算依据', value: '长势评分 + 挂果密度 + 气候条件修正' }
+            ],
+            '病虫管理': [
+                { label: '病虫管理得分', value: '4.7 分（满分 10）' },
+                { label: '其余 9 项均值', value: '8.1 分' },
+                { label: '与均值差距', value: '-3.4 分' },
+                { label: '对综合分影响', value: '拉低约 3.4 分（77.9 vs 81.3）' },
+                { label: '同比', value: '-0.9 分' },
+                { label: '处置建议', value: '对接病虫害防控模型，开展统防统治' }
+            ],
             '主体': [
                 { label: '种植户', value: '784人 (65.1%)' },
                 { label: '农技人员', value: '242人 (20.1%)' },
@@ -2010,5 +2691,17 @@
         </div>
     </div>
 </div>
+
+<script>
+// 实时更新日期
+(function updateClock() {
+  var d = new Date();
+  var pad = function(n) { return n < 10 ? '0' + n : '' + n; };
+  var text = d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+  var el = document.getElementById('ckDateText');
+  if (el) el.textContent = text;
+  setTimeout(updateClock, 60000);
+})();
+</script>
 </body>
 </html>

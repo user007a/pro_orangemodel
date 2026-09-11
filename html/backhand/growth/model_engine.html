@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -46,7 +46,7 @@
     <div class="flex items-center justify-between mb-6">
         <div>
             <h1 class="text-xl font-bold text-gray-800">模型计算中心</h1>
-            <p class="text-gray-500 text-sm mt-1">南丰蜜桔生长模型定时调度与执行</p>
+            <p class="text-gray-500 text-sm mt-1">南丰蜜桔生长模型定时调度与执行。计算公式与参数说明详见 <a href="growth_model.html" class="text-green-600 hover:underline">模型说明文档</a>。</p>
         </div>
     </div>
 
@@ -129,7 +129,7 @@
                         <div class="space-y-3">
                             <div class="flex items-center justify-between py-2 border-b border-gray-50">
                                 <span class="text-sm text-gray-500">执行时间</span>
-                                <span class="text-sm font-medium text-gray-800">2026-08-04 02:00:03</span>
+                                <span class="text-sm font-medium text-gray-800">2026-08-22 02:00:03</span>
                             </div>
                             <div class="flex items-center justify-between py-2 border-b border-gray-50">
                                 <span class="text-sm text-gray-500">地块数</span>
@@ -149,7 +149,7 @@
                             </div>
                             <div class="flex items-center justify-between py-2">
                                 <span class="text-sm text-gray-500">下次执行</span>
-                                <span class="text-sm font-medium text-gray-800">2026-08-05 02:00:00</span>
+                                <span class="text-sm font-medium text-gray-800">2026-08-23 02:00:00</span>
                             </div>
                         </div>
                     </div>
@@ -299,18 +299,18 @@ function runNow() {
 
 function initLogs() {
     logData = [
-        { id: 1, time: '2026-08-04 02:00:03', type: '定时批量', plots: 156, success: 154, failed: 2, duration: '2分47秒', operator: '系统', version: 'v2.3.1', trigger: '定时任务(每日02:00)', failedPlots: ['NF-B07 西坡B-07地块', 'NF-D02 北坡D-02地块'] },
-        { id: 2, time: '2026-08-03 14:32:18', type: '手动计算', plots: 4, success: 4, failed: 0, duration: '8秒', operator: '张明', version: 'v2.3.1', trigger: '手动触发', failedPlots: [] },
-        { id: 3, time: '2026-08-03 02:00:02', type: '定时批量', plots: 155, success: 154, failed: 1, duration: '2分31秒', operator: '系统', version: 'v2.3.1', trigger: '定时任务(每日02:00)', failedPlots: ['NF-C11 南坡C-11地块'] },
-        { id: 4, time: '2026-08-02 16:45:22', type: '手动计算', plots: 8, success: 8, failed: 0, duration: '15秒', operator: '李华', version: 'v2.3.0', trigger: '手动触发', failedPlots: [] },
-        { id: 5, time: '2026-08-02 02:00:05', type: '定时批量', plots: 156, success: 156, failed: 0, duration: '2分18秒', operator: '系统', version: 'v2.3.0', trigger: '定时任务(每日02:00)', failedPlots: [] },
-        { id: 6, time: '2026-08-01 10:12:44', type: '手动计算', plots: 12, success: 12, failed: 0, duration: '22秒', operator: '王芳', version: 'v2.3.0', trigger: '手动触发', failedPlots: [] },
-        { id: 7, time: '2026-08-01 02:00:01', type: '定时批量', plots: 153, success: 150, failed: 3, duration: '3分02秒', operator: '系统', version: 'v2.3.0', trigger: '定时任务(每日02:00)', failedPlots: ['NF-A05 东坡A-05地块', 'NF-B03 西坡B-03地块', 'NF-D08 北坡D-08地块'] },
-        { id: 8, time: '2026-07-31 02:00:03', type: '定时批量', plots: 154, success: 152, failed: 2, duration: '2分55秒', operator: '系统', version: 'v2.3.0', trigger: '定时任务(每日02:00)', failedPlots: ['NF-C02 南坡C-02地块', 'NF-C09 南坡C-09地块'] },
-        { id: 9, time: '2026-07-30 09:22:11', type: '手动计算', plots: 3, success: 2, failed: 1, duration: '6秒', operator: '赵强', version: 'v2.2.9', trigger: '手动触发', failedPlots: ['NF-A08 东坡A-08地块'] },
-        { id: 10, time: '2026-07-30 02:00:02', type: '定时批量', plots: 155, success: 155, failed: 0, duration: '2分22秒', operator: '系统', version: 'v2.2.9', trigger: '定时任务(每日02:00)', failedPlots: [] },
-        { id: 11, time: '2026-07-29 15:08:33', type: '手动计算', plots: 6, success: 6, failed: 0, duration: '11秒', operator: '孙丽', version: 'v2.2.9', trigger: '手动触发', failedPlots: [] },
-        { id: 12, time: '2026-07-29 02:00:04', type: '定时批量', plots: 152, success: 148, failed: 4, duration: '3分15秒', operator: '系统', version: 'v2.2.9', trigger: '定时任务(每日02:00)', failedPlots: ['NF-A02 东坡A-02地块', 'NF-B05 西坡B-05地块', 'NF-C03 南坡C-03地块', 'NF-D06 北坡D-06地块'] }
+        { id: 1, time: '2026-08-22 02:00:03', type: '定时批量', plots: 156, success: 154, failed: 2, duration: '2分47秒', operator: '系统', version: 'v2.3.1', trigger: '定时任务(每日02:00)', failedPlots: ['NF-B07 南丰蜜桔-桂花蒂-枳砧-10年生-D107', 'NF-D02 南丰蜜桔-桂月红-红桔砧-10年生-D202'] },
+        { id: 2, time: '2026-08-21 14:32:18', type: '手动计算', plots: 4, success: 4, failed: 0, duration: '8秒', operator: '张明', version: 'v2.3.1', trigger: '手动触发', failedPlots: [] },
+        { id: 3, time: '2026-08-21 02:00:02', type: '定时批量', plots: 155, success: 154, failed: 1, duration: '2分31秒', operator: '系统', version: 'v2.3.1', trigger: '定时任务(每日02:00)', failedPlots: ['NF-C11 南丰蜜桔-小果系-枳砧-10年生-D311'] },
+        { id: 4, time: '2026-08-20 16:45:22', type: '手动计算', plots: 8, success: 8, failed: 0, duration: '15秒', operator: '李华', version: 'v2.3.0', trigger: '手动触发', failedPlots: [] },
+        { id: 5, time: '2026-08-20 02:00:05', type: '定时批量', plots: 156, success: 156, failed: 0, duration: '2分18秒', operator: '系统', version: 'v2.3.0', trigger: '定时任务(每日02:00)', failedPlots: [] },
+        { id: 6, time: '2026-08-19 10:12:44', type: '手动计算', plots: 12, success: 12, failed: 0, duration: '22秒', operator: '王芳', version: 'v2.3.0', trigger: '手动触发', failedPlots: [] },
+        { id: 7, time: '2026-08-19 02:00:01', type: '定时批量', plots: 153, success: 150, failed: 3, duration: '3分02秒', operator: '系统', version: 'v2.3.0', trigger: '定时任务(每日02:00)', failedPlots: ['NF-A05 南丰蜜桔-小果系-枳砧-10年生-D105', 'NF-B03 南丰蜜桔-桂花蒂-枳砧-10年生-D103', 'NF-D08 南丰蜜桔-桂月红-红桔砧-10年生-D208'] },
+        { id: 8, time: '2026-08-18 02:00:03', type: '定时批量', plots: 154, success: 152, failed: 2, duration: '2分55秒', operator: '系统', version: 'v2.3.0', trigger: '定时任务(每日02:00)', failedPlots: ['NF-C02 南丰蜜桔-小果系-枳砧-10年生-D302', 'NF-C09 南丰蜜桔-小果系-枳砧-10年生-D309'] },
+        { id: 9, time: '2026-08-17 09:22:11', type: '手动计算', plots: 3, success: 2, failed: 1, duration: '6秒', operator: '赵强', version: 'v2.2.9', trigger: '手动触发', failedPlots: ['NF-A08 南丰蜜桔-小果系-枳砧-10年生-D108'] },
+        { id: 10, time: '2026-08-17 02:00:02', type: '定时批量', plots: 155, success: 155, failed: 0, duration: '2分22秒', operator: '系统', version: 'v2.2.9', trigger: '定时任务(每日02:00)', failedPlots: [] },
+        { id: 11, time: '2026-08-16 15:08:33', type: '手动计算', plots: 6, success: 6, failed: 0, duration: '11秒', operator: '孙丽', version: 'v2.2.9', trigger: '手动触发', failedPlots: [] },
+        { id: 12, time: '2026-08-16 02:00:04', type: '定时批量', plots: 152, success: 148, failed: 4, duration: '3分15秒', operator: '系统', version: 'v2.2.9', trigger: '定时任务(每日02:00)', failedPlots: ['NF-A02 南丰蜜桔-小果系-枳砧-10年生-D102', 'NF-B05 南丰蜜桔-桂花蒂-枳砧-10年生-D105', 'NF-C03 南丰蜜桔-小果系-枳砧-10年生-D303', 'NF-D06 南丰蜜桔-桂月红-红桔砧-10年生-D206'] }
     ];
     filteredLogs = [...logData];
     renderLogs();

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
@@ -50,9 +50,9 @@ body { margin: 0; padding: 0; background-color: #F0F2F5; font-family: -apple-sys
   <div id="tab-wt" class="tab-content">
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-4 flex flex-wrap items-center gap-3">
       <select id="wt-town-filter" class="px-3 py-2 border border-gray-300 rounded-lg text-sm" onchange="currentPage.wt=1;renderTable('wt')"><option value="">全部乡镇</option></select>
-      <input type="date" id="wt-date-from" value="2026-07-20" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+      <input type="date" id="wt-date-from" value="2026-08-07" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
       <span class="text-gray-400 text-sm">至</span>
-      <input type="date" id="wt-date-to" value="2026-08-04" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+      <input type="date" id="wt-date-to" value="2026-08-22" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
       <button onclick="currentPage.wt=1;renderTable('wt')" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">查询</button>
     </div>
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 mb-4 overflow-hidden">
@@ -71,9 +71,9 @@ body { margin: 0; padding: 0; background-color: #F0F2F5; font-family: -apple-sys
       <select id="pt-stage-filter" class="px-3 py-2 border border-gray-300 rounded-lg text-sm" onchange="currentPage.pt=1;renderTable('pt')">
         <option value="">全部物候期</option><option value="春芽萌动期">春芽萌动期</option><option value="春梢生长期">春梢生长期</option><option value="开花期">开花期</option><option value="生理落果期">生理落果期</option><option value="夏梢抽发期">夏梢抽发期</option><option value="果实膨大期">果实膨大期</option><option value="秋梢抽发期">秋梢抽发期</option><option value="果实成熟期">果实成熟期</option>
       </select>
-      <input type="date" id="pt-date-from" value="2026-07-20" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+      <input type="date" id="pt-date-from" value="2026-08-07" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
       <span class="text-gray-400 text-sm">至</span>
-      <input type="date" id="pt-date-to" value="2026-08-04" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+      <input type="date" id="pt-date-to" value="2026-08-22" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
       <button onclick="currentPage.pt=1;renderTable('pt')" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">查询</button>
     </div>
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 mb-4 overflow-hidden">
@@ -89,9 +89,9 @@ body { margin: 0; padding: 0; background-color: #F0F2F5; font-family: -apple-sys
   <div id="tab-dt" class="tab-content" style="display:none">
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-4 flex flex-wrap items-center gap-3">
       <select id="dt-town-filter" class="px-3 py-2 border border-gray-300 rounded-lg text-sm" onchange="currentPage.dt=1;renderTable('dt')"><option value="">全部乡镇</option></select>
-      <input type="date" id="dt-date-from" value="2026-07-20" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+      <input type="date" id="dt-date-from" value="2026-08-07" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
       <span class="text-gray-400 text-sm">至</span>
-      <input type="date" id="dt-date-to" value="2026-08-04" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+      <input type="date" id="dt-date-to" value="2026-08-22" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
       <button onclick="currentPage.dt=1;renderTable('dt')" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">查询</button>
     </div>
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 mb-4 overflow-hidden">
@@ -107,9 +107,9 @@ body { margin: 0; padding: 0; background-color: #F0F2F5; font-family: -apple-sys
   <div id="tab-it" class="tab-content" style="display:none">
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-4 flex flex-wrap items-center gap-3">
       <select id="it-town-filter" class="px-3 py-2 border border-gray-300 rounded-lg text-sm" onchange="currentPage.it=1;renderTable('it')"><option value="">全部乡镇</option></select>
-      <input type="date" id="it-date-from" value="2026-07-20" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+      <input type="date" id="it-date-from" value="2026-08-07" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
       <span class="text-gray-400 text-sm">至</span>
-      <input type="date" id="it-date-to" value="2026-08-04" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+      <input type="date" id="it-date-to" value="2026-08-22" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
       <button onclick="currentPage.it=1;renderTable('it')" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">查询</button>
     </div>
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 mb-4 overflow-hidden">
@@ -125,9 +125,9 @@ body { margin: 0; padding: 0; background-color: #F0F2F5; font-family: -apple-sys
   <div id="tab-ht" class="tab-content" style="display:none">
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-4 flex flex-wrap items-center gap-3">
       <select id="ht-town-filter" class="px-3 py-2 border border-gray-300 rounded-lg text-sm" onchange="currentPage.ht=1;renderTable('ht')"><option value="">全部乡镇</option></select>
-      <input type="date" id="ht-date-from" value="2026-01-01" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+      <input type="date" id="ht-date-from" value="2026-08-01" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
       <span class="text-gray-400 text-sm">至</span>
-      <input type="date" id="ht-date-to" value="2026-12-31" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+      <input type="date" id="ht-date-to" value="2026-08-31" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
       <button onclick="currentPage.ht=1;renderTable('ht')" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">查询</button>
     </div>
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 mb-4 overflow-hidden">
@@ -188,7 +188,7 @@ body { margin: 0; padding: 0; background-color: #F0F2F5; font-family: -apple-sys
 var townships = ['琴城镇','市山镇','洽湾镇','太和镇','桑田镇','白舍镇','紫霄镇','三溪乡','傅坊乡','太源乡','莱溪乡','东坪乡'];
 
 var colConfig = {
-  wt: [{k:'town',l:'乡镇'},{k:'date',l:'日期'},{k:'temp',l:'温度(°C)'},{k:'humidity',l:'湿度(%)'},{k:'rain',l:'降雨量(mm)'},{k:'light',l:'光照(klx)'},{k:'wind',l:'风速(m/s)'}],
+  wt: [{k:'town',l:'乡镇'},{k:'date',l:'日期'},{k:'temp',l:'温度(°C)'},{k:'humidity',l:'湿度(%)'},{k:'rain',l:'降雨量(mm)'},{k:'leafwet',l:'叶面湿润(h)'},{k:'light',l:'光照(klx)'},{k:'wind',l:'风速(m/s)'}],
   pt: [{k:'town',l:'乡镇'},{k:'date',l:'日期'},{k:'stage',l:'物候期'},{k:'shoot',l:'新梢萌发率(%)'},{k:'flower',l:'花蕾密度'},{k:'fruit',l:'坐果率(%)'},{k:'diameter',l:'果径(mm)'},{k:'note',l:'物候描述'}],
   dt: [{k:'town',l:'乡镇'},{k:'date',l:'日期'},{k:'type',l:'病虫害类型'},{k:'spot',l:'病斑率(%)'},{k:'density',l:'虫口密度(头/叶)'},{k:'egg',l:'卵量(粒/叶)'}],
   it: [{k:'town',l:'乡镇'},{k:'date',l:'日期'},{k:'stype',l:'虫源类型'},{k:'winter',l:'越冬虫源(头/m²)'},{k:'cfu',l:'病原菌量(CFU/g)'},{k:'remark',l:'备注'}],
@@ -196,7 +196,7 @@ var colConfig = {
 };
 
 var fieldConfig = {
-  wt: [{k:'town',l:'乡镇',t:'select',opts:townships},{k:'date',l:'日期',t:'date'},{k:'temp',l:'温度(°C)',t:'number'},{k:'humidity',l:'湿度(%)',t:'number'},{k:'rain',l:'降雨量(mm)',t:'number'},{k:'light',l:'光照(klx)',t:'number'},{k:'wind',l:'风速(m/s)',t:'number',step:'0.1'}],
+  wt: [{k:'town',l:'乡镇',t:'select',opts:townships},{k:'date',l:'日期',t:'date'},{k:'temp',l:'温度(°C)',t:'number'},{k:'humidity',l:'湿度(%)',t:'number'},{k:'rain',l:'降雨量(mm)',t:'number'},{k:'leafwet',l:'叶面湿润(h)',t:'number',step:'0.1'},{k:'light',l:'光照(klx)',t:'number'},{k:'wind',l:'风速(m/s)',t:'number',step:'0.1'}],
   pt: [{k:'town',l:'乡镇',t:'select',opts:townships},{k:'date',l:'日期',t:'date'},{k:'stage',l:'物候期',t:'select',opts:['春芽萌动期','春梢生长期','开花期','生理落果期','夏梢抽发期','果实膨大期','秋梢抽发期','果实成熟期']},{k:'shoot',l:'新梢萌发率(%)',t:'number'},{k:'flower',l:'花蕾密度(朵/枝)',t:'number'},{k:'fruit',l:'坐果率(%)',t:'number'},{k:'diameter',l:'果径(mm)',t:'number'},{k:'note',l:'物候描述',t:'text'}],
   dt: [{k:'town',l:'乡镇',t:'select',opts:townships},{k:'date',l:'日期',t:'date'},{k:'type',l:'病虫害类型',t:'select',opts:['红蜘蛛','黄龙病','炭疽病','潜叶蛾','溃疡病','疮痂病']},{k:'spot',l:'病斑率(%)',t:'number'},{k:'density',l:'虫口密度(头/叶)',t:'number'},{k:'egg',l:'卵量(粒/叶)',t:'number'}],
   it: [{k:'town',l:'乡镇',t:'select',opts:townships},{k:'date',l:'日期',t:'date'},{k:'stype',l:'虫源类型',t:'select',opts:['红蜘蛛越冬','木虱越冬','潜叶蛾越冬','炭疽病菌源','溃疡病菌源']},{k:'winter',l:'越冬虫源(头/m²)',t:'number'},{k:'cfu',l:'病原菌量(CFU/g)',t:'number'},{k:'remark',l:'备注',t:'text'}],
@@ -205,48 +205,48 @@ var fieldConfig = {
 
 var allData = {
   wt: [
-    {town:'琴城镇',date:'2026-08-04',temp:33,humidity:78,rain:5,light:45,wind:2.3},
-    {town:'市山镇',date:'2026-08-04',temp:32,humidity:80,rain:8,light:42,wind:2.1},
-    {town:'洽湾镇',date:'2026-08-03',temp:34,humidity:75,rain:0,light:48,wind:3.0},
-    {town:'太和镇',date:'2026-08-03',temp:31,humidity:82,rain:12,light:38,wind:1.8},
-    {town:'桑田镇',date:'2026-08-02',temp:30,humidity:85,rain:25,light:32,wind:1.5},
-    {town:'白舍镇',date:'2026-08-02',temp:33,humidity:72,rain:3,light:46,wind:2.8},
-    {town:'紫霄镇',date:'2026-08-01',temp:32,humidity:79,rain:6,light:44,wind:2.0},
-    {town:'三溪乡',date:'2026-07-30',temp:29,humidity:84,rain:18,light:35,wind:1.6},
-    {town:'傅坊乡',date:'2026-07-28',temp:35,humidity:68,rain:0,light:50,wind:3.5}
+    {town:'琴城镇',date:'2026-08-22',temp:33,humidity:78,rain:5,leafwet:6.5,light:45,wind:2.3},
+    {town:'市山镇',date:'2026-08-22',temp:32,humidity:80,rain:8,leafwet:7.2,light:42,wind:2.1},
+    {town:'洽湾镇',date:'2026-08-21',temp:34,humidity:75,rain:0,leafwet:3.1,light:48,wind:3.0},
+    {town:'太和镇',date:'2026-08-21',temp:31,humidity:82,rain:12,leafwet:9.0,light:38,wind:1.8},
+    {town:'桑田镇',date:'2026-08-20',temp:30,humidity:85,rain:25,leafwet:12.5,light:32,wind:1.5},
+    {town:'白舍镇',date:'2026-08-20',temp:33,humidity:72,rain:3,leafwet:5.8,light:46,wind:2.8},
+    {town:'紫霄镇',date:'2026-08-19',temp:32,humidity:79,rain:6,leafwet:7.0,light:44,wind:2.0},
+    {town:'三溪乡',date:'2026-08-17',temp:29,humidity:84,rain:18,leafwet:10.5,light:35,wind:1.6},
+    {town:'傅坊乡',date:'2026-08-15',temp:35,humidity:68,rain:0,leafwet:2.4,light:50,wind:3.5}
   ],
   pt: [
-    {town:'琴城镇',date:'2026-08-04',stage:'果实膨大期',shoot:0,flower:0,fruit:82,diameter:48,note:'果实膨大正常，无明显裂果'},
-    {town:'市山镇',date:'2026-08-04',stage:'果实膨大期',shoot:0,flower:0,fruit:78,diameter:45,note:'膨大略偏慢，关注水分管理'},
-    {town:'洽湾镇',date:'2026-08-03',stage:'果实膨大期',shoot:0,flower:0,fruit:85,diameter:50,note:'膨大良好'},
-    {town:'太和镇',date:'2026-08-03',stage:'果实膨大期',shoot:0,flower:0,fruit:75,diameter:43,note:'膨大偏慢，需追肥'},
-    {town:'桑田镇',date:'2026-08-02',stage:'秋梢抽发期',shoot:35,flower:0,fruit:0,diameter:0,note:'秋梢集中抽发，建议抹芽控梢'},
-    {town:'白舍镇',date:'2026-08-02',stage:'果实膨大期',shoot:0,flower:0,fruit:80,diameter:46,note:'膨大正常'},
-    {town:'紫霄镇',date:'2026-08-01',stage:'秋梢抽发期',shoot:28,flower:0,fruit:0,diameter:0,note:'秋梢萌发中等'},
-    {town:'三溪乡',date:'2026-07-30',stage:'果实膨大期',shoot:0,flower:0,fruit:88,diameter:52,note:'长势最优'},
-    {town:'傅坊乡',date:'2026-07-28',stage:'果实膨大期',shoot:0,flower:0,fruit:83,diameter:47,note:'膨大正常'}
+    {town:'琴城镇',date:'2026-08-22',stage:'果实膨大期',shoot:0,flower:0,fruit:82,diameter:48,note:'果实膨大正常，无明显裂果'},
+    {town:'市山镇',date:'2026-08-22',stage:'果实膨大期',shoot:0,flower:0,fruit:78,diameter:45,note:'膨大略偏慢，关注水分管理'},
+    {town:'洽湾镇',date:'2026-08-21',stage:'果实膨大期',shoot:0,flower:0,fruit:85,diameter:50,note:'膨大良好'},
+    {town:'太和镇',date:'2026-08-21',stage:'果实膨大期',shoot:0,flower:0,fruit:75,diameter:43,note:'膨大偏慢，需追肥'},
+    {town:'桑田镇',date:'2026-08-20',stage:'秋梢抽发期',shoot:35,flower:0,fruit:0,diameter:0,note:'秋梢集中抽发，建议抹芽控梢'},
+    {town:'白舍镇',date:'2026-08-20',stage:'果实膨大期',shoot:0,flower:0,fruit:80,diameter:46,note:'膨大正常'},
+    {town:'紫霄镇',date:'2026-08-19',stage:'秋梢抽发期',shoot:28,flower:0,fruit:0,diameter:0,note:'秋梢萌发中等'},
+    {town:'三溪乡',date:'2026-08-17',stage:'果实膨大期',shoot:0,flower:0,fruit:88,diameter:52,note:'长势最优'},
+    {town:'傅坊乡',date:'2026-08-15',stage:'果实膨大期',shoot:0,flower:0,fruit:83,diameter:47,note:'膨大正常'}
   ],
   dt: [
-    {town:'琴城镇',date:'2026-08-04',type:'红蜘蛛',spot:12,density:8,egg:5},
-    {town:'市山镇',date:'2026-08-04',type:'炭疽病',spot:18,density:0,egg:0},
-    {town:'洽湾镇',date:'2026-08-03',type:'潜叶蛾',spot:5,density:12,egg:9},
-    {town:'太和镇',date:'2026-08-03',type:'黄龙病',spot:8,density:6,egg:3},
-    {town:'桑田镇',date:'2026-08-02',type:'红蜘蛛',spot:22,density:15,egg:11},
-    {town:'白舍镇',date:'2026-08-02',type:'溃疡病',spot:14,density:0,egg:0},
-    {town:'紫霄镇',date:'2026-08-01',type:'疮痂病',spot:10,density:2,egg:1},
-    {town:'三溪乡',date:'2026-07-30',type:'红蜘蛛',spot:7,density:5,egg:4},
-    {town:'傅坊乡',date:'2026-07-28',type:'潜叶蛾',spot:9,density:10,egg:7}
+    {town:'琴城镇',date:'2026-08-22',type:'红蜘蛛',spot:12,density:8,egg:5},
+    {town:'市山镇',date:'2026-08-22',type:'炭疽病',spot:18,density:0,egg:0},
+    {town:'洽湾镇',date:'2026-08-21',type:'潜叶蛾',spot:5,density:12,egg:9},
+    {town:'太和镇',date:'2026-08-21',type:'黄龙病',spot:8,density:6,egg:3},
+    {town:'桑田镇',date:'2026-08-20',type:'红蜘蛛',spot:22,density:15,egg:11},
+    {town:'白舍镇',date:'2026-08-20',type:'溃疡病',spot:14,density:0,egg:0},
+    {town:'紫霄镇',date:'2026-08-19',type:'疮痂病',spot:10,density:2,egg:1},
+    {town:'三溪乡',date:'2026-08-17',type:'红蜘蛛',spot:7,density:5,egg:4},
+    {town:'傅坊乡',date:'2026-08-15',type:'潜叶蛾',spot:9,density:10,egg:7}
   ],
   it: [
-    {town:'琴城镇',date:'2026-08-04',stype:'红蜘蛛越冬',winter:12,cfu:0,remark:'越冬基数偏高'},
-    {town:'市山镇',date:'2026-08-04',stype:'炭疽病菌源',winter:0,cfu:3500,remark:'菌源量中等'},
-    {town:'洽湾镇',date:'2026-08-03',stype:'潜叶蛾越冬',winter:8,cfu:0,remark:'虫源分布广'},
-    {town:'太和镇',date:'2026-08-03',stype:'木虱越冬',winter:6,cfu:0,remark:'黄龙病媒介'},
-    {town:'桑田镇',date:'2026-08-02',stype:'红蜘蛛越冬',winter:15,cfu:0,remark:'需重点防控'},
-    {town:'白舍镇',date:'2026-08-02',stype:'溃疡病菌源',winter:0,cfu:2800,remark:'春季侵染源'},
-    {town:'紫霄镇',date:'2026-08-01',stype:'潜叶蛾越冬',winter:5,cfu:0,remark:'基数偏低'},
-    {town:'三溪乡',date:'2026-07-30',stype:'红蜘蛛越冬',winter:9,cfu:0,remark:'正常水平'},
-    {town:'傅坊乡',date:'2026-07-28',stype:'炭疽病菌源',winter:0,cfu:2200,remark:'老果园菌源'}
+    {town:'琴城镇',date:'2026-08-22',stype:'红蜘蛛越冬',winter:12,cfu:0,remark:'越冬基数偏高'},
+    {town:'市山镇',date:'2026-08-22',stype:'炭疽病菌源',winter:0,cfu:3500,remark:'菌源量中等'},
+    {town:'洽湾镇',date:'2026-08-21',stype:'潜叶蛾越冬',winter:8,cfu:0,remark:'虫源分布广'},
+    {town:'太和镇',date:'2026-08-21',stype:'木虱越冬',winter:6,cfu:0,remark:'黄龙病媒介'},
+    {town:'桑田镇',date:'2026-08-20',stype:'红蜘蛛越冬',winter:15,cfu:0,remark:'需重点防控'},
+    {town:'白舍镇',date:'2026-08-20',stype:'溃疡病菌源',winter:0,cfu:2800,remark:'春季侵染源'},
+    {town:'紫霄镇',date:'2026-08-19',stype:'潜叶蛾越冬',winter:5,cfu:0,remark:'基数偏低'},
+    {town:'三溪乡',date:'2026-08-17',stype:'红蜘蛛越冬',winter:9,cfu:0,remark:'正常水平'},
+    {town:'傅坊乡',date:'2026-08-15',stype:'炭疽病菌源',winter:0,cfu:2200,remark:'老果园菌源'}
   ],
   ht: [
     {town:'琴城镇',year:2024,level:'偏重',trend:'逐年上升',cycle:'3年一流行'},
@@ -442,3 +442,4 @@ document.addEventListener('click', function(e){
 </script>
 </body>
 </html>
+

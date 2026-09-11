@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿<!DOCTYPE html>
+﻿﻿﻿﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -335,11 +335,11 @@
                     <p class="judge-section-desc">用于匹配品系、砧木、树龄和生育阶段参数</p>
                     <div class="judge-grid">
                         <div class="judge-form-item">
-                            <label class="judge-form-label">果园主体</label>
-                            <input type="text" class="judge-form-input" id="input-orchard" value="南丰蜜桔示范园 01">
+                            <label class="judge-form-label">对象编码</label>
+                            <input type="text" class="judge-form-input" id="input-orchard" value="南丰蜜桔-品系A-枳砧-10年生-D004">
                         </div>
                         <div class="judge-form-item">
-                            <label class="judge-form-label">地块</label>
+                            <label class="judge-form-label">地块简称</label>
                             <input type="text" class="judge-form-input" id="input-plot" value="东坡 A-03 地块">
                         </div>
                         <div class="judge-form-item">
@@ -353,7 +353,7 @@
                         <div class="judge-form-item">
                             <label class="judge-form-label">树龄</label>
                             <div class="judge-input-row">
-                                <input type="number" class="judge-form-input" id="input-age" value="6">
+                                <input type="number" class="judge-form-input" id="input-age" value="10">
                                 <span class="unit">年</span>
                             </div>
                         </div>
@@ -385,7 +385,7 @@
                                 <input type="number" class="judge-form-input" id="input-temp" value="32">
                                 <span class="unit">°C</span>
                             </div>
-                            <div class="judge-hint"><span class="range">适宜：15-32°C；偏差：10-15 或 32-38</span><span class="level">—</span></div>
+                            <div class="judge-hint"><span class="range">果实膨大期适宜：24-29℃；超出 12-38 偏差</span><span class="level">—</span></div>
                         </div>
                         <div class="judge-form-item">
                             <label class="judge-form-label">空气湿度 <span class="core-tag">核心</span></label>
@@ -393,7 +393,7 @@
                                 <input type="number" class="judge-form-input" id="input-humidity" value="82">
                                 <span class="unit">%</span>
                             </div>
-                            <div class="judge-hint"><span class="range">适宜：60-80%；偏低：<40；偏高：>95</span><span class="level">—</span></div>
+                            <div class="judge-hint"><span class="range">果实膨大期适宜：60-80%；偏低：<40；偏高：>95</span><span class="level">—</span></div>
                         </div>
                         <div class="judge-form-item">
                             <label class="judge-form-label">土壤含水量 <span class="core-tag">核心</span></label>
@@ -544,7 +544,7 @@
                             <input type="number" step="0.1" class="judge-form-input" id="input-fruit-size" value="48.6">
                             <span class="unit">mm</span>
                         </div>
-                        <div class="judge-hint"><span class="range">参考：膨大期 30-50mm，成熟期 50-70mm</span><span class="level normal">膨大期</span></div>
+                        <div class="judge-hint"><span class="range">参考：糖度积累期 30-50mm，成熟期 50-70mm</span><span class="level normal">糖度积累期</span></div>
                     </div>
 
                     <!-- 当前糖度 -->
@@ -555,6 +555,26 @@
                             <span class="unit">°Brix</span>
                         </div>
                         <div class="judge-hint"><span class="range">参考：>10 接近采收，>12 优质</span><span class="level normal">膨大中</span></div>
+                    </div>
+
+                    <!-- 当前酸度（Zt 分量 W 相关） -->
+                    <div class="judge-form-item">
+                        <label class="judge-form-label">当前酸度</label>
+                        <div class="judge-input-row">
+                            <input type="number" step="0.1" class="judge-form-input" id="input-acid" value="0.9">
+                            <span class="unit">%</span>
+                        </div>
+                        <div class="judge-hint"><span class="range">参考：成熟期 0.6-1.2%，糖酸比 8-12 为佳</span><span class="level normal">正常</span></div>
+                    </div>
+
+                    <!-- 平均果重（Zt 分量 W） -->
+                    <div class="judge-form-item">
+                        <label class="judge-form-label">平均果重</label>
+                        <div class="judge-input-row">
+                            <input type="number" step="0.1" class="judge-form-input" id="input-fruit-weight" value="76">
+                            <span class="unit">g</span>
+                        </div>
+                        <div class="judge-hint"><span class="range">参考：果实膨大期 50-120g</span><span class="level normal">膨大中</span></div>
                     </div>
 
                     <!-- 果实外观 -->
@@ -633,11 +653,11 @@
         }
 
         const mockData = {
-            'input-orchard': '南丰蜜桔示范园 01',
+            'input-orchard': '南丰蜜桔-品系A-枳砧-10年生-D004',
             'input-plot': '东坡 A-03 地块',
             'input-variety': '品系 A',
             'input-rootstock': '枳砧',
-            'input-age': '6',
+            'input-age': '10',
             'input-stage': '果实膨大期',
             'input-temp': '32',
             'input-humidity': '82',
@@ -656,6 +676,8 @@
             'input-fruit-drop': '9',
             'input-fruit-size': '48.6',
             'input-sugar': '9.4',
+            'input-acid': '0.9',
+            'input-fruit-weight': '76',
             'input-fruit-appearance': '88',
             'input-pest-health': '92',
             'input-irrigation': '近3日灌溉1次',
@@ -664,9 +686,9 @@
 
         // 指标参考范围与等级判定
         const INDICATOR_RULES = {
-            'input-temp': { ranges: [[15, 32, 'normal', '适宜'], [10, 35, 'normal', '次适宜'], [5, 38, 'high', '偏差']], getLevel: function(v) {
-                if (v >= 15 && v <= 32) return { cls: 'normal', text: '适宜' };
-                if (v < 10 || v > 38) return { cls: 'high', text: '过高/低' };
+            'input-temp': { ranges: [[24, 29, 'normal', '适宜'], [12, 38, 'normal', '次适宜'], [5, 38, 'high', '偏差']], getLevel: function(v) {
+                if (v >= 24 && v <= 29) return { cls: 'normal', text: '适宜' };
+                if (v < 12 || v > 38) return { cls: 'high', text: '过高/低' };
                 return { cls: 'low', text: '偏差' };
             }},
             'input-humidity': { getLevel: function(v) {
@@ -709,7 +731,7 @@
             }},
             'input-fruit-size': { getLevel: function(v) {
                 if (v >= 50) return { cls: 'normal', text: '成熟期' };
-                if (v >= 30) return { cls: 'normal', text: '膨大期' };
+                if (v >= 30) return { cls: 'normal', text: '果实膨大期' };
                 return { cls: 'low', text: '偏小' };
             }},
             'input-sugar': { getLevel: function(v) {

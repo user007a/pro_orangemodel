@@ -1,48 +1,56 @@
-<!DOCTYPE html>
+﻿﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>蜜桔农业助手 - 首页</title>
   <link rel="stylesheet" href="css/mobile-design-system.css">
+  <link rel="stylesheet" href="css/mobile-tokens.css">
+  <link rel="stylesheet" href="css/mobile-icons.css">
+  <link rel="stylesheet" href="css/mobile-components.css">
+  <link rel="stylesheet" href="css/mobile-ds-override.css">
   <style>
     .mb-header-home {
-      background: var(--gradient-header);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.12) 0%, rgba(0,0,0,0.25) 100%),
+        linear-gradient(135deg, var(--brand-primary) 0%, var(--primary-600) 55%, var(--primary-800) 100%),
+        url('images/news_disease_summer.jpg') center / cover no-repeat;
       position: relative;
-      padding: 12px 16px 18px;
-      border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+      padding: 16px 16px 22px;
+      border-radius: 0 0 24px 24px;
+      overflow: hidden;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    }
+    /* Header 顶部微光带 */
+    .mb-header-home::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 60%;
+      background: linear-gradient(180deg, rgba(255,255,255,0.15), transparent);
+      pointer-events: none;
     }
 
     .mb-header-home::before { display: none; }
-    .mb-header-home::after { display: none; }
 
-    /* 顶部：我的果园 + 天气 */
+    /* 顶部：合并为统一玻璃卡 */
     .header-top {
-      display: flex;
-      align-items: stretch;
-      justify-content: space-between;
-      padding: 4px 0 0;
-      gap: 10px;
+      padding: 0;
     }
 
-    .header-weather {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: var(--font-sm);
-      background: rgba(255,255,255,0.18);
-      padding: 8px 10px;
-      border-radius: var(--radius-lg);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      border: 1px solid rgba(255,255,255,0.18);
-      flex: 0 0 132px;
+    /* 统一玻璃卡：column 布局 */
+    .orchard-card.unified {
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
       box-sizing: border-box;
     }
-    .header-weather svg { width: 20px; height: 20px; opacity: 0.95; }
-    .weather-temp { font-weight: 700; font-size: var(--font-lg); text-shadow: 0 1px 2px rgba(0,0,0,0.08); }
-    .weather-info { display: flex; flex-direction: column; line-height: 1.2; }
-    .weather-desc { font-size: var(--font-2xs); opacity: 0.85; }
+    /* orchard-main 已废弃 */
+    .orchard-main { display: none; }
+
+    /* 天气区旧样式已废弃 */
+    .header-weather, .header-weather::before, .header-weather svg,
+    .weather-temp, .weather-info, .weather-desc { display: none; }
 
     /* 地块状态摘要 */
     .plot-status {
@@ -63,28 +71,29 @@
     }
     .plot-status-chip svg { width: 14px; height: 14px; opacity: 0.85; }
     .plot-status-num { font-size: var(--font-sm); font-weight: 700; }
-    .plot-status-chip.alert .plot-status-num { color: #ffb4b4; }
-    .plot-status-chip.warn .plot-status-num { color: #ffe082; }
-    .plot-status-chip.ok .plot-status-num { color: #b9f6ca; }
+    .plot-status-chip.alert .plot-status-num { color: var(--error); }
+    .plot-status-chip.warn .plot-status-num { color: var(--warning); }
+    .plot-status-chip.ok .plot-status-num { color: var(--success); }
 
     /* 我的果园（与 Header 同色系，作为 Header 内嵌区域） */
     .orchard-card {
-      background: rgba(255,255,255,0.16);
-      border-radius: var(--radius-lg);
-      padding: 12px;
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.26);
+      border-radius: 16px;
+      padding: 12px 14px;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255,255,255,0.38);
       flex: 1;
       min-width: 0;
       display: flex;
-      align-items: center;
+      flex-direction: column;
+      gap: 10px;
       box-sizing: border-box;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
     }
     .orchard-header {
       display: flex;
       align-items: center;
-      justify-content: space-between;
       width: 100%;
       margin-bottom: 0;
     }
@@ -94,25 +103,18 @@
       gap: 8px;
       min-width: 0;
     }
-    .orchard-icon {
-      width: 32px;
-      height: 32px;
-      border-radius: var(--radius-md);
-      background: rgba(255,255,255,0.25);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #fff;
-    }
-    .orchard-icon svg { width: 18px; height: 18px; }
+    .orchard-icon { display: none; }
+    .orchard-icon svg { display: none; }
     .orchard-title {
-      font-size: var(--font-base);
-      font-weight: 700;
+      font-size: 17px;
+      font-weight: 800;
       color: #fff;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.15);
+      letter-spacing: 0.3px;
     }
     .orchard-subtitle {
       font-size: var(--font-xs);
-      color: rgba(255,255,255,0.85);
+      color: rgba(255,255,255,0.95);
       margin-top: 2px;
     }
     .orchard-action {
@@ -123,30 +125,54 @@
       align-items: center;
       gap: 2px;
       cursor: pointer;
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      justify-content: center;
+      transition: all var(--transition-fast);
     }
+    .orchard-action:active { background: rgba(255,255,255,0.35); transform: scale(0.92); }
     .orchard-stats {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
     }
     .orchard-stat {
-      background: rgba(255,255,255,0.2);
-      border-radius: var(--radius-md);
-      padding: 8px 4px;
+      background: rgba(255,255,255,0.22);
+      border-radius: 12px;
+      padding: 8px 2px;
       text-align: center;
-      border: 1px solid rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.28);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.2);
     }
     .orchard-stat-value {
-      font-size: var(--font-lg);
+      font-size: var(--font-md);
       font-weight: 700;
       color: #fff;
       font-family: var(--font-family-number);
       line-height: 1.2;
     }
+    .orchard-stat-value.with-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      font-size: var(--font-sm);
+    }
+    .orchard-stat-value.with-icon svg {
+      width: 14px; height: 14px;
+      font-family: none;
+    }
     .orchard-stat-label {
-      font-size: 10px;
-      color: rgba(255,255,255,0.85);
+      font-size: var(--font-2xs);
+      color: rgba(255,255,255,0.95);
       margin-top: 2px;
+    }
+    /* 物候期文字稍长，使用紧凑布局 */
+    .orchard-stat-value.is-text {
+      font-size: var(--font-sm);
+      line-height: 1.2;
+      padding: 2px 0;
     }
 
     .env-value-wrap {
@@ -161,63 +187,65 @@
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 12px;
+      padding: 14px 14px 14px 18px;
       background: var(--bg-white);
-      border-radius: var(--radius-md);
-      border: 1px solid var(--border-light);
-      margin-bottom: 8px;
+      border-radius: 12px;
+      border: 1px solid rgba(0,0,0,0.04);
+      margin-bottom: 10px;
       position: relative;
       cursor: pointer;
       transition: all var(--transition-fast);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     }
     .todo-card:active {
-      transform: scale(0.98);
+      transform: scale(0.985);
       background: var(--gray-50);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
     }
     .todo-card:last-child { margin-bottom: 0; }
     .todo-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: var(--radius-md);
+      width: 42px;
+      height: 42px;
+      border-radius: 11px;
       display: flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
     }
     .todo-icon svg { width: 20px; height: 20px; }
-    .todo-icon.alert { background: var(--error-light); color: var(--error); }
-    .todo-icon.warn { background: var(--warning-light); color: var(--warning); }
-    .todo-icon.farm { background: var(--success-bg); color: var(--success); }
-    .todo-icon.report { background: var(--primary-light); color: var(--primary); }
+    /* 2 色体系：error 红(风险/预警) + primary 绿(农事/上报/作业) */
+    .todo-icon.alert, .todo-icon.warn { background: var(--error-light); color: var(--error); }
+    .todo-icon.farm, .todo-icon.report { background: var(--primary-light); color: var(--primary); }
 
     .todo-content { flex: 1; min-width: 0; }
     .todo-title {
-      font-size: var(--font-sm);
+      font-size: var(--font-xs);
       font-weight: 600;
-      color: var(--text);
+      color: var(--text-secondary);
       line-height: 1.4;
       display: flex;
       align-items: center;
       gap: 6px;
     }
     .todo-tag {
-      font-size: 10px;
+      font-size: var(--font-2xs);
       padding: 1px 6px;
       border-radius: var(--radius-sm);
       font-weight: 500;
       flex-shrink: 0;
     }
-    .todo-tag.alert { background: var(--error-light); color: var(--error); }
-    .todo-tag.warn { background: var(--warning-light); color: var(--warning-dark); }
-    .todo-tag.farm { background: var(--success-bg); color: var(--success); }
+    .todo-tag.alert, .todo-tag.warn { background: var(--error-light); color: var(--error); }
+    .todo-tag.farm, .todo-tag.report { background: var(--primary-light); color: var(--primary); }
     .todo-desc {
       font-size: var(--font-xs);
       color: var(--text-secondary);
       margin-top: 3px;
       line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
       overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
     }
     .todo-arrow {
       flex-shrink: 0;
@@ -244,12 +272,13 @@
       content: '';
       position: absolute;
       left: 0;
-      top: 0;
-      width: 3px;
-      height: 100%;
+      top: 12px;
+      width: 4px;
+      height: calc(100% - 24px);
+      border-radius: 0 4px 4px 0;
     }
-    .mb-task-card.pending::before { background: var(--warning); }
-    .mb-task-card.doing::before { background: var(--primary); }
+    .mb-task-card.pending::before, .mb-task-card.warn::before { background: var(--error); }
+    .mb-task-card.doing::before, .mb-task-card.farm::before, .mb-task-card.report::before { background: var(--primary); }
 
     .news-tag {
       font-size: var(--font-xs);
@@ -258,9 +287,7 @@
       font-weight: 500;
       flex-shrink: 0;
     }
-    .news-tag.important { background: var(--error-light); color: var(--error-dark); }
-    .news-tag.training { background: var(--primary-50); color: var(--primary-700); }
-    .news-tag.technology { background: var(--info-light); color: var(--info-dark); }
+    .news-tag.important, .news-tag.training, .news-tag.technology { background: var(--gray-100); color: var(--text-tertiary); }
 
     .news-card-header {
       display: flex;
@@ -379,6 +406,229 @@
       background: var(--bg);
       color: var(--text);
     }
+
+    /* ============================================
+     * 价格卡片（独立于环境卡片，突出市场语义）
+     * ============================================ */
+    .mb-price-card {
+      background: var(--bg-white);
+      border: 1px solid rgba(0,0,0,0.05);
+      border-radius: 14px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .mb-price-card:active {
+      transform: scale(0.98);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+    .mb-price-name {
+      font-size: var(--font-xs);
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-weight: 500;
+    }
+    .mb-price-name svg {
+      width: 13px;
+      height: 13px;
+      color: var(--text-tertiary);
+    }
+    .mb-price-value {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--brand-primary);
+      font-family: var(--font-family-number);
+      line-height: 1.2;
+      letter-spacing: -0.3px;
+    }
+    .mb-price-value.stable { color: var(--text-tertiary); font-size: var(--font-base); font-weight: 600; letter-spacing: 0; }
+    .mb-price-value.up { color: var(--danger); }
+    .mb-price-value.down { color: var(--success); }
+    .mb-price-unit {
+      font-size: var(--font-2xs);
+      color: var(--text-tertiary);
+      margin-left: 2px;
+      font-weight: 400;
+    }
+    .mb-price-arrow {
+      font-size: var(--font-sm);
+      margin-right: 2px;
+    }
+
+    /* 价格 mini 折线 */
+    .mb-price-trend {
+      grid-column: 1 / -1;
+      background: linear-gradient(180deg, #ffffff 0%, #fafbfc 100%);
+      border: 1px solid rgba(0,0,0,0.05);
+      border-radius: 14px;
+      padding: 12px 14px 8px;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .mb-price-trend-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+    .mb-price-trend-title {
+      font-size: var(--font-xs);
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .mb-price-trend-title .legend {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-size: var(--font-2xs);
+    }
+    .legend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .mb-price-trend-more {
+      font-size: var(--font-2xs);
+      color: var(--text-tertiary);
+    }
+    .mb-price-trend svg {
+      width: 100%;
+      height: 56px;
+      display: block;
+    }
+    .mb-price-trend .trend-line {
+      fill: none;
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .mb-price-trend .trend-area {
+      stroke: none;
+      opacity: 0.18;
+    }
+    .mb-price-trend .trend-dot {
+      stroke: #fff;
+      stroke-width: 1;
+    }
+    .mb-price-trend .trend-axis {
+      font-size: var(--font-2xs);
+      fill: var(--text-tertiary);
+    }
+
+    /* ============================================
+     * 资讯卡片（带缩略图）
+     * ============================================ */
+    .mb-news-card.with-thumb {
+      display: flex;
+      gap: 12px;
+      padding: 12px;
+      align-items: stretch;
+      background: linear-gradient(180deg, #ffffff 0%, #fafbfc 100%) !important;
+      border: 1px solid rgba(0,0,0,0.05) !important;
+      border-radius: 14px !important;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      margin-bottom: 10px;
+      transition: all var(--transition-fast);
+    }
+    .mb-news-card.with-thumb:active {
+      transform: scale(0.98);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+    .mb-news-thumb {
+      width: 92px;
+      height: 92px;
+      border-radius: 12px;
+      background: var(--bg) center / cover no-repeat;
+      flex-shrink: 0;
+      background-color: var(--gray-100);
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+    .mb-news-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .mb-news-body {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .mb-news-card.with-thumb .news-card-header {
+      margin-bottom: 6px;
+      align-items: flex-start;
+    }
+    .mb-news-card.with-thumb .mb-news-title {
+      font-size: var(--font-sm);
+      font-weight: 500;
+      -webkit-line-clamp: 2;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      line-height: 1.45;
+    }
+    .mb-news-card.with-thumb .mb-news-footer {
+      font-size: var(--font-2xs);
+    }
+
+    /* ============================================
+     * Section 节奏优化（覆盖 design-system 默认值）
+     * ============================================ */
+    .mb-section {
+      padding: 20px 16px 0;
+    }
+    .mb-section-title {
+      font-size: var(--font-md);
+      font-weight: 700;
+      margin-bottom: 14px;
+      letter-spacing: 0.2px;
+    }
+    .mb-section-dot {
+      width: 4px;
+      height: 16px;
+      background: linear-gradient(180deg, var(--brand-primary) 0%, var(--primary-700) 100%);
+      border-radius: 2px;
+    }
+
+    /* 常用服务图标精修 */
+    .mb-quick-grid {
+      gap: 8px;
+    }
+    .mb-quick-item {
+      gap: 6px;
+      padding: 6px 2px;
+    }
+    .mb-quick-icon {
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+      transition: all var(--transition-fast);
+    }
+    .mb-quick-item:active .mb-quick-icon {
+      transform: scale(0.94);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .mb-quick-name {
+      font-size: var(--font-xs);
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    /* Tab Bar 顶部阴影 */
+    .mb-tab-bar {
+      box-shadow: 0 -2px 12px rgba(0,0,0,0.06);
+    }
   </style>
 </head>
 <body>
@@ -386,29 +636,36 @@
     <!-- Header：今日天气 + 我的果园（统一品牌色） -->
     <div class="mb-header-home">
       <div class="header-top">
-        <!-- 我的果园：与天气同排 -->
-        <div class="orchard-card" onclick="navigateTo('mb_data_orchard.html')">
+        <!-- 合并后的统一玻璃卡：顶部标题+天气 / 底部3张统计卡 -->
+        <div class="orchard-card unified" onclick="navigateTo('mb_data_orchard.html')">
           <div class="orchard-header">
             <div class="orchard-title-wrap">
-              <div class="orchard-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2z"/><circle cx="12" cy="12" r="3"/></svg>
-              </div>
               <div>
-                <div class="orchard-title">我的果园</div>
+                <div class="orchard-title">张顺发的果园</div>
                 <div class="orchard-subtitle">南丰县 · 白舍镇 · 4块地块</div>
               </div>
             </div>
-            <div class="orchard-action">
-              >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-            </div>
           </div>
-        </div>
-        <div class="header-weather">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 2.83 2.83"/><path d="m16.24 16.24 2.83 2.83"/><path d="M2 12h2"/><path d="M20 12h2"/></svg>
-          <div class="weather-info">
-            <span class="weather-temp">35°C</span>
-            <span class="weather-desc">晴 · 湿度45%</span>
+          <div class="orchard-stats">
+            <div class="orchard-stat">
+              <div class="orchard-stat-value">120<span style="font-size:var(--font-2xs);font-weight:500;">亩</span></div>
+              <div class="orchard-stat-label">种植面积</div>
+            </div>
+            <div class="orchard-stat">
+              <div class="orchard-stat-value">18<span style="font-size:var(--font-2xs);font-weight:500;">吨</span></div>
+              <div class="orchard-stat-label">预估产量</div>
+            </div>
+            <div class="orchard-stat">
+              <div class="orchard-stat-value is-text">膨大期</div>
+              <div class="orchard-stat-label">当前物候</div>
+            </div>
+            <div class="orchard-stat orchard-weather-stat">
+              <div class="orchard-stat-value with-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 2.83 2.83"/><path d="m16.24 16.24 2.83 2.83"/><path d="M2 12h2"/><path d="M20 12h2"/></svg>
+                28°C
+              </div>
+              <div class="orchard-stat-label">多云 · 湿度68%</div>
+            </div>
           </div>
         </div>
       </div>
@@ -430,15 +687,15 @@
       <div class="mb-section-title"><span class="mb-section-dot"></span>常用服务</div>
       <div class="mb-quick-grid">
         <div class="mb-quick-item" onclick="navigateTo('mb_disease_ai.html')">
-          <div class="mb-quick-icon red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
-          <div class="mb-quick-name">病虫识别</div>
+          <div class="mb-quick-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
+          <div class="mb-quick-name">病虫害识别</div>
         </div>
         <div class="mb-quick-item" onclick="navigateTo('mb_judge_input.html')">
-          <div class="mb-quick-icon purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></div>
+          <div class="mb-quick-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></div>
           <div class="mb-quick-name">生长评价</div>
         </div>
         <div class="mb-quick-item" onclick="navigateTo('mb_market.html')">
-          <div class="mb-quick-icon orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+          <div class="mb-quick-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
           <div class="mb-quick-name">价格指数</div>
         </div>
         <div class="mb-quick-item" onclick="navigateTo('mb_data.html')">
@@ -446,19 +703,19 @@
           <div class="mb-quick-name">环境监测</div>
         </div>
         <div class="mb-quick-item" onclick="navigateTo('mb_disease_knowledge.html')">
-          <div class="mb-quick-icon cyan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
+          <div class="mb-quick-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
           <div class="mb-quick-name">病虫害库</div>
         </div>
         <div class="mb-quick-item" onclick="navigateTo('mb_data_input.html?tab=disease')">
-          <div class="mb-quick-icon red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg></div>
-          <div class="mb-quick-name">病虫上报</div>
+          <div class="mb-quick-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg></div>
+          <div class="mb-quick-name">病虫害上报</div>
         </div>
         <div class="mb-quick-item" onclick="navigateTo('mb_data_input.html?tab=farming')">
-          <div class="mb-quick-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+          <div class="mb-quick-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
           <div class="mb-quick-name">农事上报</div>
         </div>
         <div class="mb-quick-item" onclick="navigateTo('mb_news.html')">
-          <div class="mb-quick-icon cyan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+          <div class="mb-quick-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
           <div class="mb-quick-name">农技资讯</div>
         </div>
       </div>
@@ -474,17 +731,33 @@
         <span class="text-xs text-secondary" onclick="navigateTo('mb_market.html')">查看全部 ›</span>
       </div>
       <div class="mb-env-grid" style="grid-template-columns: repeat(2, 1fr);">
-        <div class="mb-env-card" onclick="navigateTo('mb_market.html')">
-          <div class="mb-env-name">当日均价</div>
-          <div class="env-value-wrap">
-            <span class="mb-env-value" style="color:var(--primary);">1.45</span><span class="mb-env-unit">元/斤</span>
+        <div class="mb-price-card" onclick="navigateTo('mb_market.html')">
+          <div class="mb-price-name">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 4l6 8 6-8"/><path d="M6 12h12"/><path d="M6 16h12"/><path d="M12 12v8"/></svg>
+            当日均价
+          </div>
+          <div>
+            <span class="mb-price-value">¥1.45</span><span class="mb-price-unit">/斤</span>
           </div>
         </div>
-        <div class="mb-env-card" onclick="navigateTo('mb_market.html')">
-          <div class="mb-env-name">相比前日</div>
-          <div class="env-value-wrap">
-            <span class="mb-env-value" style="color:var(--text-secondary);">±0.0</span><span class="mb-env-unit">元/斤</span>
+        <div class="mb-price-card" onclick="navigateTo('mb_market.html')">
+          <div class="mb-price-name">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 21 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 3 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+            相比前日
           </div>
+          <div>
+            <span class="mb-price-value stable">价格平稳</span>
+          </div>
+        </div>
+        <div class="mb-price-trend" onclick="navigateTo('mb_market.html')">
+          <div class="mb-price-trend-header">
+            <div class="mb-price-trend-title">
+              近7日价格趋势
+              <span class="legend"><span class="legend-dot" style="background:var(--brand-primary);"></span>均价</span>
+            </div>
+            <span class="mb-price-trend-more">详情 ›</span>
+          </div>
+          <svg viewBox="0 0 280 56" preserveAspectRatio="none" id="priceTrendSvg"></svg>
         </div>
       </div>
     </div>
@@ -495,24 +768,49 @@
         <div class="mb-section-title" style="margin-bottom:0;"><span class="mb-section-dot"></span>农技资讯</div>
         <span class="text-xs text-secondary" onclick="navigateTo('mb_news.html')">查看全部 ›</span>
       </div>
-      <div class="mb-news-card" onclick="navigateTo('mb_news_detail.html')">
-        <div class="news-card-header">
-          <div class="mb-news-title">南丰蜜桔夏季病虫害防治技术要点</div>
-          <span class="news-tag important">重要</span>
+      <div class="mb-news-card with-thumb" onclick="navigateTo('mb_news_detail.html?id=disease-summer')">
+        <div class="mb-news-thumb">
+          <img src="images/news_disease_summer.jpg" alt="病虫害防治" onerror="this.style.display='none';this.parentElement.style.background='var(--gray-200)';">
         </div>
-        <div class="mb-news-footer">
-          <span>2026-08-09</span>
-          <span>3258人已读</span>
+        <div class="mb-news-body">
+          <div class="news-card-header">
+            <div class="mb-news-title">南丰蜜桔秋季病虫害防治技术要点</div>
+            <span class="news-tag important">重要</span>
+          </div>
+          <div class="mb-news-footer">
+            <span>2026-09-10</span>
+            <span>3258人已读</span>
+          </div>
         </div>
       </div>
-      <div class="mb-news-card" onclick="navigateTo('mb_news_detail.html')">
-        <div class="news-card-header">
-          <div class="mb-news-title">高温天气下南丰蜜桔灌溉管理技巧</div>
-          <span class="news-tag technology">技术</span>
+      <div class="mb-news-card with-thumb" onclick="navigateTo('mb_news_detail.html?id=irrigation')">
+        <div class="mb-news-thumb">
+          <img src="images/news_irrigation_drip.jpg" alt="灌溉管理" onerror="this.style.display='none';this.parentElement.style.background='var(--gray-200)';">
         </div>
-        <div class="mb-news-footer">
-          <span>2026-08-08</span>
-          <span>2186人已读</span>
+        <div class="mb-news-body">
+          <div class="news-card-header">
+            <div class="mb-news-title">初秋蜜桔灌溉与水分管理技巧</div>
+            <span class="news-tag technology">技术</span>
+          </div>
+          <div class="mb-news-footer">
+            <span>2026-09-09</span>
+            <span>2186人已读</span>
+          </div>
+        </div>
+      </div>
+      <div class="mb-news-card with-thumb" onclick="navigateTo('mb_news_detail.html?id=fertilizer-fruit')">
+        <div class="mb-news-thumb">
+          <img src="images/news_fertilizer_fruit.jpg" alt="膨果肥" onerror="this.style.display='none';this.parentElement.style.background='var(--gray-200)';">
+        </div>
+        <div class="mb-news-body">
+          <div class="news-card-header">
+            <div class="mb-news-title">果实膨大期叶面肥施用指南</div>
+            <span class="news-tag training">技术</span>
+          </div>
+          <div class="mb-news-footer">
+            <span>2026-09-08</span>
+            <span>1872人已读</span>
+          </div>
         </div>
       </div>
     </div>
@@ -624,7 +922,7 @@
     if (!container) return;
     var html = '';
     todoItems.forEach(function(item, idx) {
-      html += '<div class="todo-card" onclick="handleTodoClick(' + idx + ')">' +
+      html += '<div class="todo-card mb-task-card ' + item.type + '" onclick="handleTodoClick(' + idx + ')">' +
                 '<div class="todo-icon ' + item.type + '">' + item.icon + '</div>' +
                 '<div class="todo-content">' +
                   '<div class="todo-title">' +
@@ -639,6 +937,45 @@
               '</div>';
     });
     container.innerHTML = html;
+  }
+
+  // 渲染近7日价格趋势 mini 折线图
+  function renderPriceTrend() {
+    var svg = document.getElementById('priceTrendSvg');
+    if (!svg) return;
+    // 7天均价数据 (元/斤)：9/4 ~ 9/10，与 mb_market 保持一致
+    var data = [1.42, 1.43, 1.45, 1.44, 1.46, 1.45, 1.45];
+    var dates = ['9/4', '9/5', '9/6', '9/7', '9/8', '9/9', '9/10'];
+    var W = 280, H = 56;
+    var padX = 14, padY = 8, axisH = 14;
+    var plotH = H - padY - axisH;
+    var min = Math.min.apply(null, data);
+    var max = Math.max.apply(null, data);
+    var range = (max - min) || 1;
+    var step = (W - padX * 2) / (data.length - 1);
+    var points = data.map(function(v, i) {
+      var x = padX + i * step;
+      var y = padY + (1 - (v - min) / range) * plotH;
+      return { x: x, y: y, v: v };
+    });
+    // 折线 path
+    var linePath = points.map(function(p, i) {
+      return (i === 0 ? 'M' : 'L') + p.x.toFixed(2) + ' ' + p.y.toFixed(2);
+    }).join(' ');
+    // 填充区域 path
+    var areaPath = linePath + ' L' + points[points.length - 1].x.toFixed(2) + ' ' + (H - axisH) +
+                   ' L' + points[0].x.toFixed(2) + ' ' + (H - axisH) + ' Z';
+    var dotsSvg = points.map(function(p) {
+      return '<circle class="trend-dot" cx="' + p.x.toFixed(2) + '" cy="' + p.y.toFixed(2) + '" r="2.5" fill="var(--brand-primary)"/>';
+    }).join('');
+    var axisSvg = '';
+    [0, 3, 6].forEach(function(i) {
+      axisSvg += '<text class="trend-axis" x="' + points[i].x.toFixed(2) + '" y="' + (H - 2) + '" text-anchor="middle">' + dates[i] + '</text>';
+    });
+    svg.innerHTML =
+      '<path class="trend-area" d="' + areaPath + '" fill="var(--brand-primary)"/>' +
+      '<path class="trend-line" d="' + linePath + '" stroke="var(--brand-primary)"/>' +
+      dotsSvg + axisSvg;
   }
 
   function handleTodoClick(idx) {
@@ -685,6 +1022,7 @@
   document.addEventListener('DOMContentLoaded', function() {
     renderTodoList();
     injectRiskTodo();
+    renderPriceTrend();
 
     var today = new Date();
     var year = today.getFullYear();
@@ -698,7 +1036,7 @@
   // 基于风险引擎评估结果，把高风险病虫害注入今日待办（监测 ↔ 病虫害打通）
   function injectRiskTodo() {
     if (!window.PestRiskEngine) return;
-    var envData = { temp: 35, humidity: 45, rainfall: 0 };
+    var envData = { temp: 28, humidity: 68, rainfall: 0 };
     var historyData = {
       dailyTemps: [22, 24, 26, 28, 30, 32, 34, 35, 33, 31],
       captures: {
@@ -738,3 +1076,5 @@
 </script>
 </body>
 </html>
+
+

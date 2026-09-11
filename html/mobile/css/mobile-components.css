@@ -1,0 +1,731 @@
+/* ==========================================================================
+   mobile-components.css
+   南丰县农业智能体 · 移动端通用组件
+   依赖：mobile-tokens.css
+   命名空间：ds- (design system)
+   ========================================================================== */
+
+/* ===== 通用 reset（局部） ===== */
+.ds-reset {
+  box-sizing: border-box;
+  font-family: var(--font-family);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+.ds-reset *,
+.ds-reset *::before,
+.ds-reset *::after { box-sizing: border-box; }
+
+/* ==========================================================================
+   1. Header（双模式）
+   ========================================================================== */
+
+.ds-header {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding: 0 var(--space-4);
+  font-family: var(--font-family);
+  box-sizing: border-box;
+  z-index: 100;
+}
+
+/* —— 沉浸绿色 Header（主导航首页 / 个人中心） —— */
+.ds-header--immersive {
+  height: 60px;
+  background: var(--brand-primary);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+.ds-header--immersive .ds-header__title {
+  flex: 1;
+  text-align: center;
+  font-size: var(--fs-h3);
+  font-weight: var(--fw-semibold);
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0 var(--space-2);
+}
+
+/* —— 白底居中 Header（二级页） —— */
+.ds-header--plain {
+  height: 56px;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border-light);
+}
+.ds-header--plain .ds-header__title {
+  flex: 1;
+  text-align: center;
+  font-size: var(--fs-h2);
+  font-weight: var(--fw-semibold);
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0 var(--space-2);
+}
+
+/* —— 菜单按钮（沉浸模式） —— */
+.ds-header__menu {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: #fff;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.ds-header__menu:active { background: rgba(255, 255, 255, 0.32); }
+
+/* —— 返回按钮（白底模式） —— */
+.ds-header__back {
+  width: 36px;
+  height: 36px;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-size: 26px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.ds-header__back:active { opacity: 0.6; }
+
+/* —— 右侧窗口控件（●●● ━ ⊙） —— */
+.ds-header__win {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: var(--radius-pill);
+  padding: 6px 10px;
+  flex-shrink: 0;
+}
+.ds-header__win span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #fff;
+  display: block;
+}
+.ds-header__win span:nth-child(2) {
+  width: 10px;
+  height: 2px;
+  border-radius: 1px;
+  background: #fff;
+}
+.ds-header__win span:nth-child(3) {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #fff;
+  position: relative;
+}
+.ds-header__win span:nth-child(3)::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.25);
+}
+.ds-header__win--gray {
+  background: #F0F0F0;
+}
+.ds-header__win--gray span { background: var(--text-primary); }
+.ds-header__win--gray span:nth-child(3)::after { background: #F0F0F0; }
+
+
+/* ==========================================================================
+   2. 底部 Tab Bar
+   ========================================================================== */
+
+.ds-tab-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 60px;
+  background: var(--bg-card);
+  border-top: 1px solid var(--border-light);
+  display: flex;
+  align-items: stretch;
+  z-index: 100;
+  padding-bottom: env(safe-area-inset-bottom, 0);
+  box-sizing: border-box;
+}
+
+.ds-tab-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  color: var(--tab-inactive);
+  text-decoration: none;
+  font-family: var(--font-family);
+  cursor: pointer;
+}
+.ds-tab-item svg {
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.ds-tab-item span {
+  font-size: var(--fs-mini);
+  font-weight: var(--fw-regular);
+}
+.ds-tab-item.is-active {
+  color: var(--brand-primary);
+}
+.ds-tab-item.is-active span {
+  font-weight: var(--fw-semibold);
+}
+
+
+/* ==========================================================================
+   3. 按钮
+   ========================================================================== */
+
+.ds-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-family: var(--font-family);
+  font-size: var(--fs-h3);
+  font-weight: var(--fw-semibold);
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+  user-select: none;
+  text-decoration: none;
+  transition: all var(--transition-fast);
+  box-sizing: border-box;
+}
+.ds-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* 主 CTA */
+.ds-btn-primary {
+  height: 48px;
+  padding: 0 var(--space-8);
+  background: var(--brand-primary);
+  color: #fff;
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-green);
+}
+.ds-btn-primary:not(:disabled):active {
+  background: var(--brand-primary-dark);
+  box-shadow: none;
+}
+
+/* 次按钮（白底绿边） */
+.ds-btn-secondary {
+  height: 44px;
+  padding: 0 var(--space-6);
+  background: #fff;
+  color: var(--brand-primary);
+  border: 1px solid var(--brand-primary);
+  border-radius: var(--radius-pill);
+}
+.ds-btn-secondary:not(:disabled):active { background: var(--brand-primary-bg); }
+
+/* 文字按钮 */
+.ds-btn-text {
+  height: 40px;
+  padding: 0 var(--space-3);
+  background: transparent;
+  color: var(--text-secondary);
+  border-radius: var(--radius-md);
+}
+.ds-btn-text:active { background: var(--bg-page); }
+
+/* 危险文字按钮 */
+.ds-btn-danger-text {
+  height: 40px;
+  padding: 0 var(--space-3);
+  background: transparent;
+  color: var(--danger);
+  font-weight: var(--fw-semibold);
+  border-radius: var(--radius-md);
+}
+.ds-btn-danger-text:active { background: #FDECEC; }
+
+/* 添加按钮（虚线） */
+.ds-btn-add {
+  height: 44px;
+  padding: 0 var(--space-4);
+  background: #fff;
+  color: var(--brand-primary);
+  border: 1px dashed var(--brand-primary);
+  border-radius: var(--radius-lg);
+  width: 100%;
+}
+.ds-btn-add:active { background: var(--brand-primary-bg); }
+
+/* 块级按钮 */
+.ds-btn-block { width: 100%; }
+
+/* 弹窗内的小按钮 */
+.ds-btn-modal {
+  height: 40px;
+  flex: 1;
+  border-radius: var(--radius-md);
+  font-size: var(--fs-body);
+}
+.ds-btn-modal--cancel { background: #F2F2F2; color: var(--text-primary); }
+.ds-btn-modal--ok    { background: var(--brand-primary); color: #fff; }
+
+
+/* ==========================================================================
+   4. 表单（Field）
+   ========================================================================== */
+
+.ds-field {
+  display: block;
+  margin-bottom: var(--field-gap);
+  font-family: var(--font-family);
+}
+.ds-field:last-child { margin-bottom: 0; }
+
+.ds-field__label {
+  display: block;
+  font-size: var(--fs-body);
+  font-weight: var(--fw-semibold);
+  color: var(--text-primary);
+  margin-bottom: var(--space-2);
+  line-height: var(--lh-normal);
+}
+.ds-field__required {
+  color: var(--danger);
+  margin-left: var(--space-1);
+  font-weight: var(--fw-semibold);
+}
+.ds-field__help {
+  font-size: var(--fs-caption);
+  color: var(--text-tertiary);
+  margin: 0 0 var(--space-2);
+  line-height: var(--lh-normal);
+}
+
+.ds-field__input,
+.ds-field__textarea {
+  width: 100%;
+  height: 44px;
+  padding: 0 var(--space-4);
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  font-family: var(--font-family);
+  font-size: var(--fs-body);
+  color: var(--text-primary);
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color var(--transition-fast), background var(--transition-fast);
+}
+.ds-field__input::placeholder,
+.ds-field__textarea::placeholder {
+  color: var(--text-tertiary);
+}
+.ds-field__input:focus,
+.ds-field__textarea:focus {
+  border-color: var(--brand-primary);
+  background: var(--brand-primary-bg);
+}
+.ds-field__input.is-error,
+.ds-field__textarea.is-error {
+  border-color: var(--danger);
+}
+.ds-field__textarea {
+  height: auto;
+  min-height: 100px;
+  padding: var(--space-3) var(--space-4);
+  resize: vertical;
+  line-height: var(--lh-relaxed);
+}
+
+
+/* ==========================================================================
+   5. 卡片
+   ========================================================================== */
+
+.ds-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+  padding: var(--space-4);
+  box-sizing: border-box;
+}
+.ds-card--flat {
+  box-shadow: none;
+  border: 1px solid var(--border-light);
+}
+.ds-card--green {
+  background: var(--brand-primary-light);
+  border-radius: var(--radius-lg);
+  box-shadow: none;
+}
+
+
+/* ==========================================================================
+   6. 列表项
+   ========================================================================== */
+
+.ds-list {
+  background: var(--bg-card);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  box-sizing: border-box;
+}
+.ds-list-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 0 var(--space-4);
+  min-height: 60px;
+  text-decoration: none;
+  color: var(--text-primary);
+  background: var(--bg-card);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+.ds-list-item:not(:last-child) {
+  border-bottom: 1px solid var(--border-light);
+}
+.ds-list-item:active { background: var(--bg-page); }
+.ds-list-item__icon {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--text-primary);
+}
+.ds-list-item__icon svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.ds-list-item__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.ds-list-item__title {
+  font-size: var(--fs-body);
+  font-weight: var(--fw-semibold);
+  color: var(--text-primary);
+  line-height: var(--lh-normal);
+}
+.ds-list-item__desc {
+  font-size: var(--fs-caption);
+  color: var(--text-tertiary);
+  line-height: var(--lh-normal);
+}
+.ds-list-item__arrow {
+  color: #C0C0C0;
+  font-size: 22px;
+  line-height: 1;
+  flex-shrink: 0;
+  font-weight: 300;
+}
+
+
+/* ==========================================================================
+   7. 网格功能入口（首页 2 列）
+   ========================================================================== */
+
+.ds-quick-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-2);
+}
+.ds-quick-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3) var(--space-1);
+  text-decoration: none;
+  color: var(--text-primary);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-fast);
+  box-sizing: border-box;
+  min-height: 92px;
+}
+.ds-quick-item:active { transform: scale(0.96); }
+.ds-quick-item__icon {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+}
+.ds-quick-item__icon svg {
+  width: 22px;
+  height: 22px;
+}
+.ds-quick-item__body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.ds-quick-item__title {
+  font-size: var(--fs-caption);
+  font-weight: var(--fw-medium);
+  color: var(--text-primary);
+  line-height: 1.3;
+  text-align: center;
+  white-space: nowrap;
+}
+.ds-quick-item__desc { display: none; }
+.ds-quick-item__arrow { display: none; }
+
+
+/* ==========================================================================
+   8. 弹窗（居中）
+   ========================================================================== */
+
+.ds-modal-mask {
+  position: fixed;
+  inset: 0;
+  background: var(--bg-mask);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+}
+.ds-modal {
+  width: 100%;
+  max-width: 320px;
+  background: var(--bg-card);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-xl);
+}
+.ds-modal__title {
+  font-size: var(--fs-h2);
+  font-weight: var(--fw-semibold);
+  color: var(--text-primary);
+  text-align: center;
+  margin-bottom: var(--space-5);
+}
+.ds-modal__body { margin-bottom: var(--space-5); }
+.ds-modal__actions {
+  display: flex;
+  gap: var(--space-3);
+}
+
+
+/* ==========================================================================
+   9. 底部 AI 输入条
+   ========================================================================== */
+
+.ds-ai-input {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  background: var(--bg-card);
+  border-top: 1px solid var(--border-light);
+  z-index: 99;
+  padding-bottom: calc(var(--space-3) + env(safe-area-inset-bottom, 0));
+  box-sizing: border-box;
+}
+.ds-ai-input__icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #F2F2F2;
+  border: none;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.ds-ai-input__icon svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+}
+.ds-ai-input__field {
+  flex: 1;
+  height: 36px;
+  padding: 0 var(--space-4);
+  background: var(--bg-page);
+  border: none;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-family);
+  font-size: var(--fs-body);
+  color: var(--text-primary);
+  outline: none;
+}
+.ds-ai-input__field::placeholder { color: var(--text-tertiary); }
+.ds-ai-input__send {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #1A1A1A;
+  border: none;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.ds-ai-input__send svg { width: 14px; height: 14px; fill: currentColor; }
+.ds-ai-input__hint {
+  position: fixed;
+  bottom: calc(60px + env(safe-area-inset-bottom, 0));
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: var(--fs-mini);
+  color: var(--text-tertiary);
+  margin: 0;
+  padding: var(--space-2) 0;
+  pointer-events: none;
+  z-index: 99;
+  background: linear-gradient(to top, var(--bg-page), transparent);
+}
+
+
+/* ==========================================================================
+   10. 底部固定操作栏
+   ========================================================================== */
+
+.ds-action-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--bg-card);
+  border-top: 1px solid var(--border-light);
+  padding: var(--space-3) var(--space-4);
+  padding-bottom: calc(var(--space-3) + env(safe-area-inset-bottom, 0));
+  z-index: 100;
+  box-sizing: border-box;
+}
+
+
+/* ==========================================================================
+   11. 章节标题（页面通用）
+   ========================================================================== */
+
+.ds-section {
+  padding: var(--space-3) var(--page-pad-x) var(--space-2);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.ds-section__title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--fs-h2);
+  font-weight: var(--fw-bold);
+  color: var(--text-primary);
+}
+.ds-section__title::before {
+  content: "";
+  display: inline-block;
+  width: 4px;
+  height: 16px;
+  background: var(--brand-primary);
+  border-radius: 2px;
+}
+.ds-section__more {
+  font-size: var(--fs-caption);
+  color: var(--text-tertiary);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  cursor: pointer;
+}
+
+
+/* ==========================================================================
+   12. 页面容器（带底部安全区）
+   ========================================================================== */
+
+.ds-page {
+  min-height: 100vh;
+  background: var(--bg-page);
+  font-family: var(--font-family);
+  color: var(--text-primary);
+  padding-bottom: var(--page-pad-bottom);
+  box-sizing: border-box;
+}
+.ds-page--with-tabbar { padding-bottom: 80px; }
+.ds-page--with-ai-input { padding-bottom: 120px; }
+
+
+/* ==========================================================================
+   13. 通用工具类
+   ========================================================================== */
+
+.ds-text-primary   { color: var(--text-primary); }
+.ds-text-secondary { color: var(--text-secondary); }
+.ds-text-tertiary  { color: var(--text-tertiary); }
+.ds-text-brand     { color: var(--brand-primary); }
+.ds-text-danger    { color: var(--danger); }
+.ds-text-orange    { color: var(--accent-orange); }
+
+.ds-fs-mini    { font-size: var(--fs-mini); }
+.ds-fs-caption { font-size: var(--fs-caption); }
+.ds-fs-body    { font-size: var(--fs-body); }
+.ds-fs-h3      { font-size: var(--fs-h3); }
+.ds-fs-h2      { font-size: var(--fs-h2); }
+.ds-fs-h1      { font-size: var(--fs-h1); }
+.ds-fs-hero    { font-size: var(--fs-hero); }
+
+.ds-fw-semibold { font-weight: var(--fw-semibold); }
+.ds-fw-bold     { font-weight: var(--fw-bold); }
+
+.ds-text-center { text-align: center; }
+.ds-text-right  { text-align: right; }
+
+.ds-divider {
+  height: 1px;
+  background: var(--border-light);
+  border: none;
+  margin: var(--space-3) 0;
+}

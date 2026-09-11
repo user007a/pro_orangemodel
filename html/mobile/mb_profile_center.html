@@ -5,22 +5,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>蜜桔农业助手 - 个人信息</title>
   <link rel="stylesheet" href="css/mobile-design-system.css">
+  <link rel="stylesheet" href="css/mobile-tokens.css">
+  <link rel="stylesheet" href="css/mobile-icons.css">
+  <link rel="stylesheet" href="css/mobile-components.css">
+  <link rel="stylesheet" href="css/mobile-ds-override.css">
   <style>
     .page-header {
       position: relative;
-      background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+      background: #FFFFFF;
       padding: 44px 16px 20px;
-      color: var(--bg-white);
+      color: var(--text-primary);
     }
     
     .header-back {
       position: absolute;
-      left: 12px;
-      top: 44px;
+      left: 8px;
+      top: 50%;
+      transform: translateY(-50%);
       width: 36px;
       height: 36px;
-      background: rgba(255,255,255,0.2);
+      background: transparent;
       border-radius: var(--radius-md);
+      color: var(--text-primary);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -29,9 +35,9 @@
     
     .header-back svg { width: 18px; height: 18px; }
     
-    .header-content { padding-left: 44px; }
+    .header-content { flex: 1; text-align: center; }
     .header-title { font-size: var(--font-xl); font-weight: 700; }
-    .header-sub { font-size: var(--font-sm); opacity: 0.85; margin-top: 4px; }
+    .header-sub { font-size: var(--font-sm); color: var(--text-tertiary); margin-top: 4px; }
 
     .card {
       background: var(--bg-white);
@@ -225,7 +231,7 @@
     }
     .modal-select:focus {
       border-color: var(--primary);
-      background-color: var(--bg-white);
+      background-color: var(--text-primary);
       box-shadow: 0 0 0 3px rgba(46,158,90,0.08);
     }
 
@@ -278,11 +284,11 @@
     .modal-btn-cancel:active { background: var(--gray-200); transform: scale(0.97); }
     .modal-btn-confirm {
       background: var(--gradient-primary);
-      color: var(--text-on-primary);
+      color: var(--text-primary);
       box-shadow: 0 2px 8px rgba(46,158,90,0.25);
     }
     .modal-btn-confirm:active {
-      background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+      background: #FFFFFF;
       box-shadow: 0 1px 4px rgba(46,158,90,0.15);
       transform: scale(0.97);
     }
@@ -466,21 +472,6 @@
           </div>
           <div class="form-item" onclick="changePassword()">
             <div class="form-label">修改密码</div>
-            <div class="form-arrow">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
-            </div>
-          </div>
-          <div class="form-item">
-            <div class="form-label">登录安全</div>
-            <div style="display: flex; align-items: center; gap: var(--space-2);">
-              <div class="form-value">已开启</div>
-              <div class="form-arrow">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
-              </div>
-            </div>
-          </div>
-          <div class="form-item">
-            <div class="form-label">登录记录</div>
             <div class="form-arrow">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
             </div>
@@ -801,3 +792,5 @@
     </script>
   </body>
 </html>
+
+

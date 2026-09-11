@@ -1,10 +1,14 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>蜜桔农业助手 - AI智能识别</title>
+  <title>蜜桔农业助手 - 病虫害识别</title>
   <link rel="stylesheet" href="css/mobile-design-system.css">
+  <link rel="stylesheet" href="css/mobile-tokens.css">
+  <link rel="stylesheet" href="css/mobile-icons.css">
+  <link rel="stylesheet" href="css/mobile-components.css">
+  <link rel="stylesheet" href="css/mobile-ds-override.css">
   <style>
     .skeleton-state { display: none; }
     .mb-app.loading .real-content { display: none; }
@@ -65,18 +69,127 @@
 
     .modal-overlay {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.5); z-index: 1000;
+      background: rgba(46, 139, 87, 0.18);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      z-index: 9999;
       display: none; justify-content: center; align-items: center;
     }
-    .modal-overlay.show { display: flex; }
-    .modal-box {
-      background: var(--bg-white);
-      border-radius: var(--radius-xl);
-      padding: var(--space-8) var(--space-6);
-      width: 90%; max-width: 340px;
-      text-align: center;
+    .modal-overlay.show { display: flex; animation: fadeIn 0.25s ease; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.1); opacity: 0.7; }
     }
-    .modal-text { font-size: var(--font-md); color: var(--text); margin-top: var(--space-4); }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes scan {
+      0%   { transform: translateY(-40px); opacity: 0; }
+      10%  { opacity: 1; }
+      90%  { opacity: 1; }
+      100% { transform: translateY(40px); opacity: 0; }
+    }
+    @keyframes progress {
+      0%   { width: 0%; }
+      30%  { width: 30%; }
+      60%  { width: 60%; }
+      100% { width: 85%; }
+    }
+    @keyframes dot {
+      0%   { opacity: 0.2; }
+      50%  { opacity: 1; }
+      100% { opacity: 0.2; }
+    }
+
+    .modal-box {
+      background: var(--bg-card);
+      border-radius: var(--radius-2xl);
+      padding: 28px 24px 22px;
+      width: 86%; max-width: 320px;
+      text-align: center;
+      box-shadow: var(--shadow-xl);
+      animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    @keyframes popIn {
+      from { transform: scale(0.85); opacity: 0; }
+      to   { transform: scale(1); opacity: 1; }
+    }
+
+    /* 扫描动画：识别框里的横向绿线 */
+    .load-scan-wrap {
+      position: relative;
+      width: 88px; height: 88px;
+      margin: 4px auto 18px;
+    }
+    .load-scan-bg {
+      width: 100%; height: 100%;
+      border-radius: 50%;
+      background: var(--brand-primary-light);
+      border: 2px solid rgba(46,139,87,0.2);
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+    }
+    .load-scan-ring {
+      position: absolute; inset: -6px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      border-top-color: var(--brand-primary);
+      border-right-color: var(--brand-primary);
+      animation: spin 1.2s linear infinite;
+    }
+    .load-scan-line {
+      position: absolute;
+      left: 10%; width: 80%; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--brand-primary), transparent);
+      border-radius: 2px;
+      animation: scan 1.6s ease-in-out infinite;
+      box-shadow: 0 0 12px rgba(46,139,87,0.4);
+    }
+    .load-scan-icon {
+      width: 36px; height: 36px;
+      color: var(--brand-primary);
+      animation: pulse 1.6s ease-in-out infinite;
+    }
+
+    .modal-title {
+      font-size: 16px; font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+    .modal-text {
+      font-size: 13px;
+      color: var(--text-tertiary);
+      margin-top: 0;
+      margin-bottom: 18px;
+      line-height: 1.5;
+    }
+    .modal-text .dot {
+      display: inline-block;
+      width: 4px; height: 4px; border-radius: 50%;
+      background: var(--text-tertiary);
+      margin: 0 2px;
+      animation: dot 1.2s ease-in-out infinite;
+    }
+    .modal-text .dot:nth-child(2) { animation-delay: 0.2s; }
+    .modal-text .dot:nth-child(3) { animation-delay: 0.4s; }
+
+    .progress-track {
+      width: 100%; height: 4px;
+      background: var(--border-light);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--brand-primary), var(--brand-primary-mid));
+      border-radius: 2px;
+      animation: progress 2.4s ease-out forwards infinite;
+    }
+    .modal-tip {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      opacity: 0.7;
+    }
   </style>
 </head>
 <body>
@@ -112,7 +225,7 @@
               <path d="M15 18l-6-6 6-6"/>
             </svg>
           </div>
-          <div class="header-title">AI智能识别</div>
+          <div class="header-title">病虫害识别</div>
           <div class="header-actions">
             <div class="header-action-btn" onclick="navigateTo('mb_disease_knowledge.html')">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;">
@@ -122,7 +235,7 @@
           </div>
         </div>
         <div class="header-content">
-          <div class="header-sub">拍照或上传图片，AI智能识别果树病虫害</div>
+          <div class="header-sub">拍照或上传图片，病虫害识别果树病虫害</div>
         </div>
       </div>
 
@@ -173,7 +286,23 @@
         <div class="mb-card" style="margin-top: var(--space-4);">
           <div class="mb-section-title"><span class="mb-section-dot"></span>识别历史</div>
           <div class="mb-list-item" style="padding: 12px 0; border-bottom: 1px solid var(--border-light);">
-            <img class="history-image" style="width:56px;height:56px;border-radius:var(--radius-md);object-fit:cover;flex-shrink:0;border:1px solid var(--border);" src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=黑点病危害蜜桔果实症状，果实表面黑色斑点&image_size=square_hd" alt="黑点病" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2256%22 height=%2256%22><rect fill=%22%23f5f7fa%22 width=%2256%22 height=%2256%22/><text x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%239ca3af%22 font-size=%2210%22>黑点病</text></svg>'">
+            <img class="history-image" style="width:56px;height:56px;border-radius:var(--radius-md);object-fit:cover;flex-shrink:0;border:1px solid var(--border);" src="images/disease_huanglongbing.jpg" alt="柑橘黄龙病">
+            <div class="mb-list-content">
+              <div class="mb-list-title">柑橘黄龙病</div>
+              <div class="mb-list-desc">2026-09-09 16:45</div>
+            </div>
+            <span class="mb-tag error">高风险</span>
+          </div>
+          <div class="mb-list-item" style="padding: 12px 0; border-bottom: 1px solid var(--border-light);">
+            <img class="history-image" style="width:56px;height:56px;border-radius:var(--radius-md);object-fit:cover;flex-shrink:0;border:1px solid var(--border);" src="images/disease_chuangjia.jpg" alt="疮痂病">
+            <div class="mb-list-content">
+              <div class="mb-list-title">疮痂病</div>
+              <div class="mb-list-desc">2026-08-28 11:20</div>
+            </div>
+            <span class="mb-tag warning">中风险</span>
+          </div>
+          <div class="mb-list-item" style="padding: 12px 0; border-bottom: 1px solid var(--border-light);">
+            <img class="history-image" style="width:56px;height:56px;border-radius:var(--radius-md);object-fit:cover;flex-shrink:0;border:1px solid var(--border);" src="images/disease_heidian.jpg" alt="黑点病">
             <div class="mb-list-content">
               <div class="mb-list-title">黑点病</div>
               <div class="mb-list-desc">2026-08-09 14:30</div>
@@ -181,7 +310,7 @@
             <span class="mb-tag warning">中风险</span>
           </div>
           <div class="mb-list-item" style="padding: 12px 0; border-bottom: none;">
-            <img class="history-image" style="width:56px;height:56px;border-radius:var(--radius-md);object-fit:cover;flex-shrink:0;border:1px solid var(--border);" src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=红蜘蛛危害蜜桔叶片症状，叶片发白失绿&image_size=square_hd" alt="红蜘蛛虫害" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2256%22 height=%2256%22><rect fill=%22%23f5f7fa%22 width=%2256%22 height=%2256%22/><text x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%239ca3af%22 font-size=%2210%22>红蜘蛛</text></svg>'">
+            <img class="history-image" style="width:56px;height:56px;border-radius:var(--radius-md);object-fit:cover;flex-shrink:0;border:1px solid var(--border);" src="images/pest_hongzhizhu.jpg" alt="红蜘蛛虫害">
             <div class="mb-list-content">
               <div class="mb-list-title">红蜘蛛虫害</div>
               <div class="mb-list-desc">2026-08-07 09:15</div>
@@ -192,8 +321,24 @@
       </div>
     </div><div class="modal-overlay" id="loadingModal">
     <div class="modal-box">
-      <div class="mb-skeleton" style="width:48px;height:48px;border-radius:50%;margin:0 auto;"></div>
-      <div class="modal-text">AI正在识别中...</div>
+      <!-- 扫描动画 -->
+      <div class="load-scan-wrap">
+        <div class="load-scan-ring"></div>
+        <div class="load-scan-bg">
+          <svg class="load-scan-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9"/>
+            <circle cx="12" cy="12" r="4"/>
+            <path d="M12 3v2M12 19v2M3 12h2M19 12h2"/>
+          </svg>
+          <div class="load-scan-line"></div>
+        </div>
+      </div>
+      <!-- 标题 + 引导 -->
+      <div class="modal-title">AI 视觉识别中</div>
+      <div class="modal-text">正在分析叶片纹理与病斑特征<span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+      <!-- 进度条 -->
+      <div class="progress-track"><div class="progress-fill"></div></div>
+      <div class="modal-tip">通常需要 2-5 秒，请耐心等待</div>
     </div>
   </div>
     <!-- 底部导航 -->
@@ -250,3 +395,4 @@
   </script>
 </body>
 </html>
+

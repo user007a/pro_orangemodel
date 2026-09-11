@@ -1,10 +1,14 @@
-﻿﻿﻿﻿<!DOCTYPE html>
+﻿﻿﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>蜜桔农业助手 - 植株指标数据录入</title>
     <link rel="stylesheet" href="css/mobile-design-system.css">
+  <link rel="stylesheet" href="css/mobile-tokens.css">
+  <link rel="stylesheet" href="css/mobile-icons.css">
+  <link rel="stylesheet" href="css/mobile-components.css">
+  <link rel="stylesheet" href="css/mobile-ds-override.css">
     <style>
         .judge-section {
             margin-bottom: 16px;
@@ -295,6 +299,45 @@
             font-weight: 600;
             box-shadow: 0 1px 3px rgba(0,0,0,0.08);
         }
+
+        /* 数据完整度条（放在说明卡片下方） */
+        .completeness-bar {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            margin: 12px 16px 0;
+            padding: 12px 16px;
+            background: var(--bg-white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            box-sizing: border-box;
+        }
+        .completeness-label {
+            font-size: var(--font-sm);
+            color: var(--text-secondary);
+            flex-shrink: 0;
+        }
+        .completeness-track {
+            flex: 1;
+            height: 8px;
+            background: var(--gray-100);
+            border-radius: var(--radius-full);
+            overflow: hidden;
+        }
+        .completeness-fill {
+            width: 100%;
+            height: 100%;
+            background: var(--gradient-primary);
+            border-radius: var(--radius-full);
+        }
+        .completeness-value {
+            font-size: var(--fs-h3);
+            font-weight: 700;
+            color: var(--primary);
+            flex-shrink: 0;
+            min-width: 48px;
+            text-align: right;
+        }
     </style>
 </head>
 <body>
@@ -305,24 +348,22 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
                 </div>
                 <div class="header-title">植株指标数据录入</div>
+                <div class="header-sub">科学评估植株生长状况，辅助农事决策</div>
                 <div class="header-actions"></div>
             </div>
         </div>
 
         <div class="mb-card" style="margin: 16px; margin-bottom: 0;">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h3 class="font-semibold text-white" style="color: var(--text); font-size: 16px;">填写当期果园与植株指标</h3>
-                    <p class="text-xs text-gray-500 mt-1">带"核心"的指标建议由传感器自动同步，其余可按巡园或抽样结果填写。</p>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <span class="text-xs text-gray-500">数据完整度</span>
-                    <div class="w-24 h-2 bg-gray-100 rounded-full overflow-hidden">
-                        <div class="w-full h-full bg-primary rounded-full"></div>
-                    </div>
-                    <span class="text-primary font-bold text-sm">100%</span>
-                </div>
+            <h3 class="font-semibold text-white" style="color: var(--text); font-size: 16px;">填写当期果园与植株指标</h3>
+            <p class="text-xs text-gray-500 mt-1">带"核心"的指标建议由传感器自动同步，其余可按巡园或抽样结果填写。</p>
+        </div>
+
+        <div class="completeness-bar">
+            <span class="completeness-label">数据完整度</span>
+            <div class="completeness-track">
+                <div class="completeness-fill"></div>
             </div>
+            <span class="completeness-value">100%</span>
         </div>
 
         <div style="padding: 16px;">
@@ -899,3 +940,5 @@
     </script>
 </body>
 </html>
+
+

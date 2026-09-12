@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
@@ -91,9 +91,8 @@
             <th>日期</th>
             <th>农批市场</th>
             <th>品种</th>
-            <th>最高价(元/斤)</th>
-            <th>最低价(元/斤)</th>
-            <th>大宗价(元/斤)</th>
+            <th>价格(元/斤)</th>
+            <th>相对比前日</th>
             <th>操作</th>
           </tr>
         </thead>
@@ -138,16 +137,8 @@
           </select>
         </div>
         <div class="form-item">
-          <label class="form-label">最高价(元/斤) *</label>
-          <input type="number" step="0.01" class="form-input" id="add-high-price" placeholder="请输入最高价">
-        </div>
-        <div class="form-item">
-          <label class="form-label">最低价(元/斤) *</label>
-          <input type="number" step="0.01" class="form-input" id="add-low-price" placeholder="请输入最低价">
-        </div>
-        <div class="form-item">
-          <label class="form-label">大宗价(元/斤) *</label>
-          <input type="number" step="0.01" class="form-input" id="add-bulk-price" placeholder="请输入大宗价">
+          <label class="form-label">价格(元/斤) *</label>
+          <input type="number" step="0.01" class="form-input" id="add-price" placeholder="请输入价格">
         </div>
       </div>
       <div class="modal-footer">
@@ -191,36 +182,36 @@
 
   <script>
     var prices = [
-      { id: 'pr-001', date: '2026-08-11', market: '南丰县农产品批发市场', variety: '南丰蜜桔早熟种', highPrice: '3.50', lowPrice: '3.00', bulkPrice: '3.25' },
-      { id: 'pr-002', date: '2026-08-10', market: '南丰县农产品批发市场', variety: '南丰蜜桔早熟种', highPrice: '3.40', lowPrice: '2.95', bulkPrice: '3.20' },
-      { id: 'pr-003', date: '2026-08-09', market: '南丰县农产品批发市场', variety: '南丰蜜桔中熟种', highPrice: '3.60', lowPrice: '3.10', bulkPrice: '3.30' },
-      { id: 'pr-004', date: '2026-08-08', market: '抚州市农产品批发市场', variety: '南丰蜜桔早熟种', highPrice: '3.55', lowPrice: '3.05', bulkPrice: '3.28' },
-      { id: 'pr-005', date: '2026-08-07', market: '南丰县农产品批发市场', variety: '南丰蜜桔晚熟种', highPrice: '3.50', lowPrice: '3.00', bulkPrice: '3.25' },
-      { id: 'pr-006', date: '2026-08-06', market: '南昌市农产品批发市场', variety: '南丰蜜桔中熟种', highPrice: '3.70', lowPrice: '3.20', bulkPrice: '3.35' },
-      { id: 'pr-007', date: '2026-08-05', market: '南丰县农产品批发市场', variety: '南丰蜜桔早熟种', highPrice: '3.60', lowPrice: '3.10', bulkPrice: '3.30' },
-      { id: 'pr-008', date: '2026-08-04', market: '南丰县农产品批发市场', variety: '南丰蜜桔中熟种', highPrice: '3.50', lowPrice: '3.00', bulkPrice: '3.25' },
-      { id: 'pr-009', date: '2026-08-03', market: '赣州市农产品批发市场', variety: '南丰蜜桔早熟种', highPrice: '3.45', lowPrice: '2.98', bulkPrice: '3.22' },
-      { id: 'pr-010', date: '2026-08-02', market: '南丰县农产品批发市场', variety: '南丰蜜桔晚熟种', highPrice: '3.40', lowPrice: '2.95', bulkPrice: '3.20' },
-      { id: 'pr-011', date: '2026-08-01', market: '抚州市农产品批发市场', variety: '南丰蜜桔中熟种', highPrice: '3.55', lowPrice: '3.05', bulkPrice: '3.28' },
-      { id: 'pr-012', date: '2026-08-31', market: '南丰县农产品批发市场', variety: '南丰蜜桔早熟种', highPrice: '3.60', lowPrice: '3.10', bulkPrice: '3.30' },
-      { id: 'pr-013', date: '2026-08-30', market: '南昌市农产品批发市场', variety: '南丰蜜桔晚熟种', highPrice: '3.70', lowPrice: '3.20', bulkPrice: '3.35' },
-      { id: 'pr-014', date: '2026-08-29', market: '南丰县农产品批发市场', variety: '南丰蜜桔中熟种', highPrice: '3.65', lowPrice: '3.15', bulkPrice: '3.32' },
-      { id: 'pr-015', date: '2026-08-28', market: '南丰县农产品批发市场', variety: '南丰蜜桔早熟种', highPrice: '3.60', lowPrice: '3.10', bulkPrice: '3.30' },
-      { id: 'pr-016', date: '2026-08-27', market: '赣州市农产品批发市场', variety: '南丰蜜桔中熟种', highPrice: '3.50', lowPrice: '3.00', bulkPrice: '3.25' },
-      { id: 'pr-017', date: '2026-08-26', market: '南丰县农产品批发市场', variety: '南丰蜜桔晚熟种', highPrice: '3.40', lowPrice: '2.95', bulkPrice: '3.20' },
-      { id: 'pr-018', date: '2026-08-25', market: '抚州市农产品批发市场', variety: '南丰蜜桔早熟种', highPrice: '3.55', lowPrice: '3.05', bulkPrice: '3.28' },
-      { id: 'pr-019', date: '2026-08-12', market: '南丰县农产品批发市场', variety: '南丰蜜桔中熟种', highPrice: '3.60', lowPrice: '3.10', bulkPrice: '3.30' },
-      { id: 'pr-020', date: '2026-08-11', market: '南昌市农产品批发市场', variety: '南丰蜜桔晚熟种', highPrice: '3.70', lowPrice: '3.20', bulkPrice: '3.35' },
-      { id: 'pr-021', date: '2026-08-10', market: '南丰县农产品批发市场', variety: '南丰蜜桔早熟种', highPrice: '3.65', lowPrice: '3.15', bulkPrice: '3.32' },
-      { id: 'pr-022', date: '2026-08-09', market: '南丰县农产品批发市场', variety: '南丰蜜桔中熟种', highPrice: '3.60', lowPrice: '3.10', bulkPrice: '3.30' },
-      { id: 'pr-023', date: '2026-08-08', market: '赣州市农产品批发市场', variety: '南丰蜜桔晚熟种', highPrice: '3.50', lowPrice: '3.00', bulkPrice: '3.25' },
-      { id: 'pr-024', date: '2026-08-07', market: '南丰县农产品批发市场', variety: '南丰蜜桔早熟种', highPrice: '3.40', lowPrice: '2.95', bulkPrice: '3.20' },
-      { id: 'pr-025', date: '2026-06-30', market: '抚州市农产品批发市场', variety: '南丰蜜桔中熟种', highPrice: '3.38', lowPrice: '2.92', bulkPrice: '3.18' },
-      { id: 'pr-026', date: '2026-06-29', market: '南丰县农产品批发市场', variety: '南丰蜜桔晚熟种', highPrice: '3.35', lowPrice: '2.90', bulkPrice: '3.15' },
-      { id: 'pr-027', date: '2026-06-28', market: '南丰县农产品批发市场', variety: '南丰蜜桔早熟种', highPrice: '3.40', lowPrice: '2.95', bulkPrice: '3.20' },
-      { id: 'pr-028', date: '2026-06-27', market: '南昌市农产品批发市场', variety: '南丰蜜桔中熟种', highPrice: '3.38', lowPrice: '2.92', bulkPrice: '3.18' },
-      { id: 'pr-029', date: '2026-06-26', market: '南丰县农产品批发市场', variety: '南丰蜜桔晚熟种', highPrice: '3.35', lowPrice: '2.90', bulkPrice: '3.15' },
-      { id: 'pr-030', date: '2026-06-25', market: '赣州市农产品批发市场', variety: '南丰蜜桔早熟种', highPrice: '3.32', lowPrice: '2.88', bulkPrice: '3.12' }
+      { id: 'pr-001', date: '2026-08-11', market: '南丰县农产品批发市场', variety: '南丰蜜桔早熟种', price: '1.45' },
+      { id: 'pr-002', date: '2026-08-10', market: '南丰县农产品批发市场', variety: '南丰蜜桔早熟种', price: '1.45' },
+      { id: 'pr-003', date: '2026-08-09', market: '南丰县农产品批发市场', variety: '南丰蜜桔中熟种', price: '1.48' },
+      { id: 'pr-004', date: '2026-08-08', market: '抚州市农产品批发市场', variety: '南丰蜜桔早熟种', price: '1.47' },
+      { id: 'pr-005', date: '2026-08-07', market: '南丰县农产品批发市场', variety: '南丰蜜桔晚熟种', price: '1.45' },
+      { id: 'pr-006', date: '2026-08-06', market: '南昌市农产品批发市场', variety: '南丰蜜桔中熟种', price: '1.49' },
+      { id: 'pr-007', date: '2026-08-05', market: '南丰县农产品批发市场', variety: '南丰蜜桔早熟种', price: '1.48' },
+      { id: 'pr-008', date: '2026-08-04', market: '南丰县农产品批发市场', variety: '南丰蜜桔中熟种', price: '1.45' },
+      { id: 'pr-009', date: '2026-08-03', market: '赣州市农产品批发市场', variety: '南丰蜜桔早熟种', price: '1.46' },
+      { id: 'pr-010', date: '2026-08-02', market: '南丰县农产品批发市场', variety: '南丰蜜桔晚熟种', price: '1.45' },
+      { id: 'pr-011', date: '2026-08-01', market: '抚州市农产品批发市场', variety: '南丰蜜桔中熟种', price: '1.47' },
+      { id: 'pr-012', date: '2026-08-31', market: '南丰县农产品批发市场', variety: '南丰蜜桔早熟种', price: '1.48' },
+      { id: 'pr-013', date: '2026-08-30', market: '南昌市农产品批发市场', variety: '南丰蜜桔晚熟种', price: '1.49' },
+      { id: 'pr-014', date: '2026-08-29', market: '南丰县农产品批发市场', variety: '南丰蜜桔中熟种', price: '1.48' },
+      { id: 'pr-015', date: '2026-08-28', market: '南丰县农产品批发市场', variety: '南丰蜜桔早熟种', price: '1.48' },
+      { id: 'pr-016', date: '2026-08-27', market: '赣州市农产品批发市场', variety: '南丰蜜桔中熟种', price: '1.45' },
+      { id: 'pr-017', date: '2026-08-26', market: '南丰县农产品批发市场', variety: '南丰蜜桔晚熟种', price: '1.44' },
+      { id: 'pr-018', date: '2026-08-25', market: '抚州市农产品批发市场', variety: '南丰蜜桔早熟种', price: '1.47' },
+      { id: 'pr-019', date: '2026-08-12', market: '南丰县农产品批发市场', variety: '南丰蜜桔中熟种', price: '1.48' },
+      { id: 'pr-020', date: '2026-08-11', market: '南昌市农产品批发市场', variety: '南丰蜜桔晚熟种', price: '1.49' },
+      { id: 'pr-021', date: '2026-08-10', market: '南丰县农产品批发市场', variety: '南丰蜜桔早熟种', price: '1.48' },
+      { id: 'pr-022', date: '2026-08-09', market: '南丰县农产品批发市场', variety: '南丰蜜桔中熟种', price: '1.48' },
+      { id: 'pr-023', date: '2026-08-08', market: '赣州市农产品批发市场', variety: '南丰蜜桔晚熟种', price: '1.45' },
+      { id: 'pr-024', date: '2026-08-07', market: '南丰县农产品批发市场', variety: '南丰蜜桔早熟种', price: '1.44' },
+      { id: 'pr-025', date: '2026-06-30', market: '抚州市农产品批发市场', variety: '南丰蜜桔中熟种', price: '1.44' },
+      { id: 'pr-026', date: '2026-06-29', market: '南丰县农产品批发市场', variety: '南丰蜜桔晚熟种', price: '1.43' },
+      { id: 'pr-027', date: '2026-06-28', market: '南丰县农产品批发市场', variety: '南丰蜜桔早熟种', price: '1.44' },
+      { id: 'pr-028', date: '2026-06-27', market: '南昌市农产品批发市场', variety: '南丰蜜桔中熟种', price: '1.44' },
+      { id: 'pr-029', date: '2026-06-26', market: '南丰县农产品批发市场', variety: '南丰蜜桔晚熟种', price: '1.43' },
+      { id: 'pr-030', date: '2026-06-25', market: '赣州市农产品批发市场', variety: '南丰蜜桔早熟种', price: '1.42' }
     ];
 
     var originalPrices = JSON.parse(JSON.stringify(prices));
@@ -229,23 +220,39 @@
     var pageSize = 10;
     var deleteTargetId = null;
 
+    // 计算相对比前日：与数据中上一个更早日期（该日多条记录取均价）比较
+    function getPriceChange(p) {
+      var prevDates = originalPrices
+        .filter(function(item) { return item.date < p.date; })
+        .map(function(item) { return item.date; });
+      if (!prevDates.length) return { type: 'same', text: '价格平稳' };
+      var prevDate = prevDates.sort().pop();
+      var prevRecords = originalPrices.filter(function(item) { return item.date === prevDate; });
+      var avg = prevRecords.reduce(function(sum, item) { return sum + parseFloat(item.price); }, 0) / prevRecords.length;
+      var diff = (parseFloat(p.price) - avg).toFixed(2);
+      if (diff > 0) return { type: 'up', text: '↑ ' + diff };
+      if (diff < 0) return { type: 'down', text: '↓ ' + Math.abs(diff) };
+      return { type: 'same', text: '价格平稳' };
+    }
+
     function renderTable() {
       var tbody = document.getElementById('priceTable');
       tbody.innerHTML = '';
-      
+
       var start = (currentPage - 1) * pageSize;
       var end = start + pageSize;
       var displayPrices = prices.slice(start, end);
-      
+
       displayPrices.forEach(function(p, index) {
+        var change = getPriceChange(p);
+        var changeClass = change.type === 'up' ? 'price-up' : (change.type === 'down' ? 'price-down' : 'price-same');
         tbody.innerHTML += `
           <tr>
             <td>${p.date}</td>
             <td>${p.market}</td>
             <td>${p.variety}</td>
-            <td>${p.highPrice}</td>
-            <td>${p.lowPrice}</td>
-            <td>${p.bulkPrice}</td>
+            <td>${p.price}</td>
+            <td class="${changeClass}">${change.text}</td>
             <td>
               <button onclick="openDetailModal('${p.id}')" class="px-3 py-1 text-green hover:bg-green-50 rounded text-xs font-medium transition-colors">查看</button>
               <button onclick="openEditModal('${p.id}')" class="px-3 py-1 text-blue hover:bg-blue-50 rounded text-xs font-medium transition-colors">编辑</button>
@@ -297,9 +304,7 @@
       document.getElementById('add-date').value = '';
       document.getElementById('add-market').value = '南丰县农产品批发市场';
       document.getElementById('add-variety').value = '南丰蜜桔早熟种';
-      document.getElementById('add-high-price').value = '';
-      document.getElementById('add-low-price').value = '';
-      document.getElementById('add-bulk-price').value = '';
+      document.getElementById('add-price').value = '';
       document.getElementById('add-modal').classList.add('active');
     }
 
@@ -311,9 +316,7 @@
       document.getElementById('add-date').value = p.date;
       document.getElementById('add-market').value = p.market;
       document.getElementById('add-variety').value = p.variety;
-      document.getElementById('add-high-price').value = p.highPrice;
-      document.getElementById('add-low-price').value = p.lowPrice;
-      document.getElementById('add-bulk-price').value = p.bulkPrice;
+      document.getElementById('add-price').value = p.price;
       document.getElementById('add-modal').classList.add('active');
     }
 
@@ -322,23 +325,21 @@
       var date = document.getElementById('add-date').value;
       var market = document.getElementById('add-market').value;
       var variety = document.getElementById('add-variety').value;
-      var highPrice = document.getElementById('add-high-price').value.trim();
-      var lowPrice = document.getElementById('add-low-price').value.trim();
-      var bulkPrice = document.getElementById('add-bulk-price').value.trim();
-      
-      if (!date || !highPrice || !lowPrice || !bulkPrice) {
+      var price = document.getElementById('add-price').value.trim();
+
+      if (!date || !price) {
         alert('请填写必填项');
         return;
       }
-      
+
       if (id) {
         var index = originalPrices.findIndex(function(item) { return item.id === id; });
         if (index > -1) {
-          originalPrices[index] = { ...originalPrices[index], date, market, variety, highPrice, lowPrice, bulkPrice };
+          originalPrices[index] = { ...originalPrices[index], date, market, variety, price };
         }
       } else {
         var newId = 'pr-' + String(originalPrices.length + 1).padStart(3, '0');
-        originalPrices.unshift({ id: newId, date, market, variety, highPrice, lowPrice, bulkPrice });
+        originalPrices.unshift({ id: newId, date, market, variety, price });
         originalPrices.sort(function(a, b) { return new Date(b.date) - new Date(a.date); });
       }
       
@@ -351,15 +352,16 @@
     function openDetailModal(id) {
       var p = prices.find(function(item) { return item.id === id; });
       if (!p) return;
+      var change = getPriceChange(p);
+      var changeClass = change.type === 'up' ? 'price-up' : (change.type === 'down' ? 'price-down' : 'price-same');
       document.getElementById('detail-content').innerHTML = `
         <div class="detail-info">
           <div class="detail-item"><div class="detail-label">数据ID</div><div class="detail-value">${p.id}</div></div>
           <div class="detail-item"><div class="detail-label">日期</div><div class="detail-value">${p.date}</div></div>
           <div class="detail-item"><div class="detail-label">农批市场</div><div class="detail-value">${p.market}</div></div>
           <div class="detail-item"><div class="detail-label">品种</div><div class="detail-value">${p.variety}</div></div>
-          <div class="detail-item"><div class="detail-label">最高价</div><div class="detail-value">${p.highPrice} 元/斤</div></div>
-          <div class="detail-item"><div class="detail-label">最低价</div><div class="detail-value">${p.lowPrice} 元/斤</div></div>
-          <div class="detail-item"><div class="detail-label">大宗价</div><div class="detail-value">${p.bulkPrice} 元/斤</div></div>
+          <div class="detail-item"><div class="detail-label">价格</div><div class="detail-value">${p.price} 元/斤</div></div>
+          <div class="detail-item"><div class="detail-label">相对比前日</div><div class="detail-value ${changeClass}">${change.text}</div></div>
         </div>
       `;
       document.getElementById('detail-modal').classList.add('active');

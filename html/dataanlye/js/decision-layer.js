@@ -91,17 +91,34 @@
      *   state: 'overdue' | 'doing' | 'done'
      * 逾期项自动置顶。
      * ------------------------------------------------------------ */
-    var STATE_TEXT = { overdue: '逾期', doing: '进行中', done: '已完成' };
-    var STATE_ORDER = { overdue: 0, doing: 1, done: 2 };
+    var STATE_TEXT = { pending: '待派发', overdue: '逾期', doing: '执行中', reviewing: '待复查', done: '已完成' };
+    var STATE_ORDER = { overdue: 0, pending: 1, doing: 2, reviewing: 3, done: 4 };
+    /* 流转顺序（'overdue' 视为 'doing' 的逾期态，不单独占线性序位） */
+    var FLOW = ['pending', 'doing', 'reviewing', 'done'];
+    function statePos(s) { return (s === 'overdue' || s === 'doing') ? 2 : (FLOW.indexOf(s) < 0 ? 2 : FLOW.indexOf(s) + 1); }
+    /* 相对今天的逾期天数：due 形如 'MM-DD'；>0 逾期，0 今日到期，<0 还剩天数，null 无日期 */
+    function dueDays(dueStr, now) {
+        if (!dueStr) return null;
+        var p = String(dueStr).split('-');
+        if (p.length < 2) return null;
+        var m = parseInt(p[0], 10), d = parseInt(p[1], 10);
+        if (isNaN(m) || isNaN(d)) return null;
+        var due = new Date(now.getFullYear(), m - 1, d);
+        var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        return Math.round((today - due) / 86400000);
+    }
 
     function todo(container, items, opts) {
         if (!container) { return; }
         opts = opts || {};
+        var now = new Date();
         var list = (items || []).slice().sort(function (a, b) {
             return (STATE_ORDER[a.state] - STATE_ORDER[b.state]) ||
-                   String(a.due).localeCompare(String(b.due));
+                   String(a.due || '').localeCompare(String(b.due || ''));
         });
-        var overdue = list.filter(function (r) { return r.state === 'overdue'; }).length;
+        var overdue = list.filter(function (r) {
+            return r.state === 'overdue' || (r.due && dueDays(r.due, now) > 0 && r.state !== 'done');
+        }).length;
 
         var html = '<div class="dl-todo-head">' +
             '<span class="dl-todo-count">重点待办 <b>' + list.length + '</b> 项，其中逾期 <b>' + overdue + '</b> 项</span>' +
@@ -109,16 +126,56 @@
             '<div class="dl-todo-list">';
 
         list.forEach(function (r) {
-            html += '<div class="dl-todo-item ' + esc(r.state) + '">' +
+            var days = dueDays(r.due, now);
+            var dueTxt = esc(r.due || '');
+            if (days !== null) {
+                if (days > 0) { dueTxt += ' <span class="dl-overdue">逾期' + days + '天</span>'; }
+                else if (days === 0) { dueTxt += ' <span class="dl-overdue">今日到期</span>'; }
+                else if (r.state !== 'done') { dueTxt += ' <span class="dl-todo-left">剩' + (-days) + '天</span>'; }
+            }
+            var pos = statePos(r.state);
+            var flow = '';
+            for (var i = 1; i <= 4; i++) { flow += '<i class="' + (i <= pos ? 'on' : '') + '"></i>'; }
+            /* 阶段一扩展（#4 强化督办）：
+             *  - urgent: 自动从 due+state 派生（逾期/今日到期），也可显式 true
+             *  - supervised: 已督办次数；>0 显示「已督办 X 次」
+             *  - village/gridman: 责任村组 + 网格员（数据缺时显示 —）
+             *  - id: 存在时加【一键督办】按钮；非工作时间 22:00–08:00 暂存至次日 08:00 发送 */
+            var autoUrgent = (r.state === 'overdue' || (days !== null && days >= 0 && r.state !== 'done'));
+            var isUrgent = r.urgent === true || (r.urgent !== false && autoUrgent);
+            var supervised = r.supervised || 0;
+            var villageLine = '';
+            if (r.village || r.gridman) {
+                villageLine = '<span class="dl-todo-village">村组：' + esc(r.village || '—') +
+                              ' · 网格员：' + esc(r.gridman || '—') + '</span>';
+            }
+            var superviseBtn = (r.id && r.state !== 'done')
+                ? ' <button class="dl-supervise-btn" data-id="' + esc(r.id) +
+                  '" onclick="onSupervise(\'' + esc(r.id) + '\')">📞 督办</button>'
+                : '';
+            var supervisedTag = (r.id && supervised > 0)
+                ? '<span class="dl-supervised-count">已督办 ' + supervised + ' 次</span>'
+                : '';
+            var advance = (r.id && r.state !== 'done')
+                ? ' <button class="dl-todo-advance" onclick="advanceTodo(' + r.id + ')">推进 ▸</button>'
+                : '';
+            html += '<div class="dl-todo-item ' + esc(r.state) + (isUrgent ? ' urgent' : '') + '">' +
                 '<div class="dl-todo-main">' +
                     '<div class="dl-todo-title" title="' + esc(r.title) + '">' + esc(r.title) + '</div>' +
                     '<div class="dl-todo-meta">' +
                         '<span>' + esc(r.town) + '</span><span>' + esc(r.owner) + '</span>' +
                     '</div>' +
+                    villageLine +
                 '</div>' +
                 '<div class="dl-todo-right">' +
-                    '<div class="dl-todo-due">' + esc(r.due) + '</div>' +
-                    '<span class="dl-pill s-' + esc(r.state) + '">' + STATE_TEXT[r.state] + '</span>' +
+                    '<div class="dl-todo-due">' + dueTxt + '</div>' +
+                    '<div class="dl-todo-pill-row">' +
+                        '<span class="dl-pill s-' + esc(r.state) + '">' + (STATE_TEXT[r.state] || r.state) + '</span>' +
+                        superviseBtn +
+                        supervisedTag +
+                        '<span class="dl-todo-flow" title="流转：待派发 → 执行中 → 待复查 → 已完成">' + flow + '</span>' +
+                        advance +
+                    '</div>' +
                 '</div>' +
             '</div>';
         });
@@ -141,12 +198,34 @@
         });
         var max = list.reduce(function (m, r) { return Math.max(m, r.value || 0); }, 0) || 1;
 
+        /* 大屏可见性取舍：排行区高度有限，滚动等于看不见。
+         * 传 headN + tailN 时只渲染「前 N + 折叠行 + 后 M」，
+         * 保证「最好的」和「最差的」同时可见，中间段交给地图。
+         * 不传则保持全量渲染（pest 屏行为不变）。 */
+        var seq = list.map(function (r, i) { return { row: r, rank: i + 1 }; });
+        var hN = opts.headN || 0, tN = opts.tailN || 0;
+        if (hN > 0 && tN > 0 && list.length > hN + tN) {
+            var mid = list.slice(hN, list.length - tN);
+            seq = seq.slice(0, hN).concat([{
+                gap: true,
+                hiddenCount: mid.length,
+                hiddenNames: mid.map(function (r) { return r.name; }).join('、')
+            }]).concat(seq.slice(list.length - tN));
+        }
+
         var html = '<div class="dl-rank-list">';
-        list.forEach(function (r, i) {
-            var top = i < 3 && !r.nodata ? ' top' + (i + 1) : '';
+        seq.forEach(function (item) {
+            if (item.gap) {
+                html += '<div class="dl-rank-gap" title="' +
+                    esc('已折叠 ' + item.hiddenCount + ' 个：' + item.hiddenNames) + '">' +
+                    '···&nbsp;中间 ' + item.hiddenCount + ' 个乡镇（图上看）</div>';
+                return;
+            }
+            var r = item.row;
+            var top = item.rank <= 3 && !r.nodata ? ' top' + item.rank : '';
             var w = r.nodata ? 0 : Math.max(4, (r.value / max) * 100);
             html += '<div class="dl-rank-row' + top + (r.nodata ? ' nodata' : '') + '" data-town="' + esc(r.name) + '">' +
-                '<span class="dl-rank-no">' + (r.nodata ? '–' : (i + 1)) + '</span>' +
+                '<span class="dl-rank-no">' + (r.nodata ? '–' : item.rank) + '</span>' +
                 '<span class="dl-rank-name">' + esc(r.name) + '</span>' +
                 '<span class="dl-rank-bar-wrap"><span class="dl-rank-bar" style="width:' + w.toFixed(1) + '%;"></span></span>' +
                 '<span class="dl-rank-val">' + (r.nodata ? '无监测点' : r.display) + '</span>' +

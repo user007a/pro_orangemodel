@@ -201,6 +201,17 @@
 .dl-rank-val b { color: #5AD7F0; font-weight: 600; }
 .dl-rank-row.nodata .dl-rank-name,
 .dl-rank-row.nodata .dl-rank-val { color: #7c8ba1; }
+/* 折叠行：headN/tailN 模式下替代中间段，提示「图上看」 */
+.dl-rank-gap {
+    padding: 3px 6px;
+    font-size: 11px;
+    color: #7c8ba1;
+    text-align: center;
+    letter-spacing: 0.5px;
+    border-top: 1px dashed rgba(148, 163, 184, 0.16);
+    border-bottom: 1px dashed rgba(148, 163, 184, 0.16);
+    margin: 2px 0;
+}
 
 /* ============================================================
  * B4 图例阈值：色块必须带数值区间，否则看不出分档依据
@@ -258,6 +269,13 @@
 .card-header { font-size: 15px !important; }
 .header-extra { font-size: 12px !important; }
 
+/* 大屏 KPI 卡片统一高度：两屏视觉一致。
+   修改前：pest 6 卡 ≈ 98.4 px、growth 5 卡 ≈ 152.5 px（被 dl-focus 的 sub/foot 行撑高）。
+   现用 grid-auto-rows 锚定 110 px，两屏所有卡（含 dl-focus 卡与 sparkline）等高。
+   用 minmax() 而非固定 110px：窄屏下 KPI 标题（含 kpi-tag pill）会折行，
+   固定行高会把内容裁掉，minmax 让行高按内容自动放行，两屏仍保持一致。 */
+.kpi-grid { grid-auto-rows: minmax(110px, auto) !important; }
+
 /* 滚动条（深色） */
 .dl-todo-list::-webkit-scrollbar,
 .dl-rank-list::-webkit-scrollbar { width: 6px; }
@@ -267,4 +285,225 @@
 .dl-rank-list::-webkit-scrollbar-thumb {
     background: linear-gradient(180deg, #00d4ff, #4fc3f7);
     border-radius: 3px;
+}
+
+/* ============================================================
+ * 阶段一重构样式（#1-C 态势灯 / #2 ⓘ公式 / #4 督办闪烁 /
+ * #5-A 预警条数 / #6 预警 AI+气象 / #8 履职排名 / #9 简报）
+ * ============================================================ */
+
+/* #2 挽回损失 ⓘ 图标 + 公式浮层 */
+.dl-est-icon {
+    margin-left: 6px; cursor: help;
+    opacity: 0.65; font-size: 12px;
+    color: #74E8FB;
+    transition: opacity 0.2s;
+}
+.dl-est-icon:hover { opacity: 1; }
+.dl-est-tooltip {
+    position: absolute; z-index: 9999;
+    max-width: 360px;
+    background: rgba(10, 28, 60, 0.96);
+    color: #cbd5e1; font-size: 12px; line-height: 1.7;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1px solid rgba(127, 228, 245, 0.30);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6);
+    display: none;
+    pointer-events: none;
+}
+.dl-est-tooltip.show { display: block; }
+.dl-est-tooltip .dl-est-formula { color: #74E8FB; font-weight: 600; }
+.dl-est-tooltip .dl-est-warn { color: #94a3b8; margin-top: 6px; font-size: 11px; border-top: 1px solid rgba(148,163,184,0.20); padding-top: 6px; }
+
+/* #4 待办闪烁 + 一键督办 + 已督办计数 */
+@keyframes dlUrgentBlink {
+    0%,100% { box-shadow: inset 0 0 0 1px #ff6b6b; }
+    50%     { box-shadow: inset 0 0 0 1px #ff6b6b, 0 0 10px rgba(255,107,107,0.7); }
+}
+.dl-todo-item.urgent {
+    animation: dlUrgentBlink 1.4s ease-in-out infinite;
+    background: rgba(255, 107, 107, 0.08) !important;
+}
+.dl-supervise-btn {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 2px 8px; font-size: 11px;
+    background: rgba(255, 107, 107, 0.15); color: #ff6b6b;
+    border: 1px solid rgba(255, 107, 107, 0.40);
+    border-radius: 4px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.dl-supervise-btn:hover { background: rgba(255, 107, 107, 0.28); }
+.dl-supervised-count {
+    font-size: 11px; color: #94a3b8;
+    margin-left: 6px;
+}
+.dl-todo-village {
+    font-size: 11px; color: #cbd5e1;
+    display: block; margin-top: 2px;
+}
+
+/* #6 预警事件流 AI / 气象 / 电话 */
+.dl-alert-ai, .dl-alert-wx {
+    display: inline-block;
+    padding: 2px 6px;
+    font-size: 11px;
+    border-radius: 3px;
+    background: rgba(116, 232, 251, 0.15);
+    color: #74E8FB;
+    cursor: help;
+    margin-left: 4px;
+    white-space: nowrap;
+}
+.dl-alert-call {
+    color: #94a3b8;
+    cursor: pointer;
+    margin-left: 4px;
+}
+.dl-alert-call:hover { color: #74E8FB; }
+
+/* #8 乡镇履职排名 · 标签页 */
+.dl-rank-tabs {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 12px 8px;
+}
+.dl-rank-tab {
+    padding: 4px 12px;
+    font-size: 12px;
+    background: transparent;
+    color: #94a3b8;
+    border: 1px solid rgba(148, 163, 184, 0.30);
+    border-radius: 4px;
+    cursor: pointer;
+}
+.dl-rank-tab.active {
+    color: #74E8FB;
+    border-color: rgba(0, 212, 255, 0.50);
+    background: rgba(0, 212, 255, 0.10);
+}
+.dl-est-tag {
+    margin-left: auto;
+    padding: 2px 8px;
+    font-size: 11px;
+    color: #CBB04A;
+    background: rgba(203, 176, 74, 0.12);
+    border: 1px dashed rgba(203, 176, 74, 0.45);
+    border-radius: 4px;
+}
+.dl-perf-row {
+    display: grid;
+    grid-template-columns: 28px 1fr auto auto auto auto;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    font-size: 12px;
+    border-radius: 6px;
+    color: #cbd5e1;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.10);
+}
+.dl-perf-row:hover { background: rgba(0, 212, 255, 0.06); }
+.dl-perf-card {
+    display: inline-block;
+    width: 18px; height: 18px;
+    text-align: center;
+    border-radius: 3px;
+    font-size: 12px;
+    line-height: 18px;
+}
+.dl-perf-card.yellow { background: rgba(227, 154, 60, 0.40); color: #E39A3C; }
+.dl-perf-card.red    { background: rgba(255, 107, 107, 0.40); color: #ff6b6b; }
+.dl-perf-card.none   { color: transparent; }
+
+/* #9 一键生成简报 */
+.dl-report-btn {
+    margin-left: auto;
+    padding: 6px 14px;
+    font-size: 13px;
+    cursor: pointer;
+    background: rgba(0, 212, 255, 0.15);
+    color: #74E8FB;
+    border: 1px solid rgba(0, 212, 255, 0.40);
+    border-radius: 6px;
+    white-space: nowrap;
+    transition: all 0.2s;
+}
+.dl-report-btn:hover {
+    background: rgba(0, 212, 255, 0.28);
+    color: #5AD7F0;
+}
+.dl-report-pre {
+    background: rgba(5, 13, 26, 0.85);
+    border: 1px solid rgba(0, 212, 255, 0.20);
+    border-radius: 8px;
+    padding: 16px;
+    font-family: 'Consolas', 'Monaco', 'Source Han Sans CN', monospace;
+    font-size: 12px;
+    color: #cbd5e1;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    word-break: break-all;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+.dl-report-actions {
+    margin-top: 14px;
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+/* #3-A 木虱微型折线图 */
+.dl-mini-chart {
+    display: block;
+    margin: 6px 0 0;
+}
+.dl-mini-tip {
+    pointer-events: none;
+}
+
+/* #3-B 黄龙病档案弹窗 */
+.dl-hlb-archive-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    color: #cbd5e1;
+}
+.dl-hlb-archive-table th,
+.dl-hlb-archive-table td {
+    padding: 6px 8px;
+    text-align: left;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+}
+.dl-hlb-archive-table th {
+    color: #94a3b8;
+    font-weight: 500;
+    background: rgba(0, 212, 255, 0.06);
+}
+.dl-hlb-archive-toolbar {
+    display: flex; gap: 8px; margin-bottom: 12px;
+}
+.dl-hlb-photo-pending {
+    color: #94a3b8;
+    font-size: 11px;
+}
+
+/* 通用 toast */
+.dl-toast {
+    position: fixed;
+    left: 50%; bottom: 32px;
+    transform: translateX(-50%);
+    padding: 10px 18px;
+    font-size: 13px; color: #e6f1ff;
+    background: rgba(10, 28, 60, 0.96);
+    border: 1px solid rgba(0, 212, 255, 0.40);
+    border-radius: 6px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+    z-index: 9999;
+    opacity: 0; transition: opacity 0.2s, transform 0.2s;
+}
+.dl-toast.show {
+    opacity: 1; transform: translateX(-50%) translateY(-4px);
 }

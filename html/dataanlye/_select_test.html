@@ -1875,7 +1875,7 @@
             <div class="card side-card">
                 <div class="card-header"><span><i class="fas fa-cloud-sun"></i> 气象实时数据</span>
                     <span class="header-extra">
-                        <select id="weatherStationSelect" class="ds-select-sm" style="font-size:12px;color:#e6f1ff;background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.35);border-radius:6px;padding:3px 8px;cursor:pointer;outline:none;">
+                        <select id="weatherStationSelect" size="7" class="ds-select-sm" style="font-size:12px;color:#e6f1ff;background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.35);border-radius:6px;padding:3px 8px;cursor:pointer;outline:none;">
                             <option value="orchard-central">南丰蜜桔种质园</option>
                             <option value="qinchen">琴城果园监测点</option>
                             <option value="qiawan">洽湾示范园监测点</option>
@@ -3156,9 +3156,11 @@
         var container = document.getElementById('townRank');
         if (!container) return;
         var towns = alertDataSource.performance.towns;
+        var isMock = alertDataSource.performance.isMock;
         var html = '<div class="dl-rank-tabs">' +
             '<button class="dl-rank-tab active" data-tab="area" onclick="switchTownTab(\'area\', this)">发生面积</button>' +
             '<button class="dl-rank-tab" data-tab="performance" onclick="switchTownTab(\'performance\', this)">防控履职</button>' +
+            (isMock ? '<span class="dl-est-tag">模拟考核</span>' : '') +
         '</div>' +
         '<div class="dl-rank-pane" data-pane="area">' +
             '<div id="townRankArea"></div>' +

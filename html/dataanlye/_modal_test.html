@@ -161,16 +161,6 @@
             cursor: pointer;
             outline: none;
         }
-        /* 修复深色主题下 <option> 文字被 OS 默认白色下拉背景吞掉的问题 */
-        select option {
-            background: #0a1f3d;
-            color: #e6f1ff;
-            padding: 4px 8px;
-        }
-        select option:checked {
-            background: #00d4ff;
-            color: #050d1a;
-        }
         .card {
             background: rgba(16, 40, 78, 0.85);
             border-radius: 24px;
@@ -1377,19 +1367,6 @@
             font-weight: 700 !important;
         }
         .env-label { color: #94a3b8 !important; }
-        /* 气象实时数据 7 天趋势下的农事/植保建议 */
-        .weather-suggestion {
-            margin-top: 8px;
-            padding: 8px 10px;
-            font-size: 12px;
-            line-height: 1.6;
-            color: #e6f1ff;
-            background: rgba(0, 212, 255, 0.06);
-            border: 1px solid rgba(0, 212, 255, 0.20);
-            border-left: 3px solid #00d4ff;
-            border-radius: 6px;
-        }
-        .weather-suggestion b { color: #7dd3fc; }
 
         /* 气象灾害风险预判 */
         .disaster-card {
@@ -1616,7 +1593,9 @@
         .dl-rank-card .rank-card-tag { padding: 1px 8px; border-radius: 10px; font-size: 11px; }
         .dl-rank-card .rank-card-tag.yellow { background: rgba(203, 176, 74, 0.25); color: #fde047; border: 1px solid #CBB04A; }
         .dl-rank-card .rank-card-tag.red    { background: rgba(239, 68, 68, 0.25);  color: #fca5a5; border: 1px solid #ef4444; }
-        /* GI 一键简报（入口按钮已随防控态势条移除，弹窗函数保留备用） */
+        /* GI 一键简报 */
+        .dl-report-btn { background: linear-gradient(135deg, #00d4ff, #4fc3f7); color: #050d1a; padding: 6px 14px; border-radius: 6px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; }
+        .dl-report-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0, 212, 255, 0.40); }
         .dl-report-pre { background: #0a1426; color: #cbd5e1; padding: 14px 18px; border-radius: 6px; font-family: 'Consolas','Courier New',monospace; font-size: 13px; line-height: 1.7; white-space: pre-wrap; max-height: 60vh; overflow-y: auto; border: 1px solid rgba(127, 228, 245, 0.18); }
         .dl-report-actions { display: flex; gap: 8px; margin-top: 12px; justify-content: flex-end; }
     </style>
@@ -1714,6 +1693,16 @@
                 <span class="kpi-yoy flat" id="kpiInvestmentYoy">正在接入中 · 数据抽检中</span>
             </div>
         </div>
+    </div>
+
+    <!-- #1-C 防控态势总览：红黄绿灯 + AI 研判句；位置在 KPI 行下方 -->
+    <div class="dl-situation" id="dlSituation" data-level="orange" style="margin-bottom:18px;">
+        <div class="dl-sit-light"></div>
+        <div class="dl-sit-text">
+            <div class="dl-sit-level">橙色预警 · 多点散发</div>
+            <div class="dl-sit-brief" id="dlSitBrief">木虱诱捕量剧增，太和镇、桑田镇炭疽病风险极高</div>
+        </div>
+        <button class="dl-report-btn" id="dlReportBtn" onclick="openReportModal()">📄 生成简报</button>
     </div>
 
     <div class="map-core-grid">
@@ -1917,7 +1906,6 @@
                     </div>
                 </div>
                 <div id="weatherTrendChart" class="chart-box" style="height: 140px; margin-top: 8px;"></div>
-                <div class="weather-suggestion" id="weatherSuggestion"></div>
             </div>
 
             <div class="card side-card disaster-panel">
@@ -1951,15 +1939,15 @@
 
     // ===== 统一预警数据源（所有面板/KPI 共用） =====
     var alertDataSource = {
-        // 各监测点气象数据（与气象卡片下拉框联动；光照为隐藏字段，仅用于生成建议）
+        // 各监测点气象数据（与气象卡片下拉框联动）
         weatherStations: {
-            'orchard-central': { airTemp: '22.0°C', airHum: '76%', rainfall: '0 mm',  windSpeed: '2.5 m/s', light: '742 W/m²', trend: [29, 31, 32, 29, 30, 31, 32] },
-            'qinchen':         { airTemp: '21.5°C', airHum: '78%', rainfall: '0 mm',  windSpeed: '2.2 m/s', light: '698 W/m²', trend: [28, 30, 31, 28, 29, 30, 31] },
-            'qiawan':          { airTemp: '22.3°C', airHum: '74%', rainfall: '0 mm',  windSpeed: '2.8 m/s', light: '775 W/m²', trend: [30, 32, 33, 30, 31, 32, 33] },
-            'taihe':           { airTemp: '21.8°C', airHum: '77%', rainfall: '0 mm',  windSpeed: '2.4 m/s', light: '724 W/m²', trend: [27, 29, 30, 29, 30, 31, 30] },
-            'baishe':          { airTemp: '22.6°C', airHum: '73%', rainfall: '0 mm',  windSpeed: '3.0 m/s', light: '796 W/m²', trend: [31, 32, 33, 31, 32, 33, 34] },
-            'shishan':         { airTemp: '21.6°C', airHum: '79%', rainfall: '0 mm',  windSpeed: '2.1 m/s', light: '665 W/m²', trend: [26, 28, 29, 28, 29, 30, 29] },
-            'laixi':           { airTemp: '22.1°C', airHum: '75%', rainfall: '0 mm',  windSpeed: '2.6 m/s', light: '735 W/m²', trend: [28, 30, 31, 30, 30, 31, 32] }
+            'orchard-central': { airTemp: '22.0°C', airHum: '76%', rainfall: '0 mm',  windSpeed: '2.5 m/s', trend: [29, 31, 32, 29, 30, 31, 32] },
+            'qinchen':         { airTemp: '21.5°C', airHum: '78%', rainfall: '0 mm',  windSpeed: '2.2 m/s', trend: [29, 31, 32, 29, 30, 31, 32] },
+            'qiawan':          { airTemp: '22.3°C', airHum: '74%', rainfall: '0 mm',  windSpeed: '2.8 m/s', trend: [29, 31, 32, 29, 30, 31, 32] },
+            'taihe':           { airTemp: '21.8°C', airHum: '77%', rainfall: '0 mm',  windSpeed: '2.4 m/s', trend: [29, 31, 32, 29, 30, 31, 32] },
+            'baishe':          { airTemp: '22.6°C', airHum: '73%', rainfall: '0 mm',  windSpeed: '3.0 m/s', trend: [29, 31, 32, 29, 30, 31, 32] },
+            'shishan':         { airTemp: '21.6°C', airHum: '79%', rainfall: '0 mm',  windSpeed: '2.1 m/s', trend: [29, 31, 32, 29, 30, 31, 32] },
+            'laixi':           { airTemp: '22.1°C', airHum: '75%', rainfall: '0 mm',  windSpeed: '2.6 m/s', trend: [29, 31, 32, 29, 30, 31, 32] }
         },
         // 按颜色级别统计
         levels: {
@@ -2361,31 +2349,7 @@
             if (typeof weatherTrendChart !== 'undefined' && data.trend) {
                 weatherTrendChart.setOption({ series: [{ data: data.trend }] });
             }
-            updateWeatherSuggestion(stationKey);
         }
-
-        /* 气象结合物候期给植保建议（参考生长模型环境监测卡片） */
-        function updateWeatherSuggestion(stationKey) {
-            var box = document.getElementById('weatherSuggestion');
-            if (!box) return;
-            var data = (alertDataSource.weatherStations || {})[stationKey];
-            if (!data) return;
-            var hum = data.airHum || '—';
-            var humVal = parseFloat(String(hum).replace(/[^\d.]/g, ''));
-            var lightVal = parseFloat(String(data.light || '').replace(/[^\d.]/g, ''));
-            var lightLow = !isNaN(lightVal) && lightVal < 800;
-            var trend = data.trend || [];
-            var maxTemp = trend.length ? Math.max.apply(null, trend) : 32;
-            var hotHumid = !isNaN(humVal) && humVal >= 75 && maxTemp >= 30;
-            var prefix = '当前湿度 <b>' + hum + '</b>' + (lightLow ? ' + 光照偏弱' : '');
-            var risk = hotHumid ? '高温高湿，炭疽病、疮痂病与木虱暴发风险升高' :
-                       (!isNaN(humVal) && humVal >= 75) ? '湿度偏高，真菌类病害易流行' :
-                       (maxTemp >= 32) ? '未来气温偏高，木虱、红蜘蛛等虫害活跃' :
-                       '总体适宜，但仍需关注转色期病虫害';
-            box.innerHTML = prefix + '，' + risk +
-                '，建议加强巡检并适时喷施（配方由农艺师定）。';
-        }
-
         sel.addEventListener('change', function () { applyStation(sel.value); });
         applyStation(sel.value);
     });
@@ -2968,6 +2932,31 @@
         }
     }
 
+    /* --- #1-C 防控态势总览：颜色 + 研判句 --- */
+    function renderSituation() {
+        var lv = alertDataSource.levels;
+        var total = lv.red + lv.orange + lv.yellow + lv.blue;
+        /* 派生规则：red≥10%→红；orange≥20%→橙；yellow≥20%→黄；否则绿 */
+        var ratio = lv.red / total;
+        var level = 'green';
+        if (ratio >= 0.10) level = 'red';
+        else if (lv.orange / total >= 0.20) level = 'orange';
+        else if (lv.yellow / total >= 0.20) level = 'yellow';
+        var box = document.getElementById('dlSituation');
+        if (!box) return;
+        box.setAttribute('data-level', level);
+        var labelMap = {
+            green:  '绿色 · 总体平稳',
+            yellow: '黄色 · 局部需关注',
+            orange: '橙色预警 · 多点散发',
+            red:    '红色预警 · 全域告警'
+        };
+        var labelEl = box.querySelector('.dl-sit-level');
+        if (labelEl) labelEl.textContent = labelMap[level];
+        var briefEl = document.getElementById('dlSitBrief');
+        if (briefEl) briefEl.textContent = alertDataSource.situation.brief;
+    }
+
     /* --- #2 挽回损失 ⓘ 公式浮层：动态拼接 --- */
     function bindLossTip() {
         var trigger = document.getElementById('lossTip');
@@ -3156,9 +3145,11 @@
         var container = document.getElementById('townRank');
         if (!container) return;
         var towns = alertDataSource.performance.towns;
+        var isMock = alertDataSource.performance.isMock;
         var html = '<div class="dl-rank-tabs">' +
             '<button class="dl-rank-tab active" data-tab="area" onclick="switchTownTab(\'area\', this)">发生面积</button>' +
             '<button class="dl-rank-tab" data-tab="performance" onclick="switchTownTab(\'performance\', this)">防控履职</button>' +
+            (isMock ? '<span class="dl-est-tag">模拟考核</span>' : '') +
         '</div>' +
         '<div class="dl-rank-pane" data-pane="area">' +
             '<div id="townRankArea"></div>' +
@@ -3289,6 +3280,7 @@
     (function applyStage1() {
         renderActiveBySeverity();
         renderInvestment();
+        renderSituation();
         bindLossTip();
         renderHlbPsylTrend();
         renderAlertEvents();
@@ -4123,5 +4115,13 @@
     </div>
 </div>
 
+
+<script>
+window.addEventListener('load', function() {
+    setTimeout(function() {
+        try { openModal('防控投入'); } catch (e) { console.error(e); }
+    }, 1500);
+});
+</script>
 </body>
 </html>

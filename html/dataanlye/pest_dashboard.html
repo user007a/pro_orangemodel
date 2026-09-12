@@ -910,7 +910,7 @@
             <button class="platform-entry" onclick="toggleFullscreen()" title="全屏显示" style="cursor:pointer;">
                 <i class="fas fa-expand"></i> 全屏
             </button>
-            <div class="date-badge" id="dateBadge"><i class="far fa-calendar-alt"></i> <span id="currentDate">2026年7月22日</span> · 防控关键期</div>
+            <div class="date-badge" id="dateBadge"><i class="far fa-calendar-alt"></i> <span id="currentDate"></span> · 防控关键期</div>
         </div>
     </div>
 
@@ -934,7 +934,7 @@
         <div class="kpi-card warning animate-fade-in-up" style="animation-delay: 0.3s;" onclick="openModal('预警')">
             <div class="kpi-info">
                 <h4>预警总数</h4>
-                <div class="kpi-number" data-value="138">0</div>
+                <div class="kpi-number" data-value="184">0</div>
                 <span class="trend-badge warning">条</span>
             </div>
             <div class="kpi-icon"><i class="fas fa-bell"></i></div>
@@ -950,7 +950,7 @@
         <div class="kpi-card animate-fade-in-up" style="animation-delay: 0.5s;" onclick="openModal('识别准确')">
             <div class="kpi-info">
                 <h4>图像识别准确率</h4>
-                <div class="kpi-number" data-value="96.8">0</div>
+                <div class="kpi-number" data-value="81.3">0</div>
                 <span class="trend-badge">%</span>
             </div>
             <div class="kpi-icon"><i class="fas fa-eye"></i></div>
@@ -958,7 +958,7 @@
         <div class="kpi-card animate-fade-in-up" style="animation-delay: 0.6s;" onclick="openModal('灾害')">
             <div class="kpi-info">
                 <h4>气象灾害类型</h4>
-                <div class="kpi-number" data-value="5">0</div>
+                <div class="kpi-number" data-value="3">0</div>
                 <span class="trend-badge">类</span>
             </div>
             <div class="kpi-icon"><i class="fas fa-cloud-lightning"></i></div>
@@ -966,7 +966,7 @@
         <div class="kpi-card animate-fade-in-up" style="animation-delay: 0.7s;" onclick="openModal('防护')">
             <div class="kpi-info">
                 <h4>防护建议采纳率</h4>
-                <div class="kpi-number" data-value="85.6">0</div>
+                <div class="kpi-number" data-value="74.8">0</div>
                 <span class="trend-badge">%</span>
             </div>
             <div class="kpi-icon"><i class="fas fa-shield-alt"></i></div>
@@ -988,22 +988,22 @@
                 <div class="pest-rank-list">
                     <div class="pest-rank-item">
                         <div class="pest-rank-num top3">1</div>
-                        <span class="pest-rank-name">黄龙病</span>
-                        <span class="pest-rank-count sev-heavy">重度</span>
-                    </div>
-                    <div class="pest-rank-item">
-                        <div class="pest-rank-num top3">2</div>
                         <span class="pest-rank-name">红蜘蛛</span>
                         <span class="pest-rank-count sev-heavy">重度</span>
                     </div>
                     <div class="pest-rank-item">
+                        <div class="pest-rank-num top3">2</div>
+                        <span class="pest-rank-name">锈壁虱</span>
+                        <span class="pest-rank-count sev-heavy">重度</span>
+                    </div>
+                    <div class="pest-rank-item">
                         <div class="pest-rank-num top3">3</div>
-                        <span class="pest-rank-name">黑点病</span>
+                        <span class="pest-rank-name">潜叶蛾</span>
                         <span class="pest-rank-count sev-moderate">中度</span>
                     </div>
                     <div class="pest-rank-item">
                         <div class="pest-rank-num">4</div>
-                        <span class="pest-rank-name">疮痂病</span>
+                        <span class="pest-rank-name">炭疽病</span>
                         <span class="pest-rank-count sev-moderate">中度</span>
                     </div>
                     <div class="pest-rank-item">
@@ -1013,12 +1013,12 @@
                     </div>
                     <div class="pest-rank-item">
                         <div class="pest-rank-num">6</div>
-                        <span class="pest-rank-name">溃疡病</span>
+                        <span class="pest-rank-name">黑点病</span>
                         <span class="pest-rank-count sev-light">轻度</span>
                     </div>
                     <div class="pest-rank-item">
                         <div class="pest-rank-num">7</div>
-                        <span class="pest-rank-name">潜叶蛾</span>
+                        <span class="pest-rank-name">溃疡病</span>
                         <span class="pest-rank-count sev-none">无</span>
                     </div>
                 </div>
@@ -1028,7 +1028,7 @@
                 <div class="card-header"><span><i class="fas fa-camera"></i> 实时识别记录</span><span class="header-extra">本月识别</span></div>
                 <div class="recognition-summary">
                     <div class="recognition-main">
-                        <div class="recognition-accuracy" id="recogAccuracy">96.8<span class="recog-unit">%</span></div>
+                        <div class="recognition-accuracy" id="recogAccuracy">81.3<span class="recog-unit">%</span></div>
                         <div class="recognition-label">图像识别准确率</div>
                     </div>
                 </div>
@@ -1130,11 +1130,12 @@
                     <div class="map-panel-title">预警统计</div>
                     <div class="map-panel-row"><span class="map-panel-dot" style="background:#ef4444;color:#ef4444;"></span>红色预警: <span id="alertRedCount">41</span> 条</div>
                     <div class="map-panel-row"><span class="map-panel-dot" style="background:#f59e0b;color:#f59e0b;"></span>橙色预警: <span id="alertOrangeCount">57</span> 条</div>
-                    <div class="map-panel-row"><span class="map-panel-dot" style="background:#eab308;color:#eab308;"></span>黄色预警: <span id="alertYellowCount">5</span> 条</div>
+                    <div class="map-panel-row"><span class="map-panel-dot" style="background:#eab308;color:#eab308;"></span>黄色预警: <span id="alertYellowCount">23</span> 条</div>
+                    <div class="map-panel-row"><span class="map-panel-dot" style="background:#3b82f6;color:#3b82f6;"></span>蓝色预警: <span id="alertBlueCount">63</span> 条</div>
                 </div>
                 <div class="map-overlay map-overlay-bl">
                     <div class="map-panel-text">数据更新于: <span id="mapUpdateTime"></span></div>
-                    <div class="map-panel-text" style="color:#16a34a;font-weight:600;">全县健康指数: 72.5</div>
+                    <div class="map-panel-text" style="color:#16a34a;font-weight:600;">全县健康指数: <span id="healthIndex">72.5</span></div>
                 </div>
             </div>
             <div class="risk-legend-bar">
@@ -1162,15 +1163,15 @@
                 <div class="card-header"><span><i class="fas fa-chart-line"></i> 模型预警准确率</span><span class="header-extra">本月预警</span></div>
                 <div class="accuracy-container">
                     <div class="accuracy-main">
-                        <div class="accuracy-value">92.5</div>
+                        <div class="accuracy-value">85.2</div>
                         <div class="accuracy-label">%</div>
                     </div>
                     <div class="accuracy-breakdown">
-                        <div class="accuracy-item"><span style="color:#22c55e;">✓</span> 准确率 92.5%</div>
-                        <div class="accuracy-item"><span style="color:#f59e0b;">~</span> 误报率 4.3%</div>
-                        <div class="accuracy-item"><span style="color:#ef4444;">✗</span> 漏报率 3.2%</div>
+                        <div class="accuracy-item"><span style="color:#22c55e;">✓</span> 准确率 85.2%</div>
+                        <div class="accuracy-item"><span style="color:#f59e0b;">~</span> 误报率 8.6%</div>
+                        <div class="accuracy-item"><span style="color:#ef4444;">✗</span> 漏报率 6.2%</div>
                     </div>
-                    <div class="accuracy-bar"><div class="accuracy-bar-fill" style="width:92.5%;"></div></div>
+                    <div class="accuracy-bar"><div class="accuracy-bar-fill" style="width:85.2%;"></div></div>
                 </div>
                 <div id="accuracyTrendChart" class="chart-box"></div>
             </div>
@@ -1193,14 +1194,14 @@
                     <div class="env-card">
                         <div class="env-icon" style="background:#e0f2fe;color:#0284c7;"><i class="fas fa-thermometer-half"></i></div>
                         <div class="env-info">
-                            <div class="env-value" data-env-key="airTemp">32.1°C</div>
+                            <div class="env-value" data-env-key="airTemp">22.0°C</div>
                             <div class="env-label">气温</div>
                         </div>
                     </div>
                     <div class="env-card">
                         <div class="env-icon" style="background:#dbeafe;color:#2563eb;"><i class="fas fa-cloud"></i></div>
                         <div class="env-info">
-                            <div class="env-value" data-env-key="airHum">56.2%</div>
+                            <div class="env-value" data-env-key="airHum">76%</div>
                             <div class="env-label">湿度</div>
                         </div>
                     </div>
@@ -1214,7 +1215,7 @@
                     <div class="env-card">
                         <div class="env-icon" style="background:#f1f5f9;color:#64748b;"><i class="fas fa-wind"></i></div>
                         <div class="env-info">
-                            <div class="env-value" data-env-key="windSpeed">3.2 m/s</div>
+                            <div class="env-value" data-env-key="windSpeed">2.5 m/s</div>
                             <div class="env-label">风速</div>
                         </div>
                     </div>
@@ -1225,20 +1226,20 @@
             <div class="card side-card">
                 <div class="card-header"><span><i class="fas fa-cloud-lightning"></i> 气象灾害风险预判</span><span class="header-extra">未来7天</span></div>
                 <div id="disasterList" style="padding: 4px;">
-                    <div class="disaster-card">
-                        <div class="disaster-title">台风预警</div>
-                        <div class="disaster-info">风险等级：红色 | 影响范围：全县</div>
-                        <div class="disaster-suggestion"><i class="fas fa-lightbulb"></i> 建议：立即组织防护、加固支架、停止户外作业</div>
+                    <div class="disaster-card info">
+                        <div class="disaster-title">大风预警</div>
+                        <div class="disaster-info">风险等级：蓝色 | 影响范围：全县</div>
+                        <div class="disaster-suggestion"><i class="fas fa-lightbulb"></i> 建议：注意加固果园支架、防风障，停止高空作业</div>
                     </div>
-                    <div class="disaster-card warning">
-                        <div class="disaster-title">高温热害预警</div>
-                        <div class="disaster-info">风险等级：橙色 | 影响范围：全县</div>
-                        <div class="disaster-suggestion"><i class="fas fa-lightbulb"></i> 建议：加强灌溉，做好防暑降温措施</div>
+                    <div class="disaster-card info">
+                        <div class="disaster-title">地质灾害预警</div>
+                        <div class="disaster-info">风险等级：蓝色 | 影响范围：三溪乡、太源乡</div>
+                        <div class="disaster-suggestion"><i class="fas fa-lightbulb"></i> 建议：关注强降水引发的滑坡、泥石流，提前排查隐患</div>
                     </div>
-                    <div class="disaster-card warning">
-                        <div class="disaster-title">持续干旱预警</div>
-                        <div class="disaster-info">风险等级：黄色 | 影响范围：白舍镇、东坪乡</div>
-                        <div class="disaster-suggestion"><i class="fas fa-lightbulb"></i> 建议：及时补水，监测土壤墒情</div>
+                    <div class="disaster-card info">
+                        <div class="disaster-title">暴雨预警</div>
+                        <div class="disaster-info">风险等级：蓝色 | 影响范围：全县</div>
+                        <div class="disaster-suggestion"><i class="fas fa-lightbulb"></i> 建议：13日起持续降水，提前疏通排水沟渠、做好排水准备</div>
                     </div>
                 </div>
             </div>
@@ -1254,20 +1255,20 @@
     var alertDataSource = {
         // 各监测点气象数据（与气象卡片下拉框联动）
         weatherStations: {
-            'orchard-central': { airTemp: '32.1°C', airHum: '56.2%', rainfall: '0 mm',  windSpeed: '3.2 m/s', trend: [32, 34, 35, 36, 35, 33, 31] },
-            'qinchen':         { airTemp: '30.5°C', airHum: '60.8%', rainfall: '1.2 mm', windSpeed: '2.8 m/s', trend: [30, 32, 33, 34, 33, 31, 30] },
-            'qiawan':          { airTemp: '31.7°C', airHum: '58.4%', rainfall: '0 mm',  windSpeed: '4.1 m/s', trend: [32, 33, 35, 35, 34, 32, 31] },
-            'taihe':           { airTemp: '31.0°C', airHum: '59.7%', rainfall: '0.5 mm', windSpeed: '3.5 m/s', trend: [31, 33, 34, 35, 34, 32, 30] },
-            'baishe':          { airTemp: '33.2°C', airHum: '54.1%', rainfall: '0 mm',  windSpeed: '3.8 m/s', trend: [33, 35, 36, 37, 36, 34, 33] },
-            'shishan':         { airTemp: '30.8°C', airHum: '61.5%', rainfall: '1.8 mm', windSpeed: '2.6 m/s', trend: [31, 32, 33, 34, 33, 31, 29] },
-            'laixi':           { airTemp: '31.5°C', airHum: '57.9%', rainfall: '0 mm',  windSpeed: '3.4 m/s', trend: [32, 33, 34, 35, 34, 32, 31] }
+            'orchard-central': { airTemp: '22.0°C', airHum: '76%', rainfall: '0 mm',  windSpeed: '2.5 m/s', trend: [29, 31, 32, 29, 30, 31, 32] },
+            'qinchen':         { airTemp: '21.5°C', airHum: '78%', rainfall: '0 mm',  windSpeed: '2.2 m/s', trend: [29, 31, 32, 29, 30, 31, 32] },
+            'qiawan':          { airTemp: '22.3°C', airHum: '74%', rainfall: '0 mm',  windSpeed: '2.8 m/s', trend: [29, 31, 32, 29, 30, 31, 32] },
+            'taihe':           { airTemp: '21.8°C', airHum: '77%', rainfall: '0 mm',  windSpeed: '2.4 m/s', trend: [29, 31, 32, 29, 30, 31, 32] },
+            'baishe':          { airTemp: '22.6°C', airHum: '73%', rainfall: '0 mm',  windSpeed: '3.0 m/s', trend: [29, 31, 32, 29, 30, 31, 32] },
+            'shishan':         { airTemp: '21.6°C', airHum: '79%', rainfall: '0 mm',  windSpeed: '2.1 m/s', trend: [29, 31, 32, 29, 30, 31, 32] },
+            'laixi':           { airTemp: '22.1°C', airHum: '75%', rainfall: '0 mm',  windSpeed: '2.6 m/s', trend: [29, 31, 32, 29, 30, 31, 32] }
         },
         // 按颜色级别统计
         levels: {
             red:    41,   // 红色预警
             orange: 57,   // 橙色预警
-            yellow: 5,    // 黄色预警
-            blue:   35    // 蓝色预警
+            yellow: 23,   // 黄色预警（与 types + unclassified 合计一致）
+            blue:   63    // 蓝色预警（与 types 合计一致）
         },
         // 按预警来源统计
         types: {
@@ -1275,28 +1276,30 @@
             weather: { red: 0,  orange: 12, yellow: 18, blue: 35 },// 气象灾害
             general: { red: 5,  orange: 0,  yellow: 0,  blue: 0 }   // 综合预警
         },
+        // 未分类预警（用于补足 levels 与 types 之间的口径差）
+        unclassified: { red: 13, orange: 0, yellow: 5, blue: 0 },
+        // 全县健康指数（0~100）
+        healthIndex: 72.5,
         // 按乡镇风险等级统计
         riskTowns: { high: 2, mid: 7, low: 2 },
         // 处置状态
         disposeRate: 78.3,    // 预警处置完成率
-        suggestAdopt: 85.6,   // 防护建议采纳率
+        suggestAdopt: 74.8,   // 防护建议采纳率
         // 模型准确率
-        imgAccuracy: 96.8,        // 图像识别准确率
-        alertAccuracy: 92.5,      // 预警模型准确率
+        imgAccuracy: 81.3,        // 图像识别准确率
+        alertAccuracy: 85.2,      // 预警模型准确率
         // 识别任务
-        recognition: { task: 284, success: 275, hard: 9 },
+        recognition: { task: 284, success: 231, hard: 53 },
         // 病虫种类
         diseaseKinds: 8,
         pestKinds: 10,
-        // 气象灾害类型（与右侧「气象灾害风险预判」卡片一致：5 类）
-        weatherDisasterKinds: 5,
+        // 气象灾害类型（与右侧「气象灾害风险预判」卡片一致：3 类）
+        weatherDisasterKinds: 3,
         // 灾害类型明细（驱动 KPI 弹窗与卡片）
         weatherDisasters: [
-            { type: '台风',      level: '红色', range: '全县',         suggest: '立即组织防护、加固支架、停止户外作业' },
-            { type: '高温热害',  level: '橙色', range: '全县',         suggest: '加强灌溉，做好防暑降温措施' },
-            { type: '持续干旱',  level: '黄色', range: '白舍镇、东坪乡', suggest: '及时补水，监测土壤墒情' },
-            { type: '暴雨',      level: '蓝色', range: '洽湾镇',       suggest: '做好排水设施检查' },
-            { type: '强对流大风', level: '黄色', range: '桑田镇、市山镇', suggest: '加固支架、检查果园防护' }
+            { type: '大风',      level: '蓝色', range: '全县',             suggest: '注意加固果园支架、防风障，停止高空作业' },
+            { type: '地质灾害',  level: '蓝色', range: '三溪乡、太源乡',     suggest: '关注强降水引发的滑坡、泥石流，提前排查隐患' },
+            { type: '暴雨',      level: '蓝色', range: '全县',             suggest: '13日起持续降水，提前疏通排水沟渠、做好排水准备' }
         ]
     };
 
@@ -1314,17 +1317,29 @@
 
     var recognitionChart = echarts.init(document.getElementById('recognitionChart'));
     recognitionChart.setOption({
-        tooltip: { trigger: 'axis' },
-        grid: { left: '3%', right: '4%', bottom: '3%', top: '10%', containLabel: true },
-        xAxis: { type: 'category', data: ['病害', '虫害'] },
+        tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+        grid: { left: '3%', right: '4%', bottom: '3%', top: '14%', containLabel: true },
+        xAxis: {
+            type: 'category',
+            // 按本月 Top7 + Top8 排序展示（病害用红系、虫害用绿系）
+            data: ['炭疽病', '黑点病', '溃疡病', '红蜘蛛', '锈壁虱', '潜叶蛾', '柑桔木虱'],
+            axisLabel: { interval: 0, rotate: 25, fontSize: 10, color: '#475569' }
+        },
         yAxis: { type: 'value', axisLabel: { formatter: '{value}条' } },
         series: [{
             type: 'bar',
-            data: [76, 128],
-            itemStyle: {
-                color: ['#ef4444', '#f59e0b'],
-                borderRadius: [6, 6, 0, 0]
-            }
+            // 数值为本月各病虫被拍照识别的次数（与 Top7 顺序与饼图数据一致）
+            data: [
+                { value: 132, itemStyle: { color: '#ef4444' } }, // 炭疽病
+                { value: 86,  itemStyle: { color: '#f59e0b' } }, // 黑点病
+                { value: 18,  itemStyle: { color: '#64748b' } }, // 溃疡病
+                { value: 168, itemStyle: { color: '#22c55e' } }, // 红蜘蛛
+                { value: 122, itemStyle: { color: '#16a34a' } }, // 锈壁虱
+                { value: 96,  itemStyle: { color: '#4ade80' } }, // 潜叶蛾
+                { value: 58,  itemStyle: { color: '#86efac' } }  // 柑桔木虱
+            ],
+            itemStyle: { borderRadius: [6, 6, 0, 0] },
+            label: { show: true, position: 'top', fontSize: 10, color: '#475569' }
         }]
     });
 
@@ -1333,7 +1348,7 @@
         tooltip: { trigger: 'axis' },
         grid: { left: '3%', right: '4%', bottom: '3%', top: '10%', containLabel: true },
         xAxis: { type: 'category', data: ['今天', '明天', '周三', '周四', '周五', '周六', '周日'] },
-        yAxis: { type: 'value', min: 25, max: 38, axisLabel: { formatter: '{value}°' } },
+        yAxis: { type: 'value', min: 18, max: 34, axisLabel: { formatter: '{value}°' } },
         series: [{
             type: 'line',
             data: (alertDataSource.weatherStations['orchard-central']).trend,
@@ -1352,12 +1367,12 @@
         tooltip: { trigger: 'axis' },
         legend: { data: ['准确率', '误报率', '漏报率'], bottom: 0 },
         grid: { left: '3%', right: '4%', bottom: '15%', top: '5%', containLabel: true },
-        xAxis: { type: 'category', data: ['7/1', '7/5', '7/10', '7/15', '7/20'] },
+        xAxis: { type: 'category', data: ['9/1', '9/3', '9/6', '9/8', '9/10'] },
         yAxis: { type: 'value', axisLabel: { formatter: '{value}%' } },
         series: [
-            { name: '准确率', type: 'line', data: [88.2, 89.5, 91.2, 91.8, 92.5], smooth: true, itemStyle: { color: '#22c55e' } },
-            { name: '误报率', type: 'line', data: [6.5, 5.8, 4.8, 4.5, 4.3], smooth: true, itemStyle: { color: '#f59e0b' } },
-            { name: '漏报率', type: 'line', data: [5.3, 4.7, 4.0, 3.7, 3.2], smooth: true, itemStyle: { color: '#ef4444' } }
+            { name: '准确率', type: 'line', data: [80.5, 82.1, 83.4, 84.5, 85.2], smooth: true, itemStyle: { color: '#22c55e' } },
+            { name: '误报率', type: 'line', data: [12.3, 10.8, 9.7, 9.1, 8.6], smooth: true, itemStyle: { color: '#f59e0b' } },
+            { name: '漏报率', type: 'line', data: [7.2, 7.1, 6.9, 6.4, 6.2], smooth: true, itemStyle: { color: '#ef4444' } }
         ]
     });
 
@@ -1365,34 +1380,30 @@
         var container = document.getElementById('pestScrollingContainer');
         if (!container) return;
         var data = [
-            { name: '溃疡病', type: 'disease', area: '太和镇', severity: '高', person: '李农技员', status: '预警中' },
             { name: '红蜘蛛', type: 'pest', area: '桑田镇', severity: '高', person: '王技术员', status: '预警中' },
-            { name: '黄龙病', type: 'disease', area: '白舍镇', severity: '高', person: '吴农技员', status: '紧急处理' },
-            { name: '木虱', type: 'pest', area: '市山镇', severity: '高', person: '郑技术员', status: '紧急处理' },
             { name: '锈壁虱', type: 'pest', area: '市山镇', severity: '高', person: '宋农艺师', status: '预警中' },
-            { name: '食心虫', type: 'pest', area: '桑田镇', severity: '高', person: '唐农艺师', status: '预警中' },
-            { name: '线虫病', type: 'disease', area: '白舍镇', severity: '高', person: '罗农技员', status: '紧急处理' },
-            { name: '炭疽病', type: 'disease', area: '白舍镇', severity: '中', person: '张植保', status: '监测中' },
             { name: '潜叶蛾', type: 'pest', area: '市山镇', severity: '中', person: '刘农艺师', status: '监测中' },
+            { name: '炭疽病', type: 'disease', area: '白舍镇', severity: '中', person: '张植保', status: '监测中' },
+            { name: '柑桔木虱', type: 'pest', area: '市山镇', severity: '中', person: '郑技术员', status: '监测中' },
+            { name: '黑点病', type: 'disease', area: '洽湾镇', severity: '低', person: '黄植保', status: '监测中' },
+            { name: '溃疡病', type: 'disease', area: '太和镇', severity: '低', person: '李农技员', status: '正常' },
             { name: '树脂病', type: 'disease', area: '洽湾镇', severity: '中', person: '陈专家', status: '监测中' },
-            { name: '黑星病', type: 'disease', area: '洽湾镇', severity: '中', person: '黄植保', status: '监测中' },
             { name: '灰霉病', type: 'disease', area: '太和镇', severity: '中', person: '韩专家', status: '监测中' },
             { name: '白绢病', type: 'disease', area: '太和镇', severity: '中', person: '金专家', status: '监测中' },
             { name: '黑斑病', type: 'disease', area: '白舍镇', severity: '中', person: '谢专家', status: '监测中' },
             { name: '毒蛾', type: 'pest', area: '市山镇', severity: '中', person: '石技术员', status: '监测中' },
             { name: '褐腐病', type: 'disease', area: '洽湾镇', severity: '中', person: '曹植保', status: '监测中' },
             { name: '粉虱', type: 'pest', area: '东坪乡', severity: '中', person: '冯农艺师', status: '监测中' },
-            { name: '尺蠖', type: 'pest', area: '市山镇', severity: '中', person: '殷植保', status: '监测中' },
-            { name: '蚜虫', type: 'pest', area: '东坪乡', severity: '低', person: '赵技术员', status: '正常' },
-            { name: '疮痂病', type: 'disease', area: '太和镇', severity: '低', person: '孙植保', status: '正常' },
-            { name: '介壳虫', type: 'pest', area: '桑田镇', severity: '低', person: '周农艺师', status: '正常' },
+            { name: '蚜虫', type: 'pest', area: '琴城镇', severity: '低', person: '赵技术员', status: '正常' },
+            { name: '疮痂病', type: 'disease', area: '太源乡', severity: '低', person: '孙植保', status: '正常' },
+            { name: '介壳虫', type: 'pest', area: '琴城镇', severity: '低', person: '周农艺师', status: '正常' },
             { name: '流胶病', type: 'disease', area: '太和镇', severity: '低', person: '何技术员', status: '正常' },
-            { name: '卷叶蛾', type: 'pest', area: '桑田镇', severity: '低', person: '梁植保', status: '正常' },
+            { name: '卷叶蛾', type: 'pest', area: '琴城镇', severity: '低', person: '梁植保', status: '正常' },
             { name: '裂皮病', type: 'disease', area: '白舍镇', severity: '低', person: '邓农技员', status: '正常' },
             { name: '煤污病', type: 'disease', area: '洽湾镇', severity: '低', person: '袁植保', status: '正常' },
             { name: '天牛', type: 'pest', area: '东坪乡', severity: '低', person: '许技术员', status: '正常' },
             { name: '象鼻虫', type: 'pest', area: '东坪乡', severity: '低', person: '史农艺师', status: '正常' },
-            { name: '凤蝶', type: 'pest', area: '桑田镇', severity: '低', person: '魏技术员', status: '正常' },
+            { name: '凤蝶', type: 'pest', area: '琴城镇', severity: '低', person: '魏技术员', status: '正常' },
             { name: '紫纹羽病', type: 'disease', area: '洽湾镇', severity: '低', person: '陶专家', status: '正常' },
             { name: '金龟子', type: 'pest', area: '东坪乡', severity: '低', person: '姜农艺师', status: '正常' }
         ];
@@ -1500,16 +1511,14 @@
     });
 
     var scatterData = [
-        { name: '溃疡病', value: [110, 78], type: 'disease', severity: '高', area: '太和镇', count: 15, person: '李农技员', status: '预警中', desc: '叶片出现隆起病斑，严重影响光合作用' },
         { name: '红蜘蛛', value: [215, 72], type: 'pest', severity: '高', area: '桑田镇', count: 28, person: '王技术员', status: '预警中', desc: '叶片失绿发白，严重时导致落叶' },
-        { name: '黄龙病', value: [325, 68], type: 'disease', severity: '高', area: '白舍镇', count: 12, person: '吴农技员', status: '紧急处理', desc: '毁灭性病害，需严格防控' },
-        { name: '木虱', value: [435, 92], type: 'pest', severity: '高', area: '市山镇', count: 22, person: '郑技术员', status: '紧急处理', desc: '黄龙病传播媒介' },
-        { name: '锈壁虱', value: [445, 115], type: 'pest', severity: '高', area: '市山镇', count: 18, person: '宋农艺师', status: '预警中', desc: '果实表面变黑，失去商品价值' },
-        { name: '食心虫', value: [225, 82], type: 'pest', severity: '高', area: '桑田镇', count: 14, person: '唐农艺师', status: '预警中', desc: '幼虫蛀食果实，造成落果' },
-        { name: '炭疽病', value: [340, 78], type: 'disease', severity: '中', area: '白舍镇', count: 8, person: '张植保', status: '监测中', desc: '果实和叶片出现褐色斑点' },
-        { name: '潜叶蛾', value: [425, 108], type: 'pest', severity: '中', area: '市山镇', count: 6, person: '刘农艺师', status: '监测中', desc: '幼虫潜入叶片取食叶肉' },
+        { name: '锈壁虱', value: [445, 115], type: 'pest', severity: '高', area: '市山镇', count: 22, person: '宋农艺师', status: '预警中', desc: '果实表面变黑，失去商品价值' },
+        { name: '潜叶蛾', value: [425, 108], type: 'pest', severity: '中', area: '市山镇', count: 16, person: '刘农艺师', status: '监测中', desc: '幼虫潜入叶片取食叶肉' },
+        { name: '炭疽病', value: [340, 78], type: 'disease', severity: '中', area: '白舍镇', count: 12, person: '张植保', status: '监测中', desc: '果实和叶片出现褐色斑点' },
+        { name: '柑桔木虱', value: [435, 92], type: 'pest', severity: '中', area: '市山镇', count: 8, person: '郑技术员', status: '监测中', desc: '黄龙病传播媒介，需重点防控' },
+        { name: '黑点病', value: [410, 215], type: 'disease', severity: '低', area: '洽湾镇', count: 5, person: '黄植保', status: '监测中', desc: '果实表面出现黑色星状斑点' },
+        { name: '溃疡病', value: [110, 78], type: 'disease', severity: '低', area: '太和镇', count: 3, person: '李农技员', status: '正常', desc: '少量零星发生，处于控制期' },
         { name: '树脂病', value: [390, 200], type: 'disease', severity: '中', area: '洽湾镇', count: 5, person: '陈专家', status: '监测中', desc: '枝干流胶，影响树势' },
-        { name: '黑星病', value: [410, 215], type: 'disease', severity: '中', area: '洽湾镇', count: 5, person: '黄植保', status: '监测中', desc: '果实表面出现黑色星状斑点' },
         { name: '灰霉病', value: [100, 72], type: 'disease', severity: '中', area: '太和镇', count: 7, person: '韩专家', status: '监测中', desc: '低温高湿条件下易爆发' },
         { name: '白绢病', value: [120, 90], type: 'disease', severity: '中', area: '太和镇', count: 4, person: '金专家', status: '监测中', desc: '根部白色菌丝覆盖' },
         { name: '黑斑病', value: [335, 82], type: 'disease', severity: '中', area: '白舍镇', count: 6, person: '谢专家', status: '监测中', desc: '叶片出现黑色斑块' },
@@ -1543,7 +1552,7 @@
                 formatter: function(params) {
                     if (!params.data) return params.name;
                     var risk = params.data.risk || 0;
-                    var level = risk >= 75 ? '高' : risk >= 50 ? '中' : '低';
+                    var level = risk >= 80 ? '高' : risk >= 50 ? '中' : '低';
                     return params.name + '\n风险:' + level + ' 预警:' + params.data.warningCount + '条 ' + (params.data.trend || '');
                 }
             },
@@ -1600,7 +1609,7 @@
                         formatter: function(params) {
                             if (!params.data) return params.name;
                             var risk = params.data.risk || 0;
-                            var level = risk >= 75 ? '高风险' : risk >= 50 ? '中风险' : '低风险';
+                            var level = risk >= 80 ? '高风险' : risk >= 50 ? '中风险' : '低风险';
                             return params.name + '\n风险:' + level + ' 预警:' + params.data.warningCount + '条 ' + (params.data.trend || '');
                         }
                     }
@@ -1670,9 +1679,9 @@
                     var data = params.data;
                     var trendIcon = data.trend === '↑' ? '<span style="color:#ef4444;">↑ 上升</span>' :
                                    data.trend === '↓' ? '<span style="color:#16a34a;">↓ 下降</span>' : '<span style="color:#f59e0b;">→ 持平</span>';
-                    // 主要病虫与建议措施（按风险等级不同）
-                    var pestList = data.risk >= 80 ? '黄龙病、红蜘蛛、柑桔木虱' :
-                                   data.risk >= 60 ? '黑点病、疮痂病、蚜虫' : '黑星病、粉虱';
+                    // 主要病虫与建议措施（与本月 Top7 口径一致：≥80 高风险=Top3，≥60 中风险=Top4~5，<60 低风险=Top6~7）
+                    var pestList = data.risk >= 80 ? '红蜘蛛、锈壁虱、潜叶蛾' :
+                                   data.risk >= 60 ? '炭疽病、柑桔木虱' : '黑点病、溃疡病';
                     var suggest  = data.risk >= 80 ? '立即喷药 + 病株隔离' :
                                    data.risk >= 60 ? '加强巡查 + 预防喷药' : '保持监测 + 常规防护';
                     var history  = data.risk >= 80 ? '+12%' : data.risk >= 60 ? '+5%' : '-3%';
@@ -1872,20 +1881,20 @@
                         radius: ['40%', '70%'],
                         center: ['50%', '45%'],
                         data: [
-                            { value: 156, name: '黄龙病', itemStyle: { color: '#ef4444' } },
-                            { value: 98, name: '黑点病', itemStyle: { color: '#f59e0b' } },
-                            { value: 76, name: '疮痂病', itemStyle: { color: '#3b82f6' } },
-                            { value: 62, name: '溃疡病', itemStyle: { color: '#8b5cf6' } },
-                            { value: 48, name: '炭疽病', itemStyle: { color: '#06b6d4' } },
-                            { value: 35, name: '树脂病', itemStyle: { color: '#ec4899' } },
-                            { value: 28, name: '黑星病', itemStyle: { color: '#64748b' } },
-                            { value: 22, name: '褐腐病', itemStyle: { color: '#22c55e' } }
+                            { value: 132, name: '炭疽病', itemStyle: { color: '#ef4444' } },
+                            { value: 86, name: '黑点病', itemStyle: { color: '#f59e0b' } },
+                            { value: 62, name: '树脂病', itemStyle: { color: '#3b82f6' } },
+                            { value: 48, name: '灰霉病', itemStyle: { color: '#8b5cf6' } },
+                            { value: 38, name: '白绢病', itemStyle: { color: '#06b6d4' } },
+                            { value: 32, name: '黑斑病', itemStyle: { color: '#ec4899' } },
+                            { value: 22, name: '褐腐病', itemStyle: { color: '#64748b' } },
+                            { value: 18, name: '溃疡病', itemStyle: { color: '#22c55e' } }
                         ],
                         label: { show: true, formatter: '{b}: {c}', fontSize: 10 }
                     }]
                 };
                 break;
-            case '虫害':
+                case '虫害':
                 option = {
                     tooltip: { trigger: 'item' },
                     legend: { bottom: '5%', left: 'center', width: '90%', textStyle: { fontSize: 9 } },
@@ -1894,16 +1903,16 @@
                         radius: ['40%', '70%'],
                         center: ['50%', '45%'],
                         data: [
-                            { value: 134, name: '红蜘蛛', itemStyle: { color: '#ef4444' } },
-                            { value: 86, name: '柑桔木虱', itemStyle: { color: '#f59e0b' } },
-                            { value: 72, name: '潜叶蛾', itemStyle: { color: '#3b82f6' } },
-                            { value: 58, name: '蚜虫', itemStyle: { color: '#8b5cf6' } },
-                            { value: 45, name: '介壳虫', itemStyle: { color: '#06b6d4' } },
-                            { value: 38, name: '粉虱', itemStyle: { color: '#ec4899' } },
-                            { value: 32, name: '锈壁虱', itemStyle: { color: '#64748b' } },
-                            { value: 26, name: '天牛', itemStyle: { color: '#22c55e' } },
-                            { value: 22, name: '食心虫', itemStyle: { color: '#15803d' } },
-                            { value: 18, name: '卷叶蛾', itemStyle: { color: '#166534' } }
+                            { value: 168, name: '红蜘蛛', itemStyle: { color: '#ef4444' } },
+                            { value: 122, name: '锈壁虱', itemStyle: { color: '#f59e0b' } },
+                            { value: 96, name: '潜叶蛾', itemStyle: { color: '#3b82f6' } },
+                            { value: 58, name: '柑桔木虱', itemStyle: { color: '#8b5cf6' } },
+                            { value: 38, name: '毒蛾', itemStyle: { color: '#06b6d4' } },
+                            { value: 32, name: '粉虱', itemStyle: { color: '#ec4899' } },
+                            { value: 28, name: '蚜虫', itemStyle: { color: '#64748b' } },
+                            { value: 22, name: '介壳虫', itemStyle: { color: '#22c55e' } },
+                            { value: 18, name: '天牛', itemStyle: { color: '#15803d' } },
+                            { value: 14, name: '卷叶蛾', itemStyle: { color: '#166534' } }
                         ],
                         label: { show: true, formatter: '{b}: {c}', fontSize: 10 }
                     }]
@@ -1913,11 +1922,11 @@
                 option = {
                     tooltip: { trigger: 'axis' },
                     grid: { left: '3%', right: '4%', bottom: '10%', containLabel: true },
-                    xAxis: { type: 'category', data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月'] },
+                    xAxis: { type: 'category', data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月'] },
                     yAxis: { type: 'value', max: 100, axisLabel: { formatter: '{value}%' } },
                     series: [{
                         type: 'line',
-                        data: [88.5, 90.2, 92.1, 93.8, 95.2, 96.0, alertDataSource.imgAccuracy],
+                        data: [73.5, 75.2, 77.1, 78.8, 80.0, 80.5, 80.8, 81.0, alertDataSource.imgAccuracy],
                         smooth: true,
                         itemStyle: { color: '#22c55e' },
                         areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: 'rgba(34,197,94,0.3)' }, { offset: 1, color: 'rgba(34,197,94,0)' }]) }
@@ -1946,11 +1955,11 @@
                 option = {
                     tooltip: { trigger: 'axis' },
                     grid: { left: '3%', right: '4%', bottom: '10%', containLabel: true },
-                    xAxis: { type: 'category', data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月'] },
+                    xAxis: { type: 'category', data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月'] },
                     yAxis: { type: 'value', max: 100, axisLabel: { formatter: '{value}%' } },
                     series: [{
                         type: 'line',
-                        data: [65, 68, 72, 75, 76, 78, alertDataSource.disposeRate],
+                        data: [65, 68, 72, 75, 76, 77.5, 78, 78.2, alertDataSource.disposeRate],
                         smooth: true,
                         itemStyle: { color: '#3b82f6' },
                         areaStyle: { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: 'rgba(59,130,246,0.3)' }, { offset: 1, color: 'rgba(59,130,246,0)' }]) }
@@ -1965,8 +1974,11 @@
                         type: 'pie',
                         radius: ['40%', '70%'],
                         data: alertDataSource.weatherDisasters.map(function(d, i) {
-                            var color = ['#ef4444', '#f59e0b', '#3b82f6', '#8b5cf6'][i] || '#64748b';
-                            return { value: d.level === '橙色' ? 35 : d.level === '黄色' ? 22 : 12, name: d.type, itemStyle: { color: color } };
+                            var color = ['#3b82f6', '#60a5fa', '#93c5fd'][i] || '#64748b';
+                            // 按等级基础值 + 区域范围系数，避免同色时数值一样
+                            var base = d.level === '红色' ? 40 : d.level === '橙色' ? 28 : d.level === '黄色' ? 18 : 10;
+                            var rangeDelta = (d.range && d.range.indexOf('全县') >= 0) ? 6 : (d.range && d.range.split('、').length > 1 ? 3 : 0);
+                            return { value: base + rangeDelta + i, name: d.type, itemStyle: { color: color } };
                         }),
                         label: { show: true, formatter: '{b}: {c}次' }
                     }]
@@ -1980,7 +1992,7 @@
                     yAxis: { type: 'value', axisLabel: { formatter: '{value}%' } },
                     series: [{
                         type: 'bar',
-                        data: [82, 75, 88, 78, 65],
+                        data: [72, 68, 82, 74, 65],
                         itemStyle: {
                             color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
                                 { offset: 0, color: '#2b6e3c' }, { offset: 1, color: '#4ade80' }
@@ -2014,26 +2026,27 @@
                     tooltip: { trigger: 'axis' },
                     legend: { data: ['准确率', '误报率', '漏报率'], bottom: 0, textStyle: { fontSize: 11 } },
                     grid: { left: '3%', right: '4%', bottom: '15%', top: '10%', containLabel: true },
-                    xAxis: { type: 'category', data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月'] },
+                    xAxis: { type: 'category', data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月'] },
                     yAxis: { type: 'value', max: 100, axisLabel: { formatter: '{value}%' } },
                     series: [
-                        { name: '准确率', type: 'line', data: [85, 87, 89, 90, 91, 92, alertDataSource.alertAccuracy], smooth: true, itemStyle: { color: '#22c55e' }, areaStyle: { color: new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'rgba(34,197,94,0.3)'},{offset:1,color:'rgba(34,197,94,0)'}]) } },
-                        { name: '误报率', type: 'line', data: [10, 8, 7, 6, 5, 4.5, 4.3], smooth: true, itemStyle: { color: '#f59e0b' } },
-                        { name: '漏报率', type: 'line', data: [5, 5, 4, 4, 4, 3.5, 3.2], smooth: true, itemStyle: { color: '#ef4444' } }
+                        { name: '准确率', type: 'line', data: [78, 80, 82, 83, 84, 84.5, 84.8, 85.0, alertDataSource.alertAccuracy], smooth: true, itemStyle: { color: '#22c55e' }, areaStyle: { color: new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'rgba(34,197,94,0.3)'},{offset:1,color:'rgba(34,197,94,0)'}]) } },
+                        { name: '误报率', type: 'line', data: [14, 12, 10.5, 9.8, 9.2, 9.0, 8.9, 8.7, 8.6], smooth: true, itemStyle: { color: '#f59e0b' } },
+                        { name: '漏报率', type: 'line', data: [8, 8, 7.5, 7.2, 6.8, 6.5, 6.3, 6.3, 6.2], smooth: true, itemStyle: { color: '#ef4444' } }
                     ]
                 };
                 break;
             case '红色预警':
                 option = {
                     tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
-                    legend: { data: ['病虫害', '气象灾害', '综合预警'], top: 0, textStyle: { fontSize: 11 } },
+                    legend: { data: ['病虫害', '气象灾害', '综合预警', '未分类'], top: 0, textStyle: { fontSize: 11 } },
                     grid: { left: '3%', right: '4%', bottom: '12%', top: '14%', containLabel: true },
                     xAxis: { type: 'category', data: ['太和镇', '桑田镇', '白舍镇', '市山镇', '琴城镇', '太源乡', '其他乡镇'] },
                     yAxis: { type: 'value', axisLabel: { formatter: '{value}条' } },
                     series: [
-                        { name: '病虫害', type: 'bar', stack: 'red', data: [8, 6, 3, 2, 2, 1, 1], itemStyle: { color: '#ef4444', borderRadius: [0, 0, 0, 0] } },
+                        { name: '病虫害', type: 'bar', stack: 'red', data: [8, 6, 3, 2, 2, 1, 1], itemStyle: { color: '#ef4444' } },
                         { name: '气象灾害', type: 'bar', stack: 'red', data: [0, 0, 0, 0, 0, 0, 0], itemStyle: { color: '#f59e0b' } },
-                        { name: '综合预警', type: 'bar', stack: 'red', data: [1, 1, 1, 1, 1, 0, 0], itemStyle: { color: '#dc2626', borderRadius: [6, 6, 0, 0] } }
+                        { name: '综合预警', type: 'bar', stack: 'red', data: [1, 1, 1, 1, 1, 0, 0], itemStyle: { color: '#dc2626' } },
+                        { name: '未分类', type: 'bar', stack: 'red', data: [3, 3, 2, 2, 2, 1, 0], itemStyle: { color: '#94a3b8', borderRadius: [6, 6, 0, 0] } }
                     ]
                 };
                 break;
@@ -2046,17 +2059,17 @@
         var stats = {
             '病害': [
                 { value: '8', label: '病害种类', color: '#166534' },
-                { value: '505', label: '发病总次数', color: '#dc2626' },
-                { value: '156', label: '黄龙病最多', color: '#ef4444' }
+                { value: '438', label: '发病总次数', color: '#dc2626' },
+                { value: '132', label: '炭疽病最多', color: '#ef4444' }
             ],
             '虫害': [
                 { value: '10', label: '虫害种类', color: '#166534' },
-                { value: '601', label: '发生总次数', color: '#f59e0b' },
-                { value: '134', label: '红蜘蛛最多', color: '#ef4444' }
+                { value: '596', label: '发生总次数', color: '#f59e0b' },
+                { value: '168', label: '红蜘蛛最多', color: '#ef4444' }
             ],
             '识别准确': [
                 { value: alertDataSource.imgAccuracy + '%', label: '当前准确率', color: '#166534' },
-                { value: '+8.3%', label: '较上月提升', color: '#22c55e' },
+                { value: '+0.5%', label: '较上月提升', color: '#22c55e' },
                 { value: alertDataSource.recognition.success, label: '识别成功次数', color: '#3b82f6' }
             ],
             '预警': (function() {
@@ -2086,13 +2099,13 @@
             })(),
             '防护': [
                 { value: alertDataSource.suggestAdopt + '%', label: '建议采纳率', color: '#166534' },
-                { value: '88%', label: '病虫害防治', color: '#22c55e' },
-                { value: '82%', label: '高温防护', color: '#f59e0b' }
+                { value: '82%', label: '病虫害防治', color: '#22c55e' },
+                { value: '72%', label: '高温防护', color: '#f59e0b' }
             ],
             '预警模型准确': [
                 { value: alertDataSource.alertAccuracy + '%', label: '预警准确率', color: '#166534' },
-                { value: '4.3%', label: '误报率', color: '#f59e0b' },
-                { value: '3.2%', label: '漏报率', color: '#ef4444' }
+                { value: '8.6%', label: '误报率', color: '#f59e0b' },
+                { value: '6.2%', label: '漏报率', color: '#ef4444' }
             ],
             '高风险': [
                 { value: alertDataSource.riskTowns.high, label: '高风险乡镇', color: '#ef4444' },
@@ -2119,34 +2132,35 @@
     function renderModalDetails(type, container) {
         var details = {
             '病害': [
-                { label: '黄龙病', value: '156次' },
-                { label: '黑点病', value: '98次' },
-                { label: '疮痂病', value: '76次' },
-                { label: '溃疡病', value: '62次' },
-                { label: '炭疽病', value: '48次' },
-                { label: '树脂病', value: '35次' },
-                { label: '黑星病', value: '28次' },
-                { label: '褐腐病', value: '22次' }
+                { label: '炭疽病', value: '132次' },
+                { label: '黑点病', value: '86次' },
+                { label: '树脂病', value: '62次' },
+                { label: '灰霉病', value: '48次' },
+                { label: '白绢病', value: '38次' },
+                { label: '黑斑病', value: '32次' },
+                { label: '褐腐病', value: '22次' },
+                { label: '溃疡病', value: '18次' }
             ],
             '虫害': [
-                { label: '红蜘蛛', value: '134次' },
-                { label: '柑桔木虱', value: '86次' },
-                { label: '潜叶蛾', value: '72次' },
-                { label: '蚜虫', value: '58次' },
-                { label: '介壳虫', value: '45次' },
-                { label: '粉虱', value: '38次' },
-                { label: '锈壁虱', value: '32次' },
-                { label: '天牛', value: '26次' },
-                { label: '食心虫', value: '22次' },
-                { label: '卷叶蛾', value: '18次' }
+                { label: '红蜘蛛', value: '168次' },
+                { label: '锈壁虱', value: '122次' },
+                { label: '潜叶蛾', value: '96次' },
+                { label: '柑桔木虱', value: '58次' },
+                { label: '毒蛾', value: '38次' },
+                { label: '粉虱', value: '32次' },
+                { label: '蚜虫', value: '28次' },
+                { label: '介壳虫', value: '22次' },
+                { label: '天牛', value: '18次' },
+                { label: '卷叶蛾', value: '14次' }
             ],
             '识别准确': [
-                { label: '1月准确率', value: '88.5%' },
-                { label: '3月准确率', value: '92.1%' },
-                { label: '5月准确率', value: '95.2%' },
-                { label: '7月准确率', value: alertDataSource.imgAccuracy + '%' },
+                { label: '1月准确率', value: '73.5%' },
+                { label: '3月准确率', value: '77.1%' },
+                { label: '5月准确率', value: '80.0%' },
+                { label: '8月准确率', value: '81.0%' },
+                { label: '9月准确率', value: alertDataSource.imgAccuracy + '%' },
                 { label: '本月识别次数', value: alertDataSource.recognition.task + '次' },
-                { label: '较上月提升', value: '+8.3%' }
+                { label: '较上月提升', value: '+0.3%' }
             ],
             '预警': (function() {
                 var rows = [
@@ -2171,7 +2185,9 @@
                     { label: '1月完成率', value: '65%' },
                     { label: '3月完成率', value: '72%' },
                     { label: '5月完成率', value: '76%' },
-                    { label: '7月完成率', value: alertDataSource.disposeRate + '%' },
+                    { label: '7月完成率', value: '78%' },
+                    { label: '8月完成率', value: '78.2%' },
+                    { label: '9月完成率', value: alertDataSource.disposeRate + '%' },
                     { label: '已处置', value: done + '条' },
                     { label: '待处置', value: (total - done) + '条' }
                 ];
@@ -2183,10 +2199,10 @@
                 return details;
             })(),
             '防护': [
-                { label: '高温防护', value: '82%' },
-                { label: '防旱措施', value: '75%' },
-                { label: '病虫害防治', value: '88%' },
-                { label: '排水设施', value: '78%' },
+                { label: '高温防护', value: '72%' },
+                { label: '防旱措施', value: '68%' },
+                { label: '病虫害防治', value: '82%' },
+                { label: '排水设施', value: '74%' },
                 { label: '防寒准备', value: '65%' },
                 { label: '总建议条数', value: '856条' }
             ],
@@ -2194,10 +2210,10 @@
                 var total = alertDataSource.levels.red + alertDataSource.levels.orange + alertDataSource.levels.yellow + alertDataSource.levels.blue;
                 var correct = Math.round(total * alertDataSource.alertAccuracy / 100);
                 return [
-                    { label: '7月准确率', value: alertDataSource.alertAccuracy + '%' },
-                    { label: '7月误报率', value: '4.3%' },
-                    { label: '7月漏报率', value: '3.2%' },
-                    { label: '月度提升', value: '+0.5%' },
+                    { label: '9月准确率', value: alertDataSource.alertAccuracy + '%' },
+                    { label: '9月误报率', value: '8.6%' },
+                    { label: '9月漏报率', value: '6.2%' },
+                    { label: '月度提升', value: '+0.2%' },
                     { label: '预警总数', value: total + '条' },
                     { label: '正确预警', value: correct + '条' }
                 ];
@@ -2258,23 +2274,30 @@
         document.getElementById('alertRedCount').textContent    = alertDataSource.levels.red;
         document.getElementById('alertOrangeCount').textContent = alertDataSource.levels.orange;
         document.getElementById('alertYellowCount').textContent = alertDataSource.levels.yellow;
+        document.getElementById('alertBlueCount').textContent   = alertDataSource.levels.blue;
+        var healthEl = document.getElementById('healthIndex');
+        if (healthEl) healthEl.textContent = alertDataSource.healthIndex;
 
         // 实时识别记录核心数字
         document.getElementById('recogAccuracy').innerHTML = alertDataSource.imgAccuracy + '<span class="recog-unit">%</span>';
 
-        // 渲染分级预警台账（按来源 × 颜色级别聚合）
+        // 渲染分级预警台账（按来源 × 颜色级别聚合，末尾加未分类行以补足 levels 口径差）
         var tbody = document.getElementById('alertTableBody');
         if (tbody) {
-            var typeLabels = { pest: '病虫害', weather: '气象灾害', general: '综合预警' };
+            var typeLabels = { pest: '病虫害', weather: '气象灾害', general: '综合预警', unclassified: '未分类' };
             var levelColor = { red: '#ef4444', orange: '#f59e0b', yellow: '#eab308', blue: '#3b82f6' };
             var html = '';
             var rowTotals = { red: 0, orange: 0, yellow: 0, blue: 0 };
-            Object.keys(alertDataSource.types).forEach(function(k) {
-                var t = alertDataSource.types[k];
+            var allSources = {};
+            Object.keys(alertDataSource.types).forEach(function(k) { allSources[k] = alertDataSource.types[k]; });
+            if (alertDataSource.unclassified) allSources.unclassified = alertDataSource.unclassified;
+            var levelSum = alertDataSource.levels.red + alertDataSource.levels.orange + alertDataSource.levels.yellow + alertDataSource.levels.blue;
+            Object.keys(allSources).forEach(function(k) {
+                var t = allSources[k];
                 var rowTotal = t.red + t.orange + t.yellow + t.blue;
                 rowTotals.red += t.red; rowTotals.orange += t.orange;
                 rowTotals.yellow += t.yellow; rowTotals.blue += t.blue;
-                var pct = ((rowTotal / (alertDataSource.levels.red + alertDataSource.levels.orange + alertDataSource.levels.yellow + alertDataSource.levels.blue)) * 100).toFixed(1);
+                var pct = ((rowTotal / levelSum) * 100).toFixed(1);
                 html += '<tr>' +
                     '<td>' + typeLabels[k] + ' <span style="color:#94a3b8;font-size:0.7rem;">(' + pct + '%)</span></td>' +
                     '<td><span style="color:' + levelColor.red + ';font-weight:600;">' + t.red + '</span></td>' +

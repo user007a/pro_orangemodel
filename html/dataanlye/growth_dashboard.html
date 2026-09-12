@@ -393,6 +393,8 @@
         }
         .modal-detail-label { font-size: 0.85rem; color: #94a3b8; }
         .modal-detail-value { font-size: 0.9rem; font-weight: 600; color: #cbd5e1; }
+        /* 弹窗明细项的告警值（超期未整改等），红仅承担危急语义 */
+        .modal-detail-value.danger { color: #ff6b6b; }
         /* 弹窗口径脚注：承接原页面底部 footer-status-bar 的抽样/推算值免责说明。
            无脚注的弹窗留空即隐藏（:empty），不会多出一条空白间距。 */
         .modal-footnote {
@@ -1581,7 +1583,7 @@
         <i class="fas fa-bullhorn"></i>
         <span class="ck-brief-badge level-ok">长势形势 · 良好</span>
         <span class="ck-brief-text">当前处于<b>果实转色期</b>，监测样本综合评分 <b>81.5 分</b>，进入良好区间。</span>
-        <span class="ck-brief-cause-inline">统防统治与专项复查见效，病虫管理得分回升至 <b>8.3 分</b>；欲提升整体评分请关注监测点位中评分较低的区域和重关注的基地。</span>
+        <span class="ck-brief-cause-inline">统防统治与专项复查见效，病虫管理得分回升至 <b>8.3 分</b>；欲提升整体评分请查看监测点位中评分较低的区域和重点关注的果园。</span>
     </div>
 
     <div class="kpi-grid">
@@ -1621,12 +1623,16 @@
                 <span class="kpi-yoy good">同比 +1.6</span>
             </div>
         </div>
-        <div class="kpi-card animate-fade-in-up" style="animation-delay: 0.5s;" onclick="openModal('产量')">
+        <!-- 「累计诊断次数」：替代原「全县预计产量」——避免用 26 株样本外推 31.6 万吨这种推算。
+             数据来源为移动端评价 + 后台任务运行记录，每条可溯源到人/地/时间。
+             用作"运营仪表"，回答"整片区域用这个系统用得怎么样 / 频次 / 整改情况"。
+             副信息（覆盖范围 + 本月新增）放入 dl-est hover 提示，避免撑高 KPI 卡。 -->
+        <div class="kpi-card animate-fade-in-up" style="animation-delay: 0.5s;" onclick="openModal('诊断')">
             <div class="kpi-info">
-                <h4>全县预计产量 <span class="dl-est" data-est-title="全县预计产量" data-est="由监测园单产 × 全县挂果面积推算，未考虑采前落果与灾害损失。误差区间约 ±6%。"></span></h4>
-                <div class="kpi-number" data-value="31.6">0</div>
-                <span class="trend-badge">万吨</span>
-                <span class="kpi-yoy good">同比 +4.5%</span>
+                <h4>累计诊断次数 <span class="dl-est" data-est-title="累计诊断次数" data-est="数据来源：移动端（农技员 / 农户手动植株评价）+ 后台管理系统任务运行，每条可溯源。覆盖 11 乡镇 · 26 个监测点 · 9 月新增 142 次，整改闭环率 86.2%。"></span></h4>
+                <div class="kpi-number" data-value="1286">0</div>
+                <span class="trend-badge">次</span>
+                <span class="kpi-yoy good">9 月 +18.2%</span>
             </div>
         </div>
     </div>
@@ -1745,12 +1751,12 @@
                  「具体责任人」继续放在农事待办 / 派工卡，本表只呈现公开视角。 -->
             <div class="card side-card">
                 <div class="card-header">
-                    <span><i class="fas fa-magnifying-glass-chart"></i> 需重点关注基地</span>
+                    <span><i class="fas fa-magnifying-glass-chart"></i> 重点关注果园</span>
                     <a class="header-extra" href="javascript:void(0)" style="color:#7dd3fc;cursor:pointer;text-decoration:none;">更多 <i class="fas fa-angle-right"></i></a>
                 </div>
                 <table class="tc-table">
                     <thead>
-                        <tr><th>序号</th><th>基地名称</th><th>所在乡镇</th><th>当前风险</th><th>关注事项</th></tr>
+                        <tr><th>序号</th><th>果园名称</th><th>所在乡镇</th><th>当前风险</th><th>关注事项</th></tr>
                     </thead>
                     <tbody id="townCauseList"></tbody>
                 </table>
@@ -1909,6 +1915,30 @@
          * A6/A7：替换掉原「农事建议数量」——那是过程量（系统推了多少条），
          * 且 8 个指标全绿会让人怀疑数据被修饰，这里给出一个可统计、且当前为负向的指标。 */
         qualifiedRate: 75.4,
+        /* 累计诊断次数：来自移动端（农技员 / 农户手动植株评价）+ 后台管理系统任务运行，
+         * 每条都对应具体农技员 + 监测点 + 时间戳，可溯源。
+         * 用作"运营仪表"——回答"整片区域用这个系统用得怎么样 / 频次 / 整改情况"。
+         * types 分布按"评价记录类型"汇总；closure 是整改闭环率（领导最关心）。 */
+        diagnostics: {
+            total: 1286,            // 累计诊断次数
+            monthNew: 142,          // 9 月新增
+            monthYoy: 18.2,         // 9 月新增对比上月同比 +18.2%
+            coveredTowns: 11,       // 覆盖乡镇数（11/11 全覆盖）
+            coveredPoints: 11,      // 覆盖监测点数
+            coveredPlants: 26,      // 覆盖植株数
+            types: [                // 诊断类型分布（弹窗饼图）
+                { name: '树势诊断',     count: 412 },
+                { name: '病虫害诊断',   count: 368 },
+                { name: '物候期诊断',   count: 256 },
+                { name: '土壤养分诊断', count: 152 },
+                { name: '其他',         count: 98 }
+            ],
+            closure: {              // 整改闭环
+                closed:  1108,       // 已整改 86.2%
+                pending: 124,        // 待整改 9.6%
+                overdue: 54          // 超期未整改 4.2%
+            }
+        },
         /* ===== 农事待办 / 派工（A1）=====
          * 原来的建议清单只有「做什么 + 时限」，没有责任人和状态，无法跟踪是否落地。 */
         // 责任人：取自后台管理系统 / 系统管理 / 用户管理 中「农技员」角色名单，
@@ -2590,7 +2620,7 @@
         var titles = {
             '面积': '监测果园面积分布',
             '优质果率': '优质果率预期分析',
-            '产量': '全县预计产量测算',
+            '诊断': '累计诊断次数分析',
             '评分': '长势综合评分分析',
             '达标率': '长势达标果园占比',
             '病虫管理': '病虫管理短板分析'
@@ -2611,7 +2641,7 @@
     var modalFootnotes = {
         '评分':     '长势综合评分为 11 乡镇 26 株监测样本按株数加权均值，属抽样结果而非全县普查；乡镇评分仅反映抽检情况，不宜作为考核依据。',
         '优质果率': '优质果率预期由转色期抽样果径、糖度、色泽三项指标建模外推至全县，非采后实测分级结果，误差区间约 ±3.5 个百分点。',
-        '产量':     '预计产量由监测园单产 × 全县挂果面积推算，未计入采前落果与灾害损失，误差区间约 ±6%，非实测称重结果。',
+        '诊断':     '数据来源：移动端（农技员 / 农户手动植株评价）+ 后台管理系统任务运行记录，每条评价均可溯源到具体责任人、监测点和时间戳；用于评估整片区域对系统的使用频次与整改闭环情况。',
         '达标率':   '达标果园占比按「综合评分 ≥60 分」口径，由 11 乡镇 26 株监测样本建模外推，属抽样结果而非全县普查。',
         '病虫管理': '「不统防外推影响」为模型推算值（±0.3 分），仅供参考；实际影响以防治后复测为准。'
     };
@@ -2730,18 +2760,27 @@
                     };
                 })();
                 break;
-            case '产量':
-                option = {
-                    tooltip: { trigger: 'axis', formatter: '{b}<br/>{c} 万吨' },
-                    legend: { data: ['历史产量', '今年预计'], bottom: 0, textStyle: { fontSize: 11 } },
-                    grid: { left: '3%', right: '4%', bottom: '15%', top: '8%', containLabel: true },
-                    xAxis: { type: 'category', data: ['2021', '2022', '2023', '2024', '2025(预计)'] },
-                    yAxis: { type: 'value', name: '万吨', min: 24 },
-                    series: [
-                        { name: '历史产量', type: 'line', smooth: true, data: [27.8, 28.9, 29.6, 30.2, null], itemStyle: { color: '#35B4DE' }, lineStyle: { width: 2 } },
-                        { name: '今年预计', type: 'line', smooth: true, data: [null, null, null, 30.2, 31.6], itemStyle: { color: '#5AD7F0' }, lineStyle: { width: 2, type: 'dashed' } }
-                    ]
-                };
+            case '诊断':
+                /* 累计诊断次数弹窗：饼图展示 5 类诊断类型分布，
+                 * 配合 modalStats（覆盖度）+ modalDetails（整改闭环）形成完整叙事。 */
+                (function () {
+                    var types = (growthDataSource.diagnostics && growthDataSource.diagnostics.types) || [];
+                    option = {
+                        tooltip: Object.assign({ trigger: 'item', formatter: '{b}<br/>{c} 次（{d}%）' }, ckTooltipStyle),
+                        legend: { bottom: '5%', left: 'center', textStyle: { fontSize: 11, color: ckChartText } },
+                        series: [{
+                            type: 'pie',
+                            radius: ['40%', '70%'],
+                            center: ['50%', '45%'],
+                            data: types.map(function (t, i) {
+                                return { value: t.count, name: t.name,
+                                    itemStyle: { color: ['#00d4ff', '#4fc3f7', '#7dd3fc', '#39e6c8', '#94a3b8'][i] || '#94a3b8' } };
+                            }),
+                            label: { show: true, formatter: '{b}\n{c} 次', fontSize: 11, color: ckChartText },
+                            labelLine: { lineStyle: { color: '#94a3b8' } }
+                        }]
+                    };
+                })();
                 break;
             case '病虫管理':
                 (function () {
@@ -2975,10 +3014,11 @@
                 { value: '84.2', label: '小果系最高', color: '#4fc3f7' },
                 { value: '78.4', label: '早熟系最低', color: '#94a3b8' }
             ],
-            '产量': [
-                { value: '31.6', label: '今年预计(万吨)', color: '#00d4ff' },
-                { value: '30.2', label: '去年实际', color: '#4fc3f7' },
-                { value: '+4.5%', label: '同比', color: '#4ade80' }
+            '诊断': [
+                { value: '1,286', label: '累计诊断次数', color: '#00d4ff' },
+                { value: '11', label: '覆盖乡镇数', color: '#4fc3f7' },
+                { value: '142', label: '9 月新增(次)', color: '#39e6c8' },
+                { value: '86.2%', label: '整改闭环率', color: '#4ade80' }
             ],
             '病虫管理': [
                 { value: '8.3', label: '病虫管理(分)', color: '#4ade80' },
@@ -3065,15 +3105,23 @@
                 { label: '降水贡献度', value: '模型接入中…', muted: true },
                 { label: '病虫害贡献度', value: '模型接入中…', muted: true }
             ],
-            '产量': [
-                { label: '2021 年', value: '27.8 万吨' },
-                { label: '2022 年', value: '28.9 万吨' },
-                { label: '2023 年', value: '29.6 万吨' },
-                { label: '2024 年', value: '30.2 万吨' },
-                { label: '2025 年（预计）', value: '31.6 万吨' },
-                { label: '同比', value: '+4.5%' },
-                { label: '测算依据', value: '长势评分 + 挂果密度 + 气候条件修正' }
-            ],
+            '诊断': (function () {
+                /* 累计诊断次数 · 详情：覆盖度 / 整改闭环 / 月度新增 三段叙事。 */
+                var d = growthDataSource.diagnostics || {};
+                var closure = d.closure || {};
+                var closureTotal = (closure.closed || 0) + (closure.pending || 0) + (closure.overdue || 0);
+                var closureRate = closureTotal ? ((closure.closed / closureTotal) * 100).toFixed(1) : '0.0';
+                return [
+                    { label: '覆盖乡镇', value: d.coveredTowns + ' 个（11/11 全覆盖）' },
+                    { label: '覆盖监测点', value: d.coveredPoints + ' 个' },
+                    { label: '覆盖植株', value: d.coveredPlants + ' 株' },
+                    { label: '9 月新增', value: d.monthNew + ' 次（环比 ' + d.monthYoy + '%）' },
+                    { label: '—— 整改闭环 ——', value: '' },
+                    { label: '已整改', value: closure.closed + ' 次（' + closureRate + '%）' },
+                    { label: '待整改', value: closure.pending + ' 次' },
+                    { label: '超期未整改', value: closure.overdue + ' 次', danger: true }
+                ];
+            })(),
             '病虫管理': [
                 { label: '病虫管理得分', value: '8.3 分（满分 10）' },
                 { label: '其余 9 项均值', value: '8.1 分' },
@@ -3179,9 +3227,10 @@
         
         var html = '';
         details[type].forEach(function(item) {
+            /* item.danger = true 时把值标红（超期未整改等需要立即关注的告警项）。 */
             html += '<div class="modal-detail-item">' +
                 '<span class="modal-detail-label">' + item.label + '</span>' +
-                '<span class="modal-detail-value">' + item.value + '</span>' +
+                '<span class="modal-detail-value' + (item.danger ? ' danger' : '') + '">' + item.value + '</span>' +
                 '</div>';
         });
         container.innerHTML = html;

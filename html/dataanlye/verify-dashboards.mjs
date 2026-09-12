@@ -479,7 +479,7 @@ if (!gLit) {
   const gPairs = [
     ['评价监测园面积', G.kpis.monitorArea],
     ['优质果率预期', G.kpis.qualityRate],
-    ['全县预计产量', G.kpis.yield],
+    ['累计诊断次数', G.diagnostics.total],
     ['长势综合评分', G.kpis.score],
     ['长势达标果园占比', G.kpis.qualifiedRate],
   ];

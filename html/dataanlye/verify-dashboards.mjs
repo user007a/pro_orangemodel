@@ -498,7 +498,7 @@ if (!gLit) {
     log('  [FAIL] 农事采纳率 73.6% 未在派工卡（adopt-rate-bar）呈现'); fail++;
   }
   if (!/病虫管理\(分\)/.test(growthSrc)) {
-    log('  [FAIL] 病虫管理 4.7 分未在任何指标/弹窗中呈现'); fail++;
+    log('  [FAIL] 病虫管理得分未在任何指标/弹窗中呈现'); fail++;
   }
 
   const gtr = G.trends;

@@ -151,13 +151,11 @@
             }
             var superviseBtn = (r.id && r.state !== 'done')
                 ? ' <button class="dl-supervise-btn" data-id="' + esc(r.id) +
-                  '" onclick="onSupervise(\'' + esc(r.id) + '\')">📞 督办</button>'
-                : '';
+                  '" onclick="onSupervise(\'' + esc(r.id) + '\')">' +
+                  '<span class="dl-supervise-text">督办</span>' +
+                  '</button>' : '';
             var supervisedTag = (r.id && supervised > 0)
                 ? '<span class="dl-supervised-count">已督办 ' + supervised + ' 次</span>'
-                : '';
-            var advance = (r.id && r.state !== 'done')
-                ? ' <button class="dl-todo-advance" onclick="advanceTodo(' + r.id + ')">推进 ▸</button>'
                 : '';
             html += '<div class="dl-todo-item ' + esc(r.state) + (isUrgent ? ' urgent' : '') + '">' +
                 '<div class="dl-todo-main">' +
@@ -174,7 +172,6 @@
                         superviseBtn +
                         supervisedTag +
                         '<span class="dl-todo-flow" title="流转：待派发 → 执行中 → 待复查 → 已完成">' + flow + '</span>' +
-                        advance +
                     '</div>' +
                 '</div>' +
             '</div>';

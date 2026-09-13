@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>种植标准库 - 南丰蜜桔模型管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body{margin:0;padding:0;background-color:#F0F2F5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,'Noto Sans SC',sans-serif}
+        .content-wrapper{padding:24px;height:100vh;overflow-y:auto}
+    </style>
+</head>
+<body>
+<div class="content-wrapper">
+
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h1 class="text-xl font-bold text-gray-800">种植标准库</h1>
+            <p class="text-gray-500 text-sm mt-1">管理南丰蜜桔种植标准（建园、密度、修剪、施肥、灌溉等）</p>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+        <div class="flex items-center justify-between mb-4 p-6 pb-0">
+            <h2 class="text-lg font-semibold text-gray-800">种植标准列表</h2>
+            <div class="flex items-center space-x-3">
+                <input type="text" id="standard-search" placeholder="搜索标准名称/编号..." class="pl-3 pr-4 py-2 border border-gray-300 rounded-lg text-sm w-56" oninput="filterStandard()">
+                <button onclick="openStandardAddModal()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">+ 添加</button>
+            </div>
+        </div>
+        <div class="p-6 pt-0">
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead><tr class="border-b border-gray-200"><th class="text-left py-3 px-4 font-semibold text-gray-600">标准编号</th><th class="text-left py-3 px-4 font-semibold text-gray-600">标准名称</th><th class="text-left py-3 px-4 font-semibold text-gray-600">类别</th><th class="text-left py-3 px-4 font-semibold text-gray-600">适用品种</th><th class="text-left py-3 px-4 font-semibold text-gray-600">技术要点</th><th class="text-left py-3 px-4 font-semibold text-gray-600">生效日期</th><th class="text-left py-3 px-4 font-semibold text-gray-600">状态</th><th class="text-left py-3 px-4 font-semibold text-gray-600">操作</th></tr></thead>
+                    <tbody id="standard-tbody"></tbody>
+                </table>
+            </div>
+            <div class="pt-4 border-t border-gray-100 flex items-center justify-between">
+                <p class="text-sm text-gray-500">共 <span id="standard-total-count">8</span> 条记录</p>
+                <div class="flex items-center space-x-2">
+                    <button onclick="standardPrevPage()" class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50">上一页</button>
+                    <span class="text-sm text-gray-600"><span id="standard-current-page">1</span> / <span id="standard-total-pages">1</span></span>
+                    <button onclick="standardNextPage()" class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50">下一页</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 查看标准弹窗 -->
+<div id="standard-view-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center">
+    <div style="background:#fff;border-radius:12px;width:90%;max-width:560px;max-height:85vh;overflow-y:auto">
+        <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+            <h3 style="font-size:18px;font-weight:600;color:#1f2937">查看种植标准详情</h3>
+            <button onclick="closeModal('standard-view-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
+        </div>
+        <div style="padding:24px">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+                <div><label style="font-size:14px;color:#6b7280;display:block;margin-bottom:4px">标准编号</label><p style="font-size:14px;font-weight:500;color:#1f2937" id="view-std-code">-</p></div>
+                <div><label style="font-size:14px;color:#6b7280;display:block;margin-bottom:4px">类别</label><p style="font-size:14px;font-weight:500;color:#1f2937" id="view-std-category">-</p></div>
+                <div><label style="font-size:14px;color:#6b7280;display:block;margin-bottom:4px">适用品种</label><p style="font-size:14px;font-weight:500;color:#1f2937" id="view-std-variety">-</p></div>
+                <div><label style="font-size:14px;color:#6b7280;display:block;margin-bottom:4px">生效日期</label><p style="font-size:14px;font-weight:500;color:#1f2937" id="view-std-date">-</p></div>
+                <div style="grid-column:1/-1"><label style="font-size:14px;color:#6b7280;display:block;margin-bottom:4px">标准名称</label><p style="font-size:14px;font-weight:500;color:#1f2937" id="view-std-name">-</p></div>
+                <div style="grid-column:1/-1"><label style="font-size:14px;color:#6b7280;display:block;margin-bottom:4px">技术要点</label><p style="font-size:14px;color:#1f2937" id="view-std-content">-</p></div>
+                <div><label style="font-size:14px;color:#6b7280;display:block;margin-bottom:4px">状态</label><span id="view-std-status" class="font-medium text-xs px-2 py-1 rounded">-</span></div>
+            </div>
+        </div>
+        <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end">
+            <button onclick="closeModal('standard-view-modal')" style="padding:8px 16px;background:#f3f4f6;color:#374151;border:none;border-radius:8px;font-size:14px;cursor:pointer">关闭</button>
+        </div>
+    </div>
+</div>
+
+<!-- 添加标准弹窗 -->
+<div id="standard-add-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center">
+    <div style="background:#fff;border-radius:12px;width:90%;max-width:560px;max-height:85vh;overflow-y:auto">
+        <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+            <h3 style="font-size:18px;font-weight:600;color:#1f2937">+ 添加种植标准</h3>
+            <button onclick="closeModal('standard-add-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
+        </div>
+        <div style="padding:24px;display:flex;flex-direction:column;gap:16px">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">类别 <span style="color:#ef4444">*</span></label><select id="add-std-category" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"><option value="建园">建园</option><option value="修剪">修剪</option><option value="施肥">施肥</option><option value="灌溉">灌溉</option><option value="土壤">土壤</option><option value="病虫害">病虫害</option><option value="采收">采收</option><option value="其他">其他</option></select></div>
+                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">适用品种</label><input type="text" id="add-std-variety" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box" placeholder="如：南丰蜜桔"></div>
+            </div>
+            <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">标准名称 <span style="color:#ef4444">*</span></label><input type="text" id="add-std-name" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box" placeholder="请输入标准名称"></div>
+            <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">技术要点 <span style="color:#ef4444">*</span></label><textarea id="add-std-content" rows="4" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box;resize:vertical" placeholder="请输入技术要点"></textarea></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">生效日期</label><input type="date" id="add-std-date" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"></div>
+                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">状态</label><select id="add-std-status" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"><option value="草稿">草稿</option><option value="生效中">生效中</option><option value="已停用">已停用</option></select></div>
+            </div>
+        </div>
+        <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:12px">
+            <button onclick="closeModal('standard-add-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
+            <button onclick="submitStandardAdd()" style="padding:8px 16px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">确认添加</button>
+        </div>
+    </div>
+</div>
+
+<!-- 编辑标准弹窗 -->
+<div id="standard-edit-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center">
+    <div style="background:#fff;border-radius:12px;width:90%;max-width:560px;max-height:85vh;overflow-y:auto">
+        <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+            <h3 style="font-size:18px;font-weight:600;color:#1f2937">编辑种植标准</h3>
+            <button onclick="closeModal('standard-edit-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
+        </div>
+        <div style="padding:24px;display:flex;flex-direction:column;gap:16px">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">类别 <span style="color:#ef4444">*</span></label><select id="edit-std-category" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"><option value="建园">建园</option><option value="修剪">修剪</option><option value="施肥">施肥</option><option value="灌溉">灌溉</option><option value="土壤">土壤</option><option value="病虫害">病虫害</option><option value="采收">采收</option><option value="其他">其他</option></select></div>
+                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">适用品种</label><input type="text" id="edit-std-variety" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"></div>
+            </div>
+            <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">标准名称 <span style="color:#ef4444">*</span></label><input type="text" id="edit-std-name" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"></div>
+            <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">技术要点 <span style="color:#ef4444">*</span></label><textarea id="edit-std-content" rows="4" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box;resize:vertical"></textarea></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">生效日期</label><input type="date" id="edit-std-date" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"></div>
+                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">状态</label><select id="edit-std-status" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"><option value="草稿">草稿</option><option value="生效中">生效中</option><option value="已停用">已停用</option></select></div>
+            </div>
+        </div>
+        <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:12px">
+            <button onclick="closeModal('standard-edit-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
+            <button onclick="submitStandardEdit()" style="padding:8px 16px;background:#16a34a;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">保存修改</button>
+        </div>
+    </div>
+</div>
+
+<!-- 删除确认弹窗 -->
+<div id="standard-delete-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;align-items:center;justify-content:center">
+    <div style="background:#fff;border-radius:12px;width:90%;max-width:400px">
+        <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+            <h3 style="font-size:18px;font-weight:600;color:#1f2937">删除确认</h3>
+            <button onclick="closeModal('standard-delete-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
+        </div>
+        <div style="padding:24px;text-align:center">
+            <div style="width:60px;height:60px;background:#fee2e2;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px"><span style="font-size:28px;color:#dc2626">!</span></div>
+            <h3 style="font-size:18px;font-weight:600;color:#1f2937;margin-bottom:8px">确认删除</h3>
+            <p style="font-size:14px;color:#6b7280;margin-bottom:24px">确定要删除种植标准"<span id="delete-std-name" style="font-weight:500;color:#1f2937"></span>"吗？</p>
+            <div style="display:flex;justify-content:center;gap:12px">
+                <button onclick="closeModal('standard-delete-modal')" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
+                <button onclick="confirmStandardDelete()" style="padding:8px 16px;background:#dc2626;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">确认删除</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+var standardData = [
+    { id: 'std-1', code: 'STD-001', name: '南丰蜜桔新建园标准', category: '建园', variety: '南丰蜜桔', content: '园地选择：土层厚度≥80cm，pH 5.5-6.5，地下水位≤1m；行株距 4m×3m；定植穴规格 80cm×80cm×80cm；施足基肥后回填。', date: '2025-03-01', status: '生效中', statusClass: 'bg-blue-100 text-blue-600' },
+    { id: 'std-2', code: 'STD-002', name: '密植园改造技术规范', category: '建园', variety: '南丰蜜桔', content: '针对 2m×1.5m 以下密植园，隔行间伐或隔株间伐，使改造后行株距不小于 3m×2m；修剪配合大枝回缩，逐年完成。', date: '2025-03-01', status: '生效中', statusClass: 'bg-blue-100 text-blue-600' },
+    { id: 'std-3', code: 'STD-003', name: '成年树修剪作业标准', category: '修剪', variety: '南丰蜜桔', content: '冬季修剪在 12 月-次年 1 月进行；剪除枯枝、病虫枝、交叉枝、内膛枝；保持树冠通风透光，结果母枝均匀分布。', date: '2025-04-15', status: '生效中', statusClass: 'bg-blue-100 text-blue-600' },
+    { id: 'std-4', code: 'STD-004', name: '幼龄树修剪作业标准', category: '修剪', variety: '南丰蜜桔', content: '定植后 1-3 年以整形为主，培养 3-4 个主枝；夏剪抹芽、摘心；冬剪轻剪，保留骨架枝，促发分枝。', date: '2025-04-15', status: '生效中', statusClass: 'bg-blue-100 text-blue-600' },
+    { id: 'std-5', code: 'STD-005', name: '基肥施用技术规范', category: '施肥', variety: '南丰蜜桔', content: '采果后至萌芽前施入；每株施有机肥 10-20kg + 复合肥 0.5-1kg；环状沟施或条沟施，施肥后覆土浇水。', date: '2025-05-10', status: '生效中', statusClass: 'bg-blue-100 text-blue-600' },
+    { id: 'std-6', code: 'STD-006', name: '追肥施用技术规范', category: '施肥', variety: '南丰蜜桔', content: '芽前肥（2 月）、稳果肥（5 月）、壮果肥（7 月）；以氮磷钾配合，按树龄与产量酌量；土壤追施与叶面喷施结合。', date: '2025-05-10', status: '生效中', statusClass: 'bg-blue-100 text-blue-600' },
+    { id: 'std-7', code: 'STD-007', name: '节水灌溉作业标准', category: '灌溉', variety: '南丰蜜桔', content: '采用滴灌或微喷；萌芽期、果实膨大期保证水分供应，成熟前 10-15 天适当控水；土壤含水量保持在田间持水量 60%-80%。', date: '2025-06-01', status: '生效中', statusClass: 'bg-blue-100 text-blue-600' },
+    { id: 'std-8', code: 'STD-008', name: '土壤改良作业标准', category: '土壤', variety: '南丰蜜桔', content: '针对 pH 过酸园地施用石灰或白云石粉调节；黏重土壤掺沙掺有机肥改良；坡地修筑梯田或鱼鳞坑保水保肥。', date: '2025-06-01', status: '草稿', statusClass: 'bg-gray-200 text-gray-500' }
+];
+var standardCurrentPage = 1;
+var standardPageSize = 6;
+var filteredStandardData = standardData.slice();
+var standardEditId = null;
+var standardDeleteId = null;
+
+function statusClassOf(status){
+    if(status === '生效中') return 'bg-blue-100 text-blue-600';
+    if(status === '已停用') return 'bg-gray-100 text-gray-600';
+    return 'bg-gray-200 text-gray-500';
+}
+
+function nextCode(){
+    var maxNum = 0;
+    for(var i=0;i<standardData.length;i++){
+        var m = standardData[i].code.match(/STD-(\d+)/);
+        if(m){var n=parseInt(m[1],10); if(n>maxNum) maxNum=n;}
+    }
+    var next = maxNum + 1;
+    return 'STD-' + String(next).padStart(3,'0');
+}
+
+function renderStandardTable(){
+    var tbody = document.getElementById('standard-tbody');
+    var start = (standardCurrentPage - 1) * standardPageSize;
+    var end = start + standardPageSize;
+    var pageData = filteredStandardData.slice(start, end);
+    var html = '';
+    for(var i=0; i<pageData.length; i++){
+        var item = pageData[i];
+        html += '<tr class="border-b border-gray-100 hover:bg-gray-50">';
+        html += '<td class="py-3 px-4 font-medium text-gray-800">'+item.code+'</td>';
+        html += '<td class="py-3 px-4 text-gray-800">'+item.name+'</td>';
+        html += '<td class="py-3 px-4"><span class="px-2 py-0.5 rounded-full text-xs bg-blue-50 text-blue-700">'+item.category+'</span></td>';
+        html += '<td class="py-3 px-4 text-gray-600">'+item.variety+'</td>';
+        html += '<td class="py-3 px-4 text-gray-600" style="max-width:280px">'+item.content+'</td>';
+        html += '<td class="py-3 px-4 text-gray-600">'+item.date+'</td>';
+        html += '<td class="py-3 px-4"><span class="px-2 py-1 '+item.statusClass+' text-xs rounded">'+item.status+'</span></td>';
+        html += '<td class="py-3 px-4"><div style="display:flex;gap:4px">';
+        html += '<button onclick="viewStandard(\''+item.id+'\')" style="padding:4px 8px;font-size:12px;color:#3b82f6;border:none;background:none;cursor:pointer;border-radius:4px">查看</button>';
+        html += '<button onclick="editStandard(\''+item.id+'\')" style="padding:4px 8px;font-size:12px;color:#f59e0b;border:none;background:none;cursor:pointer;border-radius:4px">编辑</button>';
+        html += '<button onclick="deleteStandard(\''+item.id+'\')" style="padding:4px 8px;font-size:12px;color:#ef4444;border:none;background:none;cursor:pointer;border-radius:4px">删除</button>';
+        html += '</div></td></tr>';
+    }
+    tbody.innerHTML = html;
+    document.getElementById('standard-total-count').textContent = filteredStandardData.length;
+    document.getElementById('standard-current-page').textContent = standardCurrentPage;
+    document.getElementById('standard-total-pages').textContent = Math.ceil(filteredStandardData.length/standardPageSize)||1;
+}
+
+function filterStandard(){
+    var term = document.getElementById('standard-search').value.toLowerCase();
+    filteredStandardData = standardData.filter(function(item){
+        return item.name.toLowerCase().indexOf(term)!==-1
+            || item.code.toLowerCase().indexOf(term)!==-1
+            || item.category.toLowerCase().indexOf(term)!==-1
+            || item.variety.toLowerCase().indexOf(term)!==-1;
+    });
+    standardCurrentPage = 1;
+    renderStandardTable();
+}
+
+function standardPrevPage(){if(standardCurrentPage>1){standardCurrentPage--;renderStandardTable();}}
+function standardNextPage(){var t=Math.ceil(filteredStandardData.length/standardPageSize);if(standardCurrentPage<t){standardCurrentPage++;renderStandardTable();}}
+
+function openStandardAddModal(){
+    document.getElementById('add-std-category').value = '建园';
+    document.getElementById('add-std-variety').value = '';
+    document.getElementById('add-std-name').value = '';
+    document.getElementById('add-std-content').value = '';
+    document.getElementById('add-std-date').value = '';
+    document.getElementById('add-std-status').value = '草稿';
+    showModal('standard-add-modal');
+}
+
+function submitStandardAdd(){
+    var name = document.getElementById('add-std-name').value.trim();
+    var category = document.getElementById('add-std-category').value;
+    var variety = document.getElementById('add-std-variety').value.trim();
+    var content = document.getElementById('add-std-content').value.trim();
+    var date = document.getElementById('add-std-date').value;
+    var status = document.getElementById('add-std-status').value;
+
+    if(!name){alert('请填写标准名称');return;}
+    if(!content){alert('请填写技术要点');return;}
+
+    var newItem = {
+        id: 'std-' + (standardData.length + 1) + '-' + Date.now(),
+        code: nextCode(),
+        name: name,
+        category: category,
+        variety: variety || '南丰蜜桔',
+        content: content,
+        date: date || '-',
+        status: status,
+        statusClass: statusClassOf(status)
+    };
+
+    standardData.push(newItem);
+    filteredStandardData = standardData.slice();
+    standardCurrentPage = Math.ceil(filteredStandardData.length / standardPageSize);
+    renderStandardTable();
+    hideModal('standard-add-modal');
+    alert('种植标准添加成功！');
+}
+
+function viewStandard(id){
+    for(var i=0;i<standardData.length;i++){
+        if(standardData[i].id===id){
+            var item = standardData[i];
+            document.getElementById('view-std-code').textContent = item.code;
+            document.getElementById('view-std-name').textContent = item.name;
+            document.getElementById('view-std-category').textContent = item.category;
+            document.getElementById('view-std-variety').textContent = item.variety;
+            document.getElementById('view-std-content').textContent = item.content;
+            document.getElementById('view-std-date').textContent = item.date;
+            document.getElementById('view-std-status').textContent = item.status;
+            document.getElementById('view-std-status').className = 'font-medium text-xs px-2 py-1 rounded ' + item.statusClass;
+            showModal('standard-view-modal');
+            break;
+        }
+    }
+}
+
+function editStandard(id){
+    for(var i=0;i<standardData.length;i++){
+        if(standardData[i].id===id){
+            var item = standardData[i];
+            standardEditId = id;
+            document.getElementById('edit-std-category').value = item.category;
+            document.getElementById('edit-std-variety').value = item.variety;
+            document.getElementById('edit-std-name').value = item.name;
+            document.getElementById('edit-std-content').value = item.content;
+            document.getElementById('edit-std-date').value = item.date === '-' ? '' : item.date;
+            document.getElementById('edit-std-status').value = item.status;
+            showModal('standard-edit-modal');
+            break;
+        }
+    }
+}
+
+function submitStandardEdit(){
+    var name = document.getElementById('edit-std-name').value.trim();
+    var category = document.getElementById('edit-std-category').value;
+    var variety = document.getElementById('edit-std-variety').value.trim();
+    var content = document.getElementById('edit-std-content').value.trim();
+    var date = document.getElementById('edit-std-date').value;
+    var status = document.getElementById('edit-std-status').value;
+
+    if(!name){alert('请填写标准名称');return;}
+    if(!content){alert('请填写技术要点');return;}
+
+    for(var i=0;i<standardData.length;i++){
+        if(standardData[i].id===standardEditId){
+            standardData[i].name = name;
+            standardData[i].category = category;
+            standardData[i].variety = variety || '南丰蜜桔';
+            standardData[i].content = content;
+            standardData[i].date = date || '-';
+            standardData[i].status = status;
+            standardData[i].statusClass = statusClassOf(status);
+            break;
+        }
+    }
+    hideModal('standard-edit-modal');
+    standardEditId = null;
+    filteredStandardData = standardData.slice();
+    renderStandardTable();
+    alert('种植标准修改成功！');
+}
+
+function deleteStandard(id){
+    for(var i=0;i<standardData.length;i++){
+        if(standardData[i].id===id){
+            standardDeleteId = id;
+            document.getElementById('delete-std-name').textContent = standardData[i].name;
+            showModal('standard-delete-modal');
+            break;
+        }
+    }
+}
+
+function confirmStandardDelete(){
+    for(var i=0;i<standardData.length;i++){if(standardData[i].id===standardDeleteId){standardData.splice(i,1);break;}}
+    hideModal('standard-delete-modal');
+    standardDeleteId = null;
+    filteredStandardData = standardData.slice();
+    if(standardCurrentPage>Math.ceil(filteredStandardData.length/standardPageSize)){standardCurrentPage=Math.max(1,Math.ceil(filteredStandardData.length/standardPageSize)||1);}
+    renderStandardTable();
+    alert('种植标准删除成功！');
+}
+
+function showModal(id){
+    var modal = document.getElementById(id);
+    if(modal){
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function closeModal(id){
+    var modal = document.getElementById(id);
+    if(modal){
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+}
+
+function hideModal(id){ closeModal(id); }
+
+window.onload = function(){ renderStandardTable(); };
+</script>
+
+</body>
+</html>

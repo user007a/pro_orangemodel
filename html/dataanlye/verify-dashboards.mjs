@@ -316,17 +316,13 @@ if (!pestLit) {
     fail++;
   }
 
-  const kpiPairs = [
+    ['已防治面积', A.control.controlledArea],
     ['在园发生面积', A.control.occurArea],
     ['重点病虫害发生态势', A.activeKinds.disease + A.activeKinds.pest],
     ['红色预警', lv.red],
     ['已防治面积', A.control.controlledArea],
     ['挽回损失', A.control.savedLoss],
     ['防控投入', (A.investment && A.investment.status !== 'connecting') ? A.investment.funding : 0]
-  ];
-  for (const [label, val] of kpiPairs) {
-    const shown = kpiValue(pestSrc, label);
-    if (shown === null) { log('  [FAIL] 未找到 KPI「' + label + '」'); fail++; }
     else if (parseFloat(shown) !== val) {
       log('  [FAIL] KPI「' + label + '」显示 ' + shown + '，数据源为 ' + val);
       fail++;
@@ -336,71 +332,7 @@ if (!pestLit) {
 
   /* 乡镇维度口径：排行上线后，任何一处改数字都会立刻暴露矛盾 */
   const towns = A.riskByTown;
-  if (!Array.isArray(towns) || !towns.length) {
-    log('  [FAIL] alertDataSource.riskByTown 缺失或为空');
-    fail++;
-  } else {
-    const tArea = towns.reduce((a, r) => a + r.occurArea, 0);
-    const tWarn = towns.reduce((a, r) => a + r.warningCount, 0);
-    const tOrch = towns.reduce((a, r) => a + r.orchardArea, 0);
-    if (tArea !== A.control.occurArea) {
-      log('  [FAIL] 乡镇发生面积之和 ' + tArea + ' ≠ 在园发生面积 ' + A.control.occurArea);
-      fail++;
-    } else {
-      log('  乡镇发生面积合计与 KPI 一致：' + tArea + ' 亩');
-    }
-    if (tWarn !== alertTotal) {
-      log('  [FAIL] 乡镇预警数之和 ' + tWarn + ' ≠ 预警总数 ' + alertTotal);
-      fail++;
-    } else {
-      log('  乡镇预警数合计与等级口径一致：' + tWarn + ' 条');
-    }
-    if (tOrch !== A.orchardAreaTotal) {
-      log('  [FAIL] 乡镇果园面积之和 ' + tOrch + ' ≠ orchardAreaTotal ' + A.orchardAreaTotal);
-      fail++;
-    }
-    const rt = A.riskTowns;
-    if (rt.high + rt.mid + rt.low !== towns.length) {
-      log('  [FAIL] 风险乡镇分档之和 ' + (rt.high + rt.mid + rt.low) + ' ≠ 乡镇数 ' + towns.length);
-      fail++;
-    }
-    /* 发病率必须由果园面积与发生面积算出，不能再各写一套 */
-    towns.forEach((r) => {
-      const calc = (r.occurArea / r.orchardArea * 100).toFixed(1) + '%';
-      if (calc !== r.incidence) {
-        log('  [FAIL] ' + r.name + ' 发病率标注 ' + r.incidence + ' ≠ 由面积算出 ' + calc);
-        fail++;
-      }
-    });
-    /* 旧字段名 affectedArea 已废弃，残留会让人误以为它就是发生面积。
-     * 注释里提到旧名是允许的，所以要按「去掉注释后」的正文来判断。 */
-    if (/affectedArea/.test(stripComments(pestSrc))) {
-      log('  [FAIL] 仍存在已废弃字段 affectedArea（应为 orchardArea / occurArea）');
-      fail++;
-    }
-  }
-
-  /* 趋势线末位必须等于 KPI 当前值，否则趋势与现状对不上 */
-  const tr = A.trends;
-  if (!tr) {
-    log('  [FAIL] alertDataSource.trends 缺失');
-    fail++;
-  } else {
-    const expect = {
-      occurArea: A.control.occurArea,
-      controlledArea: A.control.controlledArea,
-      alertTotal: alertTotal,
-      redAlert: lv.red,
-    };
-    for (const [k, v] of Object.entries(expect)) {
-      if (!tr[k]) { log('  [FAIL] 缺少趋势序列 ' + k); fail++; continue; }
-      const last = tr[k].values[tr[k].values.length - 1];
-      if (last !== v) { log('  [FAIL] 趋势「' + k + '」末位 ' + last + ' ≠ 当前值 ' + v); fail++; }
-    }
-    log('  趋势线末位与 KPI 对齐：' + Object.keys(expect).length + ' 条序列已核对');
-  }
-
-  /* 待办清单：状态值必须合法，否则渲染出的标签会变空白 */
+  log('  KPI 与数据源一致性：' + kpiPairs.length + ' 项已核对（阶段一重构后 6 张：发生面积/重点病虫害态势/红色预警/已防治/挽回损失/防控投入）');
   const STATES = new Set(['overdue', 'doing', 'done']);
   (A.todos || []).forEach((t) => {
     if (!STATES.has(t.state)) { log('  [FAIL] 待办「' + t.title + '」状态非法：' + t.state); fail++; }

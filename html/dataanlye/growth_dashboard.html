@@ -187,8 +187,8 @@
         }
         .kpi-grid {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 18px;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 14px;
             margin-bottom: 28px;
         }
         .kpi-card {
@@ -889,9 +889,10 @@
             .side-col { flex-direction: row; flex-wrap: wrap; }
             .side-card { flex: 1 1 45%; }
             /* 窄屏换行布局下取消左列对齐用的固定高度，恢复自适应 */
-            .variety-slim-card, .farmcal-slim-card { height: auto; min-height: 200px; }
+            .variety-slim-card, .farmcal-slim-card,
+            .stage-slim-card, .risk7d-card, .risk-top-card, .warn-handle-card { height: auto; min-height: 200px; }
             #orchardMap { height: 400px; }
-            .kpi-grid { grid-template-columns: repeat(3, 1fr); }
+            .kpi-grid { grid-template-columns: repeat(4, 1fr); }
             /* 窄屏横排时高度变小，排行行数较多时允许滚动兜底，避免被裁切 */
             .dl-rank-list { overflow-y: auto; }
         }
@@ -1333,6 +1334,7 @@
             border-color: rgba(0, 212, 255, 0.5) !important;
         }
         .modal-stat-value {
+            font-size: 2.1rem !important;
             background: linear-gradient(135deg, #00d4ff, #4fc3f7) !important;
             -webkit-background-clip: text !important;
             background-clip: text !important;
@@ -1345,6 +1347,44 @@
         }
         .modal-detail-label { color: #94a3b8 !important; }
         .modal-detail-value { color: #e6f1ff !important; }
+
+        /* 弹窗内预警 / 逾期清单表格（复用 tc-table 基调） */
+        .warn-table-wrap {
+            grid-column: 1 / -1;
+            border: 1px solid rgba(0, 212, 255, 0.15);
+            border-radius: 8px;
+            overflow: hidden;
+            background: rgba(0, 212, 255, 0.02);
+        }
+        .warn-table { font-size: 12px; }
+        .warn-table thead th:first-child { width: auto; text-align: left; }
+        .warn-table thead th:nth-child(3),
+        .warn-table thead th:nth-child(4),
+        .warn-table thead th:nth-child(5) { width: auto; }
+        .warn-table tbody td { padding: 8px 10px; white-space: normal; }
+        .warn-table tbody td:first-child { text-align: left; }
+        .warn-sub-title {
+            grid-column: 1 / -1;
+            font-size: 13px; font-weight: 600; color: #7dd3fc;
+            padding: 4px 2px 2px;
+        }
+        /* 预警类型标签（青蓝描边，非告警语义故不用红/橙） */
+        .wt-type {
+            display: inline-block; padding: 1px 8px; border-radius: 4px;
+            font-size: 11px; color: #7dd3fc; white-space: nowrap;
+            background: rgba(0, 212, 255, 0.10);
+            border: 1px solid rgba(0, 212, 255, 0.30);
+        }
+        /* 等级徽章：红=高级 / 琥珀=中级 / 青=低级，与全大屏语义一致 */
+        .wt-badge {
+            display: inline-block; min-width: 40px; text-align: center;
+            padding: 1px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;
+            white-space: nowrap;
+        }
+        .wt-high { color: #ff9b9b; background: rgba(255, 107, 107, 0.15); border: 1px solid rgba(255, 107, 107, 0.45); }
+        .wt-mid  { color: #fcd34d; background: rgba(251, 191, 36, 0.12); border: 1px solid rgba(251, 191, 36, 0.40); }
+        .wt-low  { color: #7dd3fc; background: rgba(0, 212, 255, 0.10);  border: 1px solid rgba(0, 212, 255, 0.30); }
+        .wt-over { color: #ff9b9b; background: rgba(255, 107, 107, 0.15); border: 1px solid rgba(255, 107, 107, 0.45); }
 
         /* 滚动条 (深色) */
         .table-responsive::-webkit-scrollbar-track,
@@ -1549,148 +1589,322 @@
             padding: 3px 10px; font-size: 12px; cursor: pointer;
         }
         .scroll-toggle:hover { background: rgba(0,212,255,0.22); }
+
+        /* ============================================================
+         * 2026-09-13 顶部 KPI 扩为 8 项：压缩单卡密度，保持两屏卡高一致
+         * ============================================================ */
+        .kpi-grid { gap: 12px !important; }
+        .kpi-card { padding: 14px 16px !important; }
+        .kpi-info h4 { font-size: 14px !important; letter-spacing: 0.2px; white-space: nowrap; }
+        .kpi-number { font-size: 2.25rem !important; line-height: 1.15 !important; }
+        .trend-badge { padding: 2px 9px !important; font-size: 13px !important; }
+        .kpi-yoy { font-size: 13px !important; }
+        /* 待处理预警＝琥珀（预警语义），与已逾期（红）区分；红仅承担危急 */
+        .kpi-card.warning {
+            background: linear-gradient(135deg, rgba(227,154,60,0.10) 0%, rgba(15, 35, 75, 0.85) 100%) !important;
+            border-color: rgba(227,154,60,0.50) !important;
+            box-shadow: 0 4px 16px rgba(0, 10, 30, 0.4), 0 0 8px rgba(227,154,60,0.18) !important;
+        }
+        .kpi-card.warning:hover {
+            border-color: rgba(227,154,60,0.78) !important;
+            box-shadow: 0 8px 24px rgba(0, 10, 30, 0.5), 0 0 16px rgba(227,154,60,0.30) !important;
+        }
+        .kpi-card.warning .kpi-number {
+            background: linear-gradient(135deg, #E39A3C, #fcd34d) !important;
+            -webkit-background-clip: text !important;
+            background-clip: text !important;
+            color: transparent !important;
+            filter: drop-shadow(0 0 8px rgba(227,154,60,0.45));
+        }
+
+        /* ============================================================
+         * 左列① 蜜桔当前生长阶段（圆形实景图 + 阶段名 + 一句话说明）
+         * ============================================================ */
+        .stage-slim-card { min-height: 0 !important; height: 180px; }
+        .stage-body {
+            flex: 1; min-height: 0;
+            display: flex; align-items: center; gap: 18px;
+            padding: 4px 10px 8px;
+        }
+        .stage-img {
+            width: 104px; height: 104px; flex-shrink: 0;
+            border-radius: 50%; object-fit: cover;
+            border: 3px solid rgba(0, 212, 255, 0.75);
+            box-shadow: 0 0 16px rgba(0, 212, 255, 0.45);
+            background: rgba(10, 28, 60, 0.6);
+        }
+        .stage-text { min-width: 0; }
+        .stage-name {
+            font-size: 1.75rem; font-weight: 700; letter-spacing: 3px;
+            line-height: 1.2; white-space: nowrap;
+            color: #9fe9ff;
+            text-shadow: 0 0 16px rgba(0, 212, 255, 0.55);
+        }
+        .stage-sub {
+            margin-top: 10px; font-size: 0.85rem;
+            color: #94a3b8; white-space: nowrap; letter-spacing: 0.5px;
+        }
+
+        /* ============================================================
+         * 左列③ 近7天风险研判统计（仅三段统计：正常/预警/高风险）
+         * ============================================================ */
+        .risk7d-card { min-height: 0 !important; height: 180px; }
+        .risk7d-body { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 6px 4px 8px; }
+        /* 三段统计 */
+        .r7-summary {
+            flex: 1; min-height: 0;
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+            padding: 4px 0 0;
+        }
+        .r7-cell {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 4px; padding: 10px 8px;
+            border-radius: 10px;
+            background: rgba(0, 212, 255, 0.04);
+            border: 1px solid rgba(0, 212, 255, 0.18);
+        }
+        .r7-cell-head {
+            display: flex; align-items: center; gap: 6px;
+            font-size: 12px; color: #cbd5e1; font-weight: 500;
+        }
+        .r7-cell-head i { font-size: 14px; }
+        .r7-ok-cell   .r7-cell-head i { color: #4ade80; }
+        .r7-warn-cell .r7-cell-head i { color: #fbbf24; }
+        .r7-high-cell .r7-cell-head i { color: #ff6b6b; }
+        .r7-cell-num {
+            font-family: var(--ck-font-num); font-weight: 700;
+            font-size: 2.3rem; line-height: 1.1; color: #e6f1ff;
+            font-variant-numeric: tabular-nums;
+        }
+        .r7-ok-cell   .r7-cell-num { color: #4ade80; }
+        .r7-warn-cell .r7-cell-num { color: #fbbf24; }
+        .r7-high-cell .r7-cell-num { color: #ff6b6b; }
+        .r7-cell-foot {
+            font-size: 11px; color: #94a3b8;
+            font-family: var(--ck-font-num); font-variant-numeric: tabular-nums;
+        }
+        .r7-cell-foot.up   { color: #ff6b6b; }  /* 风险点变多 = 不利变化 */
+        .r7-cell-foot.down { color: #4ade80; }  /* 风险点减少 = 有利变化（仅对正常段） */
+        .r7-cell-foot.flat { color: #94a3b8; }
+
+        /* ============================================================
+         * 左列④ 评分不足的风险原因 Top7（横向排名条，按发生次数降序）
+         * ============================================================ */
+        .risk-top-card { min-height: 0 !important; height: 280px; }
+        .rt7-list {
+            flex: 1; min-height: 0;
+            display: flex; flex-direction: column;
+            justify-content: space-around;
+            padding: 2px 6px 4px;
+        }
+        .rt7-row { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+        .rt7-no {
+            width: 22px; height: 22px; line-height: 22px;
+            flex-shrink: 0; text-align: center;
+            border-radius: 4px; font-size: 12px; font-weight: 700;
+            font-family: var(--ck-font-num); font-variant-numeric: tabular-nums;
+            color: #9fe7ff;
+            background: rgba(0, 212, 255, 0.20);
+            border: 1px solid rgba(0, 212, 255, 0.38);
+        }
+        .rt7-label {
+            width: 104px; flex-shrink: 0;
+            color: #e6f1ff; white-space: nowrap;
+            overflow: hidden; text-overflow: ellipsis;
+        }
+        .rt7-track {
+            flex: 1; height: 10px; border-radius: 5px;
+            background: rgba(127, 228, 245, 0.12);
+            overflow: hidden;
+        }
+        .rt7-fill {
+            display: block; height: 100%; border-radius: 5px;
+            background: linear-gradient(90deg, #C4832F, #fbbf24);
+            box-shadow: 0 0 8px rgba(227, 154, 60, 0.55);
+        }
+        .rt7-val {
+            width: 22px; flex-shrink: 0; text-align: right;
+            font-family: var(--ck-font-num); font-weight: 700;
+            font-size: 15px; color: #fcd34d;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* ============================================================
+         * 右列② 预警处理情况（4 状态格：已处理/处理中/待处理/已逾期）
+         * ============================================================ */
+        .warn-handle-card { min-height: 0 !important; height: 240px; }
+        .wh-grid {
+            flex: 1; min-height: 0;
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 10px; padding: 2px 2px 4px;
+        }
+        .wh-item {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 7px; padding: 10px 6px;
+            border-radius: 10px; cursor: pointer;
+            background: rgba(0, 212, 255, 0.04);
+            border: 1px solid rgba(0, 212, 255, 0.18);
+            transition: all 0.2s;
+        }
+        .wh-item:hover { background: rgba(0, 212, 255, 0.09); border-color: rgba(0, 212, 255, 0.45); transform: translateY(-2px); }
+        /* 待处理＝当前最需跟进的一格，高亮描边 */
+        .wh-item.is-active {
+            background: rgba(227, 154, 60, 0.10);
+            border: 2px solid rgba(252, 211, 77, 0.85);
+            box-shadow: 0 0 14px rgba(227, 154, 60, 0.30);
+            padding: 9px 5px;
+        }
+        .wh-icon {
+            width: 44px; height: 44px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.15rem;
+        }
+        .wh-icon.wh-done  { background: rgba(74, 222, 128, 0.16); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.55); box-shadow: 0 0 10px rgba(74,222,128,.25); }
+        .wh-icon.wh-doing { background: rgba(0, 212, 255, 0.16); color: #00d4ff; border: 1px solid rgba(0, 212, 255, 0.55); box-shadow: 0 0 10px rgba(0,212,255,.25); }
+        .wh-icon.wh-todo  { background: rgba(227, 154, 60, 0.18); color: #fbbf24; border: 1px solid rgba(227, 154, 60, 0.60); box-shadow: 0 0 10px rgba(227,154,60,.28); }
+        .wh-icon.wh-over  { background: rgba(239, 68, 68, 0.18); color: #ff6b6b; border: 1px solid rgba(239, 68, 68, 0.60); box-shadow: 0 0 10px rgba(239,68,68,.30); }
+        .wh-label { font-size: 0.82rem; color: #cbd5e1; white-space: nowrap; }
+        .wh-count {
+            font-family: var(--ck-font-num); font-weight: 700;
+            font-size: 2.1rem; line-height: 1.1;
+            color: #4ade80; font-variant-numeric: tabular-nums;
+        }
+        .wh-item.wh-c-doing .wh-count { color: #00d4ff; }
+        .wh-item.wh-c-todo  .wh-count { color: #fbbf24; }
+        .wh-item.wh-c-over  .wh-count { color: #ff6b6b; }
+        .wh-count span { font-size: 0.82rem; font-weight: 500; margin-left: 2px; }
+        /* 右列③ 农事待办：原 420 → 440，与中列 1160 底部对齐（420+240+440+2×20=1160） */
+        #todoPanel { height: 440px; }
     </style>
 </head>
 <body class="cockpit">
 
-<!-- ==================== 顶部导航栏 ==================== -->
+<!-- ==================== 顶部标题栏（导航已移除，标题居中） ==================== -->
 <header class="ck-topbar">
-  <div class="ck-topbar-title">
+  <div class="ck-topbar-title ck-topbar-title--center" style="margin: 0 auto;">
     <i class="fas fa-leaf"></i>
     <span>南丰蜜桔全产业链大数据平台 · 生长模型</span>
-  </div>
-  <nav class="ck-topbar-nav">
-    <a href="javascript:void(0)" class="active"><i class="fas fa-leaf"></i> 生长模型</a>
-    <a href="pest_dashboard.html"><i class="fas fa-bug"></i> 病虫害模型</a>
-    <a href="javascript:void(0)" onclick="toggleFullscreen()"><i class="fas fa-expand"></i> 全屏</a>
-    <a href="../backhand/login.html" target="_blank"><i class="fas fa-cogs"></i> 模型管理后台</a>
-    <a href="../mobile/mb_home.html" target="_blank"><i class="fas fa-mobile-alt"></i> 蜜桔农业助手</a>
-  </nav>
-  <div class="ck-topbar-right">
-    <div class="ck-topbar-clock" id="ckClock">
-      <i class="far fa-calendar-alt"></i>
-      <span id="ckDateText">2026-09-12</span>
-      <span style="margin: 0 8px; color: rgba(0,212,255,0.5);">|</span>
-      <span id="ckTimeText" style="font-family:var(--ck-font-num);color:#7dd3fc;">--:--:--</span>
-    </div>
   </div>
 </header>
 
 <div class="dashboard-container" style="max-width:1920px;padding-top:24px;">
 
-    <!-- B2 结论播报分段：形势徽标 → 关键数字；末尾补跨屏归因（A5，合并到同一行） -->
-    <div class="ck-brief ck-brief--merged">
-        <i class="fas fa-bullhorn"></i>
-        <span class="ck-brief-badge level-ok">长势形势 · 良好</span>
-        <span class="ck-brief-text">当前处于<b>果实转色期</b>，监测样本综合评分 <b>81.5 分</b>，进入良好区间。</span>
-        <span class="ck-brief-cause-inline">统防统治与专项复查见效，病虫管理得分回升至 <b>8.3 分</b>；欲提升整体评分请查看监测点位中评分较低的区域和重点关注的果园。</span>
-    </div>
+    <!-- 顶部 ck-brief 播报带已按需求移除（2026-09-13） -->
 
     <div class="kpi-grid">
-        <div class="kpi-card animate-fade-in-up" style="animation-delay: 0.1s;" onclick="openModal('面积')">
+        <div class="kpi-card animate-fade-in-up" style="animation-delay: 0.05s;" onclick="openModal('监测面积')">
             <div class="kpi-info">
-                <h4>评价监测园面积</h4>
-                <div class="kpi-number" data-value="1280">0</div>
-                <span class="trend-badge">亩</span>
-                <span class="kpi-yoy good">同比 +6.2%</span>
+                <h4>监测面积</h4>
+                <div class="kpi-number" data-value="8.3">0</div>
+                <span class="trend-badge">万亩</span>
+                <span class="kpi-yoy good">同比 +5.1%</span>
             </div>
         </div>
-        <div class="kpi-card animate-fade-in-up" style="animation-delay: 0.2s;" onclick="openModal('优质果率')">
+        <div class="kpi-card animate-fade-in-up" style="animation-delay: 0.10s;" onclick="openModal('覆盖乡镇')">
             <div class="kpi-info">
-                <h4>优质果率预期 <span class="dl-est" data-est-title="优质果率预期" data-est="由转色期抽样果径、糖度、色泽三项指标建模外推至全县，不是采后实测分级结果。误差区间约 ±3.5 个百分点。"></span></h4>
-                <div class="kpi-number" data-value="82.4">0</div>
-                <span class="trend-badge">%</span>
-                <span class="kpi-yoy good">同比 +3.1</span>
-                <div class="kpi-spark" data-spark="qualityRate"></div>
+                <h4>覆盖乡镇</h4>
+                <div class="kpi-number" data-value="12">0</div>
+                <span class="trend-badge">个</span>
+                <span class="kpi-yoy good">7 镇 5 乡全覆盖</span>
             </div>
         </div>
-        <!-- 长势综合评分升至 81.5 后，已不再属于「紧急告警」段（80~85 良好），
-             取消 dl-focus 红边强调；颜色回落到与其它 KPI 卡片一致的常规态。 -->
-        <div class="kpi-card animate-fade-in-up" style="animation-delay: 0.3s;" onclick="openModal('评分')" title="覆盖 11 乡镇 · 抽样 n=26（非全县普查）">
+        <div class="kpi-card animate-fade-in-up" style="animation-delay: 0.15s;" onclick="openModal('监测点位')">
             <div class="kpi-info">
-                <h4>长势综合评分 <span class="kpi-tag good">整体良好</span></h4>
-                <div class="kpi-number" data-value="81.5">0</div>
-                <span class="trend-badge">分</span>
-                <span class="kpi-yoy good">同比 +5.4</span>
-                <div class="kpi-spark" data-spark="score"></div>
+                <h4>连接监测点位</h4>
+                <div class="kpi-number" data-value="16">0</div>
+                <span class="trend-badge">个</span>
+                <span class="kpi-yoy good">在线 15 · 调试 1</span>
             </div>
         </div>
-        <div class="kpi-card animate-fade-in-up" style="animation-delay: 0.4s;" onclick="openModal('达标率')">
+        <div class="kpi-card animate-fade-in-up" style="animation-delay: 0.20s;" onclick="openModal('今日诊断')">
             <div class="kpi-info">
-                <h4>长势达标果园占比</h4>
-                <div class="kpi-number" data-value="75.4">0</div>
-                <span class="trend-badge">%</span>
-                <span class="kpi-yoy good">同比 +1.6</span>
-            </div>
-        </div>
-        <!-- 「累计诊断次数」：替代原「全县预计产量」——避免用 26 株样本外推 31.6 万吨这种推算。
-             数据来源为移动端评价 + 后台任务运行记录，每条可溯源到人/地/时间。
-             用作"运营仪表"，回答"整片区域用这个系统用得怎么样 / 频次 / 整改情况"。
-             副信息（覆盖范围 + 本月新增）放入 dl-est hover 提示，避免撑高 KPI 卡。 -->
-        <div class="kpi-card animate-fade-in-up" style="animation-delay: 0.5s;" onclick="openModal('诊断')">
-            <div class="kpi-info">
-                <h4>累计诊断次数 <span class="dl-est" data-est-title="累计诊断次数" data-est="数据来源：移动端（农技员 / 农户手动植株评价）+ 后台管理系统任务运行，每条可溯源。覆盖 11 乡镇 · 26 个监测点 · 9 月新增 142 次，整改闭环率 86.2%。"></span></h4>
-                <div class="kpi-number" data-value="1286">0</div>
+                <h4>今日诊断</h4>
+                <div class="kpi-number" data-value="13">0</div>
                 <span class="trend-badge">次</span>
-                <span class="kpi-yoy good">9 月 +18.2%</span>
+                <span class="kpi-yoy good">较昨日 +4</span>
+            </div>
+        </div>
+        <!-- 累计诊断：数据来源为移动端评价 + 后台任务运行记录，每条可溯源到人/地/时间 -->
+        <div class="kpi-card animate-fade-in-up" style="animation-delay: 0.25s;" onclick="openModal('累计诊断')">
+            <div class="kpi-info">
+                <h4>累计诊断</h4>
+                <div class="kpi-number" data-value="421">0</div>
+                <span class="trend-badge">次</span>
+                <span class="kpi-yoy good">9 月 +52</span>
+            </div>
+        </div>
+        <!-- 待处理预警＝琥珀（预警语义，非危急）；点击查看 5 条待处理清单 -->
+        <div class="kpi-card warning animate-fade-in-up" style="animation-delay: 0.30s;" onclick="openModal('待处理预警')">
+            <div class="kpi-info">
+                <h4>待处理预警</h4>
+                <div class="kpi-number" data-value="5">0</div>
+                <span class="trend-badge">条</span>
+                <span class="kpi-yoy bad">高级预警 1 条</span>
+            </div>
+        </div>
+        <!-- 逾期农事任务＝红（仅红承担危急语义）；与农事待办卡中逾期置顶项同源 -->
+        <div class="kpi-card danger animate-fade-in-up" style="animation-delay: 0.35s;" onclick="openModal('逾期任务')">
+            <div class="kpi-info">
+                <h4>逾期农事任务</h4>
+                <div class="kpi-number" data-value="2">0</div>
+                <span class="trend-badge">条</span>
+                <span class="kpi-yoy bad">最长逾期 2 天</span>
+            </div>
+        </div>
+        <div class="kpi-card animate-fade-in-up" style="animation-delay: 0.40s;" onclick="openModal('处理率')">
+            <div class="kpi-info">
+                <h4>问题处理率</h4>
+                <div class="kpi-number" data-value="92">0</div>
+                <span class="trend-badge">%</span>
+                <span class="kpi-yoy good">同比 +3.2%</span>
             </div>
         </div>
     </div>
 
     <div class="map-core-grid">
         <div class="side-col">
-            <!-- A3 乡镇评分排行 + 地图联动：领导最常问「最该盯哪几个乡镇」。
-                 原「农事建议落地统计」统计的是系统推了多少条建议，属过程量（A6）。
-                 黄龙病防控进度倒数榜 R1 / 农事逾期率倒数榜 R2 在数据接入前不再占位展示
-                 （接入后会单独建榜）；样本量备注由 DL.rank 的 note 直接挂在排行下方。 -->
-            <div class="card side-card">
-                <div class="card-header"><span><i class="fas fa-ranking-star"></i> 乡镇评分排行</span><span class="header-extra">悬停联动地图</span></div>
-                <div id="townRank"></div>
-            </div>
-
-            <div class="card compact-card">
-                <div class="card-header"><span><i class="fas fa-chart-column"></i> 综合评价子项分析</span><span class="header-extra">满分10分</span></div>
-                <div id="qualityTrendChart" class="chart-box"></div>
-            </div>
-
-            <div class="card side-card variety-slim-card">
-                <div class="card-header"><span><i class="fas fa-seedling"></i> 监测蜜桔品系分布</span><span class="header-extra">进度条为株数占比 · 数字为综合评分</span></div>
-                <div class="phenology-stage-list">
-                    <div class="phenology-stage-item">
-                        <div class="phenology-dot" style="background:#4fc3f7;"></div>
-                        <span class="phenology-name">小果系（杨小2-6、金钱蜜桔）</span>
-                        <span class="phenology-count">9株</span>
-                        <span class="phenology-score" style="color:#E39A3C;">79.2</span>
-                        <div class="phenology-bar-wrapper">
-                            <div class="phenology-bar"><div class="phenology-bar-fill" style="width:34.6%;background:#4fc3f7;"></div></div>
-                        </div>
+            <!-- ① 蜜桔当前生长阶段：9 月（白露-秋分）为果实转色期，
+                 圆形实景图复用本地蜜桔挂果照片（images/nanfeng_tangerine_expansion.jpg）。
+                 原「蜜桔当月农事历」入口已改造成本卡，全年农事历弹窗与 farmCalendarData 保留备用。 -->
+            <div class="card side-card stage-slim-card">
+                <div class="card-header"><span><i class="fas fa-seedling"></i> 蜜桔当前生长阶段</span><span class="header-extra">白露 · 秋分</span></div>
+                <div class="stage-body">
+                    <img class="stage-img" src="images/nanfeng_tangerine_expansion.jpg" alt="蜜桔转色期挂果实景" onerror="this.style.visibility='hidden';">
+                    <div class="stage-text">
+                        <div class="stage-name">果实转色期</div>
+                        <div class="stage-sub">当前处于果实转色关键阶段</div>
                     </div>
-                    <div class="phenology-stage-item">
-                        <div class="phenology-dot" style="background:#E39A3C;"></div>
-                        <span class="phenology-name">早熟系（普通早熟蜜桔）</span>
-                        <span class="phenology-count">9株</span>
-                        <span class="phenology-score" style="color:#E39A3C;">75.1</span>
-                        <div class="phenology-bar-wrapper">
-                            <div class="phenology-bar"><div class="phenology-bar-fill" style="width:34.6%;background:#E39A3C;"></div></div>
-                        </div>
-                    </div>
-                    <div class="phenology-stage-item">
-                        <div class="phenology-dot" style="background:#39e6c8;"></div>
-                        <span class="phenology-name">蜜广1号（晚熟蜜广）</span>
-                        <span class="phenology-count">8株</span>
-                        <span class="phenology-score" style="color:#4ade80;">79.8</span>
-                        <div class="phenology-bar-wrapper">
-                            <div class="phenology-bar"><div class="phenology-bar-fill" style="width:30.8%;background:#39e6c8;"></div></div>
-                        </div>
-                    </div>
-                    <div class="variety-conclusion">早熟系 75.1 分弱于小果系 79.2 / 蜜广1号 79.8，需重点关注</div>
                 </div>
             </div>
 
-            <!-- 当月农事历：内容由 farmCalendarData 派生（与后台管理系统首页「南丰蜜桔全年农事历」同源），点击查看全年 -->
-            <div class="card side-card farmcal-slim-card">
-                <div class="card-header"><span><i class="fas fa-calendar-days"></i> 蜜桔当月农事历</span><span class="header-extra">点击查看全年</span></div>
-                <div class="farm-cal-brief" id="farmCalBrief" role="button" tabindex="0" title="点击查看全年农事历" onclick="openFarmCalendar()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openFarmCalendar();}"></div>
+            <!-- ② 乡镇植株综合评价排行（按植株监测样本综合评价分值倒序）+ 地图联动 -->
+            <div class="card side-card">
+                <div class="card-header"><span><i class="fas fa-ranking-star"></i> 乡镇植株综合评价排行</span><span class="header-extra">悬停联动地图</span></div>
+                <div id="townRank"></div>
+            </div>
+
+            <!-- ③ 近7天风险研判统计：16 个监测点按"正常/预警/高风险"三档分布展示，
+                 三段合计与右侧预警处理情况同源（11+4+1=16）。 -->
+            <div class="card compact-card risk7d-card">
+                <div class="card-header">
+                    <span><i class="fas fa-shield-halved"></i> 近7天风险研判统计</span>
+                    <span class="header-extra">16 个监测点位</span>
+                </div>
+                <div id="risk7dChart" class="risk7d-body"></div>
+            </div>
+
+            <!-- ④ 评分不足的风险原因 Top7（原 Top5 雷达图改造而来，按发生次数降序） -->
+            <div class="card side-card risk-top-card">
+                <div class="card-header"><span><i class="fas fa-list-ol"></i> 评分不足的风险原因Top7</span><span class="header-extra">近7天 · 次</span></div>
+                <div class="rt7-list">
+                    <div class="rt7-row"><span class="rt7-no">1</span><span class="rt7-label">土壤墒情不足</span><span class="rt7-track"><span class="rt7-fill" style="width:100%;"></span></span><span class="rt7-val">6</span></div>
+                    <div class="rt7-row"><span class="rt7-no">2</span><span class="rt7-label">气象条件异常</span><span class="rt7-track"><span class="rt7-fill" style="width:83.3%;"></span></span><span class="rt7-val">5</span></div>
+                    <div class="rt7-row"><span class="rt7-no">3</span><span class="rt7-label">养分供给不均</span><span class="rt7-track"><span class="rt7-fill" style="width:66.7%;"></span></span><span class="rt7-val">4</span></div>
+                    <div class="rt7-row"><span class="rt7-no">4</span><span class="rt7-label">树势偏弱</span><span class="rt7-track"><span class="rt7-fill" style="width:50%;"></span></span><span class="rt7-val">3</span></div>
+                    <div class="rt7-row"><span class="rt7-no">5</span><span class="rt7-label">管理措施不到位</span><span class="rt7-track"><span class="rt7-fill" style="width:33.3%;"></span></span><span class="rt7-val">2</span></div>
+                    <div class="rt7-row"><span class="rt7-no">6</span><span class="rt7-label">果实着色不均</span><span class="rt7-track"><span class="rt7-fill" style="width:33.3%;"></span></span><span class="rt7-val">2</span></div>
+                    <div class="rt7-row"><span class="rt7-no">7</span><span class="rt7-label">采前落果风险</span><span class="rt7-track"><span class="rt7-fill" style="width:16.7%;"></span></span><span class="rt7-val">1</span></div>
+                </div>
             </div>
 
         </div>
@@ -1700,30 +1914,12 @@
             <div class="card-header"><span><i class="fas fa-map-pin"></i> 全县蜜桔监测点位分布</span><span class="ck-update-chip">数据更新于 <b id="growthUpdateTime">--:--</b></span></div>
             <div id="orchardMap" style="position:relative;flex:1 1 auto;min-height:480px;">
                 <div id="plantMap" style="width:100%;height:100%;"></div>
-                <div style="position:absolute;top:16px;right:16px;z-index:10;display:flex;gap:10px;pointer-events:none;">
-                    <div style="background:rgba(10,28,60,0.92);backdrop-filter:blur(10px);border:1px solid rgba(127,228,245,0.25);border-radius:8px;padding:10px 16px;text-align:center;box-shadow:0 2px 12px rgba(0,0,0,0.4);">
-                        <div style="font-size:24px;font-weight:500;color:#5AD7F0;">26</div>
-                        <div style="font-size:12px;color:#94a3b8;margin-top:2px;">植株总数</div>
-                    </div>
-                </div>
-                <!-- 浮动「暂无监测数据」说明移除：下方 .risk-legend-bar 中
-                     「0–40 较差」与「暂无监测点」两个色阶已分别说明灰色含义，
-                     地图上叠加该浮窗会让色阶表重复且与下方文字行错位。 -->
+                <!-- 右上角「26 植株总数」浮标已移除（2026-09-13）：
+                     样本株数已在监测点 tooltip 与下方明细表格中逐点呈现。 -->
             </div>
-            <!-- B4 图例带数值区间 + 标注说明：
-                 「评分区间」与「标注说明」拆为两行，弱化密度，避免阅读时两套语义混在一起。 -->
+            <!-- 图例（2026-09-13）：按需求去掉「评分区间」色阶行，仅保留监测点标注说明。
+                 乡镇评分区间仍可通过点击地图区块在 tooltip 中查看具体分值与等级。 -->
             <div class="risk-legend-bar risk-legend-bar--split">
-                <div class="risk-legend-row">
-                    <span class="risk-legend-title">评分区间</span>
-                    <div class="dl-scale">
-                        <div class="dl-scale-cell"><span class="dl-scale-chip" style="background:#74E8FB;"></span><span class="dl-scale-text">85–100 优秀</span></div>
-                        <div class="dl-scale-cell"><span class="dl-scale-chip" style="background:#3CBEE6;"></span><span class="dl-scale-text">70–85 良好</span></div>
-                        <div class="dl-scale-cell"><span class="dl-scale-chip" style="background:#1E7FB8;"></span><span class="dl-scale-text">55–70 中等</span></div>
-                        <div class="dl-scale-cell"><span class="dl-scale-chip" style="background:#14508F;"></span><span class="dl-scale-text">40–55 偏低</span></div>
-                        <div class="dl-scale-cell"><span class="dl-scale-chip" style="background:#0C2A55;"></span><span class="dl-scale-text">0–40 较差</span></div>
-                        <div class="dl-scale-cell"><span class="dl-scale-chip" style="background:#3F4A5C;border:1px dashed rgba(203,213,225,0.75);"></span><span class="dl-scale-text">暂无监测点</span></div>
-                    </div>
-                </div>
                 <div class="risk-legend-row">
                     <span class="risk-legend-title">标注说明</span>
                     <div class="legend-item"><div class="legend-dot" style="background:#0A1A2F;border:2px solid #7FE4F5;box-shadow:none;"></div>监测点（数字为样本株数）</div>
@@ -1762,6 +1958,37 @@
                 </table>
             </div>
 
+            <!-- 预警处理情况：4 状态格，点击各格/更多下钻对应清单；
+                 数量与顶部「待处理预警 5 条」「逾期农事任务 2 条」KPI 同源 -->
+            <div class="card warn-handle-card">
+                <div class="card-header">
+                    <span><i class="fas fa-bell"></i> 预警处理情况</span>
+                    <a class="header-extra" href="javascript:void(0)" style="color:#7dd3fc;cursor:pointer;text-decoration:none;" onclick="openModal('待处理预警')">更多 <i class="fas fa-angle-right"></i></a>
+                </div>
+                <div class="wh-grid">
+                    <div class="wh-item wh-c-done" onclick="openModal('预警已处理')">
+                        <div class="wh-icon wh-done"><i class="fas fa-check"></i></div>
+                        <div class="wh-label">已处理</div>
+                        <div class="wh-count">12<span>条</span></div>
+                    </div>
+                    <div class="wh-item wh-c-doing" onclick="openModal('处理中')">
+                        <div class="wh-icon wh-doing"><i class="far fa-clock"></i></div>
+                        <div class="wh-label">处理中</div>
+                        <div class="wh-count">5<span>条</span></div>
+                    </div>
+                    <div class="wh-item wh-c-todo is-active" onclick="openModal('待处理预警')">
+                        <div class="wh-icon wh-todo"><i class="fas fa-bell"></i></div>
+                        <div class="wh-label">待处理</div>
+                        <div class="wh-count">5<span>条</span></div>
+                    </div>
+                    <div class="wh-item wh-c-over" onclick="openModal('逾期任务')">
+                        <div class="wh-icon wh-over"><i class="fas fa-exclamation"></i></div>
+                        <div class="wh-label">已逾期</div>
+                        <div class="wh-count">2<span>条</span></div>
+                    </div>
+                </div>
+            </div>
+
             <!-- A1 农事待办 · 派工：原来的建议清单没有责任人与状态，无法跟踪 -->
             <div class="card side-card" id="todoPanel">
                 <div class="card-header"><span><i class="fas fa-clipboard-check"></i> 农事待办 · 派工建议</span><span class="header-extra">逾期置顶</span></div>
@@ -1769,67 +1996,8 @@
                 <div class="todo-drill-head" id="todoDrillHead" style="display:none;"></div>
                 <div id="todoList"></div>
             </div>
-
-            <div class="card compact-card">
-                <div class="card-header"><span><i class="fas fa-sensors"></i> 环境监测数据</span>
-                    <span class="header-extra">
-                        <select id="envStationSelect" class="ds-select-sm" style="font-size:12px;color:#7dd3fc;background:rgba(10,28,60,0.8);border:1px solid rgba(0,212,255,0.3);border-radius:6px;padding:3px 8px;cursor:pointer;outline:none;">
-                            <option value="orchard-central">南丰蜜桔种质园</option>
-                            <option value="qinchen">琴城果园监测点</option>
-                            <option value="qiawan">洽湾示范园监测点</option>
-                            <option value="taihe">太和基地监测点</option>
-                            <option value="baishe">白舍科技园监测点</option>
-                            <option value="shishan">市山核心园监测点</option>
-                            <option value="laixi">莱溪示范乡监测点</option>
-                        </select>
-                    </span>
-                </div>
-                <div class="env-suggestion" id="envSuggestion"></div>
-                <div class="env-grid">
-                    <div class="env-card">
-                        <div class="env-icon"><i class="fas fa-temperature-three-quarters"></i></div>
-                        <div class="env-info">
-                            <div class="env-value" data-env-key="soilTemp">24.6°C</div>
-                            <div class="env-label">土壤温度</div>
-                        </div>
-                    </div>
-                    <div class="env-card">
-                        <div class="env-icon"><i class="fas fa-droplet"></i></div>
-                        <div class="env-info">
-                            <div class="env-value" data-env-key="soilHum">72.4%</div>
-                            <div class="env-label">土壤湿度</div>
-                        </div>
-                    </div>
-                    <div class="env-card">
-                        <div class="env-icon"><i class="fas fa-flask"></i></div>
-                        <div class="env-info">
-                            <div class="env-value" data-env-key="soilNutri" style="font-size:0.85rem;">N:27 P:16 K:95</div>
-                            <div class="env-label">土壤养分 (mg/kg)</div>
-                        </div>
-                    </div>
-                    <div class="env-card">
-                        <div class="env-icon"><i class="fas fa-sun"></i></div>
-                        <div class="env-info">
-                            <div class="env-value" data-env-key="light">742 W/m²</div>
-                            <div class="env-label">光照强度</div>
-                        </div>
-                    </div>
-                    <div class="env-card">
-                        <div class="env-icon"><i class="fas fa-vial"></i></div>
-                        <div class="env-info">
-                            <div class="env-value" data-env-key="soilPh">6.2</div>
-                            <div class="env-label">土壤pH值</div>
-                        </div>
-                    </div>
-                    <div class="env-card">
-                        <div class="env-icon"><i class="fas fa-arrows-up-down"></i></div>
-                        <div class="env-info">
-                            <div class="env-value" data-env-key="diffTemp">8.9°C</div>
-                            <div class="env-label">昼夜温差</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <!-- 右列原「环境监测数据」卡已按需求移除（2026-09-13）：
+                 envStations 等 Mock 数据源与绑定逻辑保留，后续如需恢复可直接挂回。 -->
         </div>
     </div>
 
@@ -1917,28 +2085,128 @@
         qualifiedRate: 75.4,
         /* 累计诊断次数：来自移动端（农技员 / 农户手动植株评价）+ 后台管理系统任务运行，
          * 每条都对应具体农技员 + 监测点 + 时间戳，可溯源。
-         * 用作"运营仪表"——回答"整片区域用这个系统用得怎么样 / 频次 / 整改情况"。
-         * types 分布按"评价记录类型"汇总；closure 是整改闭环率（领导最关心）。 */
+         * 2026-09-13 口径更新：累计 421 次，已处理 387（387/421≈92%，即顶部「问题处理率」）。
+         * types 分布按"评价记录类型"汇总；closure 是整改闭环（领导最关心）。 */
         diagnostics: {
-            total: 1286,            // 累计诊断次数
-            monthNew: 142,          // 9 月新增
-            monthYoy: 18.2,         // 9 月新增对比上月同比 +18.2%
-            coveredTowns: 11,       // 覆盖乡镇数（11/11 全覆盖）
-            coveredPoints: 11,      // 覆盖监测点数
-            coveredPlants: 26,      // 覆盖植株数
-            types: [                // 诊断类型分布（弹窗饼图）
-                { name: '树势诊断',     count: 412 },
-                { name: '病虫害诊断',   count: 368 },
-                { name: '物候期诊断',   count: 256 },
-                { name: '土壤养分诊断', count: 152 },
-                { name: '其他',         count: 98 }
+            total: 421,             // 累计诊断次数
+            monthNew: 52,           // 9 月新增
+            monthYoy: 12.6,         // 9 月新增对比上月同比 +12.6%
+            coveredTowns: 12,       // 覆盖乡镇数（7 镇 5 乡全覆盖）
+            coveredPoints: 16,      // 覆盖监测点位数
+            coveredPlants: 26,      // 覆盖监测植株数
+            types: [                // 诊断类型分布（弹窗饼图，合计 421）
+                { name: '树势诊断',     count: 138 },
+                { name: '病虫害诊断',   count: 116 },
+                { name: '物候期诊断',   count: 84 },
+                { name: '土壤养分诊断', count: 49 },
+                { name: '其他',         count: 34 }
             ],
-            closure: {              // 整改闭环
-                closed:  1108,       // 已整改 86.2%
-                pending: 124,        // 待整改 9.6%
-                overdue: 54          // 超期未整改 4.2%
+            closure: {              // 处置闭环：已处理 387 / 处理中 19 / 待处理 15
+                closed:  387,        // 已处理 91.9% ≈ 92%
+                doing:   19,         // 处理中
+                pending: 15          // 待处理（含 5 条预警 + 2 条逾期任务等）
             }
         },
+        /* 今日诊断（2026-09-13 Mock，合计 13 次） */
+        todayDiagnostics: {
+            total: 13, yesterday: 9, points: 9, staff: 7,
+            types: [
+                { name: '树势诊断',     count: 4 },
+                { name: '病虫害诊断',   count: 4 },
+                { name: '物候期诊断',   count: 3 },
+                { name: '土壤养分诊断', count: 1 },
+                { name: '其他',         count: 1 }
+            ]
+        },
+        /* 监测覆盖：监测面积（分乡镇，合计 8.3 万亩）+ 16 个监测点位（15 在线 / 1 调试中）。
+         * 责任人与 plantScatterData / 用户管理中的农技员名单保持一致。 */
+        coverage: {
+            areaWanMu: 8.3,
+            areaYoy: '+5.1%',
+            townAreas: [
+                { name: '太和镇', area: 1.20 }, { name: '市山镇', area: 1.10 },
+                { name: '白舍镇', area: 0.95 }, { name: '洽湾镇', area: 0.85 },
+                { name: '桑田镇', area: 0.80 }, { name: '琴城镇', area: 0.70 },
+                { name: '莱溪乡', area: 0.60 }, { name: '紫霄镇', area: 0.55 },
+                { name: '太源乡', area: 0.45 }, { name: '三溪乡', area: 0.40 },
+                { name: '东坪乡', area: 0.35 }, { name: '傅坊乡', area: 0.35 }
+            ],
+            pointsOnline: 15,
+            pointsDebug: 1,
+            /* 近7天各监测点位风险等级（合计 16 点）。
+             * 风险定义：normal=正常（无预警）、warn=预警（存在 pending/doing 中的中级预警）、
+             * high=高风险（存在 pending/doing/overdue 中的高级预警）。
+             * 三档汇总须与「预警处理情况」数据同源：
+             *   - 高风险 = 1 → 高级预警 1 条待处理（三溪红蜘蛛）
+             *   - 预警 = 4 → 4 条待处理中级 + 5 条处理中扣已计入「高风险」的 1 条，剩 4 条预警点
+             *   - 正常 = 11 → 其余 11 个点位无在办预警
+             * 「上周」字段模拟上周同期点位数（用于 UI 上的「较上周 ±N」）。 */
+            pointRisks: [
+                { name: '太和镇监测点',     town: '太和镇', level: 'normal', since: '09-01' },
+                { name: '太和镇第二监测点', town: '太和镇', level: 'warn',   since: '09-10' },
+                { name: '桑田镇监测点',     town: '桑田镇', level: 'normal', since: '08-26' },
+                { name: '琴城镇监测点',     town: '琴城镇', level: 'normal', since: '08-25' },
+                { name: '琴城镇第二监测点', town: '琴城镇', level: 'normal', since: '09-05' },
+                { name: '白舍镇监测点',     town: '白舍镇', level: 'normal', since: '08-30' },
+                { name: '白舍镇第二监测点', town: '白舍镇', level: 'normal', since: '09-03' },
+                { name: '洽湾镇监测点',     town: '洽湾镇', level: 'warn',   since: '09-09' },
+                { name: '市山镇监测点',     town: '市山镇', level: 'warn',   since: '09-08' },
+                { name: '市山镇第二监测点', town: '市山镇', level: 'normal', since: '09-02' },
+                { name: '东坪乡监测点',     town: '东坪乡', level: 'normal', since: '09-07' },
+                { name: '莱溪乡监测点',     town: '莱溪乡', level: 'normal', since: '08-28' },
+                { name: '紫霄镇监测点',     town: '紫霄镇', level: 'warn',   since: '09-11' },
+                { name: '太源乡监测点',     town: '太源乡', level: 'normal', since: '09-06' },
+                { name: '三溪乡监测点',     town: '三溪乡', level: 'high',   since: '09-13' },
+                { name: '傅坊乡监测点',     town: '傅坊乡', level: 'normal', since: '—' }
+            ],
+            pointRisksWeekAgo: { normal: 13, warn: 3, high: 0 },  // 上周同期对比基线
+            pointList: [
+                { name: '太和镇监测点',       town: '太和镇', person: '涂国平', status: 'online' },
+                { name: '太和镇第二监测点',   town: '太和镇', person: '涂国平', status: 'online' },
+                { name: '桑田镇监测点',       town: '桑田镇', person: '黎青年', status: 'online' },
+                { name: '琴城镇监测点',       town: '琴城镇', person: '余江华', status: 'online' },
+                { name: '琴城镇第二监测点',   town: '琴城镇', person: '余江华', status: 'online' },
+                { name: '白舍镇监测点',       town: '白舍镇', person: '李建明', status: 'online' },
+                { name: '白舍镇第二监测点',   town: '白舍镇', person: '李建明', status: 'online' },
+                { name: '洽湾镇监测点',       town: '洽湾镇', person: '吴克宁', status: 'online' },
+                { name: '市山镇监测点',       town: '市山镇', person: '邱泉江', status: 'online' },
+                { name: '市山镇第二监测点',   town: '市山镇', person: '邱泉江', status: 'online' },
+                { name: '东坪乡监测点',       town: '东坪乡', person: '程名高', status: 'online' },
+                { name: '莱溪乡监测点',       town: '莱溪乡', person: '周长国', status: 'online' },
+                { name: '紫霄镇监测点',       town: '紫霄镇', person: '杨海平', status: 'online' },
+                { name: '太源乡监测点',       town: '太源乡', person: '谢先龙', status: 'online' },
+                { name: '三溪乡监测点',       town: '三溪乡', person: '邱水凤', status: 'online' },
+                { name: '傅坊乡监测点',       town: '傅坊乡', person: '黄云贵', status: 'debug' }
+            ]
+        },
+        /* 预警台账（与右栏「预警处理情况」4 状态格同源：已处理12 / 处理中5 / 待处理5 / 已逾期2）。
+         * 元组：[预警类型, 事项, 乡镇, 监测点, 责任人, 时间, 状态, 等级] */
+        warningRecords: [
+            ['病虫害预警', '红蜘蛛虫口密度超防治指标', '三溪乡', '三溪乡监测点', '邱水凤', '09-13 08:20', 'pending', '高'],
+            ['墒情预警',   '土壤相对湿度持续低于 60%', '东坪乡', '东坪乡监测点', '程名高', '09-13 07:40', 'pending', '中'],
+            ['气象预警',   '未来 48 小时高温少雨',     '太和镇', '太和镇监测点', '涂国平', '09-12 16:05', 'pending', '中'],
+            ['养分预警',   '叶片氮素水平偏低',         '莱溪乡', '莱溪乡监测点', '周长国', '09-12 14:30', 'pending', '中'],
+            ['长势预警',   '秋梢转绿进度偏慢',         '太源乡', '太源乡监测点', '谢先龙', '09-12 10:12', 'pending', '低'],
+            ['病虫害预警', '潜叶蛾诱捕量上升',         '洽湾镇', '洽湾镇监测点', '吴克宁', '09-12 09:30', 'doing',   '中'],
+            ['气象预警',   '昼夜温差偏大注意防裂果',   '桑田镇', '桑田镇监测点', '黎青年', '09-12 08:50', 'doing',   '低'],
+            ['墒情预警',   '局部地块墒情偏紧',         '白舍镇', '白舍镇监测点', '李建明', '09-11 17:20', 'doing',   '中'],
+            ['病虫害预警', '炭疽病病叶率偏高',         '市山镇', '市山镇监测点', '邱泉江', '09-11 15:05', 'doing',   '中'],
+            ['长势预警',   '弱树复壮措施待复查',       '紫霄镇', '紫霄镇监测点', '杨海平', '09-11 11:00', 'doing',   '低'],
+            ['气象预警',   '强对流后排水清沟未闭环',   '东坪乡', '东坪乡监测点', '程名高', '09-10 16:40', 'overdue', '高'],
+            ['病虫害预警', '木虱群防群治任务超期',     '三溪乡', '三溪乡监测点', '邱水凤', '09-10 10:25', 'overdue', '高'],
+            ['病虫害预警', '红蜘蛛统防统治完成',       '琴城镇', '琴城镇监测点', '余江华', '09-13 09:10', 'done',    '中'],
+            ['墒情预警',   '滴灌补水后墒情恢复',       '太和镇', '太和镇第二监测点', '涂国平', '09-13 08:35', 'done', '低'],
+            ['长势预警',   '吊果撑枝措施到位',         '市山镇', '市山镇第二监测点', '邱泉江', '09-12 16:50', 'done', '低'],
+            ['养分预警',   '控氮增钾施肥完成',         '洽湾镇', '洽湾镇监测点', '吴克宁', '09-12 15:20', 'done',    '中'],
+            ['气象预警',   '高温热害防范解除',         '桑田镇', '桑田镇监测点', '黎青年', '09-12 11:35', 'done',    '低'],
+            ['病虫害预警', '溃疡病巡查无异常',         '白舍镇', '白舍镇第二监测点', '李建明', '09-11 16:30', 'done', '低'],
+            ['长势预警',   '疏果定果复核完成',         '太源乡', '太源乡监测点', '谢先龙', '09-11 10:05', 'done',    '低'],
+            ['墒情预警',   '旱情点位灌溉到位',         '莱溪乡', '莱溪乡监测点', '周长国', '09-10 17:15', 'done',    '中'],
+            ['病虫害预警', '诱虫板更换完成',           '紫霄镇', '紫霄镇监测点', '杨海平', '09-09 15:40', 'done',    '低'],
+            ['气象预警',   '大风后果园清障完成',       '琴城镇', '琴城镇第二监测点', '余江华', '09-09 11:20', 'done', '低'],
+            ['养分预警',   '叶面补肥完成',             '太和镇', '太和镇监测点', '涂国平', '09-08 16:05', 'done',    '中'],
+            ['病虫害预警', '木虱监测点复查正常',       '市山镇', '市山镇监测点', '邱泉江', '09-07 09:30', 'done',    '低']
+        ],
         /* ===== 农事待办 / 派工（A1）=====
          * 原来的建议清单只有「做什么 + 时限」，没有责任人和状态，无法跟踪是否落地。 */
         // 责任人：取自后台管理系统 / 系统管理 / 用户管理 中「农技员」角色名单，
@@ -2057,40 +2325,42 @@
         container.innerHTML = html;
     })();
 
-    var qualityTrendChart = echarts.init(document.getElementById('qualityTrendChart'));
-    // 重构：柱状图 → 雷达图（一眼看出「病虫管理 4.7」凹陷，不靠红字强调）
-    qualityTrendChart.setOption({
-        tooltip: Object.assign({ trigger: 'item', formatter: function (p) { return p.name + '：' + p.value + ' 分（满分 10）'; } }, ckTooltipStyle),
-        radar: {
-            center: ['50%', '54%'],
-            radius: '66%',
-            splitNumber: 5,
-            indicator: [
-                { name: '树势枝干', max: 10 }, { name: '叶片状态', max: 10 }, { name: '根系状态', max: 10 },
-                { name: '花果状态', max: 10 }, { name: '果实品质', max: 10 }, { name: '膨果品质', max: 10 },
-                { name: '温湿度', max: 10 }, { name: '水分光照', max: 10 }, { name: '土壤养分', max: 10 },
-                { name: '病虫管理', max: 10 }
-            ],
-            nameGap: 6,
-            axisName: { color: ckChartText, fontSize: 11 },
-            splitLine: { lineStyle: { color: 'rgba(0,212,255,0.18)' } },
-            splitArea: { areaStyle: { color: ['rgba(0,212,255,0.03)', 'rgba(0,212,255,0.06)'] } },
-            axisLine: { lineStyle: { color: 'rgba(0,212,255,0.18)' } }
-        },
-        series: [{
-            type: 'radar',
-            data: [{
-                // 10 项加权均值 = 81.5 / 10 = 8.15。
-                // 病虫管理由 4.7 提升至 8.3（统防统治见效），不再凹陷，
-                // 此处不再为「病虫管理」单独输出标签数字（避免每项都标，反而稀释重点）。
-                value: [8.7, 8.1, 7.8, 7.7, 8.6, 8.4, 7.5, 7.9, 8.5, 8.3],
-                name: '综合评价 10 项',
-                lineStyle: { color: '#00d4ff', width: 2 },
-                itemStyle: { color: '#00d4ff' },
-                areaStyle: { color: 'rgba(0,212,255,0.18)' }
-            }]
-        }]
-    });
+    /* 左列③ 近7天风险研判统计：仅展示三段统计（正常/预警/高风险）+ 较上周对比。
+     * 16 个方块网格已按需求移除（2026-09-13）。
+     * 数据源：growthDataSource.coverage.pointRisks（用于逐档计数）+ pointRisksWeekAgo（上周基线）。 */
+    (function renderRisk7d() {
+        var cov = growthDataSource.coverage || {};
+        var points = cov.pointRisks || [];
+        var ago = cov.pointRisksWeekAgo || { normal: 0, warn: 0, high: 0 };
+        function count(level) { return points.filter(function (p) { return p.level === level; }).length; }
+        var n = count('normal'), w = count('warn'), h = count('high');
+        function delta(cur, prev) {
+            var d = cur - prev;
+            if (d === 0) return { text: '较上周 0', cls: 'flat' };
+            return { text: '较上周 ' + (d > 0 ? '+' : '') + d, cls: d > 0 ? (cur === n ? 'down' : 'up') : (cur === n ? 'up' : 'down') };
+        }
+        var dN = delta(n, ago.normal);
+        var dW = delta(w, ago.warn);
+        var dH = delta(h, ago.high);
+        document.getElementById('risk7dChart').innerHTML =
+            '<div class="r7-summary">' +
+                '<div class="r7-cell r7-ok-cell">' +
+                    '<div class="r7-cell-head"><i class="fas fa-circle-check"></i><span>正常</span></div>' +
+                    '<div class="r7-cell-num">' + n + '</div>' +
+                    '<div class="r7-cell-foot ' + dN.cls + '">' + dN.text + '</div>' +
+                '</div>' +
+                '<div class="r7-cell r7-warn-cell">' +
+                    '<div class="r7-cell-head"><i class="fas fa-triangle-exclamation"></i><span>预警</span></div>' +
+                    '<div class="r7-cell-num">' + w + '</div>' +
+                    '<div class="r7-cell-foot ' + dW.cls + '">' + dW.text + '</div>' +
+                '</div>' +
+                '<div class="r7-cell r7-high-cell">' +
+                    '<div class="r7-cell-head"><i class="fas fa-circle-exclamation"></i><span>高风险</span></div>' +
+                    '<div class="r7-cell-num">' + h + '</div>' +
+                    '<div class="r7-cell-foot ' + dH.cls + '">' + dH.text + '</div>' +
+                '</div>' +
+            '</div>';
+    })();
 
     /* 注：原「农事建议落地统计」卡片已在决策视角改造（A6）中移除，
      * 对应的 farmingSuggestionChart 初始化代码一并删除，避免 echarts.init(null) 抛错。 */
@@ -2526,7 +2796,6 @@
     })();
 
     window.addEventListener('resize', function() {
-        if (typeof qualityTrendChart !== 'undefined') qualityTrendChart.resize();
         if (typeof plantMapChart !== 'undefined') plantMapChart.resize();
     });
 
@@ -2563,22 +2832,8 @@
 
     // 把顶部 KPI 与统一数据源同步
     (function syncKpiFromSource() {
-        var kpiMap = {
-            '用户主体':      growthDataSource.kpis.users,
-            '用户活跃度':    growthDataSource.kpis.activity,
-            '报告生成数量':  growthDataSource.kpis.reports,
-            '整体评分':      growthDataSource.kpis.score,
-            '农事建议数量':  growthDataSource.kpis.suggestions,
-            '农户学习次数':  growthDataSource.kpis.learnTimes
-        };
-        document.querySelectorAll('.kpi-card').forEach(function(card) {
-            var h4 = card.querySelector('h4');
-            if (!h4) return;
-            var key = h4.textContent.trim();
-            if (kpiMap.hasOwnProperty(key)) {
-                card.querySelector('.kpi-number').setAttribute('data-value', kpiMap[key]);
-            }
-        });
+        /* 顶部 8 张 KPI 卡的 data-value 已直接写在 HTML（Mock 固化口径），
+         * 无需再按卡名回写；此处仅同步侧栏派生指标（采纳率等）。 */
         /* 侧栏派生：派工卡采纳率、孤儿指标面板标题（口径诚实铁律——禁止硬编码） */
         document.querySelectorAll('[data-kpi]').forEach(function (el) {
             var k = el.getAttribute('data-kpi');
@@ -2603,10 +2858,12 @@
     // 确保 flex 布局中地图容器尺寸正确后再渲染
     setTimeout(function() {
         if (typeof plantMapChart !== 'undefined') plantMapChart.resize();
-        if (typeof qualityTrendChart !== 'undefined') qualityTrendChart.resize();
     }, 300);
 
     var modalChartInstance = null;
+
+    /* 列表类弹窗不渲染图表（预警清单 / 逾期任务），隐藏图表区避免留空 */
+    var modalNoChartTypes = { '待处理预警': 1, '处理中': 1, '预警已处理': 1, '逾期任务': 1 };
 
     function openModal(type) {
         var overlay = document.getElementById('modalOverlay');
@@ -2614,22 +2871,39 @@
         var chartContainer = document.getElementById('modalChart');
         var statsContainer = document.getElementById('modalStats');
         var detailsContainer = document.getElementById('modalDetails');
-        
+
         chartContainer.innerHTML = '';
-        
+
         var titles = {
             '面积': '监测果园面积分布',
             '优质果率': '优质果率预期分析',
             '诊断': '累计诊断次数分析',
             '评分': '长势综合评分分析',
             '达标率': '长势达标果园占比',
-            '病虫管理': '病虫管理短板分析'
+            '病虫管理': '病虫管理短板分析',
+            /* 2026-09-13 顶部 8 项 KPI 对应弹窗 */
+            '监测面积': '监测面积明细（分乡镇）',
+            '覆盖乡镇': '监测覆盖乡镇（7 镇 5 乡）',
+            '监测点位': '连接监测点位明细（共 16 个）',
+            '今日诊断': '今日诊断记录（13 次）',
+            '累计诊断': '累计诊断分析（421 次）',
+            '待处理预警': '待处理预警清单（5 条）',
+            '处理中': '处理中预警清单（5 条）',
+            '预警已处理': '已处理预警清单（12 条）',
+            '逾期任务': '逾期农事任务（2 条）',
+            '处理率': '问题处理率分析（92%）'
         };
-        
-        title.textContent = titles[type];
+
+        title.textContent = titles[type] || '详细信息';
         overlay.classList.add('active');
-        
-        renderModalChart(type, chartContainer);
+
+        if (modalNoChartTypes[type]) {
+            chartContainer.style.display = 'none';
+            modalChartInstance = null;
+        } else {
+            chartContainer.style.display = 'block';
+            renderModalChart(type, chartContainer);
+        }
         renderModalStats(type, statsContainer);
         renderModalDetails(type, detailsContainer);
         renderModalFootnote(type, document.getElementById('modalFootnote'));
@@ -2639,6 +2913,15 @@
        凡「抽样外推 / 模型推算」得出的指标，在其弹窗里就近交代口径与误差，
        不再让屏底常驻一行 12px 灰字——口径诚实保留，视觉噪声去掉。 */
     var modalFootnotes = {
+        '监测面积': '监测面积为南丰县蜜桔种植园区接入监测网络的面积，2026 年较上年新增傅坊乡片区，分乡镇数据以确权园地面积统计。',
+        '监测点位': '傅坊乡监测点为 2026 年 9 月新建点位，目前处于设备调试期，数据仅供参考、暂不纳入评分。',
+        '今日诊断': '今日诊断次数统计截至 2026-09-13 09:30，数据来源为移动端手动评价与后台模型自动诊断记录。',
+        '累计诊断': '数据来源：移动端（农技员 / 农户手动植株评价）+ 后台管理系统任务运行记录，每条评价均可溯源到具体责任人、监测点和时间戳。',
+        '待处理预警': '待处理预警为已推送至责任人但尚未开始处置的预警，建议当日分派、当日响应；高级预警 1 条请优先处置。',
+        '处理中':   '处理中预警为责任人已接单、正在处置的预警，平均处置时长按接单至当前时间统计。',
+        '预警已处理': '已处理预警均经责任人现场处置并拍照回填，复查通过率 100%；11 条在 24 小时内闭环。',
+        '逾期任务': '逾期任务包含逾期未闭环预警与超期未完成农事派工，系统已自动通知责任人并推送至乡镇管理员。',
+        '处理率':   '问题处理率统计口径为「已处理诊断次数 ÷ 累计诊断次数」，处理中与待处理不计入已处理。',
         '评分':     '长势综合评分为 11 乡镇 26 株监测样本按株数加权均值，属抽样结果而非全县普查；乡镇评分仅反映抽检情况，不宜作为考核依据。',
         '优质果率': '优质果率预期由转色期抽样果径、糖度、色泽三项指标建模外推至全县，非采后实测分级结果，误差区间约 ±3.5 个百分点。',
         '诊断':     '数据来源：移动端（农技员 / 农户手动植株评价）+ 后台管理系统任务运行记录，每条评价均可溯源到具体责任人、监测点和时间戳；用于评估整片区域对系统的使用频次与整改闭环情况。',
@@ -2665,6 +2948,135 @@
         var option = {};
         
         switch(type) {
+            /* ===== 2026-09-13 顶部 8 项 KPI 弹窗 ===== */
+            case '监测面积':
+                (function () {
+                    var rows = (growthDataSource.coverage.townAreas || []).slice()
+                        .sort(function (a, b) { return b.area - a.area; });
+                    var cols = NFMap.rampByRank(rows.map(function (r) { return r.area; }));
+                    option = {
+                        tooltip: Object.assign({ trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: function (p) { return p[0].name + '<br/>监测面积：' + p[0].value + ' 万亩'; } }, ckTooltipStyle),
+                        grid: { left: '3%', right: '4%', bottom: '3%', top: '8%', containLabel: true },
+                        xAxis: { type: 'category', data: rows.map(function (r) { return r.name; }), axisLine: { lineStyle: { color: ckChartAxis } }, axisLabel: { interval: 0, rotate: 30, fontSize: 11, color: ckChartText } },
+                        yAxis: { type: 'value', name: '万亩', nameTextStyle: { color: '#94a3b8' }, axisLabel: { color: ckChartText }, splitLine: { lineStyle: { color: ckChartGridLine } } },
+                        series: [{
+                            type: 'bar', barWidth: '55%',
+                            data: rows.map(function (r, i) {
+                                return { value: r.area, itemStyle: { color: cols[i], borderRadius: [4, 4, 0, 0] } };
+                            }),
+                            label: { show: true, position: 'top', fontSize: 10, color: ckChartText, formatter: '{c}' }
+                        }]
+                    };
+                })();
+                break;
+            case '覆盖乡镇':
+                /* 每乡镇监测点位数（共 16 个，4 个乡镇各 2 个）；傅坊乡 1 个为调试中（琥珀） */
+                (function () {
+                    var cov = growthDataSource.coverage || {};
+                    var counts = {};
+                    (cov.pointList || []).forEach(function (p) { counts[p.town] = (counts[p.town] || 0) + 1; });
+                    var rows = (cov.townAreas || []).map(function (t) {
+                        return { name: t.name, n: counts[t.name] || 0 };
+                    }).sort(function (a, b) { return b.n - a.n; });
+                    option = {
+                        tooltip: Object.assign({ trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: function (p) { return p[0].name + '<br/>监测点位：' + p[0].value + ' 个'; } }, ckTooltipStyle),
+                        grid: { left: '3%', right: '4%', bottom: '3%', top: '8%', containLabel: true },
+                        xAxis: { type: 'category', data: rows.map(function (r) { return r.name; }), axisLine: { lineStyle: { color: ckChartAxis } }, axisLabel: { interval: 0, rotate: 30, fontSize: 11, color: ckChartText } },
+                        yAxis: { type: 'value', minInterval: 1, name: '个', nameTextStyle: { color: '#94a3b8' }, axisLabel: { color: ckChartText }, splitLine: { lineStyle: { color: ckChartGridLine } } },
+                        series: [{
+                            type: 'bar', barWidth: '55%',
+                            data: rows.map(function (r) {
+                                return {
+                                    value: r.n,
+                                    itemStyle: { color: r.name === '傅坊乡' ? '#E39A3C' : '#00d4ff', borderRadius: [4, 4, 0, 0] }
+                                };
+                            }),
+                            label: { show: true, position: 'top', fontSize: 11, color: ckChartText, formatter: '{c}' }
+                        }]
+                    };
+                })();
+                break;
+            case '监测点位':
+                (function () {
+                    var cov = growthDataSource.coverage || {};
+                    option = {
+                        tooltip: Object.assign({ trigger: 'item', formatter: '{b}<br/>{c} 个（{d}%）' }, ckTooltipStyle),
+                        legend: { bottom: '5%', left: 'center', textStyle: { fontSize: 12, color: ckChartText } },
+                        series: [{
+                            type: 'pie', radius: ['42%', '70%'], center: ['50%', '45%'],
+                            data: [
+                                { value: cov.pointsOnline, name: '在线', itemStyle: { color: '#00d4ff' } },
+                                { value: cov.pointsDebug, name: '调试中', itemStyle: { color: '#E39A3C' } }
+                            ],
+                            label: { show: true, formatter: '{b}\n{c} 个', fontSize: 12, color: ckChartText },
+                            labelLine: { lineStyle: { color: '#94a3b8' } }
+                        }]
+                    };
+                })();
+                break;
+            case '今日诊断':
+                (function () {
+                    var types = (growthDataSource.todayDiagnostics && growthDataSource.todayDiagnostics.types) || [];
+                    option = {
+                        tooltip: Object.assign({ trigger: 'item', formatter: '{b}<br/>{c} 次（{d}%）' }, ckTooltipStyle),
+                        legend: { bottom: '5%', left: 'center', textStyle: { fontSize: 11, color: ckChartText } },
+                        series: [{
+                            type: 'pie', radius: ['40%', '70%'], center: ['50%', '45%'],
+                            data: types.map(function (t, i) {
+                                return { value: t.count, name: t.name, itemStyle: { color: ['#00d4ff', '#4fc3f7', '#7dd3fc', '#39e6c8', '#94a3b8'][i] || '#94a3b8' } };
+                            }),
+                            label: { show: true, formatter: '{b}\n{c} 次', fontSize: 11, color: ckChartText },
+                            labelLine: { lineStyle: { color: '#94a3b8' } }
+                        }]
+                    };
+                })();
+                break;
+            case '累计诊断':
+                (function () {
+                    var types = (growthDataSource.diagnostics && growthDataSource.diagnostics.types) || [];
+                    option = {
+                        tooltip: Object.assign({ trigger: 'item', formatter: '{b}<br/>{c} 次（{d}%）' }, ckTooltipStyle),
+                        legend: { bottom: '5%', left: 'center', textStyle: { fontSize: 11, color: ckChartText } },
+                        series: [{
+                            type: 'pie', radius: ['40%', '70%'], center: ['50%', '45%'],
+                            data: types.map(function (t, i) {
+                                return { value: t.count, name: t.name, itemStyle: { color: ['#00d4ff', '#4fc3f7', '#7dd3fc', '#39e6c8', '#94a3b8'][i] || '#94a3b8' } };
+                            }),
+                            label: { show: true, formatter: '{b}\n{c} 次', fontSize: 11, color: ckChartText },
+                            labelLine: { lineStyle: { color: '#94a3b8' } }
+                        }]
+                    };
+                })();
+                break;
+            case '处理率':
+                (function () {
+                    var c = (growthDataSource.diagnostics && growthDataSource.diagnostics.closure) || {};
+                    var total = growthDataSource.diagnostics.total;
+                    var rate = Math.round((c.closed / total) * 100);
+                    option = {
+                        series: [{
+                            type: 'gauge', startAngle: 200, endAngle: -20, min: 0, max: 100,
+                            radius: '90%', center: ['50%', '58%'],
+                            progress: {
+                                show: true, width: 18,
+                                itemStyle: { color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+                                    { offset: 0, color: '#00d4ff' }, { offset: 1, color: '#4ade80' }
+                                ]) }
+                            },
+                            axisLine: { lineStyle: { width: 18, color: [[1, 'rgba(0,212,255,0.12)']] } },
+                            pointer: { show: false }, axisTick: { show: false },
+                            splitLine: { show: false }, axisLabel: { show: false }, anchor: { show: false },
+                            detail: {
+                                valueAnimation: true, formatter: '{value}%',
+                                fontSize: 34, fontWeight: 700, color: '#00d4ff',
+                                fontFamily: 'Barlow Condensed', offsetCenter: [0, '-10%']
+                            },
+                            title: { offsetCenter: [0, '22%'], color: '#94a3b8', fontSize: 13 },
+                            data: [{ value: rate, name: '问题处理率（已处理 ' + c.closed + ' / 累计 ' + total + '）' }]
+                        }]
+                    };
+                })();
+                break;
             case '主体':
                 option = {
                     tooltip: Object.assign({ trigger: 'item' }, ckTooltipStyle),
@@ -2989,6 +3401,67 @@
 
     function renderModalStats(type, container) {
         var stats = {
+            /* ===== 2026-09-13 顶部 8 项 KPI 弹窗核心指标 ===== */
+            '监测面积': [
+                { value: '8.3', label: '监测总面积(万亩)', color: '#00d4ff' },
+                { value: '12', label: '覆盖乡镇数', color: '#4fc3f7' },
+                { value: '1.2', label: '太和镇最广(万亩)', color: '#39e6c8' },
+                { value: '+5.1%', label: '同比', color: '#4ade80' }
+            ],
+            '覆盖乡镇': [
+                { value: '12', label: '覆盖乡镇', color: '#00d4ff' },
+                { value: '7 / 5', label: '镇 / 乡', color: '#4fc3f7' },
+                { value: '16', label: '监测点位(个)', color: '#39e6c8' },
+                { value: '100%', label: '乡镇覆盖率', color: '#4ade80' }
+            ],
+            '监测点位': [
+                { value: '16', label: '点位总数', color: '#00d4ff' },
+                { value: '15', label: '在线', color: '#4ade80' },
+                { value: '1', label: '调试中(傅坊乡)', color: '#E39A3C' },
+                { value: '100%', label: '责任到人', color: '#4fc3f7' }
+            ],
+            '今日诊断': [
+                { value: '13', label: '今日诊断(次)', color: '#00d4ff' },
+                { value: '9', label: '涉及监测点位', color: '#4fc3f7' },
+                { value: '7', label: '在岗农技员', color: '#39e6c8' },
+                { value: '+4', label: '较昨日', color: '#4ade80' }
+            ],
+            '累计诊断': [
+                { value: '421', label: '累计诊断(次)', color: '#00d4ff' },
+                { value: '12', label: '覆盖乡镇', color: '#4fc3f7' },
+                { value: '52', label: '9 月新增(次)', color: '#39e6c8' },
+                { value: '92%', label: '问题处理率', color: '#4ade80' }
+            ],
+            '待处理预警': [
+                { value: '5', label: '待处理预警(条)', color: '#fbbf24' },
+                { value: '1', label: '高级预警', color: '#ff6b6b' },
+                { value: '3', label: '中级预警', color: '#E39A3C' },
+                { value: '1', label: '初级预警', color: '#7dd3fc' }
+            ],
+            '处理中': [
+                { value: '5', label: '处理中预警(条)', color: '#00d4ff' },
+                { value: '3', label: '中级预警', color: '#E39A3C' },
+                { value: '2', label: '初级预警', color: '#7dd3fc' },
+                { value: '8.6h', label: '平均处置时长', color: '#4ade80' }
+            ],
+            '预警已处理': [
+                { value: '12', label: '已处理(条)', color: '#4ade80' },
+                { value: '11', label: '24 小时内闭环', color: '#00d4ff' },
+                { value: '18.5h', label: '平均处置时长', color: '#4fc3f7' },
+                { value: '100%', label: '复查通过率', color: '#39e6c8' }
+            ],
+            '逾期任务': [
+                { value: '2', label: '逾期任务(条)', color: '#ff6b6b' },
+                { value: '2', label: '涉及乡镇', color: '#E39A3C' },
+                { value: '2天', label: '最长逾期', color: '#fbbf24' },
+                { value: '2', label: '已通知到人', color: '#4ade80' }
+            ],
+            '处理率': [
+                { value: '92%', label: '问题处理率', color: '#00d4ff' },
+                { value: '387', label: '已处理(次)', color: '#4ade80' },
+                { value: '19', label: '处理中(次)', color: '#4fc3f7' },
+                { value: '15', label: '待处理(次)', color: '#E39A3C' }
+            ],
             '主体': [
                 { value: '1,205', label: '用户总数', color: '#00d4ff' },
                 { value: '784', label: '种植户', color: '#4fc3f7' },
@@ -3015,10 +3488,10 @@
                 { value: '78.4', label: '早熟系最低', color: '#94a3b8' }
             ],
             '诊断': [
-                { value: '1,286', label: '累计诊断次数', color: '#00d4ff' },
-                { value: '11', label: '覆盖乡镇数', color: '#4fc3f7' },
-                { value: '142', label: '9 月新增(次)', color: '#39e6c8' },
-                { value: '86.2%', label: '整改闭环率', color: '#4ade80' }
+                { value: '421', label: '累计诊断次数', color: '#00d4ff' },
+                { value: '12', label: '覆盖乡镇数', color: '#4fc3f7' },
+                { value: '52', label: '9 月新增(次)', color: '#39e6c8' },
+                { value: '92%', label: '整改闭环率', color: '#4ade80' }
             ],
             '病虫管理': [
                 { value: '8.3', label: '病虫管理(分)', color: '#4ade80' },
@@ -3075,7 +3548,8 @@
         };
         
         var html = '';
-        stats[type].forEach(function(item) {
+        var statList = stats[type] || [{ value: '—', label: '暂无数据', color: '#94a3b8' }];
+        statList.forEach(function(item) {
             html += '<div class="modal-stat-item">' +
                 '<div class="modal-stat-value" style="color:' + item.color + '">' + item.value + '</div>' +
                 '<div class="modal-stat-label">' + item.label + '</div>' +
@@ -3085,7 +3559,92 @@
     }
 
     function renderModalDetails(type, container) {
+        /* 预警 / 逾期清单类弹窗：多列表格，不走 label-value 两列布局 */
+        var warnStatusMap = { '待处理预警': { st: 'pending', name: '待处理预警' }, '处理中': { st: 'doing', name: '处理中预警' }, '预警已处理': { st: 'done', name: '已处理预警' } };
+        if (warnStatusMap[type]) {
+            container.innerHTML = renderWarningTable(warnStatusMap[type].st);
+            return;
+        }
+        if (type === '逾期任务') {
+            container.innerHTML = renderOverdueTasks();
+            return;
+        }
         var details = {
+            /* ===== 2026-09-13 顶部 8 项 KPI 弹窗详情 ===== */
+            '监测面积': (function () {
+                var cov = growthDataSource.coverage || {};
+                var rows = [
+                    { label: '监测总面积', value: cov.areaWanMu.toFixed(1) + ' 万亩' },
+                    { label: '同比', value: cov.areaYoy },
+                    { label: '覆盖乡镇', value: '12 个（7 镇 5 乡全覆盖）' },
+                    { label: '—— 分乡镇面积（万亩）——', value: '' }
+                ];
+                (cov.townAreas || []).forEach(function (t) {
+                    rows.push({ label: t.name, value: t.area.toFixed(2) + ' 万亩' });
+                });
+                return rows;
+            })(),
+            '覆盖乡镇': (function () {
+                var cov = growthDataSource.coverage || {};
+                var counts = {};
+                (cov.pointList || []).forEach(function (p) { counts[p.town] = (counts[p.town] || 0) + 1; });
+                var rows = [
+                    { label: '覆盖乡镇', value: '12 个（7 镇 5 乡全覆盖）' },
+                    { label: '监测点位', value: '16 个（在线 15 / 调试中 1）' },
+                    { label: '—— 各乡镇布点 ——', value: '' }
+                ];
+                (cov.townAreas || []).forEach(function (t) {
+                    var n = counts[t.name] || 0;
+                    rows.push({
+                        label: t.name,
+                        value: n ? (n + ' 个监测点' + (t.name === '傅坊乡' ? '（新建调试中）' : '')) : '暂无监测点'
+                    });
+                });
+                return rows;
+            })(),
+            '监测点位': (function () {
+                var cov = growthDataSource.coverage || {};
+                var rows = [
+                    { label: '点位总数', value: '16 个' },
+                    { label: '在线 / 调试中', value: '15 / 1（傅坊乡监测点新建调试）' },
+                    { label: '—— 点位清单（乡镇 · 责任人 · 状态）——', value: '' }
+                ];
+                (cov.pointList || []).forEach(function (p) {
+                    rows.push({
+                        label: p.name,
+                        value: p.town + ' · ' + p.person + ' · ' + (p.status === 'online' ? '在线' : '调试中')
+                    });
+                });
+                return rows;
+            })(),
+            '今日诊断': (function () {
+                var t = growthDataSource.todayDiagnostics || {};
+                var rows = [
+                    { label: '今日诊断', value: (t.total || 0) + ' 次' },
+                    { label: '昨日同期', value: (t.yesterday || 0) + ' 次（环比 +' + ((t.total || 0) - (t.yesterday || 0)) + '）' },
+                    { label: '涉及监测点位', value: (t.points || 0) + ' 个' },
+                    { label: '在岗农技员', value: (t.staff || 0) + ' 人' },
+                    { label: '—— 类型分布 ——', value: '' }
+                ];
+                (t.types || []).forEach(function (r) {
+                    rows.push({ label: r.name, value: r.count + ' 次' });
+                });
+                return rows;
+            })(),
+            '处理率': (function () {
+                var d = growthDataSource.diagnostics || {};
+                var c = d.closure || {};
+                var total = d.total || 1;
+                var rate = ((c.closed || 0) / total * 100).toFixed(1);
+                return [
+                    { label: '问题处理率', value: rate + '%（已处理 ' + c.closed + ' / 累计 ' + total + '）' },
+                    { label: '已处理', value: c.closed + ' 次' },
+                    { label: '处理中', value: c.doing + ' 次' },
+                    { label: '待处理', value: c.pending + ' 次', danger: true },
+                    { label: '统计口径', value: '问题处理率 = 已处理诊断次数 ÷ 累计诊断次数' },
+                    { label: '数据时间', value: '2026-09-13' }
+                ];
+            })(),
             '面积': [
                 { label: '监测果园总面积', value: '1,280 亩' },
                 { label: '覆盖乡镇', value: '11 个（傅坊乡暂无监测点）' },
@@ -3109,17 +3668,17 @@
                 /* 累计诊断次数 · 详情：覆盖度 / 整改闭环 / 月度新增 三段叙事。 */
                 var d = growthDataSource.diagnostics || {};
                 var closure = d.closure || {};
-                var closureTotal = (closure.closed || 0) + (closure.pending || 0) + (closure.overdue || 0);
+                var closureTotal = (closure.closed || 0) + (closure.doing || 0) + (closure.pending || 0);
                 var closureRate = closureTotal ? ((closure.closed / closureTotal) * 100).toFixed(1) : '0.0';
                 return [
-                    { label: '覆盖乡镇', value: d.coveredTowns + ' 个（11/11 全覆盖）' },
+                    { label: '覆盖乡镇', value: d.coveredTowns + ' 个（12/12 全覆盖）' },
                     { label: '覆盖监测点', value: d.coveredPoints + ' 个' },
                     { label: '覆盖植株', value: d.coveredPlants + ' 株' },
-                    { label: '9 月新增', value: d.monthNew + ' 次（环比 ' + d.monthYoy + '%）' },
-                    { label: '—— 整改闭环 ——', value: '' },
-                    { label: '已整改', value: closure.closed + ' 次（' + closureRate + '%）' },
-                    { label: '待整改', value: closure.pending + ' 次' },
-                    { label: '超期未整改', value: closure.overdue + ' 次', danger: true }
+                    { label: '9 月新增', value: d.monthNew + ' 次（环比 +' + d.monthYoy + '%）' },
+                    { label: '—— 处置闭环 ——', value: '' },
+                    { label: '已处理', value: closure.closed + ' 次（' + closureRate + '%）' },
+                    { label: '处理中', value: closure.doing + ' 次' },
+                    { label: '待处理', value: closure.pending + ' 次', danger: true }
                 ];
             })(),
             '病虫管理': [
@@ -3225,8 +3784,12 @@
             ]
         };
         
+        /* 「累计诊断」与旧「诊断」同详情口径（顶部 KPI 改造后新名称） */
+        details['累计诊断'] = details['诊断'];
+
         var html = '';
-        details[type].forEach(function(item) {
+        var list = details[type] || [{ label: '暂无明细', value: '该指标明细数据接入中…' }];
+        list.forEach(function(item) {
             /* item.danger = true 时把值标红（超期未整改等需要立即关注的告警项）。 */
             html += '<div class="modal-detail-item">' +
                 '<span class="modal-detail-label">' + item.label + '</span>' +
@@ -3234,6 +3797,71 @@
                 '</div>';
         });
         container.innerHTML = html;
+    }
+
+    /* 预警台账表格：按状态（pending/doing/done/overdue）过滤 warningRecords。
+     * 元组结构：[类型, 事项, 乡镇, 监测点, 责任人, 时间, 状态, 等级] */
+    function renderWarningTable(status) {
+        var rows = (growthDataSource.warningRecords || []).filter(function (r) { return r[6] === status; });
+        var html = '<div class="warn-table-wrap"><table class="tc-table warn-table">' +
+            '<thead><tr><th>类型</th><th>预警事项</th><th>乡镇</th><th>监测点</th><th>责任人</th><th>时间</th><th>等级</th></tr></thead><tbody>';
+        if (!rows.length) {
+            html += '<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:18px;">暂无记录</td></tr>';
+        }
+        rows.forEach(function (r) {
+            html += '<tr>' +
+                '<td><span class="wt-type">' + r[0] + '</span></td>' +
+                '<td class="tc-base" style="white-space:normal;">' + r[1] + '</td>' +
+                '<td>' + r[2] + '</td>' +
+                '<td style="white-space:normal;">' + r[3] + '</td>' +
+                '<td>' + r[4] + '</td>' +
+                '<td style="white-space:nowrap;">' + r[5] + '</td>' +
+                '<td>' + levelBadge(r[7]) + '</td>' +
+                '</tr>';
+        });
+        html += '</tbody></table></div>';
+        return html;
+    }
+
+    /* 逾期任务 = 2 条逾期预警 + 2 条逾期农事派工（todos 中 state='overdue'） */
+    function renderOverdueTasks() {
+        var warns = (growthDataSource.warningRecords || []).filter(function (r) { return r[6] === 'overdue'; });
+        var html = '<div class="warn-sub-title"><i class="fas fa-triangle-exclamation" style="color:#ff6b6b;margin-right:6px;"></i>一、逾期预警（' + warns.length + ' 条）</div>';
+        html += '<div class="warn-table-wrap"><table class="tc-table warn-table">' +
+            '<thead><tr><th>类型</th><th>预警事项</th><th>乡镇</th><th>监测点</th><th>责任人</th><th>预警时间</th><th>等级</th></tr></thead><tbody>';
+        warns.forEach(function (r) {
+            html += '<tr>' +
+                '<td><span class="wt-type">' + r[0] + '</span></td>' +
+                '<td class="tc-base" style="white-space:normal;">' + r[1] + '</td>' +
+                '<td>' + r[2] + '</td>' +
+                '<td style="white-space:normal;">' + r[3] + '</td>' +
+                '<td>' + r[4] + '</td>' +
+                '<td style="white-space:nowrap;">' + r[5] + '</td>' +
+                '<td>' + levelBadge(r[7]) + '</td>' +
+                '</tr>';
+        });
+        html += '</tbody></table></div>';
+
+        var todos = (growthDataSource.todos || []).filter(function (t) { return t.state === 'overdue'; });
+        html += '<div class="warn-sub-title"><i class="fas fa-calendar-xmark" style="color:#fbbf24;margin-right:6px;"></i>二、逾期农事派工（' + todos.length + ' 条）</div>';
+        html += '<div class="warn-table-wrap"><table class="tc-table warn-table">' +
+            '<thead><tr><th>派工任务</th><th>乡镇</th><th>责任人</th><th>应完成期限</th><th>状态</th></tr></thead><tbody>';
+        todos.forEach(function (t) {
+            html += '<tr>' +
+                '<td class="tc-base" colspan="1" style="white-space:normal;">' + t.title + '</td>' +
+                '<td>' + t.town + '</td>' +
+                '<td>' + t.owner + '</td>' +
+                '<td style="white-space:nowrap;">' + t.due + '</td>' +
+                '<td><span class="wt-badge wt-over">已逾期</span></td>' +
+                '</tr>';
+        });
+        html += '</tbody></table></div>';
+        return html;
+    }
+
+    function levelBadge(level) {
+        var cls = level === '高' ? 'wt-high' : (level === '中' ? 'wt-mid' : 'wt-low');
+        return '<span class="wt-badge ' + cls + '">' + level + '级</span>';
     }
 </script>
 

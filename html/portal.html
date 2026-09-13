@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>南丰蜜桔产业模型平台 · 应用入口</title>
+<style>
+  :root{
+    --font-sans:"Microsoft YaHei","Noto Sans SC",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    --ink-900:#1a2b3c;
+    --ink-700:#324a63;
+    --ink-500:#5b6b7a;
+    --ink-400:#8595a4;
+    --ink-300:#a9b4c0;
+    --accent-green-1:#16a34a;
+    --accent-green-2:#22c55e;
+    --accent-green-3:#4ade80;
+    --bg-from:#eafaf0;
+    --bg-to:#e8f3fb;
+    --shadow-card:0 18px 40px -18px rgba(20,50,80,.28);
+    --shadow-card-hover:0 26px 55px -16px rgba(20,50,80,.40);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:var(--font-sans);
+    color:var(--ink-900);
+    background:linear-gradient(135deg,var(--bg-from) 0%,#f4fbf6 38%,#eef6fc 72%,var(--bg-to) 100%);
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  body::before{
+    content:"";
+    position:fixed;inset:0;z-index:0;pointer-events:none;
+    background:
+      radial-gradient(circle at 12% 18%,rgba(34,197,94,.10),transparent 38%),
+      radial-gradient(circle at 88% 82%,rgba(59,130,246,.10),transparent 40%),
+      radial-gradient(circle at 78% 12%,rgba(168,85,247,.06),transparent 35%);
+  }
+  /* 中部氛围气泡 - upper-right atmospheric blobs */
+  body::after{
+    content:"";
+    position:fixed;z-index:0;pointer-events:none;
+    top:8%;right:6%;
+    width:340px;height:340px;border-radius:50%;
+    background:radial-gradient(circle,rgba(34,197,94,.16),transparent 68%);
+    filter:blur(12px);
+  }
+  .ambient-blob{
+    position:fixed;z-index:0;pointer-events:none;
+    border-radius:50%;filter:blur(14px);
+  }
+  .ambient-blob.b1{top:14%;right:14%;width:200px;height:200px;background:radial-gradient(circle,rgba(20,184,166,.14),transparent 70%)}
+  .ambient-blob.b2{top:22%;right:8%;width:140px;height:140px;background:radial-gradient(circle,rgba(124,58,237,.10),transparent 70%)}
+  .wrap{
+    position:relative;z-index:1;
+    max-width:1400px;margin:0 auto;
+    padding:32px 48px 56px;
+  }
+
+  /* ====== 顶部栏 ====== */
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:18px 8px;
+    background:transparent;
+    border:none;
+    box-shadow:none;
+  }
+  .brand{display:flex;align-items:center;gap:16px}
+  .brand-logo{
+    width:56px;height:56px;border-radius:50%;
+    background:radial-gradient(circle at 32% 30%,#ffd96b 0%,#ff9b2e 45%,#f97316 100%);
+    box-shadow:inset 0 -4px 8px rgba(180,83,9,.35),0 6px 16px rgba(249,115,22,.35);
+    position:relative;flex-shrink:0;
+  }
+  .brand-logo::after{
+    content:"";position:absolute;top:8px;left:50%;
+    width:10px;height:6px;border-radius:50%;
+    background:#3f6212;transform:translateX(-50%) rotate(-8deg);
+    box-shadow:0 0 0 2px rgba(63,98,18,.18);
+  }
+  .brand-text{display:flex;flex-direction:column;line-height:1.15}
+  .brand-title{font-size:24px;font-weight:700;color:var(--ink-900);letter-spacing:.5px}
+  .brand-sub{font-size:14px;color:var(--ink-500);letter-spacing:1.5px;margin-top:4px}
+
+  /* ====== Hero ====== */
+  /* 左对齐：与第一张卡片 padding 左缘对齐（wrap padding-left 48 + card padding 32 = 80） */
+  .hero{
+    padding:64px 6px 56px;
+    padding-left:80px;
+    text-align:left;
+    max-width:1040px;
+  }
+  .hero-eyebrow{
+    font-size:15px;font-weight:600;letter-spacing:.18em;
+    color:#1b5e20;text-transform:uppercase;
+    margin-bottom:20px;
+  }
+  .hero-title{
+    font-size:clamp(34px,4.5vw,54px);font-weight:700;
+    color:#1a2b4a;letter-spacing:0;margin:0;
+    line-height:1.2;
+  }
+  .hero-title .accent{
+    color:#00c853;
+  }
+  .hero-sub{
+    margin:22px 0 0;max-width:760px;
+    font-size:18px;font-weight:400;color:#5a6b7d;line-height:1.7;
+  }
+
+  /* ====== 卡片网格 ====== */
+  .cards{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:24px;
+    margin-top:18px;
+  }
+  .card{
+    position:relative;overflow:hidden;
+    border-radius:18px;
+    padding:32px 28px;
+    min-height:320px;
+    display:flex;flex-direction:column;
+    color:#fff;
+    box-shadow:var(--shadow-card);
+    transition:transform .25s ease,box-shadow .25s ease;
+    cursor:pointer;text-decoration:none;
+  }
+  .card:hover{transform:translateY(-5px);box-shadow:var(--shadow-card-hover)}
+  .card::before{
+    content:"";position:absolute;inset:0;
+    background:radial-gradient(circle at 88% 12%,rgba(255,255,255,.14),transparent 42%);
+    pointer-events:none;
+  }
+  .card::after{
+    content:"";position:absolute;right:-60px;bottom:-70px;
+    width:220px;height:220px;border-radius:50%;
+    background:rgba(255,255,255,.10);
+    pointer-events:none;
+  }
+  /* 内部装饰圆环 - cockpit/dashboard depth */
+  .card-ring{
+    position:absolute;pointer-events:none;
+    border:1.5px solid rgba(255,255,255,.10);
+    border-radius:50%;
+  }
+  .card-ring.r1{width:200px;height:200px;right:-50px;top:-50px}
+  .card-ring.r2{width:150px;height:150px;right:10px;bottom:40px;border-color:rgba(255,255,255,.08)}
+  .card-ring.r3{width:90px;height:90px;left:40px;bottom:80px;border-color:rgba(255,255,255,.06)}
+
+  .card-1{background:linear-gradient(135deg,#1976d2 0%,#0d47a1 100%)}
+  .card-2{background:linear-gradient(135deg,#00bfa5 0%,#00897b 100%)}
+  .card-3{background:linear-gradient(135deg,#0097a7 0%,#37474f 100%)}
+  .card-4{background:linear-gradient(135deg,#7e57c2 0%,#311b92 100%)}
+
+  .card-icon{
+    width:56px;height:56px;border-radius:14px;
+    display:flex;align-items:center;justify-content:center;
+    background:rgba(255,255,255,.16);
+    margin-bottom:24px;
+    position:relative;z-index:1;
+  }
+  .card-icon svg{width:28px;height:28px;stroke:#fff;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+  .card-en{
+    font-size:13px;font-weight:500;letter-spacing:.1em;
+    color:rgba(255,255,255,.78);text-transform:uppercase;
+    margin-bottom:6px;position:relative;z-index:1;
+  }
+  .card-cn{
+    font-size:26px;font-weight:600;letter-spacing:.5px;
+    margin-bottom:14px;position:relative;z-index:1;color:#fff;
+  }
+  .card-desc{
+    font-size:15px;line-height:1.7;font-weight:400;
+    color:rgba(255,255,255,.72);
+    margin:0;flex:1;position:relative;z-index:1;
+  }
+  .card-cta{
+    margin-top:22px;font-size:16px;font-weight:500;
+    color:rgba(255,255,255,.9);display:inline-flex;align-items:center;gap:8px;
+    position:relative;z-index:1;
+  }
+  .card-cta .arrow{transition:transform .25s ease}
+  .card:hover .card-cta .arrow{transform:translateX(4px)}
+
+  /* ====== 底部 ====== */
+  .footer{
+    margin-top:64px;text-align:center;
+    font-size:14px;color:var(--ink-400);letter-spacing:.5px;
+    line-height:1.9;
+  }
+  .footer .sep{margin:0 10px;color:var(--ink-300)}
+
+  /* ====== 响应式 ====== */
+  @media (max-width:1100px){
+    .cards{grid-template-columns:repeat(2,1fr)}
+  }
+  @media (max-width:680px){
+    .wrap{padding:20px 16px 36px}
+    .topbar{padding:12px 8px}
+    .brand-logo{width:46px;height:46px}
+    .brand-title{font-size:18px}
+    .brand-sub{font-size:11px;letter-spacing:1px}
+    .hero{padding:40px 4px 28px}
+    .hero-eyebrow{font-size:12px;letter-spacing:.15em;margin-bottom:14px}
+    .hero-title{font-size:26px}
+    .hero-sub{font-size:14px;margin-top:14px}
+    .cards{grid-template-columns:1fr;gap:16px;margin-top:10px}
+    .card{min-height:auto;padding:24px 20px}
+    .card-icon{width:44px;height:44px;margin-bottom:16px}
+    .card-icon svg{width:22px;height:22px}
+    .card-en{font-size:11px}
+    .card-cn{font-size:20px;margin-bottom:10px}
+    .card-desc{font-size:13px}
+    .card-cta{font-size:14px;margin-top:16px}
+    .footer{margin-top:36px;font-size:12px}
+  }
+</style>
+</head>
+<body>
+<div class="ambient-blob b1" aria-hidden="true"></div>
+<div class="ambient-blob b2" aria-hidden="true"></div>
+<div class="wrap">
+
+  <!-- 顶部栏 -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-logo" aria-hidden="true"></div>
+      <div class="brand-text">
+        <span class="brand-title">南丰蜜桔产业模型平台</span>
+        <span class="brand-sub">数据驱动 · 模型研判 · 精准决策</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-eyebrow">WELCOME TO THE PLATFORM</div>
+    <h1 class="hero-title">请选择您要进入的<span class="accent">应用空间</span></h1>
+    <p class="hero-sub">统一数据底座，面向管理、田间作业和产业研判的四类应用入口。</p>
+  </section>
+
+  <!-- 卡片网格 -->
+  <nav class="cards">
+
+    <!-- 管理后台 -->
+    <a class="card card-1" href="backhand/login.html">
+      <span class="card-ring r1" aria-hidden="true"></span>
+      <span class="card-ring r2" aria-hidden="true"></span>
+      <div class="card-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7" height="7" rx="1.4"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.4"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.4"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.4"/></svg>
+      </div>
+      <div class="card-en">MODEL MANAGEMENT CONSOLE</div>
+      <div class="card-cn">模型管理后台</div>
+      <p class="card-desc">管理果园、数据档案、模型应用、农事诊断、风险预警和决策。</p>
+      <span class="card-cta">进入后台 <span class="arrow">→</span></span>
+    </a>
+
+    <!-- 移动端 -->
+    <a class="card card-2" href="mobile/mb_home.html">
+      <span class="card-ring r2" aria-hidden="true"></span>
+      <span class="card-ring r3" aria-hidden="true"></span>
+      <div class="card-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><rect x="7" y="2.5" width="10" height="19" rx="2.4"/><line x1="10.5" y1="18.5" x2="13.5" y2="18.5"/></svg>
+      </div>
+      <div class="card-en">AGRI-TECH &amp; GROWER MOBILE</div>
+      <div class="card-cn">农技员/农户移动端</div>
+      <p class="card-desc">支持数据采集、农事记录、生长评测和任务处理。</p>
+      <span class="card-cta">进入移动端 <span class="arrow">→</span></span>
+    </a>
+
+    <!-- 生长模型驾驶舱 -->
+    <a class="card card-3" href="dataanlye/growth_dashboard.html">
+      <span class="card-ring r1" aria-hidden="true"></span>
+      <span class="card-ring r2" aria-hidden="true"></span>
+      <div class="card-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><polyline points="3 17 8 12 12 14 16 8 21 4"/><polyline points="16 4 21 4 21 9"/></svg>
+      </div>
+      <div class="card-en">GROWTH COCKPIT</div>
+      <div class="card-cn">生长模型驾驶舱</div>
+      <p class="card-desc">查看长势研判、点位监测、农事建议和综合评估。</p>
+      <span class="card-cta">进入驾驶舱 <span class="arrow">→</span></span>
+    </a>
+
+    <!-- 病虫模型驾驶舱 -->
+    <a class="card card-4" href="dataanlye/pest_dashboard.html">
+      <span class="card-ring r2" aria-hidden="true"></span>
+      <span class="card-ring r3" aria-hidden="true"></span>
+      <div class="card-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M12 3 L21 12 L12 21 L3 12 Z"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      </div>
+      <div class="card-en">PEST CONTROL COCKPIT</div>
+      <div class="card-cn">病虫模型驾驶舱</div>
+      <p class="card-desc">聚焦病虫风险、空间分布、防控任务和设备状态。</p>
+      <span class="card-cta">进入驾驶舱 <span class="arrow">→</span></span>
+    </a>
+
+  </nav>
+
+  <!-- 底部 -->
+  <footer class="footer">
+    <div>© 2026 南丰县农业农村局 · 江西省南丰蜜桔产业模型平台</div>
+    <div>
+      <span>中国 · 江西 · 抚州 · 南丰</span>
+      <span class="sep">|</span>
+      <span>千年桔都 · 蜜桔之乡</span>
+      <span class="sep">|</span>
+      <span>建议使用 Chrome / Edge 浏览器访问</span>
+    </div>
+  </footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,45 @@
+/* ==========================================================================
+   mobile-icons.css
+   南丰县农业智能体 · 移动端图标样式（仅样式，不含 SVG 资源）
+   图标 SVG 由业务页面自行提供；本文件定义容器背景色、尺寸、状态。
+   ========================================================================== */
+
+/* ===== 通用图标容器 ===== */
+.ds-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+.ds-icon svg {
+  width: 60%;
+  height: 60%;
+  display: block;
+}
+
+/* ===== 尺寸 ===== */
+.ds-icon--sm { width: 24px; height: 24px; border-radius: var(--radius-sm); }
+.ds-icon--md { width: 32px; height: 32px; border-radius: var(--radius-md); }
+.ds-icon--lg { width: 40px; height: 40px; border-radius: var(--radius-md); }
+.ds-icon--xl { width: 48px; height: 48px; border-radius: var(--radius-lg); }
+
+/* ===== 背景色变体（首页功能入口） ===== */
+.ds-icon--orange { background: var(--accent-orange-light); color: var(--accent-orange); }
+.ds-icon--green  { background: var(--brand-primary-light); color: var(--brand-primary); }
+.ds-icon--blue   { background: #E8F4FB; color: var(--info); }
+.ds-icon--red    { background: #FDECEC; color: var(--danger); }
+.ds-icon--purple { background: #F2EBFB; color: #8E5BD8; }
+.ds-icon--cyan   { background: #E6F8F8; color: #1FA9A0; }
+.ds-icon--gray   { background: #F2F2F2; color: var(--text-secondary); }
+.ds-icon--white  { background: #FFFFFF; color: var(--text-primary); }
+
+/* ===== 图标 stroke 统一（用于现有 SVG 微调） ===== */
+.ds-icon-stroke svg {
+  width: 100%;
+  height: 100%;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+}

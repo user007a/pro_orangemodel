@@ -1,0 +1,106 @@
+/* ==========================================================================
+   mobile-tokens.css
+   南丰县农业智能体 · 移动端 Design Token
+   命名空间：ds- (design system)
+   本文件只定义变量，不定义任何选择器（除 :root）。
+   ========================================================================== */
+
+:root {
+  /* ===== 品牌主色 ===== */
+  --brand-primary:        #2E8B57;
+  --brand-primary-dark:   #246B43;
+  --brand-primary-mid:    #3CA56A;
+  --brand-primary-light:  #E8F3ED;
+  --brand-primary-bg:     #F2F9F5;
+
+  /* ===== 强调色 ===== */
+  --accent-orange:        #F39C12;
+  --accent-orange-light:  #FEF3E2;
+
+  /* ===== 功能色 ===== */
+  --success:              #27AE60;
+  --warning:              #F1C40F;
+  --danger:               #E53935;
+  --info:                 #3498DB;
+
+  /* ===== 中性色 ===== */
+  --text-primary:         #1A1A1A;
+  --text-secondary:       #666666;
+  --text-tertiary:        #999999;
+  --text-disabled:        #BFBFBF;
+  --border-light:         #EEEEEE;
+  --border-default:       #E0E0E0;
+  --bg-page:              #F5F7FA;
+  --bg-card:              #FFFFFF;
+  --bg-mask:              rgba(0, 0, 0, 0.5);
+
+  /* ===== Tab 灰 ===== */
+  --tab-inactive:         #999999;
+  --tab-icon-inactive:    #BFBFBF;
+
+  /* ===== 字体 ===== */
+  --font-family: -apple-system, BlinkMacSystemFont, "PingFang SC",
+    "Helvetica Neue", "Microsoft YaHei", sans-serif;
+
+  --fs-hero:    22px;
+  --fs-h1:      20px;
+  --fs-h2:      18px;
+  --fs-h3:      16px;
+  --fs-body:    15px;
+  --fs-small:   14px;
+  --fs-caption: 13px;
+  --fs-mini:    12px;
+  --fs-num-xl:  28px;
+  --fs-num-lg:  20px;
+
+  --fw-regular:  400;
+  --fw-medium:   500;
+  --fw-semibold: 600;
+  --fw-bold:     700;
+
+  --lh-tight:    1.2;
+  --lh-normal:   1.5;
+  --lh-relaxed:  1.8;
+
+  /* ===== 间距 ===== */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  /* 布局 */
+  --page-pad-x:       16px;
+  --page-pad-top:     16px;
+  --page-pad-bottom:  80px;
+  --card-gap:         12px;
+  --field-gap:        24px;
+
+  /* ===== 圆角 ===== */
+  --radius-sm:   6px;
+  --radius-md:   8px;
+  --radius-lg:   12px;
+  --radius-xl:   16px;
+  --radius-2xl:  20px;
+  --radius-pill: 999px;
+  --radius-full: 999px;
+
+  /* ===== 阴影 ===== */
+  --shadow-sm:    0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md:    0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-lg:    0 4px 16px rgba(0, 0, 0, 0.08);
+  --shadow-xl:    0 8px 24px rgba(0, 0, 0, 0.12);
+  --shadow-green: 0 4px 12px rgba(46, 139, 87, 0.25);
+
+  /* ===== 动效 ===== */
+  --transition-fast:   120ms ease;
+  --transition-normal: 200ms ease;
+  --transition-slow:   320ms ease;
+
+  /* 旧 alias */
+  --transition:        var(--transition-fast);
+}

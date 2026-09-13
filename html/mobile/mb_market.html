@@ -5,93 +5,121 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>蜜桔农业助手 - 价格指数</title>
   <link rel="stylesheet" href="css/mobile-design-system.css">
+  <link rel="stylesheet" href="css/mobile-tokens.css">
+  <link rel="stylesheet" href="css/mobile-icons.css">
+  <link rel="stylesheet" href="css/mobile-components.css">
+  <link rel="stylesheet" href="css/mobile-ds-override.css">
   <style>
-    .page-header {
-      background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
-      padding: calc(env(safe-area-inset-top, 0px) + 12px) 16px 20px;
-      color: var(--text-on-primary);
-      border-radius: 0 0 var(--radius-xl) var(--radius-xl);
-      position: relative;
-    }
+    /* ============================================================
+       页面基础
+       ============================================================ */
+    body { background: var(--bg-page); }
+    .real-content { padding-bottom: 96px; }
 
+    /* ============================================================
+       Header（白底沉浸 + 返回）
+       ============================================================ */
+    .page-header {
+      background: #FFFFFF !important;
+      padding: calc(env(safe-area-inset-top, 0px) + 14px) 20px 32px !important;
+      color: var(--text-primary) !important;
+      border-radius: 0 0 var(--radius-xl) var(--radius-xl) !important;
+      border-bottom: none !important;
+      position: relative !important;
+      box-shadow: var(--shadow-sm);
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: flex-start !important;
+      text-align: center !important;
+      height: auto !important;
+      min-height: 80px !important;
+    }
     .header-back {
       position: absolute;
-      left: 12px;
-      top: calc(env(safe-area-inset-top, 0px) + 12px);
+      left: 14px;
+      top: calc(env(safe-area-inset-top, 0px) + 14px);
       width: 36px;
       height: 36px;
-      background: rgba(255,255,255,0.2);
+      background: transparent;
       border-radius: var(--radius-md);
+      color: var(--text-primary);
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
       z-index: 10;
+      transition: background var(--transition-fast);
     }
-
+    .header-back:active { background: var(--border-light); }
     .header-back svg { width: 18px; height: 18px; }
-
     .header-title {
-      font-size: var(--font-xl);
-      font-weight: var(--font-bold);
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 1.3;
       margin-bottom: 4px;
+      text-align: center;
     }
-
     .header-sub {
-      font-size: var(--font-sm);
-      opacity: 0.85;
+      font-size: 13px;
+      color: var(--text-tertiary);
+      text-align: center;
     }
 
+    /* ============================================================
+       筛选器（市场 / 品类）
+       ============================================================ */
     .search-bar {
-      background: var(--bg-white);
-      margin: 12px 16px;
-      padding: 6px 14px;
-      border-radius: var(--radius-lg);
+      margin: 14px 16px;
       display: flex;
       flex-direction: column;
-      gap: 6px;
-      border: 1px solid var(--border);
+      gap: 10px;
       position: relative;
     }
-
     .search-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+    .search-label {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--text-primary);
+      flex-shrink: 0;
+      width: 48px;
+    }
+    .search-value-wrap {
       flex: 1;
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 8px 0;
-      border-bottom: 1px solid var(--border-light);
-      cursor: pointer;
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      padding: 12px 14px;
+      border: 1px solid var(--border-light);
+      transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
     }
-
-    .search-item:last-child {
-      border-bottom: none;
+    .search-item.open .search-value-wrap {
+      border-color: var(--brand-primary);
+      box-shadow: 0 0 0 2px rgba(46,139,87,0.08);
     }
-
-    .search-item svg {
-      width: 16px;
-      height: 16px;
-      color: var(--text-tertiary);
-      flex-shrink: 0;
-    }
-
     .search-text {
-      font-size: var(--font-sm);
+      font-size: 15px;
       color: var(--text-secondary);
       flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
-
     .search-arrow {
-      width: 12px;
-      height: 12px;
+      width: 14px;
+      height: 14px;
       color: var(--text-tertiary);
       flex-shrink: 0;
       transition: transform var(--transition-fast);
     }
-
-    .search-item.open .search-arrow {
-      transform: rotate(180deg);
-    }
+    .search-item.open .search-arrow { transform: rotate(180deg); }
 
     .market-dropdown,
     .variety-dropdown {
@@ -99,211 +127,169 @@
       top: calc(100% + 6px);
       left: 0;
       right: 0;
-      background: var(--bg-white);
+      background: var(--bg-card);
       border-radius: var(--radius-lg);
       box-shadow: var(--shadow-lg);
-      border: 1px solid var(--border);
+      border: 1px solid var(--border-light);
       padding: 6px;
       display: none;
       z-index: 20;
       max-height: 240px;
       overflow-y: auto;
     }
-
     .market-dropdown.show,
-    .variety-dropdown.show {
-      display: block;
-    }
+    .variety-dropdown.show { display: block; }
 
-    .variety-option {
+    .variety-option,
+    .market-option {
       padding: 10px 12px;
       border-radius: var(--radius-md);
-      font-size: var(--font-sm);
-      color: var(--text);
+      font-size: 15px;
+      color: var(--text-primary);
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      transition: background var(--transition-fast);
     }
-
     .market-option:hover,
-    .variety-option:hover {
-      background: var(--gray-50);
-    }
-
+    .variety-option:hover { background: var(--bg-page); }
     .market-option.active,
     .variety-option.active {
-      background: var(--primary-light);
-      color: var(--primary);
-      font-weight: var(--font-medium);
+      background: var(--brand-primary-light);
+      color: var(--brand-primary);
+      font-weight: 600;
     }
-
     .market-option .check,
     .variety-option .check {
       width: 16px;
       height: 16px;
-      color: var(--primary);
+      color: var(--brand-primary);
       display: none;
     }
-
     .market-option.active .check,
-    .variety-option.active .check {
-      display: block;
-    }
+    .variety-option.active .check { display: block; }
 
-    .category-tabs {
+    /* ============================================================
+       价格摘要卡
+       ============================================================ */
+    .price-summary {
+      background: var(--bg-card);
+      margin: 0 16px 14px;
+      padding: 18px;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-light);
+      box-shadow: var(--shadow-sm);
+    }
+    .price-date {
       display: flex;
-      gap: 6px;
-      padding: 0 16px 12px;
-      overflow-x: auto;
-      white-space: nowrap;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
     }
-
-    .category-tab {
-      padding: 6px 16px;
-      font-size: var(--font-sm);
-      font-weight: var(--font-medium);
-      color: var(--text-secondary);
-      background: var(--bg-white);
-      border-radius: var(--radius-full);
+    .price-date .date-text {
+      font-weight: 700;
+      color: var(--text-primary);
+      font-size: 17px;
+      letter-spacing: 0.2px;
+    }
+    .price-alert {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      padding: 4px 12px;
+      background: var(--brand-primary-light);
+      color: var(--brand-primary);
+      border-radius: 999px;
+      font-weight: 600;
       cursor: pointer;
-      border: 1px solid var(--border);
-      flex-shrink: 0;
+      border: 1px solid var(--brand-primary);
       transition: all var(--transition-fast);
     }
-
-    .category-tab.active {
-      background: var(--gradient-primary);
-      color: var(--text-on-primary);
-      border-color: transparent;
-    }
-
-    .price-summary {
-      background: var(--bg-white);
-      margin: 0 16px 12px;
-      padding: 16px;
-      border-radius: var(--radius-lg);
-      border: 1px solid var(--border);
-    }
-
-    .price-date {
-      font-size: var(--font-sm);
-      color: var(--text-secondary);
-      margin-bottom: 12px;
-    }
-
-    .price-alert {
-      display: inline-block;
-      font-size: var(--font-xs);
-      padding: 2px 8px;
-      background: var(--warning-light);
-      color: var(--warning-dark);
-      border-radius: var(--radius-sm);
-      margin-left: 8px;
-      font-weight: var(--font-medium);
-    }
+    .price-alert:active { background: var(--brand-primary); color: #fff; }
 
     .price-info {
       display: flex;
-      gap: 12px;
+      gap: 16px;
       align-items: flex-end;
     }
-
-    .price-item {
-      flex: 1;
+    .price-item { flex: 1; }
+    .price-label {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      margin-bottom: 6px;
+      letter-spacing: 0.3px;
+    }
+    .price-value {
+      font-size: 22px;
+      font-weight: 700;
+      font-family: var(--font-family-number, inherit);
+      line-height: 1.2;
+      letter-spacing: -0.3px;
+    }
+    .price-value.min   { color: var(--danger); }
+    .price-value.avg   { color: var(--text-primary); }
+    .price-value.max   { color: var(--success); }
+    .price-value.change { color: var(--success); }
+    .price-value.change.down { color: var(--danger); }
+    .price-unit {
+      font-size: 13px;
+      color: var(--text-secondary);
+      font-weight: 400;
+      margin-left: 2px;
     }
 
-    .price-label {
-      font-size: var(--font-xs);
-      color: var(--text-tertiary);
+    /* ============================================================
+       图表卡
+       ============================================================ */
+    .chart-section {
+      background: var(--bg-card);
+      margin: 0 16px 14px;
+      padding: 18px;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-light);
+      box-shadow: var(--shadow-sm);
+    }
+    .chart-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
       margin-bottom: 4px;
     }
-
-    .price-value {
-      font-size: var(--font-lg);
-      font-weight: var(--font-extrabold);
-      font-family: var(--font-family-number);
+    .chart-unit {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      margin-bottom: 12px;
+      display: block;
     }
-
-    .price-value.min { color: var(--error); }
-    .price-value.avg { color: var(--text); }
-    .price-value.max { color: var(--success); }
-    .price-value.change { color: var(--success); }
-
-    .price-unit {
-      font-size: var(--font-sm);
-      color: var(--text-secondary);
-      font-weight: var(--font-normal);
-    }
-
-    .chart-section {
-      background: var(--bg-white);
-      margin: 0 16px 12px;
-      padding: 16px;
-      border-radius: var(--radius-lg);
-      border: 1px solid var(--border);
-    }
-
-    .chart-title {
-      font-size: var(--font-sm);
-      font-weight: var(--font-semibold);
-      color: var(--text-secondary);
-      margin-bottom: 16px;
-    }
-
-    .chart-container {
-      height: 160px;
-      position: relative;
-    }
-
+    .chart-container { height: 180px; position: relative; }
     .chart-y-axis {
       position: absolute;
-      left: 0;
-      top: 0;
-      bottom: 20px;
-      width: 35px;
+      left: 0; top: 0; bottom: 24px;
+      width: 42px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
     }
-
     .chart-y-label {
-      font-size: 10px;
+      font-size: 11px;
       color: var(--text-tertiary);
       text-align: right;
-      padding-right: 4px;
+      padding-right: 6px;
     }
-
-    .chart-area {
-      margin-left: 35px;
-      height: 100%;
-      position: relative;
-    }
-
+    .chart-area { margin-left: 42px; height: 100%; position: relative; }
     .chart-grid {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 20px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
+      position: absolute; top: 0; left: 0; right: 0; bottom: 24px;
+      display: flex; flex-direction: column; justify-content: space-between;
     }
-
     .chart-grid-line {
       height: 1px;
-      background: var(--border-light);
+      background: repeating-linear-gradient(90deg, var(--border-light) 0, var(--border-light) 4px, transparent 4px, transparent 8px);
     }
-
     .chart-content {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 20px;
+      position: absolute; top: 0; left: 0; right: 0; bottom: 24px;
     }
-
     .chart-line {
       fill: none;
       stroke-width: 2.5;
@@ -311,184 +297,145 @@
       stroke-linejoin: round;
       cursor: pointer;
     }
-
-    .chart-line.high { stroke: var(--success); }
-    .chart-line.avg { stroke: var(--primary); }
-    .chart-line.low { stroke: var(--error); }
+    .chart-line.high { stroke: var(--danger); }
+    .chart-line.avg  { stroke: #F39C12; }
+    .chart-line.low  { stroke: var(--brand-primary); }
+    .chart-dot-group { pointer-events: none; }
+    .chart-dot {
+      fill: #fff;
+      stroke-width: 2;
+    }
+    .chart-dot.high { stroke: var(--danger); }
+    .chart-dot.avg  { stroke: #F39C12; }
+    .chart-dot.low  { stroke: var(--brand-primary); }
 
     .chart-tooltip {
       position: absolute;
-      background: var(--bg);
-      border: 1px solid var(--border);
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
       border-radius: var(--radius-md);
-      padding: 8px 12px;
-      font-size: var(--font-xs);
-      color: var(--text);
+      padding: 10px 12px;
+      font-size: 12px;
+      color: var(--text-primary);
       pointer-events: none;
       z-index: 100;
       display: none;
       white-space: nowrap;
-      box-shadow: var(--shadow-sm);
+      box-shadow: var(--shadow-md);
     }
-
-    .chart-tooltip.show {
-      display: block;
-    }
-
-    .chart-tooltip-date {
-      font-weight: var(--font-semibold);
-      margin-bottom: 4px;
-    }
-
+    .chart-tooltip.show { display: block; }
+    .chart-tooltip-date { font-weight: 600; margin-bottom: 4px; color: var(--text-secondary); }
     .chart-tooltip-item {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 2px;
+      display: flex; justify-content: space-between; gap: 12px; margin-bottom: 2px;
     }
-
-    .chart-tooltip-item:last-child {
-      margin-bottom: 0;
-    }
-
-    .chart-tooltip-label {
-      color: var(--text-secondary);
-    }
-
-    .chart-tooltip-value {
-      font-weight: var(--font-semibold);
-    }
+    .chart-tooltip-item:last-child { margin-bottom: 0; }
+    .chart-tooltip-label { color: var(--text-secondary); }
+    .chart-tooltip-value { font-weight: 600; }
 
     .chart-points {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
+      position: absolute; top: 0; left: 0; right: 0; bottom: 0;
       pointer-events: none;
     }
-
     .chart-point {
-      position: absolute;
-      top: 0;
-      width: 16px;
-      height: 100%;
+      position: absolute; top: 0;
+      width: 16px; height: 100%;
       margin-left: -8px;
       pointer-events: auto;
       cursor: pointer;
     }
-
     .chart-point:hover {
-      background: rgba(0, 0, 0, 0.05);
+      background: rgba(0,0,0,0.04);
       border-radius: 8px;
     }
-
     .chart-x-axis {
-      position: absolute;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      height: 20px;
-      display: flex;
-      justify-content: space-between;
+      position: absolute; left: 0; right: 0; bottom: 0;
+      height: 24px;
+      display: flex; justify-content: space-between;
     }
-
-    .chart-x-label {
-      font-size: 10px;
-      color: var(--text-tertiary);
-    }
-
+    .chart-x-label { font-size: 11px; color: var(--text-tertiary); }
     .chart-legend {
       display: flex;
-      gap: 16px;
-      margin-top: 12px;
+      gap: 20px;
+      margin-top: 14px;
       justify-content: center;
     }
-
     .legend-item {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: var(--font-xs);
-      color: var(--text-secondary);
+      display: flex; align-items: center; gap: 6px;
+      font-size: 12px; color: var(--text-secondary);
     }
-
     .legend-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 2px;
+      width: 8px; height: 8px; border-radius: 50%;
     }
+    .legend-dot.high { background: var(--danger); }
+    .legend-dot.avg  { background: #F39C12; }
+    .legend-dot.low  { background: var(--brand-primary); }
 
-    .legend-dot.high { background: var(--success); }
-    .legend-dot.avg { background: var(--primary); }
-    .legend-dot.low { background: var(--error); }
-
+    /* ============================================================
+       价格列表卡
+       ============================================================ */
     .price-list-section {
-      background: var(--bg-white);
+      background: var(--bg-card);
       margin: 0 16px;
-      padding: 16px;
+      padding: 18px 16px 4px;
       border-radius: var(--radius-lg);
-      border: 1px solid var(--border);
+      border: 1px solid var(--border-light);
+      box-shadow: var(--shadow-sm);
     }
-
     .list-title {
-      font-size: var(--font-sm);
-      font-weight: var(--font-semibold);
-      color: var(--text-secondary);
-      margin-bottom: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 14px;
+      padding-left: 0;
     }
-
     .list-header {
       display: flex;
-      font-size: var(--font-xs);
+      font-size: 13px;
+      font-weight: 500;
       color: var(--text-tertiary);
-      padding: 8px 0;
+      padding: 10px 0;
       border-bottom: 1px solid var(--border-light);
     }
-
-    .list-header .col-1 { flex: 2; }
-    .list-header .col-2 { flex: 2; text-align: center; }
-    .list-header .col-3 { flex: 1; text-align: right; }
+    .list-header .col-1 { flex: 1; text-align: left; white-space: nowrap; }
+    .list-header .col-2 { flex: 1.4; text-align: left; white-space: nowrap; }
+    .list-header .col-3 { flex: 0.8; text-align: right; white-space: nowrap; }
 
     .list-item {
       display: flex;
       align-items: center;
-      padding: 12px 0;
+      padding: 14px 0;
+      gap: 8px;
       border-bottom: 1px solid var(--border-light);
     }
-
-    .list-item:last-child {
-      border-bottom: none;
-    }
-
-    .list-item .col-1 { flex: 2; }
-    .list-item .col-2 { flex: 2; text-align: center; }
-    .list-item .col-3 { flex: 1; text-align: right; }
+    .list-item:last-child { border-bottom: none; }
+    .list-item .col-1 { flex: 1; text-align: left; white-space: nowrap; }
+    .list-item .col-2 { flex: 1.4; text-align: left; }
+    .list-item .col-3 { flex: 0.8; text-align: right; white-space: nowrap; }
 
     .fruit-name {
-      font-size: var(--font-sm);
-      color: var(--text);
-      font-weight: var(--font-medium);
-    }
-
-    .market-name {
-      font-size: var(--font-xs);
-      color: var(--text-tertiary);
-      margin-top: 2px;
-    }
-
-    .market-cell {
-      font-size: var(--font-sm);
+      font-size: 14px;
       color: var(--text-secondary);
+      font-weight: 500;
     }
-
+    .market-cell {
+      font-size: 14px;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: inline-block;
+      max-width: 100%;
+    }
     .price-cell {
-      font-size: var(--font-md);
-      font-weight: var(--font-bold);
-      color: var(--primary);
-      font-family: var(--font-family-number);
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--brand-primary);
+      font-family: var(--font-family-number, inherit);
     }
 
+    /* ============================================================
+       Skeleton（加载态）
+       ============================================================ */
     .skeleton-state { display: none; }
     .mb-app.loading .real-content { display: none; }
     .mb-app.loading .skeleton-state { display: block; }
@@ -539,21 +486,25 @@
 
     <div class="search-bar">
       <div class="search-item" id="marketTrigger" onclick="toggleMarketDropdown(event)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-        <span class="search-text" id="marketLabel">全部批发市场</span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="search-arrow"><polyline points="6 9 12 15 18 9"/></svg>
+        <div class="search-label">市场</div>
+        <div class="search-value-wrap">
+          <span class="search-text" id="marketLabel">全部批发市场</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="search-arrow"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
       </div>
       <div class="search-item" id="varietyTrigger" onclick="toggleVarietyDropdown(event)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-        <span class="search-text" id="varietyLabel">南丰蜜桔</span>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="search-arrow"><polyline points="6 9 12 15 18 9"/></svg>
+        <div class="search-label">品类</div>
+        <div class="search-value-wrap">
+          <span class="search-text" id="varietyLabel">南丰蜜桔</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="search-arrow"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
       </div>
       <div class="market-dropdown" id="marketDropdown"></div>
       <div class="variety-dropdown" id="varietyDropdown"></div>
     </div>
 
     <div class="price-summary">
-      <div class="price-date">2026-09-10<span class="price-alert">预警提醒</span></div>
+      <div class="price-date"><span class="date-text">2026-09-10</span><span class="price-alert" onclick="openAlertModal()">⚙ 预警提醒</span></div>
       <div class="price-info">
         <div class="price-item price-item-wide">
           <div class="price-label">当日均价</div>
@@ -568,6 +519,7 @@
 
     <div class="chart-section">
       <div class="chart-title">近8天的价格变化</div>
+      <span class="chart-unit">元/公斤</span>
       <div class="chart-container">
         <div class="chart-y-axis" id="chartYAxis"></div>
         <div class="chart-area">
@@ -581,10 +533,15 @@
           <div class="chart-content">
             <div class="chart-tooltip" id="chartTooltip">
               <div class="chart-tooltip-date" id="tooltipDate"></div>
-              <div class="chart-tooltip-item"><span class="chart-tooltip-label">均价</span><span class="chart-tooltip-value" style="color:var(--primary)" id="tooltipAvg"></span></div>
+              <div class="chart-tooltip-item"><span class="chart-tooltip-label" style="color:var(--danger)">● 最高价</span><span class="chart-tooltip-value" style="color:var(--danger)" id="tooltipHigh"></span></div>
+              <div class="chart-tooltip-item"><span class="chart-tooltip-label" style="color:#F39C12">● 均价</span><span class="chart-tooltip-value" style="color:#F39C12" id="tooltipAvg"></span></div>
+              <div class="chart-tooltip-item"><span class="chart-tooltip-label" style="color:var(--brand-primary)">● 最低价</span><span class="chart-tooltip-value" style="color:var(--brand-primary)" id="tooltipLow"></span></div>
             </div>
-            <svg id="chartSvg" viewBox="0 0 280 140" preserveAspectRatio="none" style="width:100%;height:100%;">
+            <svg id="chartSvg" viewBox="0 0 280 136" preserveAspectRatio="none" style="width:100%;height:100%;">
+              <path class="chart-line low" id="lineLow" d=""/>
               <path class="chart-line avg" id="lineAvg" d=""/>
+              <path class="chart-line high" id="lineHigh" d=""/>
+              <g id="chartDots" class="chart-dot-group"></g>
             </svg>
             <div class="chart-points" id="chartPoints"></div>
           </div>
@@ -592,7 +549,9 @@
         </div>
       </div>
       <div class="chart-legend">
-        <div class="legend-item"><div class="legend-dot avg"></div><span>当日均价</span></div>
+        <div class="legend-item"><div class="legend-dot high"></div><span>最高价</span></div>
+        <div class="legend-item"><div class="legend-dot avg"></div><span>均价</span></div>
+        <div class="legend-item"><div class="legend-dot low"></div><span>最低价</span></div>
       </div>
     </div>
 
@@ -625,8 +584,53 @@
         <span>我的</span>
       </div>
     </div>
+
+    <!-- 预警阈值弹窗 -->
+    <div class="alert-modal-mask" id="alertModalMask" onclick="closeAlertModal(event)" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;justify-content:center;align-items:center;">
+      <div style="background:#fff;border-radius:20px;width:88%;max-width:340px;padding:28px 24px 24px;position:relative;">
+        <div style="text-align:center;font-size:18px;font-weight:700;color:var(--text);margin-bottom:24px;">设置预警阈值</div>
+        <div style="margin-bottom:16px;display:flex;align-items:center;gap:12px;">
+          <span style="width:42px;font-size:16px;font-weight:700;color:var(--text);">高于</span>
+          <input id="alertHigh" type="number" step="0.01" placeholder="请输入内容" style="flex:1;height:44px;border:1px solid var(--border);border-radius:12px;padding:0 16px;font-size:15px;outline:none;">
+        </div>
+        <div style="margin-bottom:28px;display:flex;align-items:center;gap:12px;">
+          <span style="width:42px;font-size:16px;font-weight:700;color:var(--text);">低于</span>
+          <input id="alertLow" type="number" step="0.01" placeholder="请输入内容" style="flex:1;height:44px;border:1px solid var(--border);border-radius:12px;padding:0 16px;font-size:15px;outline:none;">
+        </div>
+        <div style="display:flex;gap:12px;">
+          <button onclick="saveAlert()" style="flex:1;height:48px;border:none;background:var(--primary);color:#fff;font-size:16px;font-weight:700;border-radius:999px;cursor:pointer;">保存阈值</button>
+          <button onclick="clearAlert()" style="flex:1;height:48px;border:none;background:#fff;color:var(--primary);font-size:16px;font-weight:700;border-radius:999px;cursor:pointer;border:1px solid var(--primary);">清空阈值</button>
+        </div>
+        <div onclick="closeAlertModal()" style="position:absolute;top:12px;right:16px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary);font-size:22px;line-height:1;">×</div>
+      </div>
+    </div>
+
 <script>
     function navigateTo(page) { window.location.href = page; }
+
+    // 预警阈值弹窗
+    function openAlertModal() {
+      var saved = JSON.parse(localStorage.getItem('priceAlert') || '{}');
+      document.getElementById('alertHigh').value = saved.high != null ? saved.high : '';
+      document.getElementById('alertLow').value = saved.low != null ? saved.low : '';
+      document.getElementById('alertModalMask').style.display = 'flex';
+    }
+    function closeAlertModal(e) {
+      if (e && e.target && e.target.id !== 'alertModalMask') return;
+      document.getElementById('alertModalMask').style.display = 'none';
+    }
+    function saveAlert() {
+      var high = document.getElementById('alertHigh').value;
+      var low = document.getElementById('alertLow').value;
+      localStorage.setItem('priceAlert', JSON.stringify({ high: high || null, low: low || null }));
+      closeAlertModal();
+    }
+    function clearAlert() {
+      document.getElementById('alertHigh').value = '';
+      document.getElementById('alertLow').value = '';
+      localStorage.removeItem('priceAlert');
+      closeAlertModal();
+    }
 
     // 品种数据：包含当日均价/相比前日、近8天趋势、各市场详细列表
     var varietyData = {
@@ -634,84 +638,84 @@
         name: '南丰蜜桔',
         today: { avg: 2.90, prev: 2.90, change: 0.00 },
         trend: [
-          { date: '09-03', avg: 2.98 },
-          { date: '09-04', avg: 2.98 },
-          { date: '09-05', avg: 2.98 },
-          { date: '09-06', avg: 2.98 },
-          { date: '09-07', avg: 2.98 },
-          { date: '09-08', avg: 2.98 },
-          { date: '09-09', avg: 2.90 },
-          { date: '09-10', avg: 2.90 }
+          { date: '09-03', avg: 2.98, high: 3.12, low: 2.85 },
+          { date: '09-04', avg: 2.98, high: 3.12, low: 2.85 },
+          { date: '09-05', avg: 2.98, high: 3.15, low: 2.82 },
+          { date: '09-06', avg: 2.98, high: 3.10, low: 2.80 },
+          { date: '09-07', avg: 2.98, high: 3.08, low: 2.78 },
+          { date: '09-08', avg: 2.98, high: 3.05, low: 2.76 },
+          { date: '09-09', avg: 2.90, high: 3.02, low: 2.70 },
+          { date: '09-10', avg: 2.90, high: 3.00, low: 2.72 }
         ],
         markets: [
-          { fruit: '南丰蜜桔', origin: '江西南丰市场', market: '江西南丰市...', price: 2.60 },
-          { fruit: '南丰蜜桔', origin: '山东潍坊市场', market: '山东潍坊市...', price: 2.90 },
-          { fruit: '南丰蜜桔', origin: '浙江杭州市场', market: '浙江杭州市...', price: 3.10 },
-          { fruit: '南丰蜜桔', origin: '上海农产品市场', market: '上海农产品...', price: 3.30 },
-          { fruit: '南丰蜜桔', origin: '广东广州市场', market: '广东广州市...', price: 3.50 }
+          { fruit: '南丰蜜桔', origin: '江西南丰市场', market: '江西南丰市', price: 2.60 },
+          { fruit: '南丰蜜桔', origin: '山东潍坊市场', market: '山东潍坊市', price: 2.90 },
+          { fruit: '南丰蜜桔', origin: '浙江杭州市场', market: '浙江杭州市', price: 3.10 },
+          { fruit: '南丰蜜桔', origin: '上海农产品市场', market: '上海农产品市场', price: 3.30 },
+          { fruit: '南丰蜜桔', origin: '广东广州市场', market: '广东广州市', price: 3.50 }
         ]
       },
       'huangyan': {
         name: '黄岩蜜桔',
         today: { avg: 3.40, prev: 3.35, change: 0.05 },
         trend: [
-          { date: '09-03', avg: 3.65 },
-          { date: '09-04', avg: 3.60 },
-          { date: '09-05', avg: 3.75 },
-          { date: '09-06', avg: 3.85 },
-          { date: '09-07', avg: 3.90 },
-          { date: '09-08', avg: 3.80 },
-          { date: '09-09', avg: 3.60 },
-          { date: '09-10', avg: 3.70 }
+          { date: '09-03', avg: 3.65, high: 3.80, low: 3.50 },
+          { date: '09-04', avg: 3.60, high: 3.75, low: 3.45 },
+          { date: '09-05', avg: 3.75, high: 3.90, low: 3.60 },
+          { date: '09-06', avg: 3.85, high: 4.00, low: 3.70 },
+          { date: '09-07', avg: 3.90, high: 4.05, low: 3.75 },
+          { date: '09-08', avg: 3.80, high: 3.95, low: 3.65 },
+          { date: '09-09', avg: 3.60, high: 3.78, low: 3.45 },
+          { date: '09-10', avg: 3.70, high: 3.88, low: 3.55 }
         ],
         markets: [
-          { fruit: '黄岩蜜桔', origin: '浙江黄岩市场', market: '浙江黄岩市...', price: 2.70 },
-          { fruit: '黄岩蜜桔', origin: '上海农产品市场', market: '上海农产品...', price: 3.40 },
-          { fruit: '黄岩蜜桔', origin: '江苏南京市场', market: '江苏南京市...', price: 3.60 },
-          { fruit: '黄岩蜜桔', origin: '北京新发地市场', market: '北京新发地...', price: 4.20 },
-          { fruit: '黄岩蜜桔', origin: '广东深圳市场', market: '广东深圳市...', price: 4.80 }
+          { fruit: '黄岩蜜桔', origin: '浙江黄岩市场', market: '浙江黄岩市', price: 2.70 },
+          { fruit: '黄岩蜜桔', origin: '上海农产品市场', market: '上海农产品市场', price: 3.40 },
+          { fruit: '黄岩蜜桔', origin: '江苏南京市场', market: '江苏南京市', price: 3.60 },
+          { fruit: '黄岩蜜桔', origin: '北京新发地市场', market: '北京新发地市场', price: 4.20 },
+          { fruit: '黄岩蜜桔', origin: '广东深圳市场', market: '广东深圳市', price: 4.80 }
         ]
       },
       'shimen': {
         name: '石门蜜桔',
         today: { avg: 2.55, prev: 2.60, change: -0.05 },
         trend: [
-          { date: '09-03', avg: 2.80 },
-          { date: '09-04', avg: 2.75 },
-          { date: '09-05', avg: 2.90 },
-          { date: '09-06', avg: 2.95 },
-          { date: '09-07', avg: 3.00 },
-          { date: '09-08', avg: 2.85 },
-          { date: '09-09', avg: 2.70 },
-          { date: '09-10', avg: 2.75 }
+          { date: '09-03', avg: 2.80, high: 2.95, low: 2.65 },
+          { date: '09-04', avg: 2.75, high: 2.90, low: 2.60 },
+          { date: '09-05', avg: 2.90, high: 3.05, low: 2.75 },
+          { date: '09-06', avg: 2.95, high: 3.10, low: 2.80 },
+          { date: '09-07', avg: 3.00, high: 3.18, low: 2.82 },
+          { date: '09-08', avg: 2.85, high: 3.00, low: 2.70 },
+          { date: '09-09', avg: 2.70, high: 2.85, low: 2.55 },
+          { date: '09-10', avg: 2.75, high: 2.90, low: 2.60 }
         ],
         markets: [
-          { fruit: '石门蜜桔', origin: '湖南石门市场', market: '湖南石门市...', price: 2.00 },
-          { fruit: '石门蜜桔', origin: '湖北武汉市场', market: '湖北武汉市...', price: 2.35 },
-          { fruit: '石门蜜桔', origin: '河南郑州市场', market: '河南郑州市...', price: 2.60 },
-          { fruit: '石门蜜桔', origin: '上海农产品市场', market: '上海农产品...', price: 2.95 },
-          { fruit: '石门蜜桔', origin: '广东广州市场', market: '广东广州市...', price: 3.30 }
+          { fruit: '石门蜜桔', origin: '湖南石门市场', market: '湖南石门市', price: 2.00 },
+          { fruit: '石门蜜桔', origin: '湖北武汉市场', market: '湖北武汉市', price: 2.35 },
+          { fruit: '石门蜜桔', origin: '河南郑州市场', market: '河南郑州市', price: 2.60 },
+          { fruit: '石门蜜桔', origin: '上海农产品市场', market: '上海农产品市场', price: 2.95 },
+          { fruit: '石门蜜桔', origin: '广东广州市场', market: '广东广州市', price: 3.30 }
         ]
       },
       'yongquan': {
         name: '涌泉蜜桔',
         today: { avg: 3.95, prev: 3.90, change: 0.05 },
         trend: [
-          { date: '09-03', avg: 4.25 },
-          { date: '09-04', avg: 4.20 },
-          { date: '09-05', avg: 4.40 },
-          { date: '09-06', avg: 4.50 },
-          { date: '09-07', avg: 4.60 },
-          { date: '09-08', avg: 4.40 },
-          { date: '09-09', avg: 4.20 },
-          { date: '09-10', avg: 4.30 }
+          { date: '09-03', avg: 4.25, high: 4.45, low: 4.05 },
+          { date: '09-04', avg: 4.20, high: 4.40, low: 4.00 },
+          { date: '09-05', avg: 4.40, high: 4.60, low: 4.20 },
+          { date: '09-06', avg: 4.50, high: 4.70, low: 4.30 },
+          { date: '09-07', avg: 4.60, high: 4.82, low: 4.40 },
+          { date: '09-08', avg: 4.40, high: 4.60, low: 4.20 },
+          { date: '09-09', avg: 4.20, high: 4.40, low: 4.00 },
+          { date: '09-10', avg: 4.30, high: 4.50, low: 4.10 }
         ],
         markets: [
-          { fruit: '涌泉蜜桔', origin: '浙江涌泉市场', market: '浙江涌泉市...', price: 3.10 },
-          { fruit: '涌泉蜜桔', origin: '上海农产品市场', market: '上海农产品...', price: 3.95 },
-          { fruit: '涌泉蜜桔', origin: '江苏苏州市场', market: '江苏苏州市...', price: 4.40 },
-          { fruit: '涌泉蜜桔', origin: '北京新发地市场', market: '北京新发地...', price: 5.00 },
-          { fruit: '涌泉蜜桔', origin: '广东深圳市场', market: '广东深圳市...', price: 5.50 }
+          { fruit: '涌泉蜜桔', origin: '浙江涌泉市场', market: '浙江涌泉市', price: 3.10 },
+          { fruit: '涌泉蜜桔', origin: '上海农产品市场', market: '上海农产品市场', price: 3.95 },
+          { fruit: '涌泉蜜桔', origin: '江苏苏州市场', market: '江苏苏州市', price: 4.40 },
+          { fruit: '涌泉蜜桔', origin: '北京新发地市场', market: '北京新发地市场', price: 5.00 },
+          { fruit: '涌泉蜜桔', origin: '广东深圳市场', market: '广东深圳市', price: 5.50 }
         ]
       }
     };
@@ -853,7 +857,8 @@
       document.getElementById('priceAvg').innerHTML = d.avg.toFixed(2) + '<span class="price-unit">元/公斤</span>';
       var changeEl = document.getElementById('priceChange');
       var sign = d.change > 0 ? '+' : (d.change < 0 ? '' : '±');
-      var changeColor = d.change > 0 ? 'var(--success)' : (d.change < 0 ? 'var(--error)' : 'var(--text-secondary)');
+      // 0 及以上用绿色，0 以下用红色
+      var changeColor = d.change >= 0 ? 'var(--success)' : 'var(--danger)';
       changeEl.style.color = changeColor;
       changeEl.innerHTML = sign + d.change.toFixed(2) + '<span class="price-unit">元/公斤</span>';
     }
@@ -880,8 +885,10 @@
     }
 
     function renderChart() {
-      var avgs = chartData.map(function(d) { return d.avg; });
-      var allVals = avgs;
+      var highs = chartData.map(function(d) { return d.high; });
+      var avgs  = chartData.map(function(d) { return d.avg; });
+      var lows  = chartData.map(function(d) { return d.low; });
+      var allVals = highs.concat(avgs).concat(lows);
       var minV = Math.min.apply(null, allVals);
       var maxV = Math.max.apply(null, allVals);
       var rawStep = (maxV - minV) / 5 || 1;
@@ -909,8 +916,30 @@
       });
       document.getElementById('chartXAxis').innerHTML = xHtml;
 
-      // 折线
-      document.getElementById('lineAvg').setAttribute('d', buildLinePath(avgs, minV, maxV));
+      // 三条折线
+      document.getElementById('lineLow').setAttribute('d',  buildLinePath(lows,  minV, maxV));
+      document.getElementById('lineAvg').setAttribute('d',  buildLinePath(avgs,  minV, maxV));
+      document.getElementById('lineHigh').setAttribute('d', buildLinePath(highs, minV, maxV));
+
+      // 圆点组（均价线圆点，更醒目）
+      var SVG_NS = 'http://www.w3.org/2000/svg';
+      var dotsGroup = document.getElementById('chartDots');
+      dotsGroup.innerHTML = '';
+      var W = 280, H = 136, padTop = 10, padBottom = 22;
+      var range = maxV - minV || 1;
+      chartData.forEach(function(d, i) {
+        var x = i === 0 ? 0 : (i / (chartData.length - 1)) * W;
+        ['high', 'avg', 'low'].forEach(function(key) {
+          var val = d[key];
+          var y = padTop + (1 - (val - minV) / range) * (H - padTop - padBottom);
+          var circle = document.createElementNS(SVG_NS, 'circle');
+          circle.setAttribute('cx', x);
+          circle.setAttribute('cy', y);
+          circle.setAttribute('r', 3);
+          circle.setAttribute('class', 'chart-dot ' + key);
+          dotsGroup.appendChild(circle);
+        });
+      });
 
       // 交互点
       var container = document.getElementById('chartPoints');
@@ -941,10 +970,7 @@
       var html = '';
       filtered.forEach(function(m) {
         html += '<div class="list-item">' +
-                  '<div class="col-1">' +
-                    '<div class="fruit-name">' + m.fruit + '</div>' +
-                    '<div class="market-name">' + m.origin + '</div>' +
-                  '</div>' +
+                  '<div class="col-1"><div class="fruit-name">' + m.fruit + '</div></div>' +
                   '<div class="col-2"><span class="market-cell">' + m.market + '</span></div>' +
                   '<div class="col-3"><span class="price-cell">' + m.price.toFixed(2) + '</span></div>' +
                 '</div>';
@@ -963,12 +989,14 @@
       var data = chartData[index];
       var tooltip = document.getElementById('chartTooltip');
       document.getElementById('tooltipDate').textContent = data.date;
-      document.getElementById('tooltipAvg').textContent = data.avg.toFixed(2) + ' 元/公斤';
+      document.getElementById('tooltipHigh').textContent = data.high.toFixed(2) + ' 元/公斤';
+      document.getElementById('tooltipAvg').textContent  = data.avg.toFixed(2)  + ' 元/公斤';
+      document.getElementById('tooltipLow').textContent = data.low.toFixed(2) + ' 元/公斤';
       tooltip.classList.add('show');
       var rect = event.currentTarget.getBoundingClientRect();
       var containerRect = document.querySelector('.chart-content').getBoundingClientRect();
-      tooltip.style.left = (rect.left - containerRect.left + rect.width / 2 - 60) + 'px';
-      tooltip.style.top = (rect.top - containerRect.top - 50) + 'px';
+      tooltip.style.left = (rect.left - containerRect.left + rect.width / 2 - 72) + 'px';
+      tooltip.style.top = (rect.top - containerRect.top - 70) + 'px';
     }
 
     function hideTooltip() {
@@ -988,3 +1016,5 @@
   </script>
 </body>
 </html>
+
+

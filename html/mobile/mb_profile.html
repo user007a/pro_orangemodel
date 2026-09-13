@@ -1,17 +1,21 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>蜜桔农业助手 - 我的</title>
   <link rel="stylesheet" href="css/mobile-design-system.css">
+  <link rel="stylesheet" href="css/mobile-tokens.css">
+  <link rel="stylesheet" href="css/mobile-icons.css">
+  <link rel="stylesheet" href="css/mobile-components.css">
+  <link rel="stylesheet" href="css/mobile-ds-override.css">
   <style>
     .profile-section {
-      background: var(--gradient-header);
-      padding: calc(var(--safe-top) + 16px) var(--space-4) var(--space-6);
-      color: var(--text-on-primary);
+      background: var(--brand-primary);
+      padding: calc(var(--safe-top) + 12px) var(--space-4) var(--space-5);
+      color: #fff;
       border-radius: 0 0 var(--radius-xl) var(--radius-xl);
-      box-shadow: var(--shadow-header);
+      box-shadow: var(--shadow-header, var(--shadow-sm));
       position: relative;
       overflow: hidden;
     }
@@ -28,7 +32,7 @@
     .profile-header {
       display: flex;
       align-items: center;
-      gap: var(--space-4);
+      gap: var(--space-3);
       position: relative;
       z-index: 1;
     }
@@ -36,18 +40,18 @@
     .avatar-wrapper { position: relative; }
 
     .avatar {
-      width: 72px; height: 72px;
+      width: 60px; height: 60px;
       border-radius: var(--radius-full);
       background: rgba(255,255,255,0.2);
       display: flex; align-items: center; justify-content: center;
       border: 3px solid rgba(255,255,255,0.3);
     }
 
-    .avatar svg { width: 36px; height: 36px; color: var(--text-on-primary); }
+    .avatar svg { width: 30px; height: 30px; color: var(--text-on-primary); }
 
     .avatar-edit {
       position: absolute; bottom: 0; right: 0;
-      width: 28px; height: 28px;
+      width: 24px; height: 24px;
       background: var(--bg-white);
       border-radius: var(--radius-full);
       display: flex; align-items: center; justify-content: center;
@@ -55,7 +59,7 @@
       box-shadow: var(--shadow-md);
     }
 
-    .avatar-edit svg { width: 14px; height: 14px; color: var(--primary); }
+    .avatar-edit svg { width: 12px; height: 12px; color: var(--primary); }
 
     .profile-info { flex: 1; }
 
@@ -94,11 +98,8 @@
     .stat-num {
       font-size: 18px;
       font-weight: var(--font-bold);
-      font-family: var(--font-family-number);
-      background: linear-gradient(135deg, #fff, rgba(255,255,255,0.7));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      font-family: var(--font-family);
+      color: #fff;
     }
 
     .stat-label { font-size: 12px; opacity: 0.85; white-space: nowrap; }
@@ -438,7 +439,7 @@
             <span class="profile-name">桔农张顺发</span>
             <span class="role-tag">种植负责人</span>
           </div>
-          <div class="profile-area">负责区域：南丰县 · 白舍镇 · 6块地块</div>
+          <div class="profile-area">负责区域：南丰县 · 白舍镇 · 4块地块</div>
         </div>
       </div>
     </header>

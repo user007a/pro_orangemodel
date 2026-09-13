@@ -1,16 +1,20 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>蜜桔农业助手 - 我的报告</title>
   <link rel="stylesheet" href="css/mobile-design-system.css">
+  <link rel="stylesheet" href="css/mobile-tokens.css">
+  <link rel="stylesheet" href="css/mobile-icons.css">
+  <link rel="stylesheet" href="css/mobile-components.css">
+  <link rel="stylesheet" href="css/mobile-ds-override.css">
   <style>
     .page-header {
       position: relative;
-      background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+      background: #FFFFFF;
       padding: 44px 16px 20px;
-      color: var(--bg-white);
+      color: var(--text-primary);
       overflow: hidden;
     }
     .page-header::before {
@@ -23,12 +27,14 @@
     }
     .header-back {
       position: absolute;
-      left: 12px;
-      top: 44px;
+      left: 8px;
+      top: 50%;
+      transform: translateY(-50%);
       width: 36px;
       height: 36px;
-      background: rgba(255,255,255,0.2);
+      background: transparent;
       border-radius: var(--radius-md);
+      color: var(--text-primary);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -36,9 +42,9 @@
       z-index: 1;
     }
     .header-back svg { width: 18px; height: 18px; }
-    .header-content { padding-left: 44px; position: relative; z-index: 1; }
+    .header-content { flex: 1; text-align: center; position: relative; z-index: 1; }
     .header-title { font-size: var(--font-xl); font-weight: 700; }
-    .header-sub { font-size: var(--font-sm); opacity: 0.85; margin-top: 4px; }
+    .header-sub { font-size: var(--font-sm); color: var(--text-tertiary); margin-top: 4px; }
 
     /* 报告卡片 */
     .report-card {
@@ -867,4 +873,7 @@
   </div>
 </body>
 </html>
+
+
+
 

@@ -1,13 +1,114 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>蜜桔农业助手 - 病虫害详情</title>
   <link rel="stylesheet" href="css/mobile-design-system.css">
+  <link rel="stylesheet" href="css/mobile-tokens.css">
+  <link rel="stylesheet" href="css/mobile-icons.css">
+  <link rel="stylesheet" href="css/mobile-components.css">
+  <link rel="stylesheet" href="css/mobile-ds-override.css">
   <link rel="stylesheet" href="css/detail-page.css">
   <style>
-    </style>
+    /* Header：白底 + 返回按钮 + 居中标题 + 居中副标题 + 标签 */
+    .detail-banner {
+      background: #FFFFFF !important;
+      padding: calc(env(safe-area-inset-top, 0px) + 14px) 20px 14px !important;
+      color: var(--text-primary) !important;
+      border-radius: 0 0 var(--radius-xl) var(--radius-xl) !important;
+      box-shadow: var(--shadow-sm);
+      position: relative !important;
+      overflow: visible !important;
+      min-height: 0 !important;
+    }
+    .detail-banner::before, .detail-banner::after { display: none !important; }
+    .detail-banner-inner {
+      position: static !important;
+      z-index: 1 !important;
+      display: flex !important; flex-direction: column !important;
+      align-items: center !important; text-align: center !important;
+      gap: 0 !important;
+    }
+    .detail-banner-back {
+      position: absolute !important;
+      left: 14px !important;
+      top: calc(env(safe-area-inset-top, 0px) + 14px) !important;
+      width: 36px !important; height: 36px !important;
+      background: transparent !important;
+      border-radius: var(--radius-md) !important;
+      color: var(--text-primary) !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      margin-bottom: 0 !important;
+      z-index: 999 !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+      cursor: pointer !important;
+    }
+    .detail-banner-back:active { background: var(--border-light); }
+    .detail-banner-back svg { width: 18px !important; height: 18px !important; display: block !important; }
+    .detail-banner-content {
+      display: flex !important; flex-direction: column !important;
+      align-items: center !important; gap: 0 !important;
+    }
+    .detail-banner-icon { display: none !important; }
+    .detail-banner-info { flex: none !important; width: auto; display: flex !important; flex-direction: column !important; align-items: center !important; }
+    .detail-banner-title {
+      font-size: 20px !important; font-weight: 700 !important;
+      color: var(--text-primary) !important;
+      margin: 0 !important;
+      line-height: 1.4 !important; text-align: center !important;
+    }
+
+    /* =========================================
+       信息卡（Banner 下方独立卡：副标题 + 标签 同一行）
+       ========================================= */
+    .detail-meta-card {
+      margin: -12px 16px 12px !important;
+      padding: 10px 16px !important;
+      background: var(--bg-card) !important;
+      border-radius: var(--radius-lg) !important;
+      border: 1px solid var(--border-light) !important;
+      box-shadow: var(--shadow-sm);
+      position: relative;
+      z-index: 2;
+      display: flex !important;
+      flex-direction: row !important;
+      align-items: center !important;
+      flex-wrap: wrap !important;
+      gap: 6px 10px !important;
+    }
+    .detail-meta-subtitle {
+      font-size: 13px !important;
+      color: var(--text-secondary) !important;
+      line-height: 1.5 !important;
+      white-space: nowrap !important;
+      flex-shrink: 0 !important;
+      margin: 0 !important;
+    }
+    .detail-meta-tags {
+      display: flex !important;
+      flex-wrap: wrap !important;
+      gap: 6px !important;
+      flex-shrink: 0 !important;
+    }
+    .detail-meta-tags .detail-banner-tag {
+      font-size: 12px !important;
+      padding: 2px 8px !important;
+      border-radius: var(--radius-pill) !important;
+      font-weight: 500 !important;
+      background: var(--brand-primary-light) !important;
+      color: var(--brand-primary) !important;
+      border: 1px solid rgba(46,139,87,0.2);
+      white-space: nowrap !important;
+    }
+    .detail-banner-tag.danger  { background: rgba(229,57,53,0.1) !important; color: var(--danger) !important; border-color: rgba(229,57,53,0.2); }
+    .detail-banner-tag.warning { background: rgba(241,196,15,0.12) !important; color: var(--warning) !important; border-color: rgba(241,196,15,0.3); }
+    .detail-banner-tag.success { background: rgba(39,174,96,0.1) !important; color: var(--success) !important; border-color: rgba(39,174,96,0.2); }
+    body { background: var(--bg-page); }
+  </style>
 </head>
 <body>
   <div class="mb-app">
@@ -27,11 +128,15 @@
           </div>
           <div class="detail-banner-info">
             <div class="detail-banner-title" id="pestTitle">红蜘蛛</div>
-            <div class="detail-banner-subtitle" id="pestSubtitle">螨虫类 · 高度危害</div>
-            <div class="detail-banner-tags" id="pestTags"></div>
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- 病虫害信息卡（从 Banner 拆出） -->
+    <div class="detail-meta-card">
+      <div class="detail-meta-subtitle" id="pestSubtitle">螨虫类 · 高度危害</div>
+      <div class="detail-meta-tags" id="pestTags"></div>
     </div>
 
     <!-- 锚点 Tab -->
@@ -413,3 +518,5 @@
   </script>
 </body>
 </html>
+
+

@@ -1,0 +1,110 @@
+/* ==========================================================================
+ * 南丰蜜桔大数据平台 · 自托管字体层
+ * --------------------------------------------------------------------------
+ * 为什么自托管：
+ *   1) 大屏通常部署在内网 / 离线环境，不能依赖 Google Fonts 等外部 CDN；
+ *   2) 原方案依赖 'DIN Alternate'（仅 macOS 自带），Windows 上会回退到
+ *      Consolas，导致两个大屏、不同机器之间数字字形完全不一致；
+ *   3) 中文若只靠系统字体，Windows(微软雅黑) / macOS(苹方) / Linux(无中文字体)
+ *      三端渲染差异明显，大屏截图与现场效果对不上。
+ *
+ * 选型：
+ *   - Noto Sans SC (SIL OFL)  ...... 中文 + UI 正文，简体子集约 1.1MB/字重
+ *   - Barlow Condensed (SIL OFL) .. 数字 / KPI，DIN 风格的开源替代，约 22KB
+ *     仅 Latin 子集，中文仍由 Noto Sans SC 承接（font-family 回退链保证）
+ *
+ * 加载策略：font-display: swap + woff2 + preload（见 HTML <link rel=preload>）
+ * ========================================================================== */
+
+/* ---------- Noto Sans SC ---------- */
+@font-face {
+    font-family: 'Noto Sans SC';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('../fonts/NotoSansSC-400.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'Noto Sans SC';
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url('../fonts/NotoSansSC-500.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'Noto Sans SC';
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url('../fonts/NotoSansSC-700.woff2') format('woff2');
+}
+
+/* ---------- Barlow Condensed（数字 / KPI） ---------- */
+@font-face {
+    font-family: 'Barlow Condensed';
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url('../fonts/BarlowCondensed-500.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'Barlow Condensed';
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url('../fonts/BarlowCondensed-600.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'Barlow Condensed';
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url('../fonts/BarlowCondensed-700.woff2') format('woff2');
+}
+
+/* ==========================================================================
+ * 字体 token（单一来源：本文件定义，cockpit-theme.css 引用）
+ * ========================================================================== */
+:root {
+    /* 中文 / UI 正文：自托管优先，系统字体兜底 */
+    --ck-font-family: 'Noto Sans SC', 'PingFang SC', 'HarmonyOS Sans SC',
+                      'Microsoft YaHei', 'Source Han Sans SC', sans-serif;
+
+    /* 数字 / KPI：窄体 + 等宽数字，避免数据刷新时宽度跳动 */
+    --ck-font-num: 'Barlow Condensed', 'DIN Alternate', 'Roboto Condensed',
+                   'Oswald', 'Noto Sans SC', sans-serif;
+
+    /* 数字等宽特性 */
+    --ck-num-feature-settings: 'tnum' 1, 'lnum' 1, 'ss01' 1;
+
+    /* 大屏视距 3~5m 的最小可读字号：12px 起步，正文 14px，KPI 32px+ */
+    --ck-text-2xs: 12px;
+}
+
+/* 所有数字统一启用表格数字（等宽），防止滚动/刷新时抖动 */
+.kpi-number,
+.kpi-value,
+.stat-value,
+.modal-stat-value,
+.popup-value,
+.env-value,
+.phenology-score,
+.ck-num,
+[class*='-number'],
+[class*='-value'] {
+    font-family: var(--ck-font-num);
+    font-variant-numeric: tabular-nums lining-nums;
+    font-feature-settings: var(--ck-num-feature-settings);
+    letter-spacing: 0.02em;
+}
+
+/* 字体加载完成前避免中文 FOUT 造成的大幅位移 */
+html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}

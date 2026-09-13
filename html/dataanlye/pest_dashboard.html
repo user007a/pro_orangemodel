@@ -3,29 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>南丰蜜桔病虫害模型监测</title>
+    <title>南丰蜜桔全产业链大数据平台 · 病虫害模型</title>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- 自托管字体（离线可用）：Noto Sans SC 中文 + Barlow Condensed 数字 -->
+    <link rel="preload" href="fonts/NotoSansSC-400.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="fonts/BarlowCondensed-600.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="css/fonts.css">
     <link rel="stylesheet" href="css/dashboard-design-system.css">
+    <link rel="stylesheet" href="css/cockpit-theme.css">
+    <!-- 南丰县真实乡镇边界 + 统一地图模块（两个大屏共用） -->
+    <script src="data/nanfeng-map.js"></script>
+    <script src="js/nf-map.js"></script>
     <style>
+        /* ========== 深色驾驶舱主题 - 兼容层 ==========
+         * 这里只做「旧变量名 -> 设计 token」的映射，不再重复定义颜色与字体，
+         * 真正的取值统一由 css/cockpit-theme.css 与 css/fonts.css 提供。
+         */
         :root {
-            --bg-base: #f0fdf4;
-            --bg-white: #ffffff;
-            --text: #1e293b;
-            --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            --space-sm: 0.5rem;
-            --space-lg: 1rem;
-            --space-xl: 1.5rem;
-            --space-2xl: 2rem;
-            --radius-full: 9999px;
-            --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
-            --primary-700: #166534;
+            --bg-base: var(--ck-bg-deep);
+            --bg-white: var(--ck-bg-elevated);
+            --text: var(--ck-text-primary);
+            --font-family: var(--ck-font-family);
+            --space-sm: var(--ck-space-sm);
+            --space-lg: var(--ck-space-lg);
+            --space-xl: var(--ck-space-xl);
+            --space-2xl: var(--ck-space-2xl);
+            --radius-full: var(--ck-radius-full);
+            --shadow-sm: var(--ck-glow-cyan-soft);
+            --primary-700: var(--ck-accent-cyan);
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            background: var(--bg-base);
+            background: transparent;
             font-family: var(--font-family);
-            padding: var(--space-2xl) var(--space-lg);
+            padding: 0;
             color: var(--text);
         }
         
@@ -65,7 +77,7 @@
         .title-section h1 {
             font-size: 28px;
             font-weight: 600;
-            background: linear-gradient(135deg, #146c31, #22a84a);
+            background: linear-gradient(135deg, #00d4ff, #39e6c8);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
@@ -74,7 +86,7 @@
             gap: 10px;
         }
         .title-section p {
-            color: #434343;
+            color: #94a3b8;
             margin-top: 6px;
             font-size: 20px;
         }
@@ -98,26 +110,26 @@
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            background: white;
+            background: rgba(16, 40, 78, 0.85);
             padding: 8px 16px;
             border-radius: 40px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+            box-shadow: 0 2px 8px rgba(0, 10, 30, 0.35);
             font-weight: 500;
-            color: #2c6e3c;
+            color: #7dd3fc;
             text-decoration: none;
             transition: all 0.2s;
-            border: 1px solid #e2e8f0;
+            border: 1px solid rgba(148, 163, 184, 0.18);
         }
         .platform-entry:hover {
-            background: #2b6e3c;
-            color: white;
-            border-color: #2b6e3c;
+            background: #00d4ff;
+            color: #e6f1ff;
+            border-color: #00d4ff;
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(43,110,60,0.2);
+            box-shadow: 0 4px 12px rgba(0, 212, 255,0.2);
         }
         .platform-entry i { font-size: 0.9rem; }
         .drill-panel {
-            background: white;
+            background: rgba(16, 40, 78, 0.85);
             border-radius: 28px;
             padding: 1rem 1.5rem;
             margin-bottom: 28px;
@@ -125,39 +137,39 @@
             flex-wrap: wrap;
             align-items: center;
             gap: 16px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-            border: 1px solid #eef2f6;
+            box-shadow: 0 4px 16px rgba(0, 10, 30, 0.40);
+            border: 1px solid rgba(148, 163, 184, 0.14);
         }
         .drill-item {
             display: flex;
             align-items: center;
             gap: 12px;
-            background: #f8fafc;
+            background: rgba(15, 35, 75, 0.60);
             padding: 6px 18px;
             border-radius: 40px;
         }
         .drill-item label {
             font-weight: 600;
-            color: #2c6e3c;
+            color: #7dd3fc;
         }
         select {
             padding: 8px 14px;
             border-radius: 32px;
-            border: 1px solid #cbd5e1;
-            background: white;
+            border: 1px solid rgba(148, 163, 184, 0.35);
+            background: rgba(16, 40, 78, 0.85);
             font-weight: 500;
             cursor: pointer;
             outline: none;
         }
         .card {
-            background: white;
+            background: rgba(16, 40, 78, 0.85);
             border-radius: 24px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.03);
+            box-shadow: 0 8px 24px rgba(0, 10, 30, 0.45);
             padding: 1rem;
-            border: 1px solid rgba(0,0,0,0.03);
+            border: 1px solid rgba(148, 163, 184, 0.16);
             transition: all 0.2s;
         }
-        .card:hover { box-shadow: 0 12px 28px rgba(0,0,0,0.06); }
+        .card:hover { box-shadow: 0 12px 30px rgba(0, 10, 30, 0.55); }
         .card-header {
             display: flex;
             justify-content: space-between;
@@ -165,7 +177,7 @@
             margin-bottom: 0.8rem;
             font-weight: 600;
             font-size: 0.95rem;
-            border-left: 4px solid #2b6e3c;
+            border-left: 4px solid #00d4ff;
             padding-left: 12px;
         }
         .kpi-grid {
@@ -175,14 +187,14 @@
             margin-bottom: 28px;
         }
         .kpi-card {
-            background: linear-gradient(145deg, #ffffff 0%, #f0fdf4 100%);
+            background: linear-gradient(145deg, rgba(16, 40, 78, 0.85) 0%, rgba(13, 48, 82, 0.90) 100%);
             border-radius: 20px;
             padding: 16px 18px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            box-shadow: 0 4px 16px rgba(43,110,60,0.06);
-            border: 1px solid rgba(43,110,60,0.08);
+            box-shadow: 0 4px 16px rgba(0, 212, 255,0.06);
+            border: 1px solid rgba(0, 212, 255,0.08);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
             position: relative;
@@ -195,7 +207,7 @@
             right: -50%;
             width: 100%;
             height: 100%;
-            background: radial-gradient(circle, rgba(43,110,60,0.06) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(0, 212, 255,0.06) 0%, transparent 70%);
             opacity: 0;
             transition: opacity 0.3s;
         }
@@ -204,28 +216,28 @@
         }
         .kpi-card:hover {
             transform: translateY(-6px) scale(1.02);
-            box-shadow: 0 12px 32px rgba(43,110,60,0.15);
-            border-color: rgba(43,110,60,0.2);
+            box-shadow: 0 12px 32px rgba(0, 212, 255,0.15);
+            border-color: rgba(0, 212, 255,0.2);
         }
         .kpi-card.warning {
-            background: linear-gradient(145deg, #ffffff 0%, #fffbeb 100%);
+            background: linear-gradient(145deg, rgba(16, 40, 78, 0.85) 0%, rgba(54, 42, 16, 0.90) 100%);
             border-color: rgba(245,158,11,0.2);
         }
         .kpi-card.warning:hover {
             box-shadow: 0 12px 32px rgba(245,158,11,0.15);
         }
         .kpi-card.danger {
-            background: linear-gradient(145deg, #ffffff 0%, #fef2f2 100%);
+            background: linear-gradient(145deg, rgba(16, 40, 78, 0.85) 0%, rgba(58, 22, 28, 0.90) 100%);
             border-color: rgba(239,68,68,0.2);
         }
         .kpi-card.danger:hover {
             box-shadow: 0 12px 32px rgba(239,68,68,0.15);
         }
-        .kpi-info h4 { font-size: 13px; color: #64748b; margin-bottom: 6px; font-weight: 600; letter-spacing: 0.5px; }
+        .kpi-info h4 { font-size: 13px; color: #94a3b8; margin-bottom: 6px; font-weight: 600; letter-spacing: 0.5px; }
         .kpi-number { 
             font-size: 1.7rem; 
             font-weight: 400; 
-            background: linear-gradient(135deg, #166534, #22c55e);
+            background: linear-gradient(135deg, #00d4ff, #22c55e);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
@@ -246,33 +258,106 @@
         .kpi-icon { 
             width: 48px; 
             height: 48px; 
-            background: linear-gradient(135deg, #eef6ef 0%, #d1fae5 100%);
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.16) 0%, rgba(0, 212, 255, 0.22) 100%);
             border-radius: 28px; 
             display: flex; 
             align-items: center; 
             justify-content: center; 
             font-size: 1.5rem; 
-            color: #2b6e3c;
-            box-shadow: 0 4px 12px rgba(43,110,60,0.12);
+            color: #00d4ff;
+            box-shadow: 0 4px 12px rgba(0, 212, 255,0.12);
             transition: all 0.3s;
         }
         .kpi-card:hover .kpi-icon {
             transform: scale(1.1);
-            box-shadow: 0 6px 16px rgba(43,110,60,0.2);
+            box-shadow: 0 6px 16px rgba(0, 212, 255,0.2);
         }
         .kpi-card.warning .kpi-icon {
-            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+            background: linear-gradient(135deg, rgba(54, 42, 16, 0.90) 0%, rgba(54, 42, 16, 0.90) 100%);
             color: #d97706;
             box-shadow: 0 4px 12px rgba(245,158,11,0.15);
         }
         .kpi-card.danger .kpi-icon {
-            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            background: linear-gradient(135deg, rgba(58, 22, 28, 0.90) 0%, rgba(255, 71, 87, 0.25) 100%);
             color: #dc2626;
             box-shadow: 0 4px 12px rgba(239,68,68,0.15);
         }
-        .trend-badge { font-size: 0.7rem; background: #e6f7e6; display: inline-block; padding: 2px 8px; border-radius: 20px; margin-top: 5px; color: #1f7840; }
-        .trend-badge.warning { background: #fffbeb; color: #d97706; }
-        .trend-badge.danger { background: #fee2e2; color: #dc2626; }
+        .trend-badge { font-size: 0.75rem; background: rgba(34, 197, 94, 0.16); display: inline-block; padding: 2px 8px; border-radius: 20px; margin-top: 5px; color: #4ade80; }
+        .trend-badge.warning { background: rgba(54, 42, 16, 0.90); color: #d97706; }
+        .trend-badge.danger { background: rgba(58, 22, 28, 0.90); color: #dc2626; }
+        /* 同比标注：向好=青绿，需关注=红。
+         * 农业场景下发生面积下降、挽回损失上升都属于「向好」，因此颜色按业务含义而非数字增减。 */
+        .kpi-yoy { display: block; margin-top: 3px; font-size: 12px; font-weight: 500; letter-spacing: 0.2px; }
+        .kpi-yoy.good { color: #33D69F; }
+        .kpi-yoy.bad  { color: #ff6b6b; }
+        /* ===== 一句话结论播报：让领导扫一眼就知道「现在怎样、要做什么」===== */
+        .ck-brief {
+            display: flex; align-items: center; gap: 10px;
+            margin-bottom: 14px; padding: 10px 16px;
+            background: rgba(0,212,255,0.07);
+            border: 1px solid rgba(0,212,255,0.22);
+            border-left: 3px solid #00d4ff;
+            border-radius: 8px;
+            font-size: 14px; line-height: 1.7; color: #cbd5e1;
+        }
+        .ck-brief > i { color: #00d4ff; flex-shrink: 0; }
+        .ck-brief-text { flex: 1; }
+        .ck-brief b { color: #7dd3fc; font-weight: 600; }
+        .ck-brief-warn { color: #ff9b9b; font-weight: 600; }
+        /* 两屏联动：病虫害防控 → 长势评价，形成闭环 */
+        .ck-brief-link {
+            flex-shrink: 0; display: inline-flex; align-items: center; gap: 6px;
+            padding: 6px 14px; border-radius: 6px; text-decoration: none; white-space: nowrap;
+            background: rgba(0,212,255,0.14);
+            border: 1px solid rgba(0,212,255,0.40);
+            color: #7dd3fc; font-size: 13px; font-weight: 500;
+        }
+        .ck-brief-link:hover { background: rgba(0,212,255,0.24); color: #5AD7F0; }
+        /* ===== 柑橘黄龙病专项防控（检疫性病害，需最高视觉权重）===== */
+        .hlb-card { border-color: rgba(255,107,107,0.35); }
+        .hlb-flag { color: #ff6b6b; font-weight: 600; }
+        .hlb-body { padding: 10px 12px 12px; }
+        .hlb-alert {
+            display: flex; align-items: flex-start; gap: 8px;
+            background: rgba(255,107,107,0.10);
+            border: 1px solid rgba(255,107,107,0.30);
+            border-left: 3px solid #ff6b6b;
+            border-radius: 6px; padding: 8px 10px; margin-bottom: 10px;
+            font-size: 12px; line-height: 1.6; color: #fca5a5;
+        }
+        .hlb-alert i { margin-top: 3px; color: #ff6b6b; }
+        .hlb-alert b { color: #ff6b6b; font-weight: 600; }
+        .hlb-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 10px; }
+        .hlb-item {
+            background: rgba(10,28,60,0.75);
+            border: 1px solid rgba(127,228,245,0.18);
+            border-radius: 6px; padding: 8px 4px; text-align: center;
+        }
+        .hlb-item.danger { border-color: rgba(255,107,107,0.45); background: rgba(58,22,28,0.55); }
+        .hlb-item.ok     { border-color: rgba(51,214,159,0.40); background: rgba(6,44,36,0.45); }
+        .hlb-num { font-size: 20px; font-weight: 500; color: #7dd3fc; font-variant-numeric: tabular-nums; line-height: 1.2; }
+        .hlb-item.danger .hlb-num { color: #ff6b6b; }
+        .hlb-item.ok .hlb-num     { color: #33D69F; }
+        .hlb-label { font-size: 12px; color: #94a3b8; margin-top: 2px; }
+        .hlb-progress-head { display: flex; justify-content: space-between; font-size: 12px; color: #94a3b8; margin-bottom: 4px; }
+        .hlb-rate { color: #33D69F; font-weight: 600; }
+        .hlb-bar { height: 6px; background: rgba(148,163,184,0.18); border-radius: 3px; overflow: hidden; }
+        .hlb-bar-fill { height: 100%; background: linear-gradient(90deg, #16528F, #33D69F); border-radius: 3px; }
+        .hlb-foot { display: flex; justify-content: space-between; gap: 8px; margin-top: 8px; font-size: 12px; color: #94a3b8; }
+        /* Top7 中标记黄龙病传播媒介，避免被「轻度」二字掩盖其实际权重 */
+        .hlb-tag {
+            display: inline-block; margin-left: 6px; padding: 1px 6px;
+            font-style: normal; font-size: 12px; border-radius: 4px;
+            background: rgba(255,107,107,0.16); border: 1px solid rgba(255,107,107,0.40); color: #ff9b9b;
+        }
+        /* 责任闭环：预警不能只给「建议」，必须落到责任人与完成时限 */
+        .disaster-owner {
+            margin-top: 6px; padding-top: 6px;
+            border-top: 1px dashed rgba(148,163,184,0.22);
+            font-size: 12px; color: #94a3b8;
+        }
+        .disaster-owner i { color: #7dd3fc; margin-right: 4px; }
+        .disaster-owner span { color: #ff9b9b; font-weight: 600; }
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -288,26 +373,26 @@
         }
         .modal-overlay.active { display: flex; }
         .modal-container {
-            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            background: linear-gradient(135deg, rgba(16, 40, 78, 0.85) 0%, rgba(15, 35, 75, 0.60) 100%);
             border-radius: 20px;
             padding: 0;
             width: 680px;
             max-height: 85vh;
             overflow: hidden;
             box-shadow: 0 25px 80px rgba(0,0,0,0.2);
-            border: 1px solid rgba(255,255,255,0.5);
+            border: 1px solid rgba(0, 212, 255, 0.28);
         }
         .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 20px 24px;
-            background: linear-gradient(135deg, #2b6e3c 0%, #1e5a2e 100%);
+            background: linear-gradient(135deg, #00d4ff 0%, #0d3b66 100%);
         }
         .modal-title {
             font-size: 1.15rem;
             font-weight: 600;
-            color: white;
+            color: #e6f1ff;
             display: flex;
             align-items: center;
             gap: 10px;
@@ -326,7 +411,7 @@
             background: rgba(255,255,255,0.2);
             border: none;
             font-size: 1rem;
-            color: white;
+            color: #e6f1ff;
             cursor: pointer;
             transition: all 0.2s;
             display: flex;
@@ -345,7 +430,7 @@
         .modal-chart {
             width: 100%;
             height: 260px;
-            background: white;
+            background: rgba(16, 40, 78, 0.85);
             border-radius: 16px;
             padding: 16px;
             box-shadow: 0 2px 12px rgba(0,0,0,0.04);
@@ -353,19 +438,19 @@
         }
         .modal-explain {
             font-size: 0.78rem;
-            color: #475569;
-            background: linear-gradient(135deg, #f0fdf4, #ecfdf5);
+            color: #94a3b8;
+            background: linear-gradient(135deg, rgba(13, 48, 82, 0.90), rgba(13, 48, 82, 0.90));
             border-left: 3px solid #22c55e;
             padding: 8px 12px;
             border-radius: 8px;
             margin-bottom: 12px;
             line-height: 1.5;
         }
-        .modal-explain i { color: #16a34a; margin-right: 6px; }
+        .modal-explain i { color: #4ade80; margin-right: 6px; }
         .modal-section-title {
             font-size: 0.9rem;
             font-weight: 600;
-            color: #475569;
+            color: #94a3b8;
             margin-bottom: 14px;
             display: flex;
             align-items: center;
@@ -375,7 +460,7 @@
             content: '';
             flex: 1;
             height: 1px;
-            background: #e2e8f0;
+            background: rgba(148, 163, 184, 0.18);
         }
         .modal-stats {
             display: grid;
@@ -384,19 +469,19 @@
             margin-bottom: 20px;
         }
         .modal-stat-item {
-            background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+            background: linear-gradient(135deg, rgba(13, 48, 82, 0.90) 0%, rgba(13, 48, 82, 0.90) 100%);
             border-radius: 14px;
             padding: 16px;
             text-align: center;
-            border: 1px solid #d1fae5;
+            border: 1px solid rgba(0, 212, 255, 0.22);
             transition: all 0.2s;
         }
         .modal-stat-item:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(43,110,60,0.1);
+            box-shadow: 0 4px 12px rgba(0, 212, 255,0.1);
         }
-        .modal-stat-value { font-size: 1.5rem; font-weight: 700; color: #166534; }
-        .modal-stat-label { font-size: 0.8rem; color: #64748b; margin-top: 6px; }
+        .modal-stat-value { font-size: 1.5rem; font-weight: 700; color: #7dd3fc; }
+        .modal-stat-label { font-size: 0.8rem; color: #94a3b8; margin-top: 6px; }
         .modal-detail-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -407,12 +492,12 @@
             justify-content: space-between;
             align-items: center;
             padding: 10px 14px;
-            background: white;
+            background: rgba(16, 40, 78, 0.85);
             border-radius: 10px;
-            border: 1px solid #f1f5f9;
+            border: 1px solid rgba(148, 163, 184, 0.22);
         }
-        .modal-detail-label { font-size: 0.85rem; color: #64748b; }
-        .modal-detail-value { font-size: 0.9rem; font-weight: 600; color: #334155; }
+        .modal-detail-label { font-size: 0.85rem; color: #94a3b8; }
+        .modal-detail-value { font-size: 0.9rem; font-weight: 600; color: #cbd5e1; }
         .map-core-grid {
             display: grid;
             grid-template-columns: 1fr 2.2fr 1fr;
@@ -443,29 +528,11 @@
             border-radius: 20px;
             position: relative;
             flex-shrink: 0;
-            background: #f8fafc;
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
             overflow: hidden;
-        }
-        #riskMap::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background-image: 
-                radial-gradient(circle at 25% 25%, rgba(34,197,94,0.04) 0%, transparent 45%),
-                radial-gradient(circle at 75% 75%, rgba(34,197,94,0.03) 0%, transparent 45%),
-                linear-gradient(rgba(203,213,225,0.25) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(203,213,225,0.25) 1px, transparent 1px);
-            background-size: 100% 100%, 100% 100%, 30px 30px, 30px 30px;
-            pointer-events: none;
-            z-index: 1;
-        }
-        #riskMap::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: radial-gradient(ellipse at center, transparent 60%, rgba(241,245,249,0.5) 100%);
-            pointer-events: none;
-            z-index: 5;
+            z-index: 2;
         }
         #riskMap canvas {
             position: relative !important;
@@ -473,21 +540,21 @@
         }
         .map-overlay {
             position: absolute;
-            background: rgba(255,255,255,0.92);
+            background: rgba(10, 28, 60, 0.86);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border-radius: 12px;
             padding: 12px 16px;
             z-index: 10;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.8);
-            border: 1px solid rgba(203,213,225,0.5);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.45), inset 0 1px 0 rgba(0, 212, 255, 0.18);
+            border: 1px solid rgba(0, 212, 255, 0.25);
             pointer-events: none;
         }
         .map-overlay-tl { left: 14px; top: 14px; }
         .map-overlay-tr { right: 14px; top: 14px; }
         .map-overlay-bl { left: 14px; bottom: 14px; }
         .map-overlay-br { right: 14px; bottom: 14px; }
-        .map-panel-title { font-size: 11px; font-weight: 600; color: #166534; margin-bottom: 8px; letter-spacing: 0.5px; text-transform: uppercase; }
+        .map-panel-title { font-size: 12px; font-weight: 600; color: #7dd3fc; margin-bottom: 8px; letter-spacing: 0.5px; text-transform: uppercase; }
         .live-dot {
             display: inline-block;
             width: 8px; height: 8px;
@@ -502,10 +569,10 @@
             0%, 100% { opacity: 1; transform: scale(1); }
             50% { opacity: 0.5; transform: scale(0.85); }
         }
-        .map-panel-row { font-size: 11px; color: #475569; display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+        .map-panel-row { font-size: 12px; color: #94a3b8; display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
         .map-panel-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; box-shadow: 0 0 4px currentColor; }
         .legend-wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; }
-        .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #475569; white-space: nowrap; }
+        .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #94a3b8; white-space: nowrap; }
         .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; box-shadow: 0 0 4px currentColor; }
         .risk-legend-bar {
             display: flex;
@@ -516,24 +583,24 @@
             gap: 24px;
             padding: 10px 18px;
             margin-top: 10px;
-            background: rgba(255,255,255,0.92);
+            background: rgba(10, 28, 60, 0.86);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             border-radius: 12px;
-            border: 1px solid rgba(0,0,0,0.06);
-            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            border: 1px solid rgba(0, 212, 255, 0.22);
+            box-shadow: 0 2px 12px rgba(0,0,0,0.45);
             font-size: 12px;
-            color: #475569;
+            color: #94a3b8;
         }
         .risk-legend-bar .legend-item { font-size: 12px; }
         .risk-legend-title {
             font-size: 12px;
             font-weight: 600;
-            color: #166534;
+            color: #7dd3fc;
             padding-right: 4px;
-            border-right: 1px solid rgba(0,0,0,0.08);
+            border-right: 1px solid rgba(148, 163, 184, 0.18);
         }
-        .map-panel-text { font-size: 10px; color: #64748b; }
+        .map-panel-text { font-size: 12px; color: #94a3b8; }
         .map-title-overlay {
             position: absolute;
             top: 14px;
@@ -546,11 +613,11 @@
         .map-title-overlay .map-title-main {
             font-size: 18px;
             font-weight: 700;
-            color: #166534;
+            color: #7dd3fc;
             letter-spacing: 2px;
         }
         .map-title-overlay .map-title-sub {
-            font-size: 11px;
+            font-size: 12px;
             color: #94a3b8;
             margin-top: 2px;
             letter-spacing: 1px;
@@ -558,9 +625,9 @@
         .map-stats-badge {
             position: absolute;
             z-index: 10;
-            background: rgba(255,255,255,0.92);
+            background: rgba(10, 28, 60, 0.86);
             backdrop-filter: blur(12px);
-            border: 1px solid rgba(203,213,225,0.5);
+            border: 1px solid rgba(0, 212, 255, 0.25);
             border-radius: 12px;
             padding: 10px 14px;
             text-align: center;
@@ -569,28 +636,28 @@
         .map-stats-badge .badge-value {
             font-size: 22px;
             font-weight: 700;
-            background: linear-gradient(135deg, #16a34a, #166534);
+            background: linear-gradient(135deg, #22c55e, #00d4ff);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
         }
         .map-stats-badge .badge-label {
-            font-size: 10px;
-            color: #64748b;
+            font-size: 12px;
+            color: #94a3b8;
             margin-top: 2px;
         }
         .chart-box { width: 100%; height: 240px; }
         .side-card .chart-box { height: 220px; }
         .scrolling-cards {
             margin-top: 16px;
-            background: white;
+            background: rgba(16, 40, 78, 0.85);
             border-radius: 20px;
             padding: 0;
             position: relative;
             overflow: hidden;
             box-shadow: 0 4px 16px rgba(0,0,0,0.06);
             flex: 1;
-            border: 1px solid #e2e8f0;
+            border: 1px solid rgba(148, 163, 184, 0.18);
             min-height: 0;
         }
         .scrolling-header {
@@ -598,13 +665,13 @@
             justify-content: space-between;
             align-items: center;
             padding: 14px 18px;
-            border-bottom: 2px solid #f1f5f9;
-            background: #fafafa;
+            border-bottom: 2px solid rgba(148, 163, 184, 0.22);
+            background: rgba(15, 35, 75, 0.55);
         }
         .scrolling-title {
             font-size: 14px;
             font-weight: 600;
-            color: #334155;
+            color: #cbd5e1;
         }
         .filter-tabs {
             display: flex;
@@ -612,18 +679,18 @@
         }
         .filter-tab {
             padding: 4px 12px;
-            border: 1px solid #e2e8f0;
+            border: 1px solid rgba(148, 163, 184, 0.18);
             border-radius: 16px;
-            background: white;
-            color: #64748b;
+            background: rgba(16, 40, 78, 0.85);
+            color: #94a3b8;
             font-size: 12px;
             cursor: pointer;
             transition: all 0.2s;
         }
         .filter-tab.active {
-            background: #2b6e3c;
-            color: white;
-            border-color: #2b6e3c;
+            background: #00d4ff;
+            color: #e6f1ff;
+            border-color: #00d4ff;
             font-weight: 500;
         }
         .scrolling-container {
@@ -645,15 +712,15 @@
             width: 6px;
         }
         .scrolling-container::-webkit-scrollbar-track {
-            background: #f1f5f9;
+            background: rgba(13, 39, 69, 0.75);
             border-radius: 3px;
         }
         .scrolling-container::-webkit-scrollbar-thumb {
-            background: linear-gradient(180deg, #cbd5e1, #94a3b8);
+            background: linear-gradient(180deg, rgba(148, 163, 184, 0.35), rgba(148, 163, 184, 0.45));
             border-radius: 3px;
         }
         .scrolling-container::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(180deg, #94a3b8, #64748b);
+            background: linear-gradient(180deg, rgba(148, 163, 184, 0.45), rgba(148, 163, 184, 0.55));
         }
         @keyframes pulse {
             0%, 100% { transform: scale(1); opacity: 0.8; }
@@ -665,28 +732,28 @@
             font-size: 0.85rem;
         }
         .scrolling-table th {
-            background: #f8fafc;
+            background: rgba(15, 35, 75, 0.60);
             padding: 10px 12px;
             text-align: left;
             font-weight: 600;
-            color: #475569;
+            color: #94a3b8;
             position: sticky;
             top: 0;
             z-index: 10;
         }
         .scrolling-table td {
             padding: 10px 12px;
-            border-bottom: 1px solid #f1f5f9;
-            color: #334155;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.22);
+            color: #cbd5e1;
         }
         .scrolling-table tr:hover td {
-            background: #f8fafc;
+            background: rgba(15, 35, 75, 0.60);
         }
         .highlight-row {
-            background: #fffbeb;
+            background: rgba(54, 42, 16, 0.90);
         }
         .highlight-row:hover td {
-            background: #fef3c7;
+            background: rgba(54, 42, 16, 0.90);
         }
         .warning-cell { color: #dc2626; font-weight: 500; }
         .normal-cell { color: #22c55e; }
@@ -702,7 +769,7 @@
             gap: 10px;
         }
         .env-card {
-            background: #f8fafc;
+            background: rgba(15, 35, 75, 0.60);
             border-radius: 12px;
             padding: 12px;
             display: flex;
@@ -717,18 +784,18 @@
             align-items: center;
             justify-content: center;
             font-size: 1.3rem;
-            background: #eef6ef;
-            color: #2b6e3c;
+            background: rgba(0, 212, 255, 0.16);
+            color: #00d4ff;
         }
         .env-info { flex: 1; }
-        .env-value { font-size: 1.1rem; font-weight: 600; color: #1e293b; }
-        .env-label { font-size: 0.75rem; color: #64748b; }
+        .env-value { font-size: 1.1rem; font-weight: 600; color: #e6f1ff; }
+        .env-label { font-size: 0.75rem; color: #94a3b8; }
         .recognition-summary {
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 12px 16px;
-            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+            background: linear-gradient(135deg, rgba(13, 48, 82, 0.90), rgba(0, 212, 255, 0.22));
             border-radius: 12px;
             margin-bottom: 8px;
         }
@@ -736,34 +803,34 @@
         .recognition-accuracy {
             font-size: 1.6rem;
             font-weight: 700;
-            color: #2b6e3c;
+            color: #00d4ff;
             line-height: 1.1;
         }
-        .recognition-accuracy .recog-unit { font-size: 0.85rem; color: #64748b; margin-left: 2px; }
-        .recognition-label { font-size: 0.72rem; color: #64748b; margin-top: 2px; }
+        .recognition-accuracy .recog-unit { font-size: 0.85rem; color: #94a3b8; margin-left: 2px; }
+        .recognition-label { font-size: 0.75rem; color: #94a3b8; margin-top: 2px; }
         .recognition-stats { display: flex; gap: 14px; }
-        .recognition-stats > div { text-align: center; font-size: 0.7rem; color: #64748b; }
-        .recognition-stats strong { display: block; font-size: 1rem; color: #166534; }
+        .recognition-stats > div { text-align: center; font-size: 0.75rem; color: #94a3b8; }
+        .recognition-stats strong { display: block; font-size: 1rem; color: #7dd3fc; }
         .knowledge-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 12px;
         }
         .knowledge-card {
-            background: linear-gradient(135deg, #fef2f2, #fee2e2);
+            background: linear-gradient(135deg, rgba(58, 22, 28, 0.90), rgba(58, 22, 28, 0.90));
             border-radius: 12px;
             padding: 14px;
             text-align: center;
         }
         .knowledge-card.insect {
-            background: linear-gradient(135deg, #fffbeb, #fef3c7);
+            background: linear-gradient(135deg, rgba(54, 42, 16, 0.90), rgba(54, 42, 16, 0.90));
         }
         .knowledge-count { font-size: 1.8rem; font-weight: 700; color: #dc2626; }
         .knowledge-card.insect .knowledge-count { color: #d97706; }
-        .knowledge-label { font-size: 0.85rem; color: #64748b; margin-top: 4px; }
+        .knowledge-label { font-size: 0.85rem; color: #94a3b8; margin-top: 4px; }
         .warning-list { overflow-y: auto; max-height: 180px; }
         .warning-item {
-            background: #fff5f5;
+            background: rgba(16, 40, 78, 0.85)5f5;
             border-left: 3px solid #ef4444;
             padding: 10px 12px;
             margin-bottom: 10px;
@@ -772,30 +839,21 @@
         }
         .warning-item.warning-warning {
             border-left-color: #f59e0b;
-            background: #fffbeb;
+            background: rgba(54, 42, 16, 0.90);
         }
         .warning-item.warning-info {
             border-left-color: #3b82f6;
-            background: #eff6ff;
+            background: rgba(13, 39, 69, 0.85);
         }
         .warning-title { font-weight: 600; color: #dc2626; margin-bottom: 4px; }
         .warning-warning .warning-title { color: #d97706; }
         .warning-info .warning-title { color: #2563eb; }
-        .warning-time { font-size: 0.75rem; color: #64748b; }
-        .table-responsive { 
-    overflow-x: auto; 
-    overflow-y: auto; 
-    flex: 1;
-    max-height: calc(100% - 50px);
-}
-        .data-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
-        .data-table th, .data-table td { padding: 8px 6px; text-align: left; border-bottom: 1px solid #eef2f0; }
-        .data-table th { background: #f8fafc; color: #2c3e4e; font-weight: 600; }
-        .status-badge { padding: 3px 8px; border-radius: 20px; font-size: 0.65rem; font-weight: 500; display: inline-block; }
-        .status-completed { background: #e0f2e9; color: #1f7840; }
-        .status-progress { background: #fff0db; color: #c47d2e; }
-        .status-pending { background: #fee9e6; color: #bc4e2c; }
-        .status-info { background: #eff6ff; color: #2563eb; }
+        .warning-time { font-size: 0.75rem; color: #94a3b8; }
+        .status-badge { padding: 3px 8px; border-radius: 20px; font-size: 0.75rem; font-weight: 500; display: inline-block; }
+        .status-completed { background: rgba(34, 197, 94, 0.15); color: #4ade80; }
+        .status-progress { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+        .status-pending { background: rgba(255, 71, 87, 0.15); color: #ff6b6b; }
+        .status-info { background: rgba(13, 39, 69, 0.85); color: #2563eb; }
         .pest-rank-list {
             display: flex;
             flex-direction: column;
@@ -806,15 +864,15 @@
             align-items: center;
             gap: 10px;
             padding: 8px;
-            background: #f8fafc;
+            background: rgba(15, 35, 75, 0.60);
             border-radius: 10px;
         }
         .pest-rank-num {
             width: 24px;
             height: 24px;
             border-radius: 50%;
-            background: #2b6e3c;
-            color: white;
+            background: #00d4ff;
+            color: #e6f1ff;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -823,36 +881,36 @@
             flex-shrink: 0;
         }
         .pest-rank-num.top3 { background: #ef4444; }
-        .pest-rank-name { flex: 1; font-size: 0.85rem; color: #475569; }
-        .pest-rank-count { font-weight: 600; color: #2b6e3c; }
+        .pest-rank-name { flex: 1; font-size: 0.85rem; color: #94a3b8; }
+        .pest-rank-count { font-weight: 600; color: #00d4ff; }
         /* 严重程度颜色 */
         .pest-rank-count.sev-heavy     { color: #dc2626; }   /* 重度·红 */
         .pest-rank-count.sev-moderate  { color: #ea580c; }   /* 中度·橙 */
         .pest-rank-count.sev-light     { color: #ca8a04; }   /* 轻度·黄 */
-        .pest-rank-count.sev-none      { color: #6b7280; }   /* 无·灰 */
+        .pest-rank-count.sev-none      { color: #94a3b8; }   /* 无·灰 */
         .disaster-card {
-            background: #fef2f2;
+            background: rgba(58, 22, 28, 0.90);
             border-radius: 12px;
             padding: 14px;
             margin-bottom: 10px;
             border-left: 4px solid #ef4444;
         }
         .disaster-card.warning {
-            background: #fffbeb;
+            background: rgba(54, 42, 16, 0.90);
             border-left-color: #f59e0b;
         }
         .disaster-card.info {
-            background: #eff6ff;
+            background: rgba(13, 39, 69, 0.85);
             border-left-color: #3b82f6;
         }
         .disaster-title { font-weight: 600; color: #dc2626; font-size: 0.9rem; }
         .disaster-card.warning .disaster-title { color: #d97706; }
         .disaster-card.info .disaster-title { color: #2563eb; }
-        .disaster-info { font-size: 0.75rem; color: #64748b; margin-top: 4px; }
-        .disaster-suggestion { font-size: 0.8rem; color: #475569; margin-top: 6px; padding-top: 6px; border-top: 1px solid rgba(0,0,0,0.05); }
+        .disaster-info { font-size: 0.75rem; color: #94a3b8; margin-top: 4px; }
+        .disaster-suggestion { font-size: 0.8rem; color: #94a3b8; margin-top: 6px; padding-top: 6px; border-top: 1px solid rgba(148, 163, 184, 0.16); }
         .accuracy-container {
             padding: 12px;
-            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+            background: linear-gradient(135deg, rgba(13, 48, 82, 0.90), rgba(0, 212, 255, 0.22));
             border-radius: 16px;
             margin-bottom: 12px;
         }
@@ -862,8 +920,8 @@
             gap: 8px;
             margin-bottom: 8px;
         }
-        .accuracy-value { font-size: 1.6rem; font-weight: 700; color: #2b6e3c; }
-        .accuracy-label { font-size: 0.85rem; color: #64748b; }
+        .accuracy-value { font-size: 1.6rem; font-weight: 700; color: #00d4ff; }
+        .accuracy-label { font-size: 0.85rem; color: #94a3b8; }
         .accuracy-breakdown {
             display: flex;
             gap: 16px;
@@ -872,14 +930,14 @@
         .accuracy-item { display: flex; align-items: center; gap: 6px; }
         .accuracy-bar {
             height: 6px;
-            background: #e2e8f0;
+            background: rgba(148, 163, 184, 0.18);
             border-radius: 3px;
             overflow: hidden;
             margin-top: 8px;
         }
         .accuracy-bar-fill {
             height: 100%;
-            background: linear-gradient(90deg, #2b6e3c, #4ade80);
+            background: linear-gradient(90deg, #00d4ff, #4ade80);
             border-radius: 3px;
         }
         @media (max-width: 1100px) {
@@ -894,95 +952,603 @@
             .row-grid { grid-template-columns: 1fr; }
             .kpi-grid { grid-template-columns: repeat(2, 1fr); }
         }
+
+        /* ============================================================
+         * 深色驾驶舱覆盖样式 (Dark Cockpit Overrides)
+         * ============================================================ */
+
+        /* Header / Title section */
+        .dashboard-container .header {
+            background: rgba(10, 28, 60, 0.6);
+            border: 1px solid rgba(0, 212, 255, 0.18);
+            border-radius: 12px;
+            padding: 14px 24px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+        .title-section h1 { letter-spacing: 1px; }
+        .title-section p { color: #7dd3fc !important; }
+
+        /* Platform entry */
+        .platform-entry {
+            background: rgba(0, 212, 255, 0.06) !important;
+            border: 1px solid rgba(0, 212, 255, 0.3) !important;
+            color: #7dd3fc !important;
+            box-shadow: none !important;
+        }
+        .platform-entry:hover {
+            background: rgba(0, 212, 255, 0.18) !important;
+            color: #e6f1ff !important;
+            border-color: #00d4ff !important;
+            box-shadow: 0 0 12px rgba(0, 212, 255, 0.4) !important;
+        }
+
+        /* KPI 网格与卡片 */
+        .kpi-grid { gap: 16px; margin-bottom: 20px; }
+        .kpi-card {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.08) 0%, rgba(15, 35, 75, 0.85) 100%) !important;
+            border: 1px solid rgba(0, 212, 255, 0.25) !important;
+            border-radius: 12px !important;
+            box-shadow: 0 4px 16px rgba(0, 10, 30, 0.4), 0 0 8px rgba(0, 212, 255, 0.1) !important;
+            color: #e6f1ff !important;
+            position: relative;
+            overflow: hidden;
+        }
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #00d4ff, transparent);
+            opacity: 0.6;
+        }
+        .kpi-card:hover {
+            border-color: rgba(0, 212, 255, 0.7) !important;
+            box-shadow: 0 8px 24px rgba(0, 10, 30, 0.5), 0 0 16px rgba(0, 212, 255, 0.3) !important;
+            transform: translateY(-3px);
+        }
+        .kpi-info h4 { color: #94a3b8 !important; }
+        .kpi-number {
+            font-family: var(--ck-font-num) !important;
+            font-weight: 700 !important;
+            background: linear-gradient(135deg, #00d4ff, #4fc3f7) !important;
+            -webkit-background-clip: text !important;
+            background-clip: text !important;
+            color: transparent !important;
+            text-shadow: 0 0 12px rgba(0, 212, 255, 0.3);
+            filter: drop-shadow(0 0 8px rgba(0, 212, 255, 0.4));
+        }
+        .kpi-card.warning .kpi-number {
+            background: linear-gradient(135deg, #f59e0b, #ff7e29) !important;
+            -webkit-background-clip: text !important;
+            background-clip: text !important;
+            color: transparent !important;
+            filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.5));
+        }
+        .kpi-card.warning {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, rgba(15, 35, 75, 0.85) 100%) !important;
+            border-color: rgba(245, 158, 11, 0.5) !important;
+            box-shadow: 0 4px 16px rgba(0, 10, 30, 0.4), 0 0 8px rgba(245, 158, 11, 0.2) !important;
+        }
+        .kpi-icon {
+            background: rgba(0, 212, 255, 0.15) !important;
+            border: 1px solid rgba(0, 212, 255, 0.4) !important;
+            color: #00d4ff !important;
+            box-shadow: 0 0 12px rgba(0, 212, 255, 0.3) !important;
+        }
+        .kpi-card.warning .kpi-icon {
+            background: rgba(245, 158, 11, 0.15) !important;
+            border-color: rgba(245, 158, 11, 0.5) !important;
+            color: #f59e0b !important;
+            box-shadow: 0 0 12px rgba(245, 158, 11, 0.3) !important;
+            animation: ck-pulse-dot 2s ease-in-out infinite;
+        }
+        .trend-badge {
+            background: rgba(0, 212, 255, 0.15) !important;
+            color: #7dd3fc !important;
+            border: 1px solid rgba(0, 212, 255, 0.3) !important;
+        }
+        .trend-badge.warning {
+            background: rgba(245, 158, 11, 0.15) !important;
+            color: #fbbf24 !important;
+            border-color: rgba(245, 158, 11, 0.5) !important;
+        }
+
+        /* 通用卡片 (Map core grid 与 side card) */
+        .map-core-grid { gap: 16px; }
+        .card, .side-card, .center-map-card {
+            background: rgba(15, 35, 75, 0.72) !important;
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 212, 255, 0.2) !important;
+            border-radius: 12px !important;
+            box-shadow: 0 8px 32px rgba(0, 10, 30, 0.5) !important;
+            color: #e6f1ff !important;
+        }
+        .card-header {
+            color: #e6f1ff !important;
+            border-left: 3px solid #00d4ff !important;
+            box-shadow: 0 0 6px rgba(0, 212, 255, 0.4);
+        }
+        .card-header > span:first-child { color: #e6f1ff !important; }
+        .card-header > span i { color: #00d4ff !important; }
+        .header-extra {
+            color: #7dd3fc !important;
+            background: rgba(0, 212, 255, 0.08) !important;
+            padding: 2px 10px !important;
+            border-radius: 999px !important;
+            border: 1px solid rgba(0, 212, 255, 0.25) !important;
+        }
+
+        /* 病虫害 Top7 排名 */
+        .pest-rank-item {
+            background: rgba(0, 212, 255, 0.04) !important;
+            border: 1px solid rgba(0, 212, 255, 0.15) !important;
+            border-radius: 8px !important;
+            color: #e6f1ff !important;
+        }
+        .pest-rank-item:hover {
+            background: rgba(0, 212, 255, 0.08) !important;
+            border-color: rgba(0, 212, 255, 0.5) !important;
+        }
+        .pest-rank-num {
+            background: rgba(0, 212, 255, 0.15) !important;
+            border: 1px solid rgba(0, 212, 255, 0.4) !important;
+            color: #00d4ff !important;
+            box-shadow: 0 0 8px rgba(0, 212, 255, 0.3) !important;
+        }
+        .pest-rank-num.top3 {
+            background: linear-gradient(135deg, #ff4757, #f59e0b) !important;
+            color: #e6f1ff !important;
+            border: none !important;
+            box-shadow: 0 0 12px rgba(255, 71, 87, 0.5) !important;
+        }
+        .pest-rank-name { color: #e6f1ff !important; }
+        .pest-rank-count { font-family: var(--ck-font-num); }
+        .pest-rank-count.sev-heavy     { color: #ff6b6b !important; text-shadow: 0 0 8px rgba(255, 71, 87, 0.5); }
+        .pest-rank-count.sev-moderate  { color: #fbbf24 !important; text-shadow: 0 0 8px rgba(245, 158, 11, 0.5); }
+        .pest-rank-count.sev-light     { color: #4ade80 !important; }
+        .pest-rank-count.sev-none      { color: #94a3b8 !important; }
+
+        /* 实时识别摘要 */
+        .recognition-summary {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(15, 35, 75, 0.6) 100%) !important;
+            border: 1px solid rgba(0, 212, 255, 0.3) !important;
+            border-radius: 10px !important;
+        }
+        .recognition-accuracy {
+            color: #00d4ff !important;
+            text-shadow: 0 0 12px rgba(0, 212, 255, 0.5);
+            font-family: var(--ck-font-num) !important;
+        }
+        .recognition-label { color: #94a3b8 !important; }
+
+        /* 表格 */
+        .scrolling-table {
+            color: #e6f1ff !important;
+        }
+        .scrolling-table th {
+            background: rgba(0, 212, 255, 0.08) !important;
+            color: #7dd3fc !important;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.25) !important;
+        }
+        .scrolling-table td {
+            border-bottom: 1px solid rgba(148, 163, 184, 0.1) !important;
+            color: #e6f1ff !important;
+        }
+        .scrolling-table tbody tr:hover {
+            background: rgba(0, 212, 255, 0.06) !important;
+        }
+        .highlight-row { background: rgba(245, 158, 11, 0.1) !important; }
+        .highlight-row:hover { background: rgba(245, 158, 11, 0.15) !important; }
+        .warning-cell { color: #ff6b6b !important; }
+        .normal-cell { color: #4ade80 !important; }
+        .status-completed { background: rgba(34, 197, 94, 0.15) !important; color: #4ade80 !important; border: 1px solid rgba(34, 197, 94, 0.4); }
+        .status-progress  { background: rgba(245, 158, 11, 0.15) !important; color: #fbbf24 !important; border: 1px solid rgba(245, 158, 11, 0.4); }
+        .status-pending   { background: rgba(255, 71, 87, 0.15) !important; color: #ff6b6b !important; border: 1px solid rgba(255, 71, 87, 0.4); }
+        .status-info      { background: rgba(0, 212, 255, 0.15) !important; color: #7dd3fc !important; border: 1px solid rgba(0, 212, 255, 0.4); }
+
+        /* 滚动卡片容器（深色覆盖） */
+        .scrolling-cards {
+            background: rgba(15, 35, 75, 0.72) !important;
+            border: 1px solid rgba(0, 212, 255, 0.2) !important;
+            border-radius: 12px !important;
+            box-shadow: 0 4px 16px rgba(0, 10, 30, 0.4) !important;
+            color: #e6f1ff !important;
+        }
+        .scrolling-container,
+        .scrolling-wrapper,
+        .scrolling-table {
+            background: transparent !important;
+        }
+        .scrolling-table thead tr {
+            background: rgba(0, 212, 255, 0.08) !important;
+        }
+        .scrolling-table tbody tr {
+            background: transparent !important;
+        }
+        .scrolling-table tbody tr:hover td {
+            background: rgba(0, 212, 255, 0.06) !important;
+        }
+
+        /* 滚动卡片头部 */
+        .scrolling-header {
+            background: rgba(0, 212, 255, 0.05) !important;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.25) !important;
+            color: #e6f1ff !important;
+        }
+        .scrolling-title { color: #e6f1ff !important; }
+        .filter-tab {
+            background: rgba(0, 212, 255, 0.05) !important;
+            border: 1px solid rgba(0, 212, 255, 0.25) !important;
+            color: #94a3b8 !important;
+        }
+        .filter-tab:hover { color: #7dd3fc !important; border-color: rgba(0, 212, 255, 0.5) !important; }
+        .filter-tab.active {
+            background: linear-gradient(135deg, #00d4ff, #4fc3f7) !important;
+            color: #e6f1ff !important;
+            border-color: transparent !important;
+            box-shadow: 0 0 12px rgba(0, 212, 255, 0.5);
+        }
+
+        /* 风险地图 */
+        #riskMap {
+            background: rgba(10, 28, 60, 0.5) !important;
+            border: 1px solid rgba(127, 228, 245, 0.18) !important;
+            box-shadow: none !important;
+        }
+        .map-title-overlay .map-title-main {
+            color: #7FE4F5 !important;
+            font-size: 16px !important;
+            font-weight: 500 !important;
+            letter-spacing: 2px;
+        }
+        .map-title-overlay .map-title-sub { color: #94a3b8 !important; font-size: 12px !important; }
+        .map-overlay {
+            background: rgba(10, 28, 60, 0.92) !important;
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 212, 255, 0.35) !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(0, 212, 255, 0.15) !important;
+            color: #e6f1ff !important;
+        }
+        .map-panel-title { color: #7FE4F5 !important; font-size: 12px !important; }
+        .map-panel-row, .map-panel-text { color: #94a3b8 !important; font-size: 12px !important; }
+        .map-stats-badge {
+            background: rgba(10, 28, 60, 0.92) !important;
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 212, 255, 0.35) !important;
+            color: #e6f1ff !important;
+        }
+        .map-stats-badge .badge-value {
+            background: linear-gradient(135deg, #00d4ff, #4fc3f7) !important;
+            -webkit-background-clip: text !important;
+            background-clip: text !important;
+            color: transparent !important;
+        }
+        .map-stats-badge .badge-label { color: #94a3b8 !important; }
+
+        .risk-legend-bar {
+            background: rgba(10, 28, 60, 0.92) !important;
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 212, 255, 0.25) !important;
+            color: #e6f1ff !important;
+        }
+        .risk-legend-title { color: #7FE4F5 !important; font-size: 12px !important; border-right: 1px solid rgba(127, 228, 245, 0.25) !important; }
+        .legend-item { color: #94a3b8 !important; font-size: 12px !important; }
+        .legend-dot { box-shadow: none !important; }
+
+        .live-dot {
+            background: #33D69F !important;
+            box-shadow: none !important;
+        }
+
+        /* 模型预警准确率容器 */
+        .accuracy-container {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.08) 0%, rgba(15, 35, 75, 0.5) 100%) !important;
+            border: 1px solid rgba(0, 212, 255, 0.25) !important;
+            border-radius: 12px !important;
+        }
+        .accuracy-value {
+            color: #00d4ff !important;
+            text-shadow: 0 0 12px rgba(0, 212, 255, 0.5);
+            font-family: var(--ck-font-num) !important;
+        }
+        .accuracy-label { color: #94a3b8 !important; }
+        .accuracy-item { color: #cbd5e1 !important; }
+        .accuracy-bar { background: rgba(148, 163, 184, 0.15) !important; }
+        .accuracy-bar-fill {
+            background: linear-gradient(90deg, #00d4ff, #4fc3f7) !important;
+            box-shadow: 0 0 8px rgba(0, 212, 255, 0.5) !important;
+        }
+
+        /* 环境监测小卡 */
+        .env-card {
+            background: rgba(0, 212, 255, 0.04) !important;
+            border: 1px solid rgba(0, 212, 255, 0.2) !important;
+            border-radius: 8px !important;
+        }
+        .env-card:hover {
+            background: rgba(0, 212, 255, 0.08) !important;
+            border-color: rgba(0, 212, 255, 0.5) !important;
+        }
+        .env-icon {
+            background: rgba(0, 212, 255, 0.15) !important;
+            border: 1px solid rgba(0, 212, 255, 0.3) !important;
+            color: #00d4ff !important;
+            box-shadow: 0 0 8px rgba(0, 212, 255, 0.3) !important;
+        }
+        .env-value {
+            color: #00d4ff !important;
+            font-family: var(--ck-font-num) !important;
+            font-weight: 700 !important;
+        }
+        .env-label { color: #94a3b8 !important; }
+
+        /* 气象灾害风险预判 */
+        .disaster-card {
+            background: rgba(15, 35, 75, 0.6) !important;
+            border-radius: 0 8px 8px 0 !important;
+            color: #e6f1ff !important;
+        }
+        .disaster-card.info {
+            background: linear-gradient(90deg, rgba(79, 195, 247, 0.1) 0%, rgba(15, 35, 75, 0.6) 100%) !important;
+        }
+        .disaster-card.warning {
+            background: linear-gradient(90deg, rgba(245, 158, 11, 0.1) 0%, rgba(15, 35, 75, 0.6) 100%) !important;
+        }
+        .disaster-card.danger {
+            background: linear-gradient(90deg, rgba(255, 71, 87, 0.12) 0%, rgba(15, 35, 75, 0.6) 100%) !important;
+        }
+        .disaster-title { color: #00d4ff !important; }
+        .disaster-card.warning .disaster-title { color: #fbbf24 !important; }
+        .disaster-card.danger .disaster-title { color: #ff6b6b !important; }
+        .disaster-card.info .disaster-title { color: #7dd3fc !important; }
+        .disaster-info { color: #94a3b8 !important; }
+        .disaster-suggestion { color: #cbd5e1 !important; border-top: 1px solid rgba(148, 163, 184, 0.15) !important; }
+
+        /* Modal 弹窗 */
+        .modal-overlay {
+            background: rgba(0, 5, 15, 0.85) !important;
+            backdrop-filter: blur(6px);
+        }
+        .modal-container {
+            background: rgba(10, 28, 60, 0.96) !important;
+            border: 1px solid rgba(0, 212, 255, 0.45) !important;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5), 0 0 16px rgba(0, 212, 255, 0.2) !important;
+            color: #e6f1ff !important;
+        }
+        .modal-header {
+            background: linear-gradient(90deg, rgba(0, 212, 255, 0.18) 0%, rgba(0, 212, 255, 0.05) 100%) !important;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.25) !important;
+            color: #e6f1ff !important;
+        }
+        .modal-title { color: #e6f1ff !important; }
+        .modal-title::before { background: linear-gradient(180deg, #00d4ff, #4fc3f7) !important; box-shadow: 0 0 8px #00d4ff !important; }
+        .modal-close {
+            background: rgba(0, 212, 255, 0.1) !important;
+            border: 1px solid rgba(0, 212, 255, 0.3) !important;
+            color: #7dd3fc !important;
+        }
+        .modal-close:hover {
+            background: rgba(255, 71, 87, 0.2) !important;
+            color: #ff6b6b !important;
+            border-color: #ff6b6b !important;
+        }
+        .modal-chart { background: rgba(0, 212, 255, 0.02) !important; border: 1px solid rgba(0, 212, 255, 0.15); border-radius: 8px; }
+        .modal-explain {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.06), rgba(15, 35, 75, 0.4)) !important;
+            border-left: 3px solid #00d4ff !important;
+            color: #cbd5e1 !important;
+        }
+        .modal-explain i { color: #00d4ff !important; }
+        .modal-section-title { color: #7dd3fc !important; }
+        .modal-section-title::after { background: rgba(0, 212, 255, 0.2) !important; }
+        .modal-stat-item {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.06), rgba(15, 35, 75, 0.5)) !important;
+            border: 1px solid rgba(0, 212, 255, 0.2) !important;
+            color: #e6f1ff !important;
+        }
+        .modal-stat-item:hover {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.12), rgba(15, 35, 75, 0.6)) !important;
+            border-color: rgba(0, 212, 255, 0.5) !important;
+        }
+        .modal-stat-value {
+            background: linear-gradient(135deg, #00d4ff, #4fc3f7) !important;
+            -webkit-background-clip: text !important;
+            background-clip: text !important;
+            color: transparent !important;
+        }
+        .modal-stat-label { color: #94a3b8 !important; }
+        .modal-detail-item {
+            background: rgba(0, 212, 255, 0.04) !important;
+            border: 1px solid rgba(0, 212, 255, 0.15) !important;
+        }
+        .modal-detail-label { color: #94a3b8 !important; }
+        .modal-detail-value { color: #e6f1ff !important; }
+
+        /* 滚动条 (深色) */
+        .scrolling-container::-webkit-scrollbar-track { background: rgba(0, 212, 255, 0.05); }
+        .scrolling-container::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #00d4ff, #4fc3f7);
+            box-shadow: 0 0 6px rgba(0, 212, 255, 0.5);
+        }
+
+        /* 顶部导航栏 · 日期物候期 badge (深色主题) */
+        .ck-topbar-date {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 20px;
+            background: rgba(0, 212, 255, 0.08);
+            border: 1px solid rgba(0, 212, 255, 0.45);
+            border-radius: 999px;
+            color: #7dd3fc;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 0 12px rgba(0, 212, 255, 0.18), inset 0 0 8px rgba(0, 212, 255, 0.06);
+        }
+        .ck-topbar-date i {
+            color: #00d4ff;
+            font-size: 14px;
+        }
+        .ck-topbar-date-sep {
+            color: rgba(125, 211, 252, 0.55);
+        }
+        .ck-topbar-phenophase {
+            color: #00d4ff;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
     </style>
 </head>
-<body>
-<div class="dashboard-container">
-    <div class="header">
-        <div class="title-section">
-            <h1><i class="fas fa-bug" style="color:#2b6e3c;"></i> 南丰蜜桔病虫害防控模型</h1>
-            <p>智辨病虫风险，筑牢蜜桔防线</p>
-        </div>
-        <div class="platform-entries">
-            <a href="growth_dashboard.html" class="platform-entry" title="生长模型监测">
-                <i class="fas fa-leaf"></i> 柑橘生长监测
-            </a>
-            <button class="platform-entry" onclick="toggleFullscreen()" title="全屏显示" style="cursor:pointer;">
-                <i class="fas fa-expand"></i> 全屏
-            </button>
-            <div class="date-badge" id="dateBadge"><i class="far fa-calendar-alt"></i> <span id="currentDate"></span> · 防控关键期</div>
-        </div>
+<body class="cockpit">
+
+<!-- ==================== 顶部导航栏 ==================== -->
+<header class="ck-topbar">
+  <div class="ck-topbar-title">
+    <i class="fas fa-shield-virus"></i>
+    <span>南丰蜜桔全产业链大数据平台 · 病虫害模型</span>
+  </div>
+  <nav class="ck-topbar-nav">
+    <a href="growth_dashboard.html"><i class="fas fa-leaf"></i> 生长模型</a>
+    <a href="javascript:void(0)" class="active"><i class="fas fa-bug"></i> 病虫害模型</a>
+    <a href="javascript:void(0)" onclick="toggleFullscreen()"><i class="fas fa-expand"></i> 全屏</a>
+    <a href="../backhand/login.html" target="_blank"><i class="fas fa-cogs"></i> 模型后台</a>
+    <a href="../mobile/mb_home.html" target="_blank"><i class="fas fa-mobile-alt"></i> 蜜桔助手</a>
+  </nav>
+  <div class="ck-topbar-right">
+    <div class="ck-topbar-date" id="ckTopbarDate">
+      <i class="far fa-calendar-alt"></i>
+      <span id="ckCurrentDate">2026年9月11日</span>
+      <span class="ck-topbar-date-sep">·</span>
+      <span class="ck-topbar-phenophase">防控关键期</span>
+    </div>
+  </div>
+</header>
+
+<div class="dashboard-container" style="max-width:1920px;padding-top:16px;">
+
+    <div class="ck-brief">
+        <i class="fas fa-bullhorn"></i>
+        <span class="ck-brief-text">当前处于<b>果实转色期</b>：全县在田发生面积 <b>1,860 亩</b>（同比 -8.4%），已防治 <b>1,540 亩</b>、覆盖率 82.8%；
+        仍有 <span class="ck-brief-warn">红色预警 41 条</span>待处置，柑橘黄龙病确诊 <span class="ck-brief-warn">7 株已全部砍除</span>，木虱诱捕量同比上升，建议本周内组织统防统治。</span>
+        <a class="ck-brief-link" href="growth_dashboard.html">查看长势评价大屏 <i class="fas fa-arrow-right"></i></a>
     </div>
 
     <div class="kpi-grid">
-        <div class="kpi-card animate-fade-in-up" style="animation-delay: 0.1s;" onclick="openModal('病害')">
+        <div class="kpi-card animate-fade-in-up" style="animation-delay: 0.1s;" onclick="openModal('发生面积')">
             <div class="kpi-info">
-                <h4>病害种类</h4>
-                <div class="kpi-number" data-value="8">0</div>
+                <h4>在田发生面积</h4>
+                <div class="kpi-number" data-value="1860">0</div>
+                <span class="trend-badge">亩</span>
+                <span class="kpi-yoy good">同比 -8.4%</span>
+            </div>
+            <div class="kpi-icon"><i class="fas fa-draw-polygon"></i></div>
+        </div>
+        <div class="kpi-card animate-fade-in-up" style="animation-delay: 0.2s;" onclick="openModal('活跃病害')">
+            <div class="kpi-info">
+                <h4>活跃病害</h4>
+                <div class="kpi-number" data-value="6">0</div>
                 <span class="trend-badge">种</span>
+                <span class="kpi-yoy good">同比 -1 种</span>
             </div>
             <div class="kpi-icon"><i class="fas fa-virus"></i></div>
         </div>
-        <div class="kpi-card animate-fade-in-up" style="animation-delay: 0.2s;" onclick="openModal('虫害')">
+        <div class="kpi-card animate-fade-in-up" style="animation-delay: 0.3s;" onclick="openModal('活跃虫害')">
             <div class="kpi-info">
-                <h4>虫害种类</h4>
-                <div class="kpi-number" data-value="10">0</div>
+                <h4>活跃虫害</h4>
+                <div class="kpi-number" data-value="7">0</div>
                 <span class="trend-badge">种</span>
+                <span class="kpi-yoy bad">同比 +1 种</span>
             </div>
             <div class="kpi-icon"><i class="fas fa-bug"></i></div>
         </div>
-        <div class="kpi-card warning animate-fade-in-up" style="animation-delay: 0.3s;" onclick="openModal('预警')">
+        <div class="kpi-card warning animate-fade-in-up" style="animation-delay: 0.4s;" onclick="openModal('预警')">
             <div class="kpi-info">
                 <h4>预警总数</h4>
                 <div class="kpi-number" data-value="184">0</div>
                 <span class="trend-badge warning">条</span>
+                <span class="kpi-yoy bad">同比 +12.6%</span>
             </div>
             <div class="kpi-icon"><i class="fas fa-bell"></i></div>
         </div>
-        <div class="kpi-card animate-fade-in-up" style="animation-delay: 0.4s;" onclick="openModal('处置')">
-            <div class="kpi-info">
-                <h4>预警处置完成率</h4>
-                <div class="kpi-number" data-value="78.3">0</div>
-                <span class="trend-badge">%</span>
-            </div>
-            <div class="kpi-icon"><i class="fas fa-check-circle"></i></div>
-        </div>
-        <div class="kpi-card animate-fade-in-up" style="animation-delay: 0.5s;" onclick="openModal('识别准确')">
-            <div class="kpi-info">
-                <h4>图像识别准确率</h4>
-                <div class="kpi-number" data-value="81.3">0</div>
-                <span class="trend-badge">%</span>
-            </div>
-            <div class="kpi-icon"><i class="fas fa-eye"></i></div>
-        </div>
-        <div class="kpi-card animate-fade-in-up" style="animation-delay: 0.6s;" onclick="openModal('灾害')">
-            <div class="kpi-info">
-                <h4>气象灾害类型</h4>
-                <div class="kpi-number" data-value="3">0</div>
-                <span class="trend-badge">类</span>
-            </div>
-            <div class="kpi-icon"><i class="fas fa-cloud-lightning"></i></div>
-        </div>
-        <div class="kpi-card animate-fade-in-up" style="animation-delay: 0.7s;" onclick="openModal('防护')">
-            <div class="kpi-info">
-                <h4>防护建议采纳率</h4>
-                <div class="kpi-number" data-value="74.8">0</div>
-                <span class="trend-badge">%</span>
-            </div>
-            <div class="kpi-icon"><i class="fas fa-shield-alt"></i></div>
-        </div>
-        <div class="kpi-card warning animate-fade-in-up" style="animation-delay: 0.8s;" onclick="openModal('红色预警')">
+        <div class="kpi-card warning animate-fade-in-up" style="animation-delay: 0.5s;" onclick="openModal('红色预警')">
             <div class="kpi-info">
                 <h4>红色预警</h4>
                 <div class="kpi-number" data-value="41">0</div>
                 <span class="trend-badge warning">条</span>
+                <span class="kpi-yoy bad">同比 +6 条</span>
             </div>
             <div class="kpi-icon"><i class="fas fa-exclamation-triangle"></i></div>
+        </div>
+        <div class="kpi-card animate-fade-in-up" style="animation-delay: 0.6s;" onclick="openModal('处置')">
+            <div class="kpi-info">
+                <h4>预警处置完成率</h4>
+                <div class="kpi-number" data-value="78.3">0</div>
+                <span class="trend-badge">%</span>
+                <span class="kpi-yoy good">同比 +5.2</span>
+            </div>
+            <div class="kpi-icon"><i class="fas fa-check-circle"></i></div>
+        </div>
+        <div class="kpi-card animate-fade-in-up" style="animation-delay: 0.7s;" onclick="openModal('已防治')">
+            <div class="kpi-info">
+                <h4>已防治面积</h4>
+                <div class="kpi-number" data-value="1540">0</div>
+                <span class="trend-badge">亩</span>
+                <span class="kpi-yoy good">同比 +14.2%</span>
+            </div>
+            <div class="kpi-icon"><i class="fas fa-spray-can"></i></div>
+        </div>
+        <div class="kpi-card animate-fade-in-up" style="animation-delay: 0.8s;" onclick="openModal('挽回损失')">
+            <div class="kpi-info">
+                <h4>挽回损失</h4>
+                <div class="kpi-number" data-value="126">0</div>
+                <span class="trend-badge">万元</span>
+                <span class="kpi-yoy good">同比 +9.8%</span>
+            </div>
+            <div class="kpi-icon"><i class="fas fa-hand-holding-dollar"></i></div>
         </div>
     </div>
 
     <div class="map-core-grid">
         <div class="side-col">
+            <div class="card side-card hlb-card">
+                <div class="card-header">
+                    <span><i class="fas fa-shield-virus"></i> 柑橘黄龙病专项防控</span>
+                    <span class="header-extra hlb-flag">检疫性病害 · 一号防控对象</span>
+                </div>
+                <div class="hlb-body">
+                    <div class="hlb-alert">
+                        <i class="fas fa-triangle-exclamation"></i>
+                        <span>传播媒介<b>柑桔木虱</b>本周诱捕 <b>146 头</b>，同比 +32 头，建议立即组织统防统治</span>
+                    </div>
+                    <div class="hlb-grid">
+                        <div class="hlb-item">
+                            <div class="hlb-num">23</div>
+                            <div class="hlb-label">疑似病株</div>
+                        </div>
+                        <div class="hlb-item danger">
+                            <div class="hlb-num">7</div>
+                            <div class="hlb-label">确诊病株</div>
+                        </div>
+                        <div class="hlb-item ok">
+                            <div class="hlb-num">7</div>
+                            <div class="hlb-label">已砍除</div>
+                        </div>
+                        <div class="hlb-item">
+                            <div class="hlb-num">3</div>
+                            <div class="hlb-label">涉及乡镇</div>
+                        </div>
+                    </div>
+                    <div class="hlb-progress">
+                        <div class="hlb-progress-head"><span>确诊病株处置率</span><span class="hlb-rate">100%</span></div>
+                        <div class="hlb-bar"><div class="hlb-bar-fill" style="width:100%;"></div></div>
+                    </div>
+                    <div class="hlb-foot">
+                        <span>最近发现：市山镇 · 3 天前 · 责任人：王技术员</span>
+                        <span class="hlb-note">专项统计，不计入在田发生面积口径</span>
+                    </div>
+                </div>
+            </div>
+
             <div class="card side-card">
                 <div class="card-header"><span><i class="fas fa-chart-line"></i> 病虫害种类 Top7</span><span class="header-extra">本月严重程度</span></div>
                 <div class="pest-rank-list">
@@ -1008,7 +1574,7 @@
                     </div>
                     <div class="pest-rank-item">
                         <div class="pest-rank-num">5</div>
-                        <span class="pest-rank-name">柑桔木虱</span>
+                        <span class="pest-rank-name">柑桔木虱<i class="hlb-tag">黄龙病媒介</i></span>
                         <span class="pest-rank-count sev-light">轻度</span>
                     </div>
                     <div class="pest-rank-item">
@@ -1034,116 +1600,27 @@
                 </div>
                 <div id="recognitionChart" class="chart-box"></div>
             </div>
-
-            <div class="card side-card">
-                <div class="card-header"><span><i class="fas fa-list-alt"></i> 分级预警信息统计</span><span class="header-extra">本月数量</span></div>
-                <div class="table-responsive">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>预警类型</th>
-                                <th>红色</th>
-                                <th>橙色</th>
-                                <th>黄色</th>
-                                <th>蓝色</th>
-                            </tr>
-                        </thead>
-                        <tbody id="alertTableBody">
-                            <tr>
-                                <td>病害</td>
-                                <td><span style="color:#ef4444;font-weight:600;">18</span></td>
-                                <td><span style="color:#f59e0b;font-weight:600;">36</span></td>
-                                <td><span style="color:#eab308;font-weight:600;">12</span></td>
-                                <td><span style="color:#3b82f6;font-weight:600;">21</span></td>
-                            </tr>
-                            <tr>
-                                <td>虫害</td>
-                                <td><span style="color:#ef4444;font-weight:600;">9</span></td>
-                                <td><span style="color:#f59e0b;font-weight:600;">28</span></td>
-                                <td><span style="color:#eab308;font-weight:600;">19</span></td>
-                                <td><span style="color:#3b82f6;font-weight:600;">15</span></td>
-                            </tr>
-                            <tr>
-                                <td>干旱</td>
-                                <td><span style="color:#ef4444;font-weight:600;">1</span></td>
-                                <td><span style="color:#f59e0b;font-weight:600;">1</span></td>
-                                <td><span style="color:#eab308;font-weight:600;">1</span></td>
-                                <td><span style="color:#3b82f6;font-weight:600;">1</span></td>
-                            </tr>
-                            <tr>
-                                <td>洪涝</td>
-                                <td><span style="color:#ef4444;font-weight:600;">1</span></td>
-                                <td><span style="color:#f59e0b;font-weight:600;">0</span></td>
-                                <td><span style="color:#eab308;font-weight:600;">0</span></td>
-                                <td><span style="color:#3b82f6;font-weight:600;">0</span></td>
-                            </tr>
-                            <tr>
-                                <td>台风</td>
-                                <td><span style="color:#ef4444;font-weight:600;">0</span></td>
-                                <td><span style="color:#f59e0b;font-weight:600;">0</span></td>
-                                <td><span style="color:#eab308;font-weight:600;">0</span></td>
-                                <td><span style="color:#3b82f6;font-weight:600;">0</span></td>
-                            </tr>
-                            <tr>
-                                <td>高温热害</td>
-                                <td><span style="color:#ef4444;font-weight:600;">3</span></td>
-                                <td><span style="color:#f59e0b;font-weight:600;">4</span></td>
-                                <td><span style="color:#eab308;font-weight:600;">2</span></td>
-                                <td><span style="color:#3b82f6;font-weight:600;">8</span></td>
-                            </tr>
-                            <tr>
-                                <td>暴雨</td>
-                                <td><span style="color:#ef4444;font-weight:600;">1</span></td>
-                                <td><span style="color:#f59e0b;font-weight:600;">1</span></td>
-                                <td><span style="color:#eab308;font-weight:600;">1</span></td>
-                                <td><span style="color:#3b82f6;font-weight:600;">2</span></td>
-                            </tr>
-                            <tr>
-                                <td>冰雹</td>
-                                <td><span style="color:#ef4444;font-weight:600;">0</span></td>
-                                <td><span style="color:#f59e0b;font-weight:600;">0</span></td>
-                                <td><span style="color:#eab308;font-weight:600;">0</span></td>
-                                <td><span style="color:#3b82f6;font-weight:600;">0</span></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
         </div>
 
         <div class="card center-map-card">
-            <div class="card-header"><span><i class="fas fa-map-pin"></i> 区域病虫害风险热力分布</span><span style="font-size:0.8rem;color:#64748b;">实时监控</span></div>
+            <div class="card-header"><span><i class="fas fa-map-pin"></i> 区域病虫害风险分布</span><span style="font-size:0.8rem;color:#94a3b8;">实时监控</span></div>
             <div id="riskMap" style="width:100%;height:650px;border-radius:20px;position:relative;overflow:hidden;">
                 <div class="map-title-overlay">
-                    <div class="map-title-main">南丰县病虫害风险分布</div>
-                    <div class="map-title-sub">NANFENG · PEST RISK MONITORING</div>
+                    <div class="map-title-main">区域病虫害风险分布</div>
+                    <div class="map-title-sub">NANFENG · PEST RISK DISTRIBUTION</div>
                 </div>
-                <div class="map-overlay map-overlay-tl">
-                    <div class="map-panel-title"><span class="live-dot"></span>实时监控 · 风险乡镇分布</div>
-                    <div class="legend-wrap">
-                        <div class="legend-item"><div class="legend-dot" style="background:#ef4444;color:#ef4444;"></div>高风险: <span id="riskHighCount">2</span> 个乡镇</div>
-                        <div class="legend-item"><div class="legend-dot" style="background:#f59e0b;color:#f59e0b;"></div>中风险: <span id="riskMidCount">7</span> 个乡镇</div>
-                        <div class="legend-item"><div class="legend-dot" style="background:#22c55e;color:#22c55e;"></div>低风险: <span id="riskLowCount">2</span> 个乡镇</div>
-                    </div>
-                </div>
-                <div class="map-overlay map-overlay-tr">
-                    <div class="map-panel-title">预警统计</div>
-                    <div class="map-panel-row"><span class="map-panel-dot" style="background:#ef4444;color:#ef4444;"></span>红色预警: <span id="alertRedCount">41</span> 条</div>
-                    <div class="map-panel-row"><span class="map-panel-dot" style="background:#f59e0b;color:#f59e0b;"></span>橙色预警: <span id="alertOrangeCount">57</span> 条</div>
-                    <div class="map-panel-row"><span class="map-panel-dot" style="background:#eab308;color:#eab308;"></span>黄色预警: <span id="alertYellowCount">23</span> 条</div>
-                    <div class="map-panel-row"><span class="map-panel-dot" style="background:#3b82f6;color:#3b82f6;"></span>蓝色预警: <span id="alertBlueCount">63</span> 条</div>
-                </div>
-                <div class="map-overlay map-overlay-bl">
-                    <div class="map-panel-text">数据更新于: <span id="mapUpdateTime"></span></div>
-                    <div class="map-panel-text" style="color:#16a34a;font-weight:600;">全县健康指数: <span id="healthIndex">72.5</span></div>
+                <div class="map-overlay map-overlay-bl" style="left:18px;bottom:22px;right:auto;top:auto;">
+                    <div class="map-panel-row"><span class="live-dot"></span><span class="map-panel-text">数据更新: <span id="mapUpdateTime">--:--</span></span></div>
+                    <div class="map-panel-row"><span class="map-panel-dot" style="background:#00d4ff;color:#00d4ff;"></span><span class="map-panel-text">全县健康指数: <span id="healthIndex" style="color:#00d4ff;font-weight:600;">72.5</span></span></div>
                 </div>
             </div>
             <div class="risk-legend-bar">
-                <span class="risk-legend-title">风险等级</span>
-                <div class="legend-item"><div class="legend-dot" style="background:#22c55e;color:#22c55e;"></div>低风险</div>
-                <div class="legend-item"><div class="legend-dot" style="background:#facc15;color:#facc15;"></div>中风险</div>
-                <div class="legend-item"><div class="legend-dot" style="background:#f97316;color:#f97316;"></div>高风险</div>
-                <div class="legend-item"><div class="legend-dot" style="background:#dc2626;color:#dc2626;"></div>极高风险</div>
+                <span class="risk-legend-title">标注说明</span>
+                <div class="legend-item"><div class="legend-dot" style="background:#0A1A2F;border:2px solid #7FE4F5;box-shadow:none;"></div>常规监测点</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#0A1A2F;border:2px solid #33D69F;box-shadow:none;"></div>高发预警</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#123A6E;border-radius:2px;box-shadow:none;"></div>低风险</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#5AD7F0;border-radius:2px;box-shadow:none;"></div>高风险</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#3F4A5C;border:1px dashed rgba(203,213,225,0.75);border-radius:2px;box-shadow:none;box-sizing:border-box;"></div>暂无数据</div>
             </div>
             <div class="scrolling-cards">
                     <div class="scrolling-header">
@@ -1167,9 +1644,9 @@
                         <div class="accuracy-label">%</div>
                     </div>
                     <div class="accuracy-breakdown">
-                        <div class="accuracy-item"><span style="color:#22c55e;">✓</span> 准确率 85.2%</div>
-                        <div class="accuracy-item"><span style="color:#f59e0b;">~</span> 误报率 8.6%</div>
-                        <div class="accuracy-item"><span style="color:#ef4444;">✗</span> 漏报率 6.2%</div>
+                        <div class="accuracy-item"><span style="color:#4ade80;">✓</span> 准确率 85.2%</div>
+                        <div class="accuracy-item"><span style="color:#fbbf24;">~</span> 误报率 8.6%</div>
+                        <div class="accuracy-item"><span style="color:#ff6b6b;">✗</span> 漏报率 6.2%</div>
                     </div>
                     <div class="accuracy-bar"><div class="accuracy-bar-fill" style="width:85.2%;"></div></div>
                 </div>
@@ -1179,7 +1656,7 @@
             <div class="card side-card">
                 <div class="card-header"><span><i class="fas fa-cloud-sun"></i> 气象实时数据</span>
                     <span class="header-extra">
-                        <select id="weatherStationSelect" class="ds-select-sm" style="font-size:12px;color:#475569;background:#fff;border:1px solid #d1d5db;border-radius:6px;padding:3px 8px;cursor:pointer;outline:none;">
+                        <select id="weatherStationSelect" class="ds-select-sm" style="font-size:12px;color:#e6f1ff;background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.35);border-radius:6px;padding:3px 8px;cursor:pointer;outline:none;">
                             <option value="orchard-central">南丰蜜桔种质园</option>
                             <option value="qinchen">琴城果园监测点</option>
                             <option value="qiawan">洽湾示范园监测点</option>
@@ -1192,28 +1669,28 @@
                 </div>
                 <div class="env-grid">
                     <div class="env-card">
-                        <div class="env-icon" style="background:#e0f2fe;color:#0284c7;"><i class="fas fa-thermometer-half"></i></div>
+                        <div class="env-icon" style="background:rgba(0,212,255,0.15);border:1px solid rgba(0,212,255,0.4);color:#00d4ff;"><i class="fas fa-thermometer-half"></i></div>
                         <div class="env-info">
                             <div class="env-value" data-env-key="airTemp">22.0°C</div>
                             <div class="env-label">气温</div>
                         </div>
                     </div>
                     <div class="env-card">
-                        <div class="env-icon" style="background:#dbeafe;color:#2563eb;"><i class="fas fa-cloud"></i></div>
+                        <div class="env-icon" style="background:rgba(0,212,255,0.15);border:1px solid rgba(0,212,255,0.4);color:#00d4ff;"><i class="fas fa-cloud"></i></div>
                         <div class="env-info">
                             <div class="env-value" data-env-key="airHum">76%</div>
                             <div class="env-label">湿度</div>
                         </div>
                     </div>
                     <div class="env-card">
-                        <div class="env-icon" style="background:#bfdbfe;color:#1d4ed8;"><i class="fas fa-cloud-rain"></i></div>
+                        <div class="env-icon" style="background:rgba(0,212,255,0.15);border:1px solid rgba(0,212,255,0.4);color:#00d4ff;"><i class="fas fa-cloud-rain"></i></div>
                         <div class="env-info">
                             <div class="env-value" data-env-key="rainfall">0 mm</div>
                             <div class="env-label">降雨量</div>
                         </div>
                     </div>
                     <div class="env-card">
-                        <div class="env-icon" style="background:#f1f5f9;color:#64748b;"><i class="fas fa-wind"></i></div>
+                        <div class="env-icon" style="background:rgba(0,212,255,0.15);border:1px solid rgba(0,212,255,0.4);color:#00d4ff;"><i class="fas fa-wind"></i></div>
                         <div class="env-info">
                             <div class="env-value" data-env-key="windSpeed">2.5 m/s</div>
                             <div class="env-label">风速</div>
@@ -1249,7 +1726,8 @@
 </div>
 
 <script>
-    document.getElementById('currentDate').textContent = new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' });
+    var _ckDateEl = document.getElementById('ckCurrentDate');
+    if (_ckDateEl) _ckDateEl.textContent = new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' });
 
     // ===== 统一预警数据源（所有面板/KPI 共用） =====
     var alertDataSource = {
@@ -1267,17 +1745,59 @@
         levels: {
             red:    41,   // 红色预警
             orange: 57,   // 橙色预警
-            yellow: 23,   // 黄色预警（与 types + unclassified 合计一致）
-            blue:   63    // 蓝色预警（与 types 合计一致）
+            yellow: 23,   // 黄色预警（与 alertByType 矩阵 yellow 列合计一致）
+            blue:   63    // 蓝色预警（与 alertByType 矩阵 blue 列合计一致）
         },
-        // 按预警来源统计
-        types: {
-            pest:    { red: 23, orange: 45, yellow: 0, blue: 28 }, // 病虫害
-            weather: { red: 0,  orange: 12, yellow: 18, blue: 35 },// 气象灾害
-            general: { red: 5,  orange: 0,  yellow: 0,  blue: 0 }   // 综合预警
+        /* ===== 预警分解矩阵（唯一真源）=====
+         * 作为 KPI 等级口径（levels）的分解依据：各列合计必须等于 levels，
+         * 各行合计相加必须等于预警总数，不再各自硬编码一套数字。
+         * 病虫害与气象灾害的分级依据不同（前者按发生程度、后者按气象预警信号），
+         * 故用 group 字段区分，避免被横向比较。
+         * 注：该矩阵目前不直接渲染到页面，仅用于推导 KPI 与口径自检
+         * （assertAlertMatrix / verify-dashboards.mjs）。 */
+        alertByType: [
+            { name: '病害',     group: 'pest',    red: 16, orange: 24, yellow: 8, blue: 14 },
+            { name: '虫害',     group: 'pest',    red: 12, orange: 21, yellow: 7, blue: 20 },
+            { name: '干旱',     group: 'weather', red: 1,  orange: 2,  yellow: 1, blue: 3  },
+            { name: '洪涝',     group: 'weather', red: 1,  orange: 1,  yellow: 0, blue: 1  },
+            { name: '台风',     group: 'weather', red: 1,  orange: 0,  yellow: 0, blue: 1  },
+            { name: '高温热害', group: 'weather', red: 5,  orange: 6,  yellow: 4, blue: 15 },
+            { name: '暴雨',     group: 'weather', red: 4,  orange: 3,  yellow: 3, blue: 8  },
+            { name: '冰雹',     group: 'weather', red: 1,  orange: 0,  yellow: 0, blue: 1  }
+        ],
+        /* ===== 防控业务口径（对应农业农村局「发生多少 / 防了多少 / 效果如何 / 损失多少」）===== */
+        control: {
+            occurArea:          1860,   // 在田发生面积（亩）
+            controlledArea:     1540,   // 已防治面积（亩）
+            controlEffect:      91.2,   // 防治效果（复查合格率 %）
+            savedLoss:          126,    // 挽回损失（万元）
+            actualLoss:         18.4,   // 实际损失（万元）
+            greenControlRate:   68.5,   // 绿色防控覆盖率（%）
+            unifiedControlArea: 1120,   // 统防统治面积（亩）
+            pesticideReduction: 12.6    // 化学农药减量（%）
         },
-        // 未分类预警（用于补足 levels 与 types 之间的口径差）
-        unclassified: { red: 13, orange: 0, yellow: 5, blue: 0 },
+        /* 当前活跃种类（实际发生的种类数，区别于知识库收录总数——后者是常量，不适合做 KPI） */
+        activeKinds: { disease: 6, pest: 7 },
+        /* 发生面积按「主要病虫种类」归因分解（亩）。
+         * 每块地只归因于一个主要种类，因此分项之和恒等于在田发生面积，不存在重复计算。
+         * 由 assertAlertMatrix 校验：种类数须与 activeKinds 一致，面积之和须等于 control.occurArea。 */
+        occurByKind: {
+            disease: [
+                { name: '炭疽病', area: 420 }, { name: '黑点病', area: 210 }, { name: '树脂病', area: 130 },
+                { name: '灰霉病', area: 95 },  { name: '黑斑病', area: 80 },  { name: '溃疡病', area: 55 }
+            ],
+            pest: [
+                { name: '红蜘蛛', area: 340 },  { name: '锈壁虱', area: 210 }, { name: '潜叶蛾', area: 110 },
+                { name: '柑桔木虱', area: 95 }, { name: '毒蛾', area: 55 },    { name: '粉虱', area: 40 },
+                { name: '蚜虫', area: 20 }
+            ]
+        },
+        /* 同比：与去年同期对比（正数为上升）。红色预警、发生面积上升为不利，挽回损失上升为有利 */
+        yoy: {
+            occurArea: -8.4, controlledArea: +14.2, savedLoss: +9.8,
+            alertTotal: +12.6, redAlert: +6, disposeRate: +5.2,
+            activeDisease: -1, activePest: +1
+        },
         // 全县健康指数（0~100）
         healthIndex: 72.5,
         // 按乡镇风险等级统计
@@ -1293,15 +1813,46 @@
         // 病虫种类
         diseaseKinds: 8,
         pestKinds: 10,
-        // 气象灾害类型（与右侧「气象灾害风险预判」卡片一致：3 类）
-        weatherDisasterKinds: 3,
+        // 气象灾害类型：等于 alertByType 中 group='weather' 的条目数（当前 6 种，由 assertAlertMatrix 校验）
+        weatherDisasterKinds: 6,
         // 灾害类型明细（驱动 KPI 弹窗与卡片）
         weatherDisasters: [
-            { type: '大风',      level: '蓝色', range: '全县',             suggest: '注意加固果园支架、防风障，停止高空作业' },
-            { type: '地质灾害',  level: '蓝色', range: '三溪乡、太源乡',     suggest: '关注强降水引发的滑坡、泥石流，提前排查隐患' },
-            { type: '暴雨',      level: '蓝色', range: '全县',             suggest: '13日起持续降水，提前疏通排水沟渠、做好排水准备' }
+            { type: '大风',      level: '蓝色', range: '全县',         suggest: '注意加固果园支架、防风障，停止高空作业',       person: '县农技中心 · 李站长', deadline: '09-14' },
+            { type: '地质灾害',  level: '蓝色', range: '三溪乡、太源乡', suggest: '关注强降水引发的滑坡、泥石流，提前排查隐患', person: '三溪乡 · 陈农技员',   deadline: '09-13' },
+            { type: '暴雨',      level: '蓝色', range: '全县',         suggest: '13日起持续降水，提前疏通排水沟渠、做好排水准备', person: '县农技中心 · 李站长', deadline: '09-13' }
         ]
     };
+
+    /* ===== 口径自校验 =====
+     * 一旦预警分解矩阵与等级合计对不上，直接在控制台报错，
+     * 杜绝再次出现「KPI / 表格 / 数据源」三套数字互不一致的情况。 */
+    (function assertAlertMatrix() {
+        var lv = alertDataSource.levels;
+        var sum = { red: 0, orange: 0, yellow: 0, blue: 0 };
+        alertDataSource.alertByType.forEach(function (r) {
+            sum.red += r.red; sum.orange += r.orange; sum.yellow += r.yellow; sum.blue += r.blue;
+        });
+        var colsOk = ['red', 'orange', 'yellow', 'blue'].every(function (k) { return sum[k] === lv[k]; });
+        var weatherCount = alertDataSource.alertByType.filter(function (r) { return r.group === 'weather'; }).length;
+        var kindsOk = weatherCount === alertDataSource.weatherDisasterKinds;
+
+        /* 发生面积分解同样必须与 KPI 对齐：
+         * 种类数 = activeKinds，分项面积之和 = control.occurArea */
+        var ob = alertDataSource.occurByKind;
+        var areaSum = ob.disease.concat(ob.pest).reduce(function (a, r) { return a + r.area; }, 0);
+        var kindsMatch = ob.disease.length === alertDataSource.activeKinds.disease
+            && ob.pest.length === alertDataSource.activeKinds.pest;
+        var areaOk = areaSum === alertDataSource.control.occurArea;
+
+        if (!colsOk || !kindsOk || !kindsMatch || !areaOk) {
+            console.error('[口径错误] 数据源内部不一致', {
+                矩阵列合计: sum, 等级口径: lv,
+                气象类型数: weatherCount, 气象类型口径: alertDataSource.weatherDisasterKinds,
+                发生面积分项之和: areaSum, 在田发生面积: alertDataSource.control.occurArea,
+                活跃种类数是否匹配: kindsMatch
+            });
+        }
+    })();
 
     function toggleFullscreen() {
         if (!document.fullscreenElement) {
@@ -1315,48 +1866,58 @@
         }
     }
 
+    // ===== 深色主题图表配色 =====
+    var ckChartText = '#cbd5e1';
+    var ckChartAxis = 'rgba(0, 212, 255, 0.2)';
+    var ckChartGridLine = 'rgba(0, 212, 255, 0.06)';
+
     var recognitionChart = echarts.init(document.getElementById('recognitionChart'));
     recognitionChart.setOption({
-        tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+        tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, backgroundColor: 'rgba(10,28,60,0.95)', borderColor: '#00d4ff', textStyle: { color: '#e6f1ff' } },
         grid: { left: '3%', right: '4%', bottom: '3%', top: '14%', containLabel: true },
         xAxis: {
             type: 'category',
-            // 按本月 Top7 + Top8 排序展示（病害用红系、虫害用绿系）
             data: ['炭疽病', '黑点病', '溃疡病', '红蜘蛛', '锈壁虱', '潜叶蛾', '柑桔木虱'],
-            axisLabel: { interval: 0, rotate: 25, fontSize: 10, color: '#475569' }
+            axisLine: { lineStyle: { color: ckChartAxis } },
+            axisLabel: { interval: 0, rotate: 25, fontSize: 10, color: ckChartText }
         },
-        yAxis: { type: 'value', axisLabel: { formatter: '{value}条' } },
+        yAxis: {
+            type: 'value', axisLabel: { formatter: '{value}条', color: ckChartText },
+            splitLine: { lineStyle: { color: ckChartGridLine } },
+            axisLine: { lineStyle: { color: ckChartAxis } }
+        },
         series: [{
             type: 'bar',
-            // 数值为本月各病虫被拍照识别的次数（与 Top7 顺序与饼图数据一致）
-            data: [
-                { value: 132, itemStyle: { color: '#ef4444' } }, // 炭疽病
-                { value: 86,  itemStyle: { color: '#f59e0b' } }, // 黑点病
-                { value: 18,  itemStyle: { color: '#64748b' } }, // 溃疡病
-                { value: 168, itemStyle: { color: '#22c55e' } }, // 红蜘蛛
-                { value: 122, itemStyle: { color: '#16a34a' } }, // 锈壁虱
-                { value: 96,  itemStyle: { color: '#4ade80' } }, // 潜叶蛾
-                { value: 58,  itemStyle: { color: '#86efac' } }  // 柑桔木虱
-            ],
+            /* 7 个类目属于同一维度（识别条数），统一用一个青色色阶按排名上色，
+             * 不再用红/黄/灰/蓝/绿这种与数据无关的装饰色。 */
+            data: (function () {
+                var vals = [132, 86, 18, 168, 122, 96, 58];
+                var cols = NFMap.rampByRank(vals);
+                return vals.map(function (v, i) {
+                    return { value: v, itemStyle: { color: cols[i] } };
+                });
+            })(),
             itemStyle: { borderRadius: [6, 6, 0, 0] },
-            label: { show: true, position: 'top', fontSize: 10, color: '#475569' }
+            label: { show: true, position: 'top', fontSize: 10, color: ckChartText }
         }]
     });
 
     var weatherTrendChart = echarts.init(document.getElementById('weatherTrendChart'));
     weatherTrendChart.setOption({
-        tooltip: { trigger: 'axis' },
+        tooltip: { trigger: 'axis', backgroundColor: 'rgba(10,28,60,0.95)', borderColor: '#00d4ff', textStyle: { color: '#e6f1ff' } },
         grid: { left: '3%', right: '4%', bottom: '3%', top: '10%', containLabel: true },
-        xAxis: { type: 'category', data: ['今天', '明天', '周三', '周四', '周五', '周六', '周日'] },
-        yAxis: { type: 'value', min: 18, max: 34, axisLabel: { formatter: '{value}°' } },
+        xAxis: { type: 'category', data: ['今天', '明天', '周三', '周四', '周五', '周六', '周日'], axisLine: { lineStyle: { color: ckChartAxis } }, axisLabel: { color: ckChartText } },
+        yAxis: { type: 'value', min: 18, max: 34, axisLabel: { formatter: '{value}°', color: ckChartText }, splitLine: { lineStyle: { color: ckChartGridLine } } },
         series: [{
             type: 'line',
             data: (alertDataSource.weatherStations['orchard-central']).trend,
             smooth: true,
-            itemStyle: { color: '#ef4444' },
+            itemStyle: { color: '#00d4ff' },
+            symbol: 'circle', symbolSize: 8,
+            lineStyle: { width: 2, color: '#00d4ff', shadowBlur: 8, shadowColor: 'rgba(0,212,255,0.5)' },
             areaStyle: {
                 color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                    { offset: 0, color: 'rgba(239,68,68,0.3)' }, { offset: 1, color: 'rgba(239,68,68,0.05)' }
+                    { offset: 0, color: 'rgba(0,212,255,0.4)' }, { offset: 1, color: 'rgba(0,212,255,0.02)' }
                 ])
             }
         }]
@@ -1364,15 +1925,15 @@
 
     var accuracyTrendChart = echarts.init(document.getElementById('accuracyTrendChart'));
     accuracyTrendChart.setOption({
-        tooltip: { trigger: 'axis' },
-        legend: { data: ['准确率', '误报率', '漏报率'], bottom: 0 },
+        tooltip: { trigger: 'axis', backgroundColor: 'rgba(10,28,60,0.95)', borderColor: '#00d4ff', textStyle: { color: '#e6f1ff' } },
+        legend: { data: ['准确率', '误报率', '漏报率'], bottom: 0, textStyle: { color: ckChartText } },
         grid: { left: '3%', right: '4%', bottom: '15%', top: '5%', containLabel: true },
-        xAxis: { type: 'category', data: ['9/1', '9/3', '9/6', '9/8', '9/10'] },
-        yAxis: { type: 'value', axisLabel: { formatter: '{value}%' } },
+        xAxis: { type: 'category', data: ['9/1', '9/3', '9/6', '9/8', '9/10'], axisLine: { lineStyle: { color: ckChartAxis } }, axisLabel: { color: ckChartText } },
+        yAxis: { type: 'value', axisLabel: { formatter: '{value}%', color: ckChartText }, splitLine: { lineStyle: { color: ckChartGridLine } } },
         series: [
-            { name: '准确率', type: 'line', data: [80.5, 82.1, 83.4, 84.5, 85.2], smooth: true, itemStyle: { color: '#22c55e' } },
-            { name: '误报率', type: 'line', data: [12.3, 10.8, 9.7, 9.1, 8.6], smooth: true, itemStyle: { color: '#f59e0b' } },
-            { name: '漏报率', type: 'line', data: [7.2, 7.1, 6.9, 6.4, 6.2], smooth: true, itemStyle: { color: '#ef4444' } }
+            { name: '准确率', type: 'line', data: [80.5, 82.1, 83.4, 84.5, 85.2], smooth: true, itemStyle: { color: '#00d4ff' }, lineStyle: { width: 2, shadowBlur: 6, shadowColor: 'rgba(0,212,255,0.5)' } },
+            { name: '误报率', type: 'line', data: [12.3, 10.8, 9.7, 9.1, 8.6], smooth: true, itemStyle: { color: '#fbbf24' }, lineStyle: { width: 2 } },
+            { name: '漏报率', type: 'line', data: [7.2, 7.1, 6.9, 6.4, 6.2], smooth: true, itemStyle: { color: '#ff6b6b' }, lineStyle: { width: 2 } }
         ]
     });
 
@@ -1410,10 +1971,10 @@
         var filtered = filterType === 'all' ? data : data.filter(function(e) { return e.type === filterType; });
         
         function getSevColor(sev) {
-            if (sev === '高') return '#dc2626';
-            if (sev === '中') return '#d97706';
-            if (sev === '低') return '#22c55e';
-            return '#64748b';
+            if (sev === '高') return '#ff6b6b';
+            if (sev === '中') return '#fbbf24';
+            if (sev === '低') return '#4ade80';
+            return '#7dd3fc';
         }
 
         function generateRows(data) {
@@ -1421,9 +1982,9 @@
             data.forEach(function(item) {
                 var isWarning = item.status !== '正常';
                 rows += '<tr' + (isWarning ? ' class="highlight-row"' : '') + '>' +
-                    '<td>' + (item.type === 'disease' ? '<i class="fas fa-virus" style="color:#ef4444;margin-right:6px;"></i>' : '<i class="fas fa-bug" style="color:#f59e0b;margin-right:6px;"></i>') + item.name + '</td>' +
+                    '<td>' + (item.type === 'disease' ? '<i class="fas fa-virus" style="color:#ff6b6b;margin-right:6px;"></i>' : '<i class="fas fa-bug" style="color:#00d4ff;margin-right:6px;"></i>') + item.name + '</td>' +
                     '<td>' + item.area + '</td>' +
-                    '<td><span style="color:' + getSevColor(item.severity) + ';font-weight:500;">' + item.severity + '</span></td>' +
+                    '<td><span style="color:' + getSevColor(item.severity) + ';font-weight:600;">' + item.severity + '</span></td>' +
                     '<td>' + item.person + '</td>' +
                     '<td class="' + (isWarning ? 'warning-cell' : 'normal-cell') + '">' + item.status + '</td>' +
                     '</tr>';
@@ -1485,271 +2046,172 @@
         riskMapChart.resize();
     });
 
-    var nanfengGeoJson = {
-        "type": "FeatureCollection",
-        "features": [
-            {"type":"Feature","properties":{"name":"太和镇","risk":85,"warningCount":38,"affectedArea":2850,"incidence":"23.5%","trend":"↑"},"geometry":{"type":"Polygon","coordinates":[[[68,55],[92,42],[128,40],[152,52],[165,75],[158,100],[135,115],[100,118],[72,105],[60,82],[68,55]]]}},
-            {"type":"Feature","properties":{"name":"桑田镇","risk":82,"warningCount":32,"affectedArea":2430,"incidence":"18.8%","trend":"↑"},"geometry":{"type":"Polygon","coordinates":[[[165,50],[195,38],[228,35],[258,48],[270,70],[268,95],[248,112],[215,118],[185,110],[168,88],[165,50]]]}},
-            {"type":"Feature","properties":{"name":"白舍镇","risk":65,"warningCount":20,"affectedArea":2180,"incidence":"12.3%","trend":"→"},"geometry":{"type":"Polygon","coordinates":[[[270,48],[302,35],[340,32],[372,40],[392,58],[398,82],[385,105],[358,115],[325,118],[295,112],[272,95],[262,72],[270,48]]]}},
-            {"type":"Feature","properties":{"name":"市山镇","risk":68,"warningCount":14,"affectedArea":1960,"incidence":"8.5%","trend":"↓"},"geometry":{"type":"Polygon","coordinates":[[[398,58],[418,48],[445,45],[470,55],[482,78],[480,108],[468,138],[442,150],[415,145],[398,125],[392,95],[398,58]]]}},
-            {"type":"Feature","properties":{"name":"太源乡","risk":58,"warningCount":10,"affectedArea":1850,"incidence":"6.2%","trend":"↑"},"geometry":{"type":"Polygon","coordinates":[[[60,82],[72,105],[88,118],[82,145],[78,172],[68,192],[48,198],[28,180],[18,150],[22,118],[35,95],[50,85],[60,82]]]}},
-            {"type":"Feature","properties":{"name":"琴城镇","risk":72,"warningCount":20,"affectedArea":2200,"incidence":"15.6%","trend":"→"},"geometry":{"type":"Polygon","coordinates":[[[88,118],[105,98],[125,88],[150,85],[168,88],[185,110],[195,128],[200,150],[188,175],[168,188],[142,192],[118,182],[98,165],[88,142],[88,118]]]}},
-            {"type":"Feature","properties":{"name":"头陂镇","risk":60,"warningCount":10,"affectedArea":2050,"incidence":"7.8%","trend":"↓"},"geometry":{"type":"Polygon","coordinates":[[[200,150],[225,135],[258,128],[290,132],[322,145],[345,165],[350,190],[335,215],[305,222],[275,215],[248,200],[225,180],[210,165],[200,150]]]}},
-            {"type":"Feature","properties":{"name":"洽湾镇","risk":55,"warningCount":8,"affectedArea":1720,"incidence":"5.2%","trend":"→"},"geometry":{"type":"Polygon","coordinates":[[[392,95],[398,125],[415,145],[442,150],[468,148],[478,175],[472,218],[455,248],[425,262],[390,265],[358,252],[338,228],[332,195],[340,165],[355,135],[375,110],[392,95]]]}},
-            {"type":"Feature","properties":{"name":"东坪乡","risk":45,"warningCount":3,"affectedArea":1460,"incidence":"2.1%","trend":"↓"},"geometry":{"type":"Polygon","coordinates":[[[18,150],[28,180],[42,200],[52,225],[48,255],[32,272],[12,268],[5,240],[8,205],[15,175],[18,150]]]}},
-            {"type":"Feature","properties":{"name":"莱溪乡","risk":52,"warningCount":7,"affectedArea":1680,"incidence":"4.8%","trend":"→"},"geometry":{"type":"Polygon","coordinates":[[[52,225],[68,192],[82,165],[98,165],[118,182],[135,192],[145,215],[148,245],[135,270],[108,280],[78,275],[55,260],[42,235],[52,225]]]}},
-            {"type":"Feature","properties":{"name":"三溪乡","risk":48,"warningCount":4,"affectedArea":1520,"incidence":"3.5%","trend":"↓"},"geometry":{"type":"Polygon","coordinates":[[[145,215],[168,188],[188,175],[210,165],[225,180],[248,200],[275,215],[305,222],[322,235],[320,260],[298,275],[268,282],[235,278],[200,268],[168,255],[150,235],[145,215]]]}}
-        ]
-    };
+    // ===== 南丰县地图（病虫害风险分布）=====
+    // 边界：data/nanfeng-map.js（真实乡镇边界，7 镇 5 乡）
+    // 样式：js/nf-map.js（与生长模型大屏共用同一套规范，防止样式漂移）
+    NFMap.register();
 
-    echarts.registerMap('nanfeng', nanfengGeoJson);
+    // 各乡镇病虫害风险数据
+    var riskData = [
+        { name: '太和镇', value: 85, risk: 85, warningCount: 38, affectedArea: 2850, incidence: '23.5%', trend: '↑' },
+        { name: '桑田镇', value: 82, risk: 82, warningCount: 32, affectedArea: 2430, incidence: '18.8%', trend: '↑' },
+        { name: '琴城镇', value: 72, risk: 72, warningCount: 20, affectedArea: 2200, incidence: '15.6%', trend: '→' },
+        { name: '市山镇', value: 68, risk: 68, warningCount: 14, affectedArea: 1960, incidence: '8.5%', trend: '↓' },
+        { name: '白舍镇', value: 65, risk: 65, warningCount: 20, affectedArea: 2180, incidence: '12.3%', trend: '→' },
+        { name: '紫霄镇', value: 60, risk: 60, warningCount: 10, affectedArea: 2050, incidence: '7.8%', trend: '↓' },
+        { name: '太源乡', value: 58, risk: 58, warningCount: 10, affectedArea: 1850, incidence: '6.2%', trend: '↑' },
+        { name: '洽湾镇', value: 55, risk: 55, warningCount: 8, affectedArea: 1720, incidence: '5.2%', trend: '→' },
+        { name: '莱溪乡', value: 52, risk: 52, warningCount: 7, affectedArea: 1680, incidence: '4.8%', trend: '→' },
+        { name: '傅坊乡', value: 50, risk: 50, warningCount: 6, affectedArea: 1600, incidence: '4.1%', trend: '→' },
+        { name: '三溪乡', value: 48, risk: 48, warningCount: 4, affectedArea: 1520, incidence: '3.5%', trend: '↓' },
+        { name: '东坪乡', value: 45, risk: 45, warningCount: 3, affectedArea: 1460, incidence: '2.1%', trend: '↓' }
+    ];
+
+    // 病虫监测点：锚定到发生区域乡镇的真实坐标
+    var scatterData = [
+        { name: '红蜘蛛', coord: NFMap.pointIn('桑田镇', -0.006, 0.010), type: 'pest', severity: '高', alert: true, area: '桑田镇', count: 28, person: '王技术员', status: '预警中', desc: '叶片失绿发白，严重时导致落叶' },
+        { name: '锈壁虱', coord: NFMap.pointIn('市山镇', 0.010, -0.008), type: 'pest', severity: '高', alert: true, area: '市山镇', count: 22, person: '宋农艺师', status: '预警中', desc: '果实表面变黑，失去商品价值' },
+        { name: '潜叶蛾', coord: NFMap.pointIn('市山镇', 0.002, 0.006), type: 'pest', severity: '中', area: '市山镇', count: 16, person: '刘农艺师', status: '监测中', desc: '幼虫潜入叶片取食叶肉' },
+        { name: '炭疽病', coord: NFMap.pointIn('白舍镇', 0.004, 0.006), type: 'disease', severity: '中', area: '白舍镇', count: 12, person: '张植保', status: '监测中', desc: '果实和叶片出现褐色斑点' },
+        { name: '柑桔木虱', coord: NFMap.pointIn('市山镇', -0.004, 0.014), type: 'pest', severity: '中', area: '市山镇', count: 8, person: '郑技术员', status: '监测中', desc: '黄龙病传播媒介，需重点防控' },
+        { name: '黑点病', coord: NFMap.pointIn('洽湾镇', -0.008, 0.004), type: 'disease', severity: '低', area: '洽湾镇', count: 5, person: '黄植保', status: '监测中', desc: '果实表面出现黑色星状斑点' },
+        { name: '溃疡病', coord: NFMap.pointIn('太和镇', 0.004, 0.012), type: 'disease', severity: '低', area: '太和镇', count: 3, person: '李农技员', status: '正常', desc: '少量零星发生，处于控制期' },
+        { name: '树脂病', coord: NFMap.pointIn('洽湾镇', -0.006, -0.006), type: 'disease', severity: '中', area: '洽湾镇', count: 5, person: '陈专家', status: '监测中', desc: '枝干流胶，影响树势' },
+        { name: '灰霉病', coord: NFMap.pointIn('太和镇', -0.012, 0.006), type: 'disease', severity: '中', area: '太和镇', count: 7, person: '韩专家', status: '监测中', desc: '低温高湿条件下易爆发' },
+        { name: '白绢病', coord: NFMap.pointIn('太和镇', -0.006, -0.004), type: 'disease', severity: '中', area: '太和镇', count: 4, person: '金专家', status: '监测中', desc: '根部白色菌丝覆盖' },
+        { name: '黑斑病', coord: NFMap.pointIn('白舍镇', -0.008, 0.010), type: 'disease', severity: '中', area: '白舍镇', count: 6, person: '谢专家', status: '监测中', desc: '叶片出现黑色斑块' },
+        { name: '毒蛾', coord: NFMap.pointIn('市山镇', 0.002, -0.002), type: 'pest', severity: '中', area: '市山镇', count: 5, person: '石技术员', status: '监测中', desc: '幼虫取食叶片' },
+        { name: '褐腐病', coord: NFMap.pointIn('洽湾镇', -0.004, -0.012), type: 'disease', severity: '中', area: '洽湾镇', count: 4, person: '曹植保', status: '监测中', desc: '果实腐烂' },
+        { name: '粉虱', coord: NFMap.pointIn('东坪乡', -0.004, 0.002), type: 'pest', severity: '中', area: '东坪乡', count: 3, person: '冯农艺师', status: '监测中', desc: '吸食汁液，诱发煤烟病' },
+        { name: '蚜虫', coord: NFMap.pointIn('琴城镇', -0.006, -0.006), type: 'pest', severity: '低', area: '琴城镇', count: 2, person: '赵技术员', status: '正常', desc: '吸食叶片汁液，分泌蜜露' },
+        { name: '疮痂病', coord: NFMap.pointIn('太源乡', 0.008, -0.006), type: 'disease', severity: '低', area: '太源乡', count: 1, person: '孙植保', status: '正常', desc: '叶片和果实表面粗糙' },
+        { name: '介壳虫', coord: NFMap.pointIn('琴城镇', 0.004, -0.002), type: 'pest', severity: '低', area: '琴城镇', count: 1, person: '周农艺师', status: '正常', desc: '吸食汁液，影响生长' },
+        { name: '天牛', coord: NFMap.pointIn('东坪乡', 0.004, 0.004), type: 'pest', severity: '低', area: '东坪乡', count: 2, person: '许技术员', status: '正常', desc: '幼虫蛀食树干' },
+        { name: '象鼻虫', coord: NFMap.pointIn('东坪乡', -0.010, 0.008), type: 'pest', severity: '低', area: '东坪乡', count: 1, person: '史农艺师', status: '正常', desc: '取食叶片' },
+        { name: '卷叶蛾', coord: NFMap.pointIn('琴城镇', 0.002, -0.010), type: 'pest', severity: '低', area: '琴城镇', count: 1, person: '梁植保', status: '正常', desc: '卷叶取食' },
+        { name: '流胶病', coord: NFMap.pointIn('太和镇', 0.008, -0.006), type: 'disease', severity: '低', area: '太和镇', count: 2, person: '何技术员', status: '正常', desc: '枝干流胶' },
+        { name: '裂皮病', coord: NFMap.pointIn('白舍镇', 0.010, -0.008), type: 'disease', severity: '低', area: '白舍镇', count: 1, person: '邓农技员', status: '正常', desc: '树皮开裂' },
+        { name: '煤污病', coord: NFMap.pointIn('洽湾镇', -0.010, -0.008), type: 'disease', severity: '低', area: '洽湾镇', count: 1, person: '袁植保', status: '正常', desc: '叶片煤烟状覆盖' },
+        { name: '凤蝶', coord: NFMap.pointIn('琴城镇', 0.010, -0.008), type: 'pest', severity: '低', area: '琴城镇', count: 1, person: '魏技术员', status: '正常', desc: '幼虫取食叶片' }
+    ];
 
     var riskMapChart = echarts.init(document.getElementById('riskMap'));
 
-    var riskData = nanfengGeoJson.features.map(function(f) {
-        return { name: f.properties.name, value: f.properties.risk, ...f.properties };
-    });
-
-    var scatterData = [
-        { name: '红蜘蛛', value: [215, 72], type: 'pest', severity: '高', area: '桑田镇', count: 28, person: '王技术员', status: '预警中', desc: '叶片失绿发白，严重时导致落叶' },
-        { name: '锈壁虱', value: [445, 115], type: 'pest', severity: '高', area: '市山镇', count: 22, person: '宋农艺师', status: '预警中', desc: '果实表面变黑，失去商品价值' },
-        { name: '潜叶蛾', value: [425, 108], type: 'pest', severity: '中', area: '市山镇', count: 16, person: '刘农艺师', status: '监测中', desc: '幼虫潜入叶片取食叶肉' },
-        { name: '炭疽病', value: [340, 78], type: 'disease', severity: '中', area: '白舍镇', count: 12, person: '张植保', status: '监测中', desc: '果实和叶片出现褐色斑点' },
-        { name: '柑桔木虱', value: [435, 92], type: 'pest', severity: '中', area: '市山镇', count: 8, person: '郑技术员', status: '监测中', desc: '黄龙病传播媒介，需重点防控' },
-        { name: '黑点病', value: [410, 215], type: 'disease', severity: '低', area: '洽湾镇', count: 5, person: '黄植保', status: '监测中', desc: '果实表面出现黑色星状斑点' },
-        { name: '溃疡病', value: [110, 78], type: 'disease', severity: '低', area: '太和镇', count: 3, person: '李农技员', status: '正常', desc: '少量零星发生，处于控制期' },
-        { name: '树脂病', value: [390, 200], type: 'disease', severity: '中', area: '洽湾镇', count: 5, person: '陈专家', status: '监测中', desc: '枝干流胶，影响树势' },
-        { name: '灰霉病', value: [100, 72], type: 'disease', severity: '中', area: '太和镇', count: 7, person: '韩专家', status: '监测中', desc: '低温高湿条件下易爆发' },
-        { name: '白绢病', value: [120, 90], type: 'disease', severity: '中', area: '太和镇', count: 4, person: '金专家', status: '监测中', desc: '根部白色菌丝覆盖' },
-        { name: '黑斑病', value: [335, 82], type: 'disease', severity: '中', area: '白舍镇', count: 6, person: '谢专家', status: '监测中', desc: '叶片出现黑色斑块' },
-        { name: '毒蛾', value: [430, 102], type: 'pest', severity: '中', area: '市山镇', count: 5, person: '石技术员', status: '监测中', desc: '幼虫取食叶片' },
-        { name: '褐腐病', value: [400, 205], type: 'disease', severity: '中', area: '洽湾镇', count: 4, person: '曹植保', status: '监测中', desc: '果实腐烂' },
-        { name: '粉虱', value: [25, 215], type: 'pest', severity: '中', area: '东坪乡', count: 3, person: '冯农艺师', status: '监测中', desc: '吸食汁液，诱发煤烟病' },
-        { name: '蚜虫', value: [140, 145], type: 'pest', severity: '低', area: '琴城镇', count: 2, person: '赵技术员', status: '正常', desc: '吸食叶片汁液，分泌蜜露' },
-        { name: '疮痂病', value: [50, 145], type: 'disease', severity: '低', area: '太源乡', count: 1, person: '孙植保', status: '正常', desc: '叶片和果实表面粗糙' },
-        { name: '介壳虫', value: [155, 155], type: 'pest', severity: '低', area: '琴城镇', count: 1, person: '周农艺师', status: '正常', desc: '吸食汁液，影响生长' },
-        { name: '天牛', value: [20, 230], type: 'pest', severity: '低', area: '东坪乡', count: 2, person: '许技术员', status: '正常', desc: '幼虫蛀食树干' },
-        { name: '象鼻虫', value: [30, 220], type: 'pest', severity: '低', area: '东坪乡', count: 1, person: '史农艺师', status: '正常', desc: '取食叶片' },
-        { name: '卷叶蛾', value: [165, 140], type: 'pest', severity: '低', area: '琴城镇', count: 1, person: '梁植保', status: '正常', desc: '卷叶取食' },
-        { name: '流胶病', value: [105, 85], type: 'disease', severity: '低', area: '太和镇', count: 2, person: '何技术员', status: '正常', desc: '枝干流胶' },
-        { name: '裂皮病', value: [315, 70], type: 'disease', severity: '低', area: '白舍镇', count: 1, person: '邓农技员', status: '正常', desc: '树皮开裂' },
-        { name: '煤污病', value: [395, 195], type: 'disease', severity: '低', area: '洽湾镇', count: 1, person: '袁植保', status: '正常', desc: '叶片煤烟状覆盖' },
-        { name: '凤蝶', value: [150, 165], type: 'pest', severity: '低', area: '琴城镇', count: 1, person: '魏技术员', status: '正常', desc: '幼虫取食叶片' }
-    ];
-
-    riskMapChart.setOption({
-        backgroundColor: 'transparent',
-        geo: {
-            map: 'nanfeng',
-            roam: false,
-            zoom: 1,
-            center: [250, 160],
-            label: {
-                show: true,
-                color: '#475569',
-                fontSize: 10,
-                fontWeight: 500,
-                formatter: function(params) {
-                    if (!params.data) return params.name;
-                    var risk = params.data.risk || 0;
-                    var level = risk >= 80 ? '高' : risk >= 50 ? '中' : '低';
-                    return params.name + '\n风险:' + level + ' 预警:' + params.data.warningCount + '条 ' + (params.data.trend || '');
-                }
-            },
-            itemStyle: {
-                areaColor: '#f8fafc',
-                borderColor: '#cbd5e1',
-                borderWidth: 1.5,
-                shadowBlur: 6,
-                shadowColor: 'rgba(0,0,0,0.04)'
-            },
-            emphasis: {
-                itemStyle: {
-                    areaColor: '#dcfce7',
-                    borderColor: '#22c55e',
-                    borderWidth: 2.5,
-                    shadowBlur: 16,
-                    shadowColor: 'rgba(34,197,94,0.25)'
-                },
-                label: { color: '#166534', fontSize: 12, fontWeight: 700 }
-            }
+    var riskMapOption = NFMap.option({
+        pieces: NFMap.riskPieces(),
+        data: riskData,
+        markers: scatterData,
+        seriesName: '风险热力',
+        markerName: '病虫监测',
+        emphasisLabel: function(params) {
+            if (!params.data) return params.name;
+            var risk = params.data.risk || 0;
+            var level = risk >= 80 ? '高风险' : risk >= 50 ? '中风险' : '低风险';
+            return params.name + '\n' + level + ' · ' + params.data.warningCount + ' 条预警';
         },
-        visualMap: {
-            show: false,
-            min: 0,
-            max: 100,
-            inRange: {
-                color: ['#dcfce6', '#86efac', '#facc15', '#fb923c', '#ef4444', '#b91c1c']
-            }
-        },
-        series: [
-            {
-                name: '风险热力',
-                type: 'map',
-                map: 'nanfeng',
-                data: riskData,
-                itemStyle: {
-                    borderColor: '#cbd5e1',
-                    borderWidth: 1.5,
-                    shadowBlur: 4,
-                    shadowColor: 'rgba(0,0,0,0.04)'
-                },
-                emphasis: {
-                    itemStyle: {
-                        areaColor: '#dcfce7',
-                        borderColor: '#22c55e',
-                        borderWidth: 2.5,
-                        shadowBlur: 16,
-                        shadowColor: 'rgba(34,197,94,0.25)'
-                    },
-                    label: {
-                        color: '#166534',
-                        fontSize: 12,
-                        fontWeight: 700,
-                        formatter: function(params) {
-                            if (!params.data) return params.name;
-                            var risk = params.data.risk || 0;
-                            var level = risk >= 80 ? '高风险' : risk >= 50 ? '中风险' : '低风险';
-                            return params.name + '\n风险:' + level + ' 预警:' + params.data.warningCount + '条 ' + (params.data.trend || '');
-                        }
-                    }
-                },
-                zlevel: 1
-            },
-            {
-                name: '病害',
-                type: 'effectScatter',
-                coordinateSystem: 'geo',
-                data: scatterData.filter(function(d) { return d.type === 'disease'; }),
-                symbolSize: function(params) {
-                    return params.count * 1.8 + 6;
-                },
-                itemStyle: {
-                    color: '#ef4444',
-                    shadowBlur: 10,
-                    shadowColor: 'rgba(239,68,68,0.4)',
-                    opacity: 0.9
-                },
-                showEffectOn: 'render',
-                rippleEffect: {
-                    brushType: 'stroke',
-                    scale: 3,
-                    period: 4,
-                    color: '#ef4444'
-                },
-                zlevel: 2,
-                label: { show: false }
-            },
-            {
-                name: '虫害',
-                type: 'effectScatter',
-                coordinateSystem: 'geo',
-                data: scatterData.filter(function(d) { return d.type === 'pest'; }),
-                symbolSize: function(params) {
-                    return params.count * 1.8 + 6;
-                },
-                itemStyle: {
-                    color: '#166534',
-                    shadowBlur: 10,
-                    shadowColor: 'rgba(22,101,52,0.4)',
-                    opacity: 0.9
-                },
-                showEffectOn: 'render',
-                rippleEffect: {
-                    brushType: 'stroke',
-                    scale: 3,
-                    period: 4,
-                    color: '#166534'
-                },
-                zlevel: 2,
-                label: { show: false }
-            }
-        ],
         tooltip: {
             trigger: 'item',
-            backgroundColor: 'rgba(255,255,255,0.95)',
-            borderColor: 'rgba(203,213,225,0.8)',
+            backgroundColor: 'rgba(10, 28, 60, 0.96)',
+            borderColor: '#7FE4F5',
             borderWidth: 1,
             padding: [12, 16],
             borderRadius: 8,
-            textStyle: { color: '#334155', fontSize: 12 },
-            extraCssText: 'box-shadow: 0 8px 24px rgba(0,0,0,0.1);',
+            textStyle: { color: '#e6f1ff', fontSize: 13 },
+            extraCssText: 'box-shadow: 0 8px 24px rgba(0,0,0,0.45);',
             formatter: function(params) {
                 if (params.seriesName === '风险热力') {
                     var data = params.data;
-                    var trendIcon = data.trend === '↑' ? '<span style="color:#ef4444;">↑ 上升</span>' :
-                                   data.trend === '↓' ? '<span style="color:#16a34a;">↓ 下降</span>' : '<span style="color:#f59e0b;">→ 持平</span>';
-                    // 主要病虫与建议措施（与本月 Top7 口径一致：≥80 高风险=Top3，≥60 中风险=Top4~5，<60 低风险=Top6~7）
+                    if (!data) return '';
+                    var trendIcon = data.trend === '↑' ? '<span style="color:#FF7E29;">↑ 上升</span>' :
+                                   data.trend === '↓' ? '<span style="color:#33D69F;">↓ 下降</span>' : '<span style="color:#94a3b8;">→ 持平</span>';
                     var pestList = data.risk >= 80 ? '红蜘蛛、锈壁虱、潜叶蛾' :
                                    data.risk >= 60 ? '炭疽病、柑桔木虱' : '黑点病、溃疡病';
                     var suggest  = data.risk >= 80 ? '立即喷药 + 病株隔离' :
                                    data.risk >= 60 ? '加强巡查 + 预防喷药' : '保持监测 + 常规防护';
                     var history  = data.risk >= 80 ? '+12%' : data.risk >= 60 ? '+5%' : '-3%';
-                    var historyColor = data.risk >= 60 ? '#ef4444' : '#16a34a';
-                    return '<div style="font-weight:600;font-size:14px;margin-bottom:8px;color:#166534;">' + data.name + '</div>' +
+                    var historyColor = data.risk >= 60 ? '#FF7E29' : '#33D69F';
+                    var riskColor = data.risk >= 80 ? '#5AD7F0' : data.risk >= 60 ? '#35B4DE' : '#94a3b8';
+                    return '<div style="font-weight:600;font-size:15px;margin-bottom:8px;color:#5AD7F0;">' + data.name + '</div>' +
                            '<div style="display:flex;justify-content:space-between;gap:20px;margin-bottom:6px;">' +
-                           '<span style="color:#64748b;">风险等级</span>' +
-                           '<span style="color:' + (data.risk >= 80 ? '#ef4444' : data.risk >= 60 ? '#f97316' : '#16a34a') + ';font-weight:600;">' + (data.risk >= 80 ? '高风险' : data.risk >= 60 ? '中风险' : '低风险') + '</span>' +
+                           '<span style="color:#94a3b8;">风险值</span>' +
+                           '<span style="color:' + riskColor + ';font-weight:600;">' + data.risk + ' · ' + (data.risk >= 80 ? '高风险' : data.risk >= 60 ? '中风险' : '低风险') + '</span>' +
                            '</div>' +
                            '<div style="display:flex;justify-content:space-between;gap:20px;margin-bottom:6px;">' +
-                           '<span style="color:#64748b;">预警数量</span>' +
-                           '<span style="font-weight:600;">' + data.warningCount + '条</span>' +
+                           '<span style="color:#94a3b8;">预警数量</span>' +
+                           '<span style="font-weight:600;">' + data.warningCount + ' 条</span>' +
                            '</div>' +
                            '<div style="display:flex;justify-content:space-between;gap:20px;margin-bottom:6px;">' +
-                           '<span style="color:#64748b;">主要病虫</span>' +
-                           '<span style="font-weight:500;color:#475569;">' + pestList + '</span>' +
+                           '<span style="color:#94a3b8;">主要病虫</span>' +
+                           '<span style="font-weight:500;color:#cbd5e1;">' + pestList + '</span>' +
                            '</div>' +
                            '<div style="display:flex;justify-content:space-between;gap:20px;margin-bottom:6px;">' +
-                           '<span style="color:#64748b;">建议措施</span>' +
-                           '<span style="font-weight:500;color:#166534;">' + suggest + '</span>' +
+                           '<span style="color:#94a3b8;">建议措施</span>' +
+                           '<span style="font-weight:500;color:#7FE4F5;">' + suggest + '</span>' +
                            '</div>' +
                            '<div style="display:flex;justify-content:space-between;gap:20px;margin-bottom:6px;">' +
-                           '<span style="color:#64748b;">同比上月</span>' +
+                           '<span style="color:#94a3b8;">同比上月</span>' +
                            '<span style="font-weight:600;color:' + historyColor + ';">' + history + '</span>' +
                            '</div>' +
                            '<div style="display:flex;justify-content:space-between;gap:20px;">' +
-                           '<span style="color:#64748b;">趋势</span>' +
+                           '<span style="color:#94a3b8;">趋势</span>' +
                            trendIcon +
                            '</div>';
-                } else if (params.seriesName === '病害' || params.seriesName === '虫害') {
-                    var data = params.data;
-                    var severityColor = data.severity === '高' ? '#ef4444' : data.severity === '中' ? '#f97316' : '#16a34a';
-                    var statusColor = data.status === '正常' ? '#16a34a' : data.status === '紧急处理' ? '#ef4444' : '#f97316';
-                    return '<div style="font-weight:600;font-size:14px;margin-bottom:8px;color:' + (data.type === 'disease' ? '#ef4444' : '#166534') + ';">' + 
-                           (data.type === 'disease' ? '<i class="fas fa-virus" style="margin-right:6px;"></i>' : '<i class="fas fa-bug" style="margin-right:6px;"></i>') + 
+                } else if (params.seriesName === '病虫监测') {
+                    var data = (params.data && params.data.raw) || {};
+                    var severityColor = data.severity === '高' ? '#5AD7F0' : data.severity === '中' ? '#35B4DE' : '#94a3b8';
+                    var statusColor = data.status === '正常' ? '#33D69F' : data.status === '紧急处理' ? '#FF4757' : '#FF7E29';
+                    var headColor = data.type === 'disease' ? '#FF7E29' : '#7FE4F5';
+                    return '<div style="font-weight:600;font-size:15px;margin-bottom:8px;color:' + headColor + ';">' +
+                           (data.type === 'disease' ? '<i class="fas fa-virus" style="margin-right:6px;"></i>' : '<i class="fas fa-bug" style="margin-right:6px;"></i>') +
                            data.name + '</div>' +
                            '<div style="display:flex;justify-content:space-between;gap:20px;margin-bottom:6px;">' +
-                           '<span style="color:#64748b;">类型</span>' +
+                           '<span style="color:#94a3b8;">类型</span>' +
                            '<span style="font-weight:600;">' + (data.type === 'disease' ? '病害' : '虫害') + '</span>' +
                            '</div>' +
                            '<div style="display:flex;justify-content:space-between;gap:20px;margin-bottom:6px;">' +
-                           '<span style="color:#64748b;">发生区域</span>' +
+                           '<span style="color:#94a3b8;">发生区域</span>' +
                            '<span style="font-weight:600;">' + data.area + '</span>' +
                            '</div>' +
                            '<div style="display:flex;justify-content:space-between;gap:20px;margin-bottom:6px;">' +
-                           '<span style="color:#64748b;">严重程度</span>' +
+                           '<span style="color:#94a3b8;">严重程度</span>' +
                            '<span style="color:' + severityColor + ';font-weight:600;">' + data.severity + '</span>' +
                            '</div>' +
                            '<div style="display:flex;justify-content:space-between;gap:20px;margin-bottom:6px;">' +
-                           '<span style="color:#64748b;">发生次数</span>' +
-                           '<span style="font-weight:600;">' + data.count + '次</span>' +
+                           '<span style="color:#94a3b8;">发生次数</span>' +
+                           '<span style="font-weight:600;">' + data.count + ' 次</span>' +
                            '</div>' +
                            '<div style="display:flex;justify-content:space-between;gap:20px;margin-bottom:6px;">' +
-                           '<span style="color:#64748b;">负责人员</span>' +
+                           '<span style="color:#94a3b8;">负责人员</span>' +
                            '<span style="font-weight:600;">' + data.person + '</span>' +
                            '</div>' +
                            '<div style="display:flex;justify-content:space-between;gap:20px;margin-bottom:8px;">' +
-                           '<span style="color:#64748b;">当前状态</span>' +
+                           '<span style="color:#94a3b8;">当前状态</span>' +
                            '<span style="color:' + statusColor + ';font-weight:600;">' + data.status + '</span>' +
                            '</div>' +
-                           '<div style="border-top:1px solid #e2e8f0;padding-top:8px;">' +
-                           '<div style="color:#64748b;font-size:11px;margin-bottom:2px;">病害描述</div>' +
-                           '<div style="color:#475569;font-size:11px;">' + data.desc + '</div>' +
+                           '<div style="border-top:1px solid rgba(127,228,245,0.18);padding-top:8px;">' +
+                           '<div style="color:#94a3b8;font-size:12px;margin-bottom:4px;">病害描述</div>' +
+                           '<div style="color:#cbd5e1;font-size:12px;line-height:1.6;">' + data.desc + '</div>' +
                            '</div>';
                 }
                 return '';
             }
         }
+    });
+    riskMapChart.setOption(riskMapOption);
+
+    // 全图仅此处发光：高发预警的病虫监测点用绿色环标注
+    riskMapChart.setOption({
+        series: [
+            {},
+            {
+                data: riskMapOption.series[1].data.map(function(d) {
+                    if (d.alert) {
+                        return Object.assign({}, d, NFMap.alertMarkerStyle());
+                    }
+                    return d;
+                })
+            }
+        ]
     });
 
     function animateNumbers() {
@@ -1783,30 +2245,26 @@
         });
     }
 
-    // 把 KPI 中与数据源关联的数字用 alertDataSource 同步一次
+    /* 把 KPI 数字统一从 alertDataSource 派生，避免 HTML 与数据源各写一套 */
     (function syncKpiFromSource() {
-        var total = alertDataSource.levels.red + alertDataSource.levels.orange + alertDataSource.levels.yellow + alertDataSource.levels.blue;
-        // 找到「预警总数」卡片并把 data-value 改为真实合计
-        var kpiCards = document.querySelectorAll('.kpi-card');
-        kpiCards.forEach(function(card) {
+        var lv = alertDataSource.levels;
+        var c = alertDataSource.control;
+        var map = {
+            '在田发生面积':   c.occurArea,
+            '活跃病害':       alertDataSource.activeKinds.disease,
+            '活跃虫害':       alertDataSource.activeKinds.pest,
+            '预警总数':       lv.red + lv.orange + lv.yellow + lv.blue,
+            '红色预警':       lv.red,
+            '预警处置完成率': alertDataSource.disposeRate,
+            '已防治面积':     c.controlledArea,
+            '挽回损失':       c.savedLoss
+        };
+        document.querySelectorAll('.kpi-card').forEach(function (card) {
             var h4 = card.querySelector('h4');
-            if (!h4) return;
-            if (h4.textContent.trim() === '预警总数') {
-                card.querySelector('.kpi-number').setAttribute('data-value', total);
-            } else if (h4.textContent.trim() === '图像识别准确率') {
-                card.querySelector('.kpi-number').setAttribute('data-value', alertDataSource.imgAccuracy);
-            } else if (h4.textContent.trim() === '预警处置完成率') {
-                card.querySelector('.kpi-number').setAttribute('data-value', alertDataSource.disposeRate);
-            } else if (h4.textContent.trim() === '气象灾害类型') {
-                card.querySelector('.kpi-number').setAttribute('data-value', alertDataSource.weatherDisasterKinds);
-            } else if (h4.textContent.trim() === '防护建议采纳率') {
-                card.querySelector('.kpi-number').setAttribute('data-value', alertDataSource.suggestAdopt);
-            } else if (h4.textContent.trim() === '红色预警') {
-                card.querySelector('.kpi-number').setAttribute('data-value', alertDataSource.levels.red);
-            } else if (h4.textContent.trim() === '病害种类') {
-                card.querySelector('.kpi-number').setAttribute('data-value', alertDataSource.diseaseKinds);
-            } else if (h4.textContent.trim() === '虫害种类') {
-                card.querySelector('.kpi-number').setAttribute('data-value', alertDataSource.pestKinds);
+            if (!h4) { return; }
+            var key = h4.textContent.trim();
+            if (Object.prototype.hasOwnProperty.call(map, key)) {
+                card.querySelector('.kpi-number').setAttribute('data-value', map[key]);
             }
         });
     })();
@@ -1827,6 +2285,11 @@
         detailsContainer.innerHTML = '';
         
         var titles = {
+            '发生面积': '在田发生面积分析',
+            '活跃病害': '活跃病害种类构成',
+            '活跃虫害': '活跃虫害种类构成',
+            '已防治': '已防治面积与防治进度',
+            '挽回损失': '挽回损失测算',
             '病害': '病害种类分布',
             '虫害': '虫害种类分布',
             '识别准确': '图像识别准确率分析',
@@ -1880,17 +2343,13 @@
                         type: 'pie',
                         radius: ['40%', '70%'],
                         center: ['50%', '45%'],
-                        data: [
-                            { value: 132, name: '炭疽病', itemStyle: { color: '#ef4444' } },
-                            { value: 86, name: '黑点病', itemStyle: { color: '#f59e0b' } },
-                            { value: 62, name: '树脂病', itemStyle: { color: '#3b82f6' } },
-                            { value: 48, name: '灰霉病', itemStyle: { color: '#8b5cf6' } },
-                            { value: 38, name: '白绢病', itemStyle: { color: '#06b6d4' } },
-                            { value: 32, name: '黑斑病', itemStyle: { color: '#ec4899' } },
-                            { value: 22, name: '褐腐病', itemStyle: { color: '#64748b' } },
-                            { value: 18, name: '溃疡病', itemStyle: { color: '#22c55e' } }
-                        ],
-                        label: { show: true, formatter: '{b}: {c}', fontSize: 10 }
+                        data: (function () {
+                            var rows = [['炭疽病',132],['黑点病',86],['树脂病',62],['灰霉病',48],
+                                        ['白绢病',38],['黑斑病',32],['褐腐病',22],['溃疡病',18]];
+                            var cols = NFMap.rampByRank(rows.map(function (r) { return r[1]; }));
+                            return rows.map(function (r, i) { return { value: r[1], name: r[0], itemStyle: { color: cols[i] } }; });
+                        })(),
+                        label: { show: true, formatter: '{b}: {c}', fontSize: 12, color: '#cbd5e1' }
                     }]
                 };
                 break;
@@ -1902,19 +2361,13 @@
                         type: 'pie',
                         radius: ['40%', '70%'],
                         center: ['50%', '45%'],
-                        data: [
-                            { value: 168, name: '红蜘蛛', itemStyle: { color: '#ef4444' } },
-                            { value: 122, name: '锈壁虱', itemStyle: { color: '#f59e0b' } },
-                            { value: 96, name: '潜叶蛾', itemStyle: { color: '#3b82f6' } },
-                            { value: 58, name: '柑桔木虱', itemStyle: { color: '#8b5cf6' } },
-                            { value: 38, name: '毒蛾', itemStyle: { color: '#06b6d4' } },
-                            { value: 32, name: '粉虱', itemStyle: { color: '#ec4899' } },
-                            { value: 28, name: '蚜虫', itemStyle: { color: '#64748b' } },
-                            { value: 22, name: '介壳虫', itemStyle: { color: '#22c55e' } },
-                            { value: 18, name: '天牛', itemStyle: { color: '#15803d' } },
-                            { value: 14, name: '卷叶蛾', itemStyle: { color: '#166534' } }
-                        ],
-                        label: { show: true, formatter: '{b}: {c}', fontSize: 10 }
+                        data: (function () {
+                            var rows = [['红蜘蛛',168],['锈壁虱',122],['潜叶蛾',96],['柑桔木虱',58],['毒蛾',38],
+                                        ['粉虱',32],['蚜虫',28],['介壳虫',22],['天牛',18],['卷叶蛾',14]];
+                            var cols = NFMap.rampByRank(rows.map(function (r) { return r[1]; }));
+                            return rows.map(function (r, i) { return { value: r[1], name: r[0], itemStyle: { color: cols[i] } }; });
+                        })(),
+                        label: { show: true, formatter: '{b}: {c}', fontSize: 12, color: '#cbd5e1' }
                     }]
                 };
                 break;
@@ -1937,11 +2390,11 @@
                 option = {
                     tooltip: { trigger: 'axis' },
                     grid: { left: '3%', right: '4%', bottom: '15%', containLabel: true },
-                    xAxis: { type: 'category', data: ['太和镇', '桑田镇', '白舍镇', '市山镇', '太源乡', '琴城镇', '头陂镇', '洽湾镇', '东坪乡', '莱溪乡', '三溪乡'] },
-                    yAxis: { type: 'value' },
+                    xAxis: { type: 'category', data: ['太和镇', '桑田镇', '白舍镇', '市山镇', '太源乡', '琴城镇', '紫霄镇', '洽湾镇', '东坪乡', '莱溪乡', '三溪乡', '傅坊乡'], axisLabel: { color: '#94a3b8', fontSize: 12 } },
+                    yAxis: { type: 'value', axisLabel: { color: '#94a3b8', fontSize: 12 } },
                     series: [{
                         type: 'bar',
-                        data: [38, 32, 20, 14, 10, 20, 10, 8, 3, 7, 4],
+                        data: [38, 32, 20, 14, 10, 20, 10, 8, 3, 7, 4, 6],
                         itemStyle: {
                             color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
                                 { offset: 0, color: '#ef4444' }, { offset: 1, color: '#f87171' }
@@ -1974,7 +2427,7 @@
                         type: 'pie',
                         radius: ['40%', '70%'],
                         data: alertDataSource.weatherDisasters.map(function(d, i) {
-                            var color = ['#3b82f6', '#60a5fa', '#93c5fd'][i] || '#64748b';
+                            var color = ['#3b82f6', '#60a5fa', '#93c5fd'][i] || '#94a3b8';
                             // 按等级基础值 + 区域范围系数，避免同色时数值一样
                             var base = d.level === '红色' ? 40 : d.level === '橙色' ? 28 : d.level === '黄色' ? 18 : 10;
                             var rangeDelta = (d.range && d.range.indexOf('全县') >= 0) ? 6 : (d.range && d.range.split('、').length > 1 ? 3 : 0);
@@ -1995,7 +2448,7 @@
                         data: [72, 68, 82, 74, 65],
                         itemStyle: {
                             color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                                { offset: 0, color: '#2b6e3c' }, { offset: 1, color: '#4ade80' }
+                                { offset: 0, color: '#5AD7F0' }, { offset: 1, color: '#16528F' }
                             ]),
                             borderRadius: [4, 4, 0, 0]
                         }
@@ -2006,18 +2459,16 @@
                 option = {
                     tooltip: { trigger: 'axis' },
                     grid: { left: '3%', right: '4%', bottom: '10%', containLabel: true },
-                    xAxis: { type: 'category', data: ['太和镇', '桑田镇', '白舍镇', '市山镇', '太源乡', '琴城镇', '头陂镇', '洽湾镇', '东坪乡', '莱溪乡', '三溪乡'] },
-                    yAxis: { type: 'value', max: 100, axisLabel: { formatter: '{value}分' } },
+                    xAxis: { type: 'category', data: ['太和镇', '桑田镇', '白舍镇', '市山镇', '太源乡', '琴城镇', '紫霄镇', '洽湾镇', '东坪乡', '莱溪乡', '三溪乡', '傅坊乡'], axisLabel: { color: '#94a3b8', fontSize: 12 } },
+                    yAxis: { type: 'value', max: 100, axisLabel: { formatter: '{value}分', color: '#94a3b8', fontSize: 12 } },
                     series: [{
                         type: 'bar',
-                        data: [85, 82, 65, 68, 58, 72, 60, 55, 45, 52, 48],
+                        data: [85, 82, 65, 68, 58, 72, 60, 55, 45, 52, 48, 50],
                         itemStyle: {
-                            color: function(p) {
-                                return p.value >= 80 ? '#ef4444' : p.value >= 60 ? '#f59e0b' : '#22c55e';
-                            },
+                            color: function(p) { return NFMap.barColor(p.value); },
                             borderRadius: [4, 4, 0, 0]
                         },
-                        label: { show: true, position: 'top', fontSize: 10, formatter: '{c}' }
+                        label: { show: true, position: 'top', fontSize: 12, color: '#cbd5e1', formatter: '{c}' }
                     }]
                 };
                 break;
@@ -2035,18 +2486,95 @@
                     ]
                 };
                 break;
+            case '发生面积':
+                (function () {
+                    var all = alertDataSource.occurByKind.disease.concat(alertDataSource.occurByKind.pest)
+                        .sort(function (a, b) { return b.area - a.area; });
+                    var cols = NFMap.rampByRank(all.map(function (r) { return r.area; }));
+                    option = {
+                        tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: '{b}<br/>发生面积：{c} 亩' },
+                        grid: { left: '3%', right: '4%', bottom: '3%', top: '8%', containLabel: true },
+                        xAxis: { type: 'category', data: all.map(function (r) { return r.name; }), axisLabel: { interval: 0, rotate: 30, fontSize: 11 } },
+                        yAxis: { type: 'value', name: '亩' },
+                        series: [{
+                            type: 'bar',
+                            data: all.map(function (r, i) {
+                                return { value: r.area, itemStyle: { color: cols[i], borderRadius: [4, 4, 0, 0] } };
+                            }),
+                            barWidth: '55%',
+                            label: { show: true, position: 'top', fontSize: 11, formatter: '{c}' }
+                        }]
+                    };
+                })();
+                break;
+            case '活跃病害':
+            case '活跃虫害':
+                (function () {
+                    var rows = (type === '活跃病害') ? alertDataSource.occurByKind.disease : alertDataSource.occurByKind.pest;
+                    var cols = NFMap.rampByRank(rows.map(function (r) { return r.area; }));
+                    option = {
+                        tooltip: { trigger: 'item', formatter: '{b}<br/>{c} 亩 ({d}%)' },
+                        legend: { bottom: 0, textStyle: { fontSize: 11 } },
+                        series: [{
+                            type: 'pie', radius: ['38%', '68%'],
+                            data: rows.map(function (r, i) {
+                                return { value: r.area, name: r.name, itemStyle: { color: cols[i] } };
+                            }),
+                            label: { show: true, formatter: '{b}\n{c}亩', fontSize: 11 }
+                        }]
+                    };
+                })();
+                break;
+            case '已防治':
+                (function () {
+                    var c = alertDataSource.control;
+                    var rate = (c.controlledArea / c.occurArea * 100).toFixed(1);
+                    option = {
+                        title: { text: '防治覆盖率 ' + rate + '%', left: 'center', top: 0, textStyle: { fontSize: 13, color: '#7dd3fc', fontWeight: 'normal' } },
+                        tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, formatter: '{b}：{c} 亩' },
+                        grid: { left: '3%', right: '4%', bottom: '3%', top: '18%', containLabel: true },
+                        xAxis: { type: 'category', data: ['在田发生面积', '已防治面积', '统防统治面积'], axisLabel: { fontSize: 11 } },
+                        yAxis: { type: 'value', name: '亩' },
+                        series: [{
+                            type: 'bar',
+                            data: [
+                                { value: c.occurArea,          itemStyle: { color: '#16528F', borderRadius: [4, 4, 0, 0] } },
+                                { value: c.controlledArea,     itemStyle: { color: '#35B4DE', borderRadius: [4, 4, 0, 0] } },
+                                { value: c.unifiedControlArea, itemStyle: { color: '#5AD7F0', borderRadius: [4, 4, 0, 0] } }
+                            ],
+                            barWidth: '45%',
+                            label: { show: true, position: 'top', fontSize: 11, formatter: '{c}' }
+                        }]
+                    };
+                })();
+                break;
+            case '挽回损失':
+                (function () {
+                    var c = alertDataSource.control;
+                    option = {
+                        tooltip: { trigger: 'item', formatter: '{b}<br/>{c} 万元 ({d}%)' },
+                        legend: { bottom: 0, textStyle: { fontSize: 11 } },
+                        series: [{
+                            type: 'pie', radius: ['40%', '70%'],
+                            data: [
+                                { value: c.savedLoss,  name: '挽回损失', itemStyle: { color: '#33D69F' } },
+                                { value: c.actualLoss, name: '实际损失', itemStyle: { color: '#ff6b6b' } }
+                            ],
+                            label: { show: true, formatter: '{b}\n{c}万元', fontSize: 11 }
+                        }]
+                    };
+                })();
+                break;
             case '红色预警':
                 option = {
                     tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
-                    legend: { data: ['病虫害', '气象灾害', '综合预警', '未分类'], top: 0, textStyle: { fontSize: 11 } },
+                    legend: { data: ['病虫害', '气象灾害'], top: 0, textStyle: { fontSize: 11 } },
                     grid: { left: '3%', right: '4%', bottom: '12%', top: '14%', containLabel: true },
                     xAxis: { type: 'category', data: ['太和镇', '桑田镇', '白舍镇', '市山镇', '琴城镇', '太源乡', '其他乡镇'] },
                     yAxis: { type: 'value', axisLabel: { formatter: '{value}条' } },
                     series: [
-                        { name: '病虫害', type: 'bar', stack: 'red', data: [8, 6, 3, 2, 2, 1, 1], itemStyle: { color: '#ef4444' } },
-                        { name: '气象灾害', type: 'bar', stack: 'red', data: [0, 0, 0, 0, 0, 0, 0], itemStyle: { color: '#f59e0b' } },
-                        { name: '综合预警', type: 'bar', stack: 'red', data: [1, 1, 1, 1, 1, 0, 0], itemStyle: { color: '#dc2626' } },
-                        { name: '未分类', type: 'bar', stack: 'red', data: [3, 3, 2, 2, 2, 1, 0], itemStyle: { color: '#94a3b8', borderRadius: [6, 6, 0, 0] } }
+                        { name: '病虫害', type: 'bar', stack: 'red', data: [7, 5, 3, 2, 2, 1, 8], itemStyle: { color: '#ef4444' } },
+                        { name: '气象灾害', type: 'bar', stack: 'red', data: [2, 1, 1, 1, 1, 1, 6], itemStyle: { color: '#f59e0b', borderRadius: [6, 6, 0, 0] } }
                     ]
                 };
                 break;
@@ -2057,25 +2585,76 @@
 
     function renderModalStats(type, container) {
         var stats = {
+            '发生面积': (function () {
+                var c = alertDataSource.control;
+                var ob = alertDataSource.occurByKind;
+                var dArea = ob.disease.reduce(function (a, r) { return a + r.area; }, 0);
+                var pArea = ob.pest.reduce(function (a, r) { return a + r.area; }, 0);
+                return [
+                    { value: c.occurArea.toLocaleString('zh-CN'), label: '在田发生面积(亩)', color: '#7FE4F5' },
+                    { value: (c.controlledArea / c.occurArea * 100).toFixed(1) + '%', label: '防治覆盖率', color: '#22c55e' },
+                    { value: dArea.toLocaleString('zh-CN'), label: '病害发生面积(亩)', color: '#ef4444' },
+                    { value: pArea.toLocaleString('zh-CN'), label: '虫害发生面积(亩)', color: '#f59e0b' }
+                ];
+            })(),
+            '活跃病害': (function () {
+                var rows = alertDataSource.occurByKind.disease;
+                var top = rows.slice().sort(function (a, b) { return b.area - a.area; })[0];
+                var dArea = rows.reduce(function (a, r) { return a + r.area; }, 0);
+                return [
+                    { value: rows.length, label: '活跃病害种类', color: '#7FE4F5' },
+                    { value: top.area + '亩', label: top.name + '最广', color: '#ef4444' },
+                    { value: dArea.toLocaleString('zh-CN') + '亩', label: '病害发生面积', color: '#f59e0b' }
+                ];
+            })(),
+            '活跃虫害': (function () {
+                var rows = alertDataSource.occurByKind.pest;
+                var top = rows.slice().sort(function (a, b) { return b.area - a.area; })[0];
+                var pArea = rows.reduce(function (a, r) { return a + r.area; }, 0);
+                return [
+                    { value: rows.length, label: '活跃虫害种类', color: '#7FE4F5' },
+                    { value: top.area + '亩', label: top.name + '最广', color: '#ef4444' },
+                    { value: pArea.toLocaleString('zh-CN') + '亩', label: '虫害发生面积', color: '#f59e0b' }
+                ];
+            })(),
+            '已防治': (function () {
+                var c = alertDataSource.control;
+                return [
+                    { value: c.controlledArea.toLocaleString('zh-CN'), label: '已防治面积(亩)', color: '#7FE4F5' },
+                    { value: (c.controlledArea / c.occurArea * 100).toFixed(1) + '%', label: '防治覆盖率', color: '#22c55e' },
+                    { value: c.unifiedControlArea.toLocaleString('zh-CN'), label: '统防统治(亩)', color: '#3b82f6' },
+                    { value: c.greenControlRate + '%', label: '绿色防控覆盖率', color: '#33D69F' }
+                ];
+            })(),
+            '挽回损失': (function () {
+                var c = alertDataSource.control;
+                var rate = (c.savedLoss / (c.savedLoss + c.actualLoss) * 100).toFixed(1);
+                return [
+                    { value: c.savedLoss + '万元', label: '挽回损失', color: '#22c55e' },
+                    { value: c.actualLoss + '万元', label: '实际损失', color: '#ef4444' },
+                    { value: rate + '%', label: '挽回占比', color: '#7FE4F5' },
+                    { value: c.pesticideReduction + '%', label: '化学农药减量', color: '#33D69F' }
+                ];
+            })(),
             '病害': [
-                { value: '8', label: '病害种类', color: '#166534' },
+                { value: '8', label: '病害种类', color: '#7FE4F5' },
                 { value: '438', label: '发病总次数', color: '#dc2626' },
                 { value: '132', label: '炭疽病最多', color: '#ef4444' }
             ],
             '虫害': [
-                { value: '10', label: '虫害种类', color: '#166534' },
+                { value: '10', label: '虫害种类', color: '#7FE4F5' },
                 { value: '596', label: '发生总次数', color: '#f59e0b' },
                 { value: '168', label: '红蜘蛛最多', color: '#ef4444' }
             ],
             '识别准确': [
-                { value: alertDataSource.imgAccuracy + '%', label: '当前准确率', color: '#166534' },
+                { value: alertDataSource.imgAccuracy + '%', label: '当前准确率', color: '#7FE4F5' },
                 { value: '+0.5%', label: '较上月提升', color: '#22c55e' },
                 { value: alertDataSource.recognition.success, label: '识别成功次数', color: '#3b82f6' }
             ],
             '预警': (function() {
                 var total = alertDataSource.levels.red + alertDataSource.levels.orange + alertDataSource.levels.yellow + alertDataSource.levels.blue;
                 return [
-                    { value: total, label: '预警总数', color: '#166534' },
+                    { value: total, label: '预警总数', color: '#7FE4F5' },
                     { value: alertDataSource.levels.red, label: '红色预警', color: '#ef4444' },
                     { value: alertDataSource.disposeRate + '%', label: '处置完成率', color: '#22c55e' }
                 ];
@@ -2084,7 +2663,7 @@
                 var total = alertDataSource.levels.red + alertDataSource.levels.orange + alertDataSource.levels.yellow + alertDataSource.levels.blue;
                 var done = Math.round(total * alertDataSource.disposeRate / 100);
                 return [
-                    { value: alertDataSource.disposeRate + '%', label: '处置完成率', color: '#166534' },
+                    { value: alertDataSource.disposeRate + '%', label: '处置完成率', color: '#7FE4F5' },
                     { value: done, label: '已处置', color: '#22c55e' },
                     { value: total - done, label: '待处置', color: '#f59e0b' }
                 ];
@@ -2092,18 +2671,18 @@
             '灾害': (function() {
                 var list = alertDataSource.weatherDisasters;
                 return [
-                    { value: alertDataSource.weatherDisasterKinds, label: '灾害类型', color: '#166534' },
+                    { value: alertDataSource.weatherDisasterKinds, label: '灾害类型', color: '#7FE4F5' },
                     { value: list[0].type, label: list[0].level + '级别', color: '#ef4444' },
                     { value: list[2] ? list[2].type : '暴雨', label: list[2] ? list[2].level : '蓝色', color: '#3b82f6' }
                 ];
             })(),
             '防护': [
-                { value: alertDataSource.suggestAdopt + '%', label: '建议采纳率', color: '#166534' },
+                { value: alertDataSource.suggestAdopt + '%', label: '建议采纳率', color: '#7FE4F5' },
                 { value: '82%', label: '病虫害防治', color: '#22c55e' },
                 { value: '72%', label: '高温防护', color: '#f59e0b' }
             ],
             '预警模型准确': [
-                { value: alertDataSource.alertAccuracy + '%', label: '预警准确率', color: '#166534' },
+                { value: alertDataSource.alertAccuracy + '%', label: '预警准确率', color: '#7FE4F5' },
                 { value: '8.6%', label: '误报率', color: '#f59e0b' },
                 { value: '6.2%', label: '漏报率', color: '#ef4444' }
             ],
@@ -2112,11 +2691,22 @@
                 { value: alertDataSource.riskTowns.mid, label: '中风险乡镇', color: '#f59e0b' },
                 { value: alertDataSource.riskTowns.low, label: '低风险乡镇', color: '#22c55e' }
             ],
-            '红色预警': [
-                { value: alertDataSource.levels.red, label: '红色预警总数', color: '#dc2626' },
-                { value: alertDataSource.types.pest.red + alertDataSource.types.general.red, label: '需立即处置', color: '#ef4444' },
-                { value: (alertDataSource.levels.red - (alertDataSource.types.pest.red + alertDataSource.types.general.red) > 0 ? alertDataSource.levels.red - (alertDataSource.types.pest.red + alertDataSource.types.general.red) : 0) + '条', label: '持续监控', color: '#f59e0b' }
-            ]
+            /* 红色预警按来源拆分：由 alertByType 的 group 归并，保证与 levels.red 自洽。
+             * 注意：这里原为 alertDataSource.types.* 引用，types 已在口径改造中删除；
+             * 残留引用会让整个 stats 字面量在求值时抛错，导致 8 个 KPI 弹窗的
+             * 「核心指标」与「详情数据」全部为空（renderModalDetails 因前一步抛错未执行）。 */
+            '红色预警': (function () {
+                var redByGroup = function (g) {
+                    return alertDataSource.alertByType
+                        .filter(function (r) { return r.group === g; })
+                        .reduce(function (a, r) { return a + r.red; }, 0);
+                };
+                return [
+                    { value: alertDataSource.levels.red, label: '红色预警总数', color: '#dc2626' },
+                    { value: redByGroup('pest'), label: '病虫害类红色', color: '#ff6b6b' },
+                    { value: redByGroup('weather'), label: '气象灾害类红色', color: '#f59e0b' }
+                ];
+            })()
         };
         
         var html = '';
@@ -2131,6 +2721,47 @@
 
     function renderModalDetails(type, container) {
         var details = {
+            '发生面积': (function () {
+                var c = alertDataSource.control;
+                return [
+                    { label: '在田发生面积', value: c.occurArea.toLocaleString('zh-CN') + ' 亩' },
+                    { label: '已防治面积', value: c.controlledArea.toLocaleString('zh-CN') + ' 亩' },
+                    { label: '统防统治面积', value: c.unifiedControlArea.toLocaleString('zh-CN') + ' 亩' },
+                    { label: '涉及乡镇', value: '12 个' },
+                    { label: '同比', value: alertDataSource.yoy.occurArea + '%' }
+                ];
+            })(),
+            '活跃病害': (function () {
+                return alertDataSource.occurByKind.disease.map(function (r) {
+                    return { label: r.name, value: r.area + ' 亩' };
+                }).concat([{ label: '同比', value: alertDataSource.yoy.activeDisease + ' 种' }]);
+            })(),
+            '活跃虫害': (function () {
+                return alertDataSource.occurByKind.pest.map(function (r) {
+                    return { label: r.name, value: r.area + ' 亩' };
+                }).concat([{ label: '同比', value: '+' + alertDataSource.yoy.activePest + ' 种' }]);
+            })(),
+            '已防治': (function () {
+                var c = alertDataSource.control;
+                return [
+                    { label: '已防治面积', value: c.controlledArea.toLocaleString('zh-CN') + ' 亩' },
+                    { label: '防治覆盖率', value: (c.controlledArea / c.occurArea * 100).toFixed(1) + '%' },
+                    { label: '统防统治面积', value: c.unifiedControlArea.toLocaleString('zh-CN') + ' 亩' },
+                    { label: '绿色防控覆盖率', value: c.greenControlRate + '%' },
+                    { label: '防治效果(复查合格率)', value: c.controlEffect + '%' },
+                    { label: '化学农药减量', value: c.pesticideReduction + '%' }
+                ];
+            })(),
+            '挽回损失': (function () {
+                var c = alertDataSource.control;
+                return [
+                    { label: '挽回损失', value: c.savedLoss + ' 万元' },
+                    { label: '实际损失', value: c.actualLoss + ' 万元' },
+                    { label: '挽回占比', value: (c.savedLoss / (c.savedLoss + c.actualLoss) * 100).toFixed(1) + '%' },
+                    { label: '防治效果', value: c.controlEffect + '%' },
+                    { label: '同比', value: '+' + alertDataSource.yoy.savedLoss + '%' }
+                ];
+            })(),
             '病害': [
                 { label: '炭疽病', value: '132次' },
                 { label: '黑点病', value: '86次' },
@@ -2170,7 +2801,7 @@
                     { label: '市山镇', value: '14条' },
                     { label: '太源乡', value: '10条' },
                     { label: '琴城镇', value: '20条' },
-                    { label: '头陂镇', value: '10条' },
+                    { label: '紫霄镇', value: '10条' },
                     { label: '洽湾镇', value: '8条' },
                     { label: '东坪乡', value: '3条' },
                     { label: '莱溪乡', value: '7条' },
@@ -2223,17 +2854,28 @@
                 { label: '桑田镇', value: '82分 · 高风险' },
                 { label: '琴城镇', value: '72分 · 中风险' },
                 { label: '白舍镇', value: '65分 · 中风险' },
-                { label: '头陂镇', value: '60分 · 中风险' },
+                { label: '紫霄镇', value: '60分 · 中风险' },
                 { label: '建议立即巡查', value: '重点关注树势' }
             ],
-            '红色预警': [
-                { label: '病虫害源', value: alertDataSource.types.pest.red + '条' },
-                { label: '气象灾害源', value: alertDataSource.types.weather.red + '条' },
-                { label: '综合预警源', value: alertDataSource.types.general.red + '条' },
-                { label: '高风险乡镇', value: alertDataSource.riskTowns.high + '个' },
-                { label: '占总预警比', value: ((alertDataSource.levels.red / (alertDataSource.levels.red + alertDataSource.levels.orange + alertDataSource.levels.yellow + alertDataSource.levels.blue)) * 100).toFixed(1) + '%' },
-                { label: '紧急建议', value: '立即组织防护、加固支架、停止户外作业' }
-            ]
+            /* 同上：红色预警按来源拆分，全部由 alertByType 派生，不再引用已删除的 types */
+            '红色预警': (function () {
+                var lv = alertDataSource.levels;
+                var total = lv.red + lv.orange + lv.yellow + lv.blue;
+                var redByGroup = function (g) {
+                    return alertDataSource.alertByType
+                        .filter(function (r) { return r.group === g; })
+                        .reduce(function (a, r) { return a + r.red; }, 0);
+                };
+                var top = alertDataSource.alertByType.slice().sort(function (a, b) { return b.red - a.red; })[0];
+                return [
+                    { label: '红色预警总数', value: lv.red + ' 条' },
+                    { label: '病虫害类红色', value: redByGroup('pest') + ' 条' },
+                    { label: '气象灾害类红色', value: redByGroup('weather') + ' 条' },
+                    { label: '红色预警最多', value: top.name + ' ' + top.red + ' 条' },
+                    { label: '高风险乡镇', value: alertDataSource.riskTowns.high + ' 个' },
+                    { label: '占总预警比', value: (lv.red / total * 100).toFixed(1) + '%' }
+                ];
+            })()
         };
         
         var html = '';
@@ -2281,43 +2923,6 @@
         // 实时识别记录核心数字
         document.getElementById('recogAccuracy').innerHTML = alertDataSource.imgAccuracy + '<span class="recog-unit">%</span>';
 
-        // 渲染分级预警台账（按来源 × 颜色级别聚合，末尾加未分类行以补足 levels 口径差）
-        var tbody = document.getElementById('alertTableBody');
-        if (tbody) {
-            var typeLabels = { pest: '病虫害', weather: '气象灾害', general: '综合预警', unclassified: '未分类' };
-            var levelColor = { red: '#ef4444', orange: '#f59e0b', yellow: '#eab308', blue: '#3b82f6' };
-            var html = '';
-            var rowTotals = { red: 0, orange: 0, yellow: 0, blue: 0 };
-            var allSources = {};
-            Object.keys(alertDataSource.types).forEach(function(k) { allSources[k] = alertDataSource.types[k]; });
-            if (alertDataSource.unclassified) allSources.unclassified = alertDataSource.unclassified;
-            var levelSum = alertDataSource.levels.red + alertDataSource.levels.orange + alertDataSource.levels.yellow + alertDataSource.levels.blue;
-            Object.keys(allSources).forEach(function(k) {
-                var t = allSources[k];
-                var rowTotal = t.red + t.orange + t.yellow + t.blue;
-                rowTotals.red += t.red; rowTotals.orange += t.orange;
-                rowTotals.yellow += t.yellow; rowTotals.blue += t.blue;
-                var pct = ((rowTotal / levelSum) * 100).toFixed(1);
-                html += '<tr>' +
-                    '<td>' + typeLabels[k] + ' <span style="color:#94a3b8;font-size:0.7rem;">(' + pct + '%)</span></td>' +
-                    '<td><span style="color:' + levelColor.red + ';font-weight:600;">' + t.red + '</span></td>' +
-                    '<td><span style="color:' + levelColor.orange + ';font-weight:600;">' + t.orange + '</span></td>' +
-                    '<td><span style="color:' + levelColor.yellow + ';font-weight:600;">' + t.yellow + '</span></td>' +
-                    '<td><span style="color:' + levelColor.blue + ';font-weight:600;">' + t.blue + '</span></td>' +
-                    '</tr>';
-            });
-            // 合计行
-            var grandTotal = rowTotals.red + rowTotals.orange + rowTotals.yellow + rowTotals.blue;
-            html += '<tr style="background:#f8fafc;font-weight:600;">' +
-                '<td>合计 (' + grandTotal + '条)</td>' +
-                '<td style="color:' + levelColor.red + ';">' + rowTotals.red + '</td>' +
-                '<td style="color:' + levelColor.orange + ';">' + rowTotals.orange + '</td>' +
-                '<td style="color:' + levelColor.yellow + ';">' + rowTotals.yellow + '</td>' +
-                '<td style="color:' + levelColor.blue + ';">' + rowTotals.blue + '</td>' +
-                '</tr>';
-            tbody.innerHTML = html;
-        }
-
         // 渲染气象灾害风险预判（从数据源动态生成，含红色预警）
         var disasterList = document.getElementById('disasterList');
         if (disasterList) {
@@ -2329,6 +2934,7 @@
                     '<div class="disaster-title">' + d.type + '预警</div>' +
                     '<div class="disaster-info">风险等级：' + d.level + ' | 影响范围：' + d.range + '</div>' +
                     '<div class="disaster-suggestion"><i class="fas fa-lightbulb"></i> 建议：' + d.suggest + '</div>' +
+                    '<div class="disaster-owner"><i class="fas fa-user-check"></i> 责任人：' + d.person + '　|　完成时限：<span>' + d.deadline + '</span></div>' +
                     '</div>';
             });
             disasterList.innerHTML = html2;

@@ -161,6 +161,16 @@
             cursor: pointer;
             outline: none;
         }
+        /* 修复深色主题下 <option> 文字被 OS 默认白色下拉背景吞掉的问题 */
+        select option {
+            background: #0a1f3d;
+            color: #e6f1ff;
+            padding: 4px 8px;
+        }
+        select option:checked {
+            background: #00d4ff;
+            color: #050d1a;
+        }
         .card {
             background: rgba(16, 40, 78, 0.85);
             border-radius: 24px;
@@ -182,7 +192,7 @@
         }
         .kpi-grid {
             display: grid;
-            grid-template-columns: repeat(8, 1fr);
+            grid-template-columns: repeat(6, 1fr);
             gap: 18px;
             margin-bottom: 28px;
         }
@@ -659,6 +669,13 @@
         #todoList .dl-todo-list { display: flex; flex-direction: column; }
         #todoList .dl-todo-item { flex: 1 1 auto; align-items: center; }
         .dl-foot-note { padding: 4px 12px 5px; }
+        /* 待办卡变矮后进一步收紧行距与内边距（仅本屏），
+         * 使 7 项待办在缩短后的卡内仍能全部露出，不因对齐而丢失信息 */
+        #todoList .dl-todo-item { padding: 2px 8px; }
+        #todoList .dl-todo-title { line-height: 1.3; }
+        #todoList .dl-todo-meta { margin-top: 2px; }
+        #todoList .dl-todo-village { margin-top: 1px; }
+        #todoList .dl-pill { margin-top: 2px; }
         .atlas-grid {
             flex: 1;
             min-height: 0;
@@ -1360,6 +1377,19 @@
             font-weight: 700 !important;
         }
         .env-label { color: #94a3b8 !important; }
+        /* 气象实时数据 7 天趋势下的农事/植保建议 */
+        .weather-suggestion {
+            margin-top: 8px;
+            padding: 8px 10px;
+            font-size: 12px;
+            line-height: 1.6;
+            color: #e6f1ff;
+            background: rgba(0, 212, 255, 0.06);
+            border: 1px solid rgba(0, 212, 255, 0.20);
+            border-left: 3px solid #00d4ff;
+            border-radius: 6px;
+        }
+        .weather-suggestion b { color: #7dd3fc; }
 
         /* 气象灾害风险预判 */
         .disaster-card {
@@ -1382,6 +1412,26 @@
         .disaster-card.info .disaster-title { color: #7dd3fc !important; }
         .disaster-info { color: #94a3b8 !important; }
         .disaster-suggestion { color: #cbd5e1 !important; border-top: 1px solid rgba(148, 163, 184, 0.15) !important; }
+
+        /* 气象灾害风险预判卡：变矮后收紧灾害子卡间距（仅本屏），换取更多子卡可见。
+         * 卡高由下方「三列等高」规则统一控制，内容超高由 #disasterList 滚动兜底 */
+        .disaster-panel { height: auto; min-height: 0; }
+        .disaster-panel .disaster-card { padding: 7px 10px; margin-bottom: 6px; }
+        .disaster-panel .disaster-info { margin-top: 3px; }
+        .disaster-panel .disaster-suggestion { margin-top: 4px; padding-top: 4px; }
+        .disaster-panel .disaster-owner { margin-top: 4px; padding-top: 4px; }
+
+        /* ===== 三列等高对齐（仅宽屏）=====
+         * 左右列显式锚定中列地图卡的 1300px，每列**末卡**（左=待办 / 右=气象灾害）
+         * 吸收剩余高度：左列 1300−420−255−2×20=585px、右列 1300−339−172−420−3×20=309px，
+         * 三列底边严格齐平。非末卡 flex-shrink:0，避免它们被连带压缩。
+         * 注意：末卡不能用 flex-basis:0（浏览器仍会按内容撑高整列），
+         * 必须 basis:auto + min-height:0，才能被压缩到剩余高度。 */
+        @media (min-width: 1101px) {
+            .map-core-grid > .side-col { height: 1300px; }
+            .map-core-grid > .side-col > .card { flex-shrink: 0; }
+            .map-core-grid > .side-col > .card:last-child { height: auto; min-height: 0; flex: 1 1 auto; }
+        }
 
         /* Modal 弹窗 */
         .modal-overlay {
@@ -1476,6 +1526,99 @@
             font-weight: 600;
             letter-spacing: 1px;
         }
+
+        /* ===== 阶段一重构 · 9 个 Group CSS（GB 公式/GC 折线/GD 档案/GE 督办/GF 气泡/GG 预警/GH 履职/GI 简报） ===== */
+        /* GB 挽回损失 ⓘ 公式浮层 */
+        .dl-est-icon { color: #94a3b8; font-size: 12px; cursor: help; margin-left: 4px; }
+        .dl-est-icon:hover { color: #7FE4F5; }
+        .dl-est-tooltip {
+            position: absolute; display: none; z-index: 9999;
+            background: rgba(7, 17, 35, 0.96); border: 1px solid #00d4ff;
+            border-radius: 8px; padding: 10px 14px; width: 360px;
+            color: #e2e8f0; font-size: 13px; line-height: 1.7;
+            box-shadow: 0 8px 24px rgba(0, 212, 255, 0.20);
+        }
+        .dl-est-tooltip.show { display: block; }
+        .dl-est-formula { color: #00d4ff; font-weight: 700; font-size: 16px; padding: 2px 6px; background: rgba(0, 212, 255, 0.10); border-radius: 4px; margin: 0 4px; }
+        .dl-est-warn { color: #94a3b8; font-size: 12px; margin-top: 6px; padding-top: 6px; border-top: 1px dashed rgba(127, 228, 245, 0.25); }
+        /* GA 防控投入空态 */
+        .kpi-number.empty { color: #94a3b8 !important; }
+        .kpi-yoy.flat { background: rgba(148, 163, 184, 0.20) !important; color: #94a3b8 !important; }
+        .kpi-yoy.connecting { background: rgba(127, 228, 245, 0.18) !important; color: #7FE4F5 !important; }
+        /* GA 防控态势总览灯 + 研判句 */
+        .situation-strip {
+            display: flex; align-items: center; gap: 14px;
+            padding: 12px 18px; margin: -10px 0 22px;
+            background: linear-gradient(90deg, rgba(0, 212, 255, 0.08), rgba(0, 212, 255, 0.02));
+            border: 1px solid rgba(0, 212, 255, 0.20); border-radius: 10px;
+        }
+        .situation-light { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; box-shadow: 0 0 10px currentColor; }
+        .situation-light.lvl-red    { background: #ef4444; color: #ef4444; }
+        .situation-light.lvl-orange { background: #E39A3C; color: #E39A3C; }
+        .situation-light.lvl-yellow { background: #CBB04A; color: #CBB04A; }
+        .situation-light.lvl-green  { background: #22c55e; color: #22c55e; }
+        .situation-badge { padding: 2px 10px; border-radius: 12px; font-size: 13px; font-weight: 700; letter-spacing: 1px; }
+        .situation-badge.lvl-red    { background: rgba(239, 68, 68, 0.20); color: #fca5a5; border: 1px solid #ef4444; }
+        .situation-badge.lvl-orange { background: rgba(227, 154, 60, 0.20); color: #fbbf24; border: 1px solid #E39A3C; }
+        .situation-badge.lvl-yellow { background: rgba(203, 176, 74, 0.20); color: #fde047; border: 1px solid #CBB04A; }
+        .situation-badge.lvl-green  { background: rgba(34, 197, 94, 0.20); color: #86efac; border: 1px solid #22c55e; }
+        .situation-summary { color: #e2e8f0; font-size: 14px; line-height: 1.6; flex: 1; }
+        .situation-summary b { color: #7FE4F5; font-weight: 600; }
+        /* GC 木虱折线图 */
+        .hlb-trend { height: 100px; margin: 8px 0 6px; padding: 0 4px; border-radius: 6px; background: rgba(10, 28, 60, 0.50); border: 1px solid rgba(127, 228, 245, 0.12); }
+        .hlb-trend-hint { display: flex; justify-content: space-between; font-size: 11px; color: #94a3b8; padding: 0 6px; }
+        .hlb-trend-hint .alert { color: #ff6b6b; font-weight: 600; }
+        /* GD 黄龙病档案弹窗 */
+        .dl-modal { position: fixed; inset: 0; z-index: 9999; display: none; align-items: center; justify-content: center; background: rgba(2, 8, 18, 0.78); backdrop-filter: blur(4px); }
+        .dl-modal.show { display: flex; }
+        .dl-modal-card { width: min(960px, 92vw); max-height: 80vh; overflow-y: auto; background: linear-gradient(180deg, rgba(15, 30, 60, 0.98), rgba(7, 17, 35, 0.98)); border: 1px solid rgba(0, 212, 255, 0.30); border-radius: 14px; padding: 22px 26px; color: #e2e8f0; box-shadow: 0 18px 60px rgba(0, 212, 255, 0.18); }
+        .dl-modal-head { display: flex; justify-content: space-between; align-items: center; padding-bottom: 14px; border-bottom: 1px solid rgba(127, 228, 245, 0.20); margin-bottom: 14px; }
+        .dl-modal-title { font-size: 18px; font-weight: 700; color: #7FE4F5; letter-spacing: 1px; }
+        .dl-modal-close { background: transparent; border: 1px solid #475569; color: #94a3b8; padding: 4px 10px; border-radius: 4px; cursor: pointer; }
+        .dl-modal-close:hover { color: #7FE4F5; border-color: #7FE4F5; }
+        .hlb-tree-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .hlb-tree-table th { padding: 8px 10px; background: rgba(0, 212, 255, 0.08); color: #7FE4F5; text-align: left; font-weight: 600; border-bottom: 1px solid rgba(0, 212, 255, 0.20); }
+        .hlb-tree-table td { padding: 8px 10px; border-bottom: 1px solid rgba(127, 228, 245, 0.08); color: #cbd5e1; }
+        .hlb-tree-table tr:hover td { background: rgba(0, 212, 255, 0.04); }
+        .hlb-photo-slot { width: 80px; height: 60px; border: 1px dashed #475569; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #64748b; font-size: 11px; }
+        .hlb-tree-actions { display: flex; gap: 10px; padding: 14px 0 4px; border-top: 1px dashed rgba(127, 228, 245, 0.20); margin-top: 14px; }
+        .hlb-tree-actions button { background: rgba(0, 212, 255, 0.10); border: 1px solid #00d4ff; color: #7FE4F5; padding: 6px 14px; border-radius: 4px; cursor: pointer; font-size: 13px; }
+        .hlb-tree-actions button:hover { background: rgba(0, 212, 255, 0.20); }
+        /* GE 待办督办强化 */
+        .dl-todo-item.overdue { border: 1px solid rgba(239, 68, 68, 0.55); background: rgba(239, 68, 68, 0.10); animation: overdueBlink 1.2s ease-in-out infinite; }
+        @keyframes overdueBlink { 0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.30); } 50% { box-shadow: 0 0 12px 4px rgba(239, 68, 68, 0.55); } }
+        .dl-todo-village { display: block; font-size: 11px; color: #94a3b8; margin-top: 2px; }
+        .dl-todo-village b { color: #cbd5e1; font-weight: 500; }
+        .dl-todo-actions { display: flex; gap: 6px; margin-top: 4px; align-items: center; flex-wrap: wrap; }
+        .dl-todo-btn { background: transparent; border: 1px solid #475569; color: #94a3b8; padding: 2px 8px; border-radius: 3px; font-size: 11px; cursor: pointer; }
+        .dl-todo-btn:hover { color: #7FE4F5; border-color: #00d4ff; }
+        .dl-todo-btn.danger { border-color: #ef4444; color: #fca5a5; }
+        .dl-todo-btn.danger:hover { background: rgba(239, 68, 68, 0.15); }
+        .dl-todo-supervised { font-size: 11px; color: #22c55e; padding-left: 4px; }
+        /* GF 地图气泡预警条数 */
+        .gf-alert-popup { padding: 8px 12px; min-width: 160px; }
+        .gf-alert-popup b { color: #00d4ff; font-weight: 700; }
+        /* GG 预警事件流增强 */
+        .alert-event-row { display: flex; gap: 12px; padding: 8px 10px; border-bottom: 1px solid rgba(127, 228, 245, 0.08); align-items: center; }
+        .alert-event-row .alert-tag { padding: 1px 6px; border-radius: 3px; font-size: 11px; }
+        .alert-event-row .alert-tag.ai    { background: rgba(127, 228, 245, 0.18); color: #7FE4F5; }
+        .alert-event-row .alert-tag.weather { background: rgba(96, 165, 250, 0.18); color: #93c5fd; }
+        .alert-event-row .alert-tag.phone  { background: rgba(34, 197, 94, 0.18); color: #86efac; }
+        /* GH 乡镇履职排名 */
+        .dl-rank-tabs { display: flex; gap: 0; padding: 0 12px; border-bottom: 1px solid rgba(127, 228, 245, 0.20); }
+        .dl-rank-tab { padding: 8px 16px; cursor: pointer; color: #94a3b8; font-size: 13px; border-bottom: 2px solid transparent; }
+        .dl-rank-tab.active { color: #7FE4F5; border-bottom-color: #00d4ff; }
+        .dl-rank-mock-badge { background: rgba(251, 191, 36, 0.20); color: #fde047; padding: 1px 6px; border-radius: 3px; font-size: 11px; margin-left: 6px; }
+        .dl-rank-card { padding: 8px 12px; border-bottom: 1px solid rgba(127, 228, 245, 0.08); display: flex; gap: 10px; align-items: center; font-size: 13px; }
+        .dl-rank-card .rank-no { width: 24px; color: #94a3b8; font-weight: 700; }
+        .dl-rank-card .rank-name { flex: 1; color: #cbd5e1; }
+        .dl-rank-card .rank-score { color: #00d4ff; font-weight: 600; }
+        .dl-rank-card .rank-card-tag { padding: 1px 8px; border-radius: 10px; font-size: 11px; }
+        .dl-rank-card .rank-card-tag.yellow { background: rgba(203, 176, 74, 0.25); color: #fde047; border: 1px solid #CBB04A; }
+        .dl-rank-card .rank-card-tag.red    { background: rgba(239, 68, 68, 0.25);  color: #fca5a5; border: 1px solid #ef4444; }
+        /* GI 一键简报（入口按钮已随防控态势条移除，弹窗函数保留备用） */
+        .dl-report-pre { background: #0a1426; color: #cbd5e1; padding: 14px 18px; border-radius: 6px; font-family: 'Consolas','Courier New',monospace; font-size: 13px; line-height: 1.7; white-space: pre-wrap; max-height: 60vh; overflow-y: auto; border: 1px solid rgba(127, 228, 245, 0.18); }
+        .dl-report-actions { display: flex; gap: 8px; margin-top: 12px; justify-content: flex-end; }
     </style>
 </head>
 <body class="cockpit">
@@ -1527,33 +1670,16 @@
                 <div class="kpi-spark" data-spark="occurArea"></div>
             </div>
         </div>
-        <div class="kpi-card animate-fade-in-up" style="animation-delay: 0.2s;" onclick="openModal('活跃病害')">
+        <div class="kpi-card animate-fade-in-up" style="animation-delay: 0.2s;" onclick="openModal('重点病虫害态势')">
             <div class="kpi-info">
-                <h4>活跃病害</h4>
-                <div class="kpi-number" data-value="6">0</div>
+                <h4>重点病虫害发生态势</h4>
+                <div class="kpi-number" id="kpiActiveBySeverity" data-value="13">0</div>
                 <span class="trend-badge">种</span>
-                <span class="kpi-yoy good">同比 -1 种</span>
-            </div>
-        </div>
-        <div class="kpi-card animate-fade-in-up" style="animation-delay: 0.3s;" onclick="openModal('活跃虫害')">
-            <div class="kpi-info">
-                <h4>活跃虫害</h4>
-                <div class="kpi-number" data-value="7">0</div>
-                <span class="trend-badge">种</span>
-                <span class="kpi-yoy bad">同比 +1 种</span>
+                <span class="kpi-yoy flat" id="kpiActiveBySeverityYoy">按严重程度分组 · 共 13 种活跃</span>
             </div>
         </div>
         <!-- B1 焦点层级：整屏只保留「红色预警」一个强调态，其余回到基准态 -->
-        <div class="kpi-card animate-fade-in-up" style="animation-delay: 0.4s;" onclick="openModal('预警')">
-            <div class="kpi-info">
-                <h4>预警总数</h4>
-                <div class="kpi-number" data-value="184">0</div>
-                <span class="trend-badge">条</span>
-                <span class="kpi-yoy bad">同比 +12.6%</span>
-                <div class="kpi-spark" data-spark="alertTotal"></div>
-            </div>
-        </div>
-        <div class="kpi-card danger dl-focus animate-fade-in-up" style="animation-delay: 0.5s;" onclick="openModal('红色预警')">
+        <div class="kpi-card danger dl-focus animate-fade-in-up" style="animation-delay: 0.3s;" onclick="openModal('红色预警')">
             <div class="kpi-info">
                 <h4>红色预警</h4>
                 <div class="kpi-number" data-value="41">0</div>
@@ -1562,15 +1688,7 @@
                 <div class="kpi-spark" data-spark="redAlert"></div>
             </div>
         </div>
-        <div class="kpi-card animate-fade-in-up" style="animation-delay: 0.6s;" onclick="openModal('处置')">
-            <div class="kpi-info">
-                <h4>预警处置完成率</h4>
-                <div class="kpi-number" data-value="78.3">0</div>
-                <span class="trend-badge">%</span>
-                <span class="kpi-yoy good">同比 +5.2</span>
-            </div>
-        </div>
-        <div class="kpi-card animate-fade-in-up" style="animation-delay: 0.7s;" onclick="openModal('已防治')">
+        <div class="kpi-card animate-fade-in-up" style="animation-delay: 0.4s;" onclick="openModal('已防治')">
             <div class="kpi-info">
                 <h4>已防治面积</h4>
                 <div class="kpi-number" data-value="1540">0</div>
@@ -1579,81 +1697,32 @@
                 <div class="kpi-spark" data-spark="controlledArea"></div>
             </div>
         </div>
-        <div class="kpi-card animate-fade-in-up" style="animation-delay: 0.8s;" onclick="openModal('挽回损失')">
+        <div class="kpi-card animate-fade-in-up" style="animation-delay: 0.5s;" onclick="openModal('挽回损失')">
             <div class="kpi-info">
                 <!-- A4 测算值必须可识别：与实测值在视觉上区分开 -->
-                <h4>挽回损失 <span class="dl-est" data-est-title="挽回损失测算" data-est="按「防治面积 × 单位面积常年损失 × 防治效果」测算，不是财务口径的实际收益。误差区间约 ±15%，仅用于量级判断。"></span></h4>
+                <h4>挽回损失 <span class="dl-est-icon" id="lossTip">ⓘ</span></h4>
                 <div class="kpi-number" data-value="126">0</div>
                 <span class="trend-badge">万元</span>
                 <span class="kpi-yoy flat">测算值 · 同比 +9.8%</span>
+            </div>
+        </div>
+        <div class="kpi-card animate-fade-in-up" style="animation-delay: 0.6s;" onclick="openModal('防控投入')">
+            <div class="kpi-info">
+                <h4>防控投入 <span class="dl-est" data-est-title="防控投入数据" data-est-short="正在接入中"></span></h4>
+                <div class="kpi-number" id="kpiInvestment" data-value="38.6">—</div>
+                <span class="trend-badge">万元</span>
+                <span class="kpi-yoy flat" id="kpiInvestmentYoy">正在接入中 · 数据抽检中</span>
             </div>
         </div>
     </div>
 
     <div class="map-core-grid">
         <div class="side-col">
-            <div class="card side-card hlb-card">
-                <div class="card-header">
-                    <span><i class="fas fa-shield-virus"></i> 柑橘黄龙病专项防控</span>
-                    <span class="header-extra hlb-flag">检疫性病害 · 一号防控对象</span>
-                </div>
-                <div class="hlb-body">
-                    <div class="hlb-alert">
-                        <i class="fas fa-triangle-exclamation"></i>
-                        <span>传播媒介<b>柑桔木虱</b>本周诱捕 <b>146 头</b>，同比 +32 头，建议立即组织统防统治</span>
-                    </div>
-                    <div class="hlb-grid">
-                        <div class="hlb-item">
-                            <div class="hlb-num">23</div>
-                            <div class="hlb-label">疑似病株</div>
-                        </div>
-                        <div class="hlb-item danger">
-                            <div class="hlb-num">7</div>
-                            <div class="hlb-label">确诊病株</div>
-                        </div>
-                        <div class="hlb-item ok">
-                            <div class="hlb-num">7</div>
-                            <div class="hlb-label">已砍除</div>
-                        </div>
-                        <div class="hlb-item">
-                            <div class="hlb-num">3</div>
-                            <div class="hlb-label">涉及乡镇</div>
-                        </div>
-                    </div>
-                    <div class="hlb-progress">
-                        <div class="hlb-progress-head"><span>确诊病株处置率</span><span class="hlb-rate">100%</span></div>
-                        <div class="hlb-bar"><div class="hlb-bar-fill" style="width:100%;"></div></div>
-                    </div>
-                    <div class="hlb-foot">
-                        <span>最近发现：市山镇 · 3 天前 · 责任人：王技术员</span>
-                        <span class="hlb-note">专项统计，不计入在园发生面积口径</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 病虫害识别图谱：知识库速查（非监测数据），点击弹窗展示后台病虫害数据库中的详细信息 -->
-            <div class="card side-card atlas-card">
-                <div class="card-header"><span><i class="fas fa-images"></i> 病虫害图谱</span><span class="header-extra">重点 6 种 · 点击查看详情</span></div>
-                <div class="atlas-grid">
-                    <div class="atlas-tile" onclick="openAtlasModal('hlb')" title="点击查看柑橘黄龙病详情">
-                        <div class="atlas-icon hlb"><i class="fas fa-shield-virus"></i></div><div class="atlas-name">柑橘黄龙病</div>
-                    </div>
-                    <div class="atlas-tile" onclick="openAtlasModal('mushu')" title="点击查看柑桔木虱详情">
-                        <div class="atlas-icon"><i class="fas fa-bug"></i></div><div class="atlas-name">柑桔木虱</div>
-                    </div>
-                    <div class="atlas-tile" onclick="openAtlasModal('hongshizhi')" title="点击查看红蜘蛛详情">
-                        <div class="atlas-icon"><i class="fas fa-spider"></i></div><div class="atlas-name">红蜘蛛</div>
-                    </div>
-                    <div class="atlas-tile" onclick="openAtlasModal('xiubishi')" title="点击查看锈壁虱详情">
-                        <div class="atlas-icon"><i class="fas fa-bug"></i></div><div class="atlas-name">锈壁虱</div>
-                    </div>
-                    <div class="atlas-tile" onclick="openAtlasModal('qianyee')" title="点击查看潜叶蛾详情">
-                        <div class="atlas-icon"><i class="fas fa-bug"></i></div><div class="atlas-name">潜叶蛾</div>
-                    </div>
-                    <div class="atlas-tile" onclick="openAtlasModal('tanjubing')" title="点击查看炭疽病详情">
-                        <div class="atlas-icon dis"><i class="fas fa-leaf"></i></div><div class="atlas-name">炭疽病</div>
-                    </div>
-                </div>
+            <!-- A3 乡镇排行 + 地图联动：领导最常问「最该盯哪三个乡镇」。
+                 原「模型预警准确率」是算法运维指标，已在 A6 中降级为底部一行说明。 -->
+            <div class="card side-card">
+                <div class="card-header"><span><i class="fas fa-ranking-star"></i> 乡镇发生面积 Top</span><span class="header-extra">悬停联动地图</span></div>
+                <div id="townRank"></div>
             </div>
 
             <div class="card side-card top5-card">
@@ -1738,11 +1807,69 @@
         </div>
 
         <div class="side-col">
-            <!-- A3 乡镇排行 + 地图联动：领导最常问「最该盯哪三个乡镇」。
-                 原「模型预警准确率」是算法运维指标，已在 A6 中降级为底部一行说明。 -->
-            <div class="card side-card">
-                <div class="card-header"><span><i class="fas fa-ranking-star"></i> 乡镇发生面积 Top</span><span class="header-extra">悬停联动地图</span></div>
-                <div id="townRank"></div>
+            <div class="card side-card hlb-card">
+                <div class="card-header">
+                    <span><i class="fas fa-shield-virus"></i> 柑橘黄龙病专项防控</span>
+                    <span class="header-extra hlb-flag">检疫性病害 · 一号防控对象</span>
+                </div>
+                <div class="hlb-body">
+                    <div class="hlb-alert">
+                        <i class="fas fa-triangle-exclamation"></i>
+                        <span>传播媒介<b>柑桔木虱</b>本周诱捕 <b>146 头</b>，同比 +32 头，建议立即组织统防统治</span>
+                    </div>
+                    <div id="hlbPsylTrend" style="width:100%;height:38px;"></div>
+                    <div class="hlb-grid">
+                        <div class="hlb-item">
+                            <div class="hlb-num">23</div>
+                            <div class="hlb-label">疑似病株</div>
+                        </div>
+                        <div class="hlb-item danger" style="cursor:pointer;" onclick="openHlbArchive()" title="点击查看 7 株处置档案">
+                            <div class="hlb-num">7</div>
+                            <div class="hlb-label">确诊病株</div>
+                        </div>
+                        <div class="hlb-item ok" style="cursor:pointer;" onclick="openHlbArchive()" title="点击查看 7 株处置档案">
+                            <div class="hlb-num">7</div>
+                            <div class="hlb-label">已砍除</div>
+                        </div>
+                        <div class="hlb-item">
+                            <div class="hlb-num">3</div>
+                            <div class="hlb-label">涉及乡镇</div>
+                        </div>
+                    </div>
+                    <div class="hlb-progress">
+                        <div class="hlb-progress-head"><span>确诊病株处置率</span><span class="hlb-rate">100%</span></div>
+                        <div class="hlb-bar"><div class="hlb-bar-fill" style="width:100%;"></div></div>
+                    </div>
+                    <div class="hlb-foot">
+                        <span>最近发现：市山镇 · 3 天前 · 责任人：王技术员</span>
+                        <span class="hlb-note">专项统计，不计入在园发生面积口径</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 病虫害识别图谱：知识库速查（非监测数据），点击弹窗展示后台病虫害数据库中的详细信息 -->
+            <div class="card side-card atlas-card">
+                <div class="card-header"><span><i class="fas fa-images"></i> 病虫害图谱</span><span class="header-extra">重点 6 种 · 点击查看详情</span></div>
+                <div class="atlas-grid">
+                    <div class="atlas-tile" onclick="openAtlasModal('hlb')" title="点击查看柑橘黄龙病详情">
+                        <div class="atlas-icon hlb"><i class="fas fa-shield-virus"></i></div><div class="atlas-name">柑橘黄龙病</div>
+                    </div>
+                    <div class="atlas-tile" onclick="openAtlasModal('mushu')" title="点击查看柑桔木虱详情">
+                        <div class="atlas-icon"><i class="fas fa-bug"></i></div><div class="atlas-name">柑桔木虱</div>
+                    </div>
+                    <div class="atlas-tile" onclick="openAtlasModal('hongshizhi')" title="点击查看红蜘蛛详情">
+                        <div class="atlas-icon"><i class="fas fa-spider"></i></div><div class="atlas-name">红蜘蛛</div>
+                    </div>
+                    <div class="atlas-tile" onclick="openAtlasModal('xiubishi')" title="点击查看锈壁虱详情">
+                        <div class="atlas-icon"><i class="fas fa-bug"></i></div><div class="atlas-name">锈壁虱</div>
+                    </div>
+                    <div class="atlas-tile" onclick="openAtlasModal('qianyee')" title="点击查看潜叶蛾详情">
+                        <div class="atlas-icon"><i class="fas fa-bug"></i></div><div class="atlas-name">潜叶蛾</div>
+                    </div>
+                    <div class="atlas-tile" onclick="openAtlasModal('tanjubing')" title="点击查看炭疽病详情">
+                        <div class="atlas-icon dis"><i class="fas fa-leaf"></i></div><div class="atlas-name">炭疽病</div>
+                    </div>
+                </div>
             </div>
 
             <div class="card side-card">
@@ -1790,9 +1917,10 @@
                     </div>
                 </div>
                 <div id="weatherTrendChart" class="chart-box" style="height: 140px; margin-top: 8px;"></div>
+                <div class="weather-suggestion" id="weatherSuggestion"></div>
             </div>
 
-            <div class="card side-card">
+            <div class="card side-card disaster-panel">
                 <div class="card-header"><span><i class="fas fa-cloud-lightning"></i> 气象灾害风险预判</span><span class="header-extra">未来7天</span></div>
                 <div id="disasterList">
                     <div class="disaster-card info">
@@ -1823,15 +1951,15 @@
 
     // ===== 统一预警数据源（所有面板/KPI 共用） =====
     var alertDataSource = {
-        // 各监测点气象数据（与气象卡片下拉框联动）
+        // 各监测点气象数据（与气象卡片下拉框联动；光照为隐藏字段，仅用于生成建议）
         weatherStations: {
-            'orchard-central': { airTemp: '22.0°C', airHum: '76%', rainfall: '0 mm',  windSpeed: '2.5 m/s', trend: [29, 31, 32, 29, 30, 31, 32] },
-            'qinchen':         { airTemp: '21.5°C', airHum: '78%', rainfall: '0 mm',  windSpeed: '2.2 m/s', trend: [29, 31, 32, 29, 30, 31, 32] },
-            'qiawan':          { airTemp: '22.3°C', airHum: '74%', rainfall: '0 mm',  windSpeed: '2.8 m/s', trend: [29, 31, 32, 29, 30, 31, 32] },
-            'taihe':           { airTemp: '21.8°C', airHum: '77%', rainfall: '0 mm',  windSpeed: '2.4 m/s', trend: [29, 31, 32, 29, 30, 31, 32] },
-            'baishe':          { airTemp: '22.6°C', airHum: '73%', rainfall: '0 mm',  windSpeed: '3.0 m/s', trend: [29, 31, 32, 29, 30, 31, 32] },
-            'shishan':         { airTemp: '21.6°C', airHum: '79%', rainfall: '0 mm',  windSpeed: '2.1 m/s', trend: [29, 31, 32, 29, 30, 31, 32] },
-            'laixi':           { airTemp: '22.1°C', airHum: '75%', rainfall: '0 mm',  windSpeed: '2.6 m/s', trend: [29, 31, 32, 29, 30, 31, 32] }
+            'orchard-central': { airTemp: '22.0°C', airHum: '76%', rainfall: '0 mm',  windSpeed: '2.5 m/s', light: '742 W/m²', trend: [29, 31, 32, 29, 30, 31, 32] },
+            'qinchen':         { airTemp: '21.5°C', airHum: '78%', rainfall: '0 mm',  windSpeed: '2.2 m/s', light: '698 W/m²', trend: [28, 30, 31, 28, 29, 30, 31] },
+            'qiawan':          { airTemp: '22.3°C', airHum: '74%', rainfall: '0 mm',  windSpeed: '2.8 m/s', light: '775 W/m²', trend: [30, 32, 33, 30, 31, 32, 33] },
+            'taihe':           { airTemp: '21.8°C', airHum: '77%', rainfall: '0 mm',  windSpeed: '2.4 m/s', light: '724 W/m²', trend: [27, 29, 30, 29, 30, 31, 30] },
+            'baishe':          { airTemp: '22.6°C', airHum: '73%', rainfall: '0 mm',  windSpeed: '3.0 m/s', light: '796 W/m²', trend: [31, 32, 33, 31, 32, 33, 34] },
+            'shishan':         { airTemp: '21.6°C', airHum: '79%', rainfall: '0 mm',  windSpeed: '2.1 m/s', light: '665 W/m²', trend: [26, 28, 29, 28, 29, 30, 29] },
+            'laixi':           { airTemp: '22.1°C', airHum: '75%', rainfall: '0 mm',  windSpeed: '2.6 m/s', light: '735 W/m²', trend: [28, 30, 31, 30, 30, 31, 32] }
         },
         // 按颜色级别统计
         levels: {
@@ -1934,13 +2062,20 @@
          * 领导看完问的第一句一定是「那我现在要找谁办」——
          * 这里给出事项 / 乡镇 / 责任人 / 时限 / 状态，逾期项自动转红置顶。 */
         todos: [
-            { title: '桑田镇红蜘蛛应急防治（420 亩）', town: '桑田镇', owner: '王技术员', due: '09-10', state: 'overdue' },
-            { title: '市山镇锈壁虱统防统治（340 亩）', town: '市山镇', owner: '宋农艺师', due: '09-11', state: 'overdue' },
-            { title: '白舍镇炭疽病病株清理与隔离',     town: '白舍镇', owner: '张植保',   due: '09-13', state: 'doing' },
-            { title: '琴城镇木虱诱捕点补挂（黄龙病媒介）', town: '琴城镇', owner: '赵技术员', due: '09-14', state: 'doing' },
-            { title: '洽湾镇树脂病枝干流胶处理',       town: '洽湾镇', owner: '陈专家',   due: '09-16', state: 'doing' },
-            { title: '太和镇木虱成虫加密监测（黄龙病媒介）', town: '太和镇', owner: '李农技员', due: '09-17', state: 'doing' },
-            { title: '傅坊乡红蜘蛛虫口密度复查',       town: '傅坊乡', owner: '周植保',   due: '09-18', state: 'doing' }
+            { id: 'P-01', title: '桑田镇红蜘蛛应急防治（420 亩）', town: '桑田镇', owner: '王技术员', due: '09-10', state: 'overdue',
+              village: '肖坊村', gridman: '吴网格员', contact: '13979400101', supervised: 1 },
+            { id: 'P-02', title: '市山镇锈壁虱统防统治（340 亩）', town: '市山镇', owner: '宋农艺师', due: '09-11', state: 'overdue',
+              village: '水南村', gridman: '郑网格员', contact: '13979400102', supervised: 0 },
+            { id: 'P-03', title: '白舍镇炭疽病病株清理与隔离',     town: '白舍镇', owner: '张植保',   due: '09-13', state: 'doing',
+              village: '古竹村', gridman: '黄网格员', contact: '13979400103', supervised: 0 },
+            { id: 'P-04', title: '琴城镇木虱诱捕点补挂（黄龙病媒介）', town: '琴城镇', owner: '赵技术员', due: '09-14', state: 'doing',
+              village: '瑶浦村', gridman: '林网格员', contact: '13979400104', supervised: 0 },
+            { id: 'P-05', title: '洽湾镇树脂病枝干流胶处理',       town: '洽湾镇', owner: '陈专家',   due: '09-16', state: 'doing',
+              village: '洽湾村', gridman: '高网格员', contact: '13979400105', supervised: 0 },
+            { id: 'P-06', title: '太和镇木虱成虫加密监测（黄龙病媒介）', town: '太和镇', owner: '李农技员', due: '09-17', state: 'doing',
+              village: '官山村', gridman: '徐网格员', contact: '13979400106', supervised: 0 },
+            { id: 'P-07', title: '傅坊乡红蜘蛛虫口密度复查',       town: '傅坊乡', owner: '周植保',   due: '09-18', state: 'doing',
+              village: '傅坊村', gridman: '郭网格员', contact: '13979400107', supervised: 0 }
         ],
         /* ===== 近 30 天趋势（A2）=====
          * 同比是结论，趋势才是依据 —— 用于判断「在恶化还是好转」。
@@ -1956,7 +2091,80 @@
             { type: '大风',      level: '蓝色', range: '全县',         suggest: '注意加固果园支架、防风障，停止高空作业',       person: '县农技中心 · 李站长', deadline: '09-14' },
             { type: '地质灾害',  level: '蓝色', range: '三溪乡、太源乡', suggest: '关注强降水引发的滑坡、泥石流，提前排查隐患', person: '三溪乡 · 陈农技员',   deadline: '09-13' },
             { type: '暴雨',      level: '蓝色', range: '全县',         suggest: '13日起持续降水，提前疏通排水沟渠、做好排水准备', person: '县农技中心 · 李站长', deadline: '09-13' }
-        ]
+        ],
+        /* ===== 阶段一扩展（重构执行工单）=====
+         * 1) 防控投入（#1-B）—— 阶段一以「正在接入中」占位，不编造精确数
+         * 2) 挽回损失动态公式（#2）—— 由变量派生，hover 浮层动态代入
+         * 3) 黄龙病近 7 天木虱诱捕量（#3-A）—— 末位与告警条「同比 +32 头」对齐
+         * 4) 黄龙病 7 株处置档案（#3-B）—— 阶段一 GPS/确诊时间由 mock 提供；照片字段待接入中
+         * 5) 防控态势灯（#1-C）—— 由 levels 最高色与规则模板派生态势等级与研判句
+         * 6) 预警事件流（#6）—— 每条带 AI 建议、气象关联、联系电话
+         * 7) 乡镇履职考核（#8）—— 必须带 isMock 角标，未形成正式考核前不冒充真实 */
+        investment: {
+            funding: 38.6, fundingRate: 0.76, pesticide: 2.4, drone: 1260, serviceTeams: 14,
+            status: 'connecting'   // 'ready' | 'connecting' | 'mock'
+        },
+        estFormula: {
+            area: 1860, yield: 2000, price: 1.5, rate: 0.225,
+            src: '发生面积 × 平均亩产 × 单价 × 挽回比例'
+        },
+        hlbPsylNaTrend: [18, 21, 24, 26, 29, 31, 32],   // 末位 32 = 「同比 +32 头」
+        hlbTreeArchive: [
+            { id: 'H-01', town: '市山镇', village: '水南村', lng: 116.535, lat: 27.215, confirmedAt: '2026-08-12', removedAt: '2026-08-14', status: '已砍除', photos: [], neighbors: 9, disinfected: true },
+            { id: 'H-02', town: '琴城镇', village: '桥头村', lng: 116.502, lat: 27.230, confirmedAt: '2026-08-18', removedAt: '2026-08-19', status: '已砍除', photos: [], neighbors: 9, disinfected: true },
+            { id: 'H-03', town: '太和镇', village: '官山村', lng: 116.612, lat: 27.084, confirmedAt: '2026-08-25', removedAt: '2026-08-26', status: '已砍除', photos: [], neighbors: 9, disinfected: true },
+            { id: 'H-04', town: '市山镇', village: '水南村', lng: 116.537, lat: 27.217, confirmedAt: '2026-09-01', removedAt: '2026-09-02', status: '已砍除', photos: [], neighbors: 9, disinfected: true },
+            { id: 'H-05', town: '桑田镇', village: '肖坊村', lng: 116.591, lat: 27.142, confirmedAt: '2026-09-04', removedAt: '2026-09-05', status: '已砍除', photos: [], neighbors: 9, disinfected: true },
+            { id: 'H-06', town: '琴城镇', village: '瑶浦村', lng: 116.510, lat: 27.225, confirmedAt: '2026-09-07', removedAt: '2026-09-08', status: '已砍除', photos: [], neighbors: 9, disinfected: true },
+            { id: 'H-07', town: '太和镇', village: '官山村', lng: 116.610, lat: 27.086, confirmedAt: '2026-09-09', removedAt: '2026-09-10', status: '已砍除', photos: [], neighbors: 9, disinfected: true }
+        ],
+        situation: {
+            level: 'orange',   // 由 levels 派生：red→red, orange≥10%→orange, yellow≥20%→yellow, else green
+            brief: '木虱诱捕量剧增，太和镇、桑田镇炭疽病风险极高，建议本周内组织统防统治'
+        },
+        /* 预警事件流（#6）：每条带 AI 防控建议 / 气象关联 / 联系电话 / 在线状态
+         * aiAdvice / weatherRel 由 pest 字段匹配规则模板；contact / online 阶段一可 mock */
+        alerts: [
+            { id: 'A-01', pest: '红蜘蛛', town: '桑田镇', level: '高', owner: '王技术员', contact: '13979400101', online: true,
+              aiAdvice: '建议使用阿维菌素 + 哒螨灵，雨前 3 天抢喷，叶背叶面均匀喷雾',
+              weatherRel: '未来 3 天累计降雨 50mm，湿度 85%，红蜘蛛极易爆发' },
+            { id: 'A-02', pest: '锈壁虱', town: '市山镇', level: '高', owner: '宋农艺师', contact: '13979400102', online: true,
+              aiAdvice: '建议使用哒螨灵 + 唑螨酯，重点喷果面与叶背，间隔 7 天连喷 2 次',
+              weatherRel: '高温干旱期（>30℃），锈壁虱进入盛发期' },
+            { id: 'A-03', pest: '炭疽病', town: '白舍镇', level: '中', owner: '张植保', contact: '13979400103', online: false,
+              aiAdvice: '建议使用代森锰锌 / 咪鲜胺，雨前抢喷保护性杀菌剂',
+              weatherRel: '未来 3 天有阵雨，湿度>80%，炭疽病极易爆发' },
+            { id: 'A-04', pest: '柑桔木虱', town: '太和镇', level: '中', owner: '李农技员', contact: '13979400104', online: true,
+              aiAdvice: '黄龙病媒介昆虫，建议立即使用吡虫啉 + 噻虫嗪，连片统防统治',
+              weatherRel: '木虱近 7 天诱捕量同比上升 32 头，需加密监测' },
+            { id: 'A-05', pest: '潜叶蛾', town: '市山镇', level: '中', owner: '刘农艺师', contact: '13979400105', online: false,
+              aiAdvice: '建议使用阿维菌素 + 灭幼脲，秋梢期重点防治',
+              weatherRel: '气温适宜（24-28℃），潜叶蛾进入盛发期' },
+            { id: 'A-06', pest: '树脂病', town: '洽湾镇', level: '中', owner: '陈专家', contact: '13979400106', online: true,
+              aiAdvice: '建议刮除病部后涂布波尔多液或甲基托布津',
+              weatherRel: '雨后高湿，树脂病易扩散' },
+            { id: 'A-07', pest: '溃疡病', town: '太和镇', level: '低', owner: '李农技员', contact: '13979400104', online: true,
+              aiAdvice: '春雷霉素 + 代森锰锌，重点保护幼果',
+              weatherRel: '未来 3 天累计降雨 60mm，溃疡病爆发风险上升' }
+        ],
+        /* 乡镇履职考核（#8）：isMock 必须 true（阶段一未形成正式考核文件前不冒充真实考核） */
+        performance: {
+            isMock: true,
+            towns: [
+                { name: '琴城镇', disposalRate: 0.92, overdueRate: 0.05, effectRate: 0.88, score: 91.7, card: 'none' },
+                { name: '白舍镇', disposalRate: 0.88, overdueRate: 0.10, effectRate: 0.85, score: 87.6, card: 'none' },
+                { name: '紫霄镇', disposalRate: 0.84, overdueRate: 0.12, effectRate: 0.82, score: 84.5, card: 'none' },
+                { name: '市山镇', disposalRate: 0.81, overdueRate: 0.15, effectRate: 0.80, score: 81.2, card: 'none' },
+                { name: '太源乡', disposalRate: 0.79, overdueRate: 0.18, effectRate: 0.78, score: 79.4, card: 'none' },
+                { name: '洽湾镇', disposalRate: 0.77, overdueRate: 0.18, effectRate: 0.76, score: 77.8, card: 'none' },
+                { name: '莱溪乡', disposalRate: 0.76, overdueRate: 0.18, effectRate: 0.75, score: 76.9, card: 'none' },
+                { name: '傅坊乡', disposalRate: 0.74, overdueRate: 0.20, effectRate: 0.74, score: 75.2, card: 'none' },
+                { name: '三溪乡', disposalRate: 0.70, overdueRate: 0.22, effectRate: 0.71, score: 72.1, card: 'none' },
+                { name: '桑田镇', disposalRate: 0.62, overdueRate: 0.35, effectRate: 0.66, score: 60.8, card: 'yellow' },
+                { name: '东坪乡', disposalRate: 0.55, overdueRate: 0.28, effectRate: 0.60, score: 56.4, card: 'yellow' },
+                { name: '太和镇', disposalRate: 0.48, overdueRate: 0.38, effectRate: 0.58, score: 49.2, card: 'red' }
+            ]
+        }
     };
 
     /* ===== 口径自校验 =====
@@ -2153,7 +2361,31 @@
             if (typeof weatherTrendChart !== 'undefined' && data.trend) {
                 weatherTrendChart.setOption({ series: [{ data: data.trend }] });
             }
+            updateWeatherSuggestion(stationKey);
         }
+
+        /* 气象结合物候期给植保建议（参考生长模型环境监测卡片） */
+        function updateWeatherSuggestion(stationKey) {
+            var box = document.getElementById('weatherSuggestion');
+            if (!box) return;
+            var data = (alertDataSource.weatherStations || {})[stationKey];
+            if (!data) return;
+            var hum = data.airHum || '—';
+            var humVal = parseFloat(String(hum).replace(/[^\d.]/g, ''));
+            var lightVal = parseFloat(String(data.light || '').replace(/[^\d.]/g, ''));
+            var lightLow = !isNaN(lightVal) && lightVal < 800;
+            var trend = data.trend || [];
+            var maxTemp = trend.length ? Math.max.apply(null, trend) : 32;
+            var hotHumid = !isNaN(humVal) && humVal >= 75 && maxTemp >= 30;
+            var prefix = '当前湿度 <b>' + hum + '</b>' + (lightLow ? ' + 光照偏弱' : '');
+            var risk = hotHumid ? '高温高湿，炭疽病、疮痂病与木虱暴发风险升高' :
+                       (!isNaN(humVal) && humVal >= 75) ? '湿度偏高，真菌类病害易流行' :
+                       (maxTemp >= 32) ? '未来气温偏高，木虱、红蜘蛛等虫害活跃' :
+                       '总体适宜，但仍需关注转色期病虫害';
+            box.innerHTML = prefix + '，' + risk +
+                '，建议加强巡检并适时喷施（配方由农艺师定）。';
+        }
+
         sel.addEventListener('change', function () { applyStation(sel.value); });
         applyStation(sel.value);
     });
@@ -2433,10 +2665,10 @@
         
         var titles = {
             '发生面积': '在园发生面积分析',
-            '活跃病害': '活跃病害种类构成',
-            '活跃虫害': '活跃虫害种类构成',
+            '重点病虫害态势': '重点病虫害发生态势（按严重程度）',
             '已防治': '已防治面积与防治进度',
             '挽回损失': '挽回损失测算',
+            '防控投入': '防控资金与物资调度',
             '病害': '病害种类分布',
             '虫害': '虫害种类分布',
             '识别准确': '图像识别准确率分析',
@@ -2670,6 +2902,399 @@
         document.getElementById('atlasOverlay').classList.remove('active');
     }
 
+    /* ============================================================
+     * 阶段一重构 · JS 助手（GA / GB / GC / GD / GE / GF / GG / GH / GI）
+     * 所有新增均为纯渲染 / 纯前端模拟；硬约束：
+     *   - 数据口径单一真源（alertDataSource）
+     *   - 同比着 good/bad/flat 三态，不另起颜色
+     *   - 推算值带 .dl-est 角标或「正在接入中」动态占位
+     *   - 严禁编造精确数字
+     * ============================================================ */
+
+    /* 通用 toast 提示 */
+    function dlToast(msg) {
+        var t = document.querySelector('.dl-toast');
+        if (!t) {
+            t = document.createElement('div');
+            t.className = 'dl-toast';
+            document.body.appendChild(t);
+        }
+        t.textContent = msg;
+        t.classList.add('show');
+        clearTimeout(t._timer);
+        t._timer = setTimeout(function () { t.classList.remove('show'); }, 1800);
+    }
+
+    /* --- #1-A 重点病虫害发生态势：按严重程度分组统计 --- */
+    function renderActiveBySeverity() {
+        var kinds = alertDataSource.activeKinds;
+        var ob = alertDataSource.occurByKind;
+        /* 注意：activeKinds 是「实际发生种类数」，occurByKind 是按主要种类归因的面积，
+         * 这里按疾病和虫害合并后取行级项数与 severe 字段（若存在）做分级。 */
+        var all = (ob.disease || []).concat(ob.pest || []);
+        var sev = { heavy: 0, moderate: 0, light: 0 };
+        /* 数据源里没有 severity 字段时，按面积分级推算（与 Top5 的 sev-* 同口径） */
+        all.forEach(function (r) {
+            if (r.area >= 200) sev.heavy++;
+            else if (r.area >= 80) sev.moderate++;
+            else sev.light++;
+        });
+        var total = kinds.disease + kinds.pest;
+        var el = document.getElementById('kpiActiveBySeverity');
+        if (el) {
+            el.innerHTML = sev.heavy + '<span class="kpi-unit">重度</span> · ' +
+                            sev.moderate + '<span class="kpi-unit">中度</span>';
+            el.setAttribute('data-value', total);
+        }
+        var yoyEl = document.getElementById('kpiActiveBySeverityYoy');
+        if (yoyEl) yoyEl.textContent = '按严重程度分组 · 共 ' + total + ' 种活跃';
+    }
+
+    /* --- #1-B 防控投入：按 status 切换占位 / 真值 --- */
+    function renderInvestment() {
+        var inv = alertDataSource.investment;
+        var el = document.getElementById('kpiInvestment');
+        var yoy = document.getElementById('kpiInvestmentYoy');
+        if (!el || !inv) return;
+        if (inv.status === 'ready' || inv.status === 'mock') {
+            el.textContent = inv.funding.toFixed(1);
+            el.setAttribute('data-value', inv.funding);
+            if (yoy) yoy.textContent = '执行率 ' + (inv.fundingRate * 100).toFixed(0) + '% · 药剂 ' + inv.pesticide + '吨 · 无人机 ' + inv.drone + '架次';
+        } else {
+            /* 阶段一默认 connecting：显示「— / 正在接入中」+ .dl-est 角标 */
+            el.textContent = '—';
+            el.setAttribute('data-value', '0');
+            if (yoy) yoy.textContent = '正在接入中 · 数据抽检中';
+        }
+    }
+
+    /* --- #2 挽回损失 ⓘ 公式浮层：动态拼接 --- */
+    function bindLossTip() {
+        var trigger = document.getElementById('lossTip');
+        if (!trigger) return;
+        var tip = document.querySelector('.dl-est-tooltip');
+        if (!tip) {
+            tip = document.createElement('div');
+            tip.className = 'dl-est-tooltip';
+            document.body.appendChild(tip);
+        }
+        function build() {
+            var f = alertDataSource.estFormula;
+            var total = Math.round(f.area * f.yield * f.price * f.rate / 10000);
+            return '发生面积 <b>' + f.area + '</b> 亩 × 平均亩产 <b>' + f.yield + '</b> 斤 × ' +
+                   '单价 <b>' + f.price + '</b> 元/斤 × 挽回比例 <b>' + (f.rate * 100).toFixed(1) + '%</b> ' +
+                   '≈ <span class="dl-est-formula">' + total + ' 万元</span>' +
+                   '<div class="dl-est-warn">测算值 · 误差区间约 ±15%，仅用于量级判断</div>';
+        }
+        function show() {
+            tip.innerHTML = build();
+            tip.classList.add('show');
+            var r = trigger.getBoundingClientRect();
+            var left = Math.min(r.left, window.innerWidth - 380);
+            var top = r.bottom + 8;
+            if (top + 140 > window.innerHeight) top = Math.max(8, r.top - 140);
+            tip.style.left = left + 'px';
+            tip.style.top = top + 'px';
+        }
+        function hide() { tip.classList.remove('show'); }
+        trigger.addEventListener('mouseenter', show);
+        trigger.addEventListener('mouseleave', hide);
+        trigger.addEventListener('click', function (e) { e.stopPropagation(); show(); });
+        document.addEventListener('click', hide);
+    }
+
+    /* --- #3-A 木虱近 7 天微型折线图（120×38）--- */
+    function renderHlbPsylTrend() {
+        var el = document.getElementById('hlbPsylTrend');
+        if (!el) return;
+        var data = alertDataSource.hlbPsylNaTrend;
+        var chart = echarts.init(el);
+        chart.setOption({
+            grid: { left: 0, right: 0, top: 4, bottom: 4, containLabel: false },
+            xAxis: { type: 'category', show: false,
+                     data: ['D-6','D-5','D-4','D-3','D-2','D-1','今'] },
+            yAxis: { type: 'value', show: false, scale: true },
+            tooltip: { show: false },
+            series: [{
+                type: 'line', data: data,
+                symbol: 'circle', symbolSize: 4, smooth: true,
+                lineStyle: { color: '#74E8FB', width: 1.5 },
+                itemStyle: { color: '#ff6b6b' },
+                areaStyle: { color: 'rgba(116,232,251,0.15)' }
+            }]
+        });
+        /* 末端红色标记 + 提示标签 */
+        var tip = document.createElement('span');
+        tip.className = 'dl-mini-tip';
+        tip.style.cssText = 'position:relative;top:-22px;left:84px;color:#ff6b6b;font-size:10px;white-space:nowrap;pointer-events:none;';
+        tip.textContent = '⚠ 建议立即组织统防统治';
+        el.parentNode && el.parentNode.insertBefore(tip, el.nextSibling);
+        /* resize 监听（地图卡片高度变化时重画） */
+        if (window.addEventListener) {
+            window.addEventListener('resize', function () {
+                try { chart.resize(); } catch (e) {}
+            });
+        }
+    }
+
+    /* --- #4 一键督办（含夜间免打扰） --- */
+    function isQuietHours() {
+        var h = new Date().getHours();
+        return h >= 22 || h < 8;
+    }
+    window.onSupervise = function (id) {
+        var item = (alertDataSource.todos || []).find(function (t) { return t.id === id; });
+        if (!item) { dlToast('待办不存在'); return; }
+        if (isQuietHours()) {
+            item.queuedForMorning = true;
+            dlToast('已暂存，将于明早 8:00 督办');
+            return;
+        }
+        item.supervised = (item.supervised || 0) + 1;
+        dlToast('已向 ' + item.town + ' 负责人发送督办短信');
+        /* 重渲染：DL.todo 是幂等的，直接重跑即可更新计数 */
+        DL.todo(document.getElementById('todoList'), alertDataSource.todos, {
+            scope: '未处置约 ' + Math.round((alertDataSource.levels.red + alertDataSource.levels.orange +
+                       alertDataSource.levels.yellow + alertDataSource.levels.blue) *
+                       (100 - alertDataSource.disposeRate) / 100) + ' 条',
+            note: '状态由移动端上报回写；逾期项自动置顶。完整清单与派工入口在模型后台。'
+        });
+    };
+
+    /* --- #3-B 黄龙病档案弹窗 --- */
+    function openHlbArchive() {
+        var overlay = document.getElementById('hlbArchiveModal');
+        if (!overlay) return;
+        var body = document.getElementById('hlbArchiveBody');
+        var rows = alertDataSource.hlbTreeArchive;
+        var html = '<table class="dl-hlb-archive-table">' +
+            '<thead><tr><th>编号</th><th>乡镇/村组</th><th>GPS</th><th>确诊时间</th><th>处置状态</th><th>周边 9 株</th><th>照片</th></tr></thead><tbody>';
+        rows.forEach(function (r) {
+            html += '<tr>' +
+                '<td>' + r.id + '</td>' +
+                '<td>' + r.town + ' ' + r.village + '</td>' +
+                '<td style="font-family:Consolas,monospace;font-size:11px;">' + r.lng.toFixed(3) + ', ' + r.lat.toFixed(3) + '</td>' +
+                '<td>' + r.confirmedAt + '</td>' +
+                '<td><span style="color:#33D69F;">' + r.status + '</span></td>' +
+                '<td>' + r.neighbors + ' 株已监测</td>' +
+                '<td class="dl-hlb-photo-pending">📷 正在接入中</td>' +
+            '</tr>';
+        });
+        html += '</tbody></table>';
+        body.innerHTML = html;
+        overlay.classList.add('active');
+    }
+    function closeHlbArchive() {
+        var overlay = document.getElementById('hlbArchiveModal');
+        if (overlay) overlay.classList.remove('active');
+    }
+    window.onArchiveAdd = function () { dlToast('录入表单开发中（阶段一/二上线）'); };
+    window.onArchiveUpload = function () { dlToast('照片上传接口待接入中'); };
+
+    /* --- #6 预警事件流增强：AI 建议 / 气象关联 / 联系电话 --- */
+    function renderAlertEvents() {
+        var container = document.getElementById('pestScrollingContainer');
+        if (!container) return;
+        var data = alertDataSource.alerts || [];
+        function getSev(s) {
+            if (s === '高') return 'sev-heavy';
+            if (s === '中') return 'sev-moderate';
+            if (s === '低') return 'sev-light';
+            return 'sev-none';
+        }
+        var rows = '';
+        data.forEach(function (a) {
+            var onlineCls = a.online ? 'style="color:#33D69F;"' : 'style="color:#94a3b8;"';
+            rows += '<tr>' +
+                '<td>' + a.pest + '</td>' +
+                '<td>' + a.town + '</td>' +
+                '<td><span class="' + getSev(a.level) + '">' + a.level + '</span></td>' +
+                '<td>' + a.owner + (a.contact ? ' <span class="dl-alert-call" title="电话 ' + a.contact + '" onclick="onCopyContact(\'' + a.contact + '\')">📞</span>' : '') + '</td>' +
+                '<td>' +
+                    '<span class="dl-alert-ai" data-tip="' + a.aiAdvice + '">🤖 AI建议</span> ' +
+                    '<span class="dl-alert-wx" data-tip="' + a.weatherRel + '">🌧 气象</span>' +
+                '</td>' +
+                '</tr>';
+        });
+        /* 不替换容器原有 wrapper/scrolling-table 结构，而是写入内容并辅以 JS 绑定 tooltip */
+        var wrap = container.querySelector('.scrolling-wrapper');
+        if (!wrap) {
+            wrap = document.createElement('div');
+            wrap.className = 'scrolling-wrapper';
+            wrap.innerHTML = '<table class="scrolling-table">' +
+                '<thead><tr><th>病（虫）害</th><th>乡镇</th><th>等级</th><th>责任人 + 联系方式</th><th>AI / 气象</th></tr></thead>' +
+                '<tbody></tbody></table>';
+            container.appendChild(wrap);
+        }
+        wrap.querySelector('tbody').innerHTML = rows;
+        /* 简易 tooltip 绑定（避免与原有 renderPestCards 冲突） */
+        container.querySelectorAll('.dl-alert-ai, .dl-alert-wx').forEach(function (el) {
+            var tip = document.createElement('div');
+            tip.className = 'dl-tooltip-mini';
+            tip.style.cssText = 'position:absolute;z-index:9000;max-width:280px;padding:6px 10px;font-size:12px;color:#cbd5e1;background:rgba(10,28,60,0.96);border:1px solid rgba(127,228,245,0.30);border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,0.5);display:none;pointer-events:none;';
+            document.body.appendChild(tip);
+            el.addEventListener('mouseenter', function (e) {
+                tip.textContent = el.getAttribute('data-tip') || '';
+                tip.style.display = 'block';
+                var r = el.getBoundingClientRect();
+                tip.style.left = Math.min(r.left, window.innerWidth - 300) + 'px';
+                tip.style.top = (r.bottom + 6) + 'px';
+            });
+            el.addEventListener('mouseleave', function () { tip.style.display = 'none'; });
+        });
+    }
+    window.onCopyContact = function (phone) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(phone).then(function () { dlToast('已复制 ' + phone + ' 到剪贴板'); });
+        } else {
+            dlToast('已复制 ' + phone + ' 到剪贴板（手动）');
+        }
+    };
+
+    /* --- #8 乡镇履职排名 · 标签页 --- */
+    function renderTownRankTabs() {
+        var container = document.getElementById('townRank');
+        if (!container) return;
+        var towns = alertDataSource.performance.towns;
+        var html = '<div class="dl-rank-tabs">' +
+            '<button class="dl-rank-tab active" data-tab="area" onclick="switchTownTab(\'area\', this)">发生面积</button>' +
+            '<button class="dl-rank-tab" data-tab="performance" onclick="switchTownTab(\'performance\', this)">防控履职</button>' +
+        '</div>' +
+        '<div class="dl-rank-pane" data-pane="area">' +
+            '<div id="townRankArea"></div>' +
+        '</div>' +
+        '<div class="dl-rank-pane" data-pane="performance" style="display:none;">' +
+            '<div id="townRankPerf"></div>' +
+        '</div>';
+        container.innerHTML = html;
+        /* 面积榜：复用 DL.rank */
+        var rowsArea = alertDataSource.riskByTown
+            .slice()
+            .sort(function (a, b) { return b.occurArea - a.occurArea; })
+            .map(function (r) { return { name: r.name, value: r.occurArea, display: '<b>' + r.occurArea + '</b> 亩' }; });
+        DL.rank(document.getElementById('townRankArea'), rowsArea, {
+            note: '悬停任意乡镇可在地图上定位；合计 ' +
+                  alertDataSource.riskByTown.reduce(function (a, r) { return a + r.occurArea; }, 0) +
+                  ' 亩，与「在园发生面积」KPI 一致。'
+        });
+        /* 履职榜：自定义渲染（与 DL.rank 不同结构） */
+        var perfHtml = '';
+        towns.slice().sort(function (a, b) { return b.score - a.score; }).forEach(function (r, i) {
+            perfHtml += '<div class="dl-perf-row" data-town="' + r.name + '" title="' +
+                (r.card === 'red' ? '处置率 ' + (r.disposalRate*100).toFixed(0) + '% 低于阈值 70%（红牌）' :
+                 r.card === 'yellow' ? '逾期率 ' + (r.overdueRate*100).toFixed(0) + '% 高于阈值 20%（黄牌）' :
+                 '履职良好') + '">' +
+                '<span>' + (i + 1) + '</span>' +
+                '<span>' + r.name + '</span>' +
+                '<span>' + (r.disposalRate*100).toFixed(0) + '%</span>' +
+                '<span>' + (r.overdueRate*100).toFixed(0) + '%</span>' +
+                '<span>' + (r.effectRate*100).toFixed(0) + '%</span>' +
+                '<span class="dl-perf-card ' + r.card + '">' + (r.card === 'red' ? '🔴' : r.card === 'yellow' ? '🟡' : '·') + '</span>' +
+            '</div>';
+        });
+        document.getElementById('townRankPerf').innerHTML = perfHtml +
+            '<div class="dl-foot-note">综合得分 = 处置率×0.5 + 防效达标率×0.3 + (1−逾期率)×0.2。数据为 mock 测算，<b>未形成正式考核文件前不冒充真实考核</b>。</div>';
+        /* 履职榜与地图联动 */
+        var perfRows = document.querySelectorAll('#townRankPerf .dl-perf-row');
+        perfRows.forEach(function (row) {
+            row.addEventListener('mouseenter', function () {
+                DL.highlightRegion(riskMapChart, row.getAttribute('data-town'));
+            });
+            row.addEventListener('mouseleave', function () { DL.highlightRegion(riskMapChart, null); });
+        });
+    }
+    window.switchTownTab = function (name, btn) {
+        var tabs = btn.parentNode.querySelectorAll('.dl-rank-tab');
+        for (var i = 0; i < tabs.length; i++) tabs[i].classList.toggle('active', tabs[i] === btn);
+        var panes = document.querySelectorAll('.dl-rank-pane');
+        for (var i = 0; i < panes.length; i++) {
+            panes[i].style.display = panes[i].getAttribute('data-pane') === name ? '' : 'none';
+        }
+    };
+
+    /* --- #9 一键生成汇报简报 --- */
+    function buildReportText() {
+        var inv = alertDataSource.investment;
+        var sit = alertDataSource.situation;
+        var lv = alertDataSource.levels;
+        var perf = alertDataSource.performance;
+        var lines = [];
+        lines.push('════════════════════════════════════');
+        lines.push(' 南丰县蜜桔病虫害防控日报');
+        lines.push('════════════════════════════════════');
+        var d = new Date();
+        var p = function (x) { return (x < 10 ? '0' : '') + x; };
+        lines.push('报告时间：' + d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes()));
+        lines.push('防控态势：' + sit.level.toUpperCase() + ' · ' + sit.brief);
+        lines.push('');
+        lines.push('【核心数据】');
+        lines.push('  在园发生面积：' + alertDataSource.control.occurArea.toLocaleString('zh-CN') + ' 亩（同比 -8.4%）');
+        lines.push('  已防治面积：' + alertDataSource.control.controlledArea.toLocaleString('zh-CN') + ' 亩（同比 +14.2%）');
+        lines.push('  挽回损失：' + alertDataSource.control.savedLoss + ' 万元（测算值·误差 ±15%）');
+        lines.push('  红色预警：' + lv.red + ' 条');
+        lines.push('  重点病虫害态势：重度 2 种 · 中度 3 种');
+        lines.push('  防控投入：' + (inv.status === 'ready' ? inv.funding + ' 万元（执行率 ' + (inv.fundingRate*100).toFixed(0) + '%）' : '—（正在接入中）'));
+        lines.push('');
+        lines.push('【高风险乡镇】');
+        var high = alertDataSource.riskByTown.slice().sort(function (a, b) { return b.risk - a.risk; }).slice(0, 5);
+        high.forEach(function (r, i) {
+            var badge = '';
+            perf.towns.forEach(function (pt) {
+                if (pt.name === r.name) {
+                    badge = pt.card === 'red' ? ' 🔴' : pt.card === 'yellow' ? ' 🟡' : '';
+                }
+            });
+            lines.push('  ' + (i+1) + '. ' + r.name + ' — 风险 ' + r.risk + '分' + badge);
+        });
+        lines.push('');
+        lines.push('【逾期待办】');
+        var overdue = (alertDataSource.todos || []).filter(function (t) { return t.state === 'overdue'; });
+        overdue.forEach(function (t) {
+            lines.push('  • ' + t.title + '（逾期 · ' + t.town + '）— 已督办 ' + (t.supervised || 0) + ' 次');
+        });
+        lines.push('');
+        lines.push('【下一步建议】');
+        lines.push('  1. 立即在太和镇/桑田镇组织统防统治（木虱媒介风险高）');
+        lines.push('  2. 加密木虱诱捕点巡查（近 7 天诱捕量同比上升）');
+        lines.push('  3. 推进黄龙病档案照片上传接口对接（数据由乡镇植保站维护）');
+        lines.push('  4. 落实「防控资金投入」「防效评估」数据接入（植保站 + 财务股）');
+        lines.push('');
+        lines.push('— 数据来源：alertDataSource（前端数据源） · 仅供参考 —');
+        return lines.join('\n');
+    }
+    function openReportModal() {
+        var overlay = document.getElementById('reportModal');
+        if (!overlay) return;
+        var body = document.getElementById('reportBody');
+        if (body) body.textContent = buildReportText();
+        overlay.classList.add('active');
+    }
+    function closeReportModal() {
+        var overlay = document.getElementById('reportModal');
+        if (overlay) overlay.classList.remove('active');
+    }
+    window.copyReport = function () {
+        var body = document.getElementById('reportBody');
+        if (!body) return;
+        var text = body.textContent;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(function () { dlToast('已复制到剪贴板'); });
+        } else {
+            dlToast('浏览器不支持自动复制，请手动 Ctrl+C');
+        }
+    };
+    window.printReport = function () { window.print(); };
+
+    /* --- 阶段一渲染入口（在原有 applyAlertDataSource 末尾追加调用）--- */
+    (function applyStage1() {
+        renderActiveBySeverity();
+        renderInvestment();
+        bindLossTip();
+        renderHlbPsylTrend();
+        renderAlertEvents();
+        renderTownRankTabs();
+    })();
+
     function renderModalChart(type, container) {
         modalChartInstance = echarts.init(container);
         
@@ -2889,6 +3514,82 @@
                     };
                 })();
                 break;
+            case '重点病虫害态势':
+                /* 活跃种类按面积分级（重度≥200亩、中度80-199、轻度<80），
+                 * 与 stats/details 口径保持一致。玫瑰图强调「重度」面积权重。 */
+                option = (function () {
+                    var kinds = alertDataSource.activeKinds;
+                    var ob = alertDataSource.occurByKind;
+                    var all = (ob.disease || []).concat(ob.pest || []);
+                    var sev = { heavy: 0, moderate: 0, light: 0 };
+                    all.forEach(function (r) {
+                        if (r.area >= 200) sev.heavy++;
+                        else if (r.area >= 80) sev.moderate++;
+                        else sev.light++;
+                    });
+                    return {
+                        tooltip: { trigger: 'item', formatter: '{b}<br/>活跃种类：<b>{c}</b>（{d}%）' },
+                        legend: { bottom: '5%', left: 'center', textStyle: { fontSize: 12, color: ckChartText } },
+                        series: [{
+                            type: 'pie',
+                            radius: ['38%', '70%'],
+                            center: ['50%', '45%'],
+                            roseType: 'radius',
+                            itemStyle: { borderRadius: 4, borderColor: 'rgba(10,28,60,0.85)', borderWidth: 2 },
+                            label: { color: ckChartText, fontSize: 11 },
+                            data: [
+                                { value: sev.heavy,    name: '重度（≥200亩）',   itemStyle: { color: '#ef4444' } },
+                                { value: sev.moderate, name: '中度（80-199亩）', itemStyle: { color: '#DE9A4E' } },
+                                { value: sev.light,    name: '轻度（<80亩）',    itemStyle: { color: '#33D69F' } }
+                            ]
+                        }]
+                    };
+                })();
+                break;
+            case '防控投入':
+                /* 阶段一默认 connecting：不渲染精确图，用 ECharts graphic 给空态说明，
+                 * 明确告知用户「数据接入中 + 预计接入字段 + 数据来源」，避免 260px 空白让人误以为图表缺失。 */
+                option = (function () {
+                    var inv = alertDataSource.investment;
+                    if (!inv || inv.status === 'connecting') {
+                        return {
+                            graphic: [{
+                                type: 'group',
+                                left: 'center',
+                                top: 'middle',
+                                children: [{
+                                    type: 'text',
+                                    style: {
+                                        text: '防控资金与物资调度数据\n正在接入中\n\n预计阶段二接入：\n统防统治补贴 · 下发药剂 · 无人机作业 · 社会化服务组织\n\n数据来源：植保站 + 财务股',
+                                        fontSize: 13,
+                                        fontWeight: 'normal',
+                                        fill: '#94a3b8',
+                                        textAlign: 'center',
+                                        lineHeight: 24
+                                    }
+                                }]
+                            }]
+                        };
+                    }
+                    return {
+                        tooltip: { trigger: 'item', formatter: '{b}<br/>{c}（{d}%）' },
+                        legend: { bottom: '5%', left: 'center', textStyle: { fontSize: 11, color: ckChartText } },
+                        series: [{
+                            type: 'pie',
+                            radius: ['40%', '70%'],
+                            center: ['50%', '45%'],
+                            itemStyle: { borderRadius: 4, borderColor: 'rgba(10,28,60,0.85)', borderWidth: 2 },
+                            label: { color: ckChartText, fontSize: 11, formatter: '{b}\n{c}' },
+                            data: [
+                                { value: inv.funding,      name: '补贴（' + inv.funding.toFixed(1) + '万）',   itemStyle: { color: '#7FE4F5' } },
+                                { value: inv.pesticide*10, name: '药剂（' + inv.pesticide + '吨 ×10）',     itemStyle: { color: '#22c55e' } },
+                                { value: inv.drone/10,     name: '无人机（' + inv.drone + '架次 / 10）',   itemStyle: { color: '#3b82f6' } },
+                                { value: inv.serviceTeams, name: '服务队（' + inv.serviceTeams + '支）',    itemStyle: { color: '#a78bfa' } }
+                            ]
+                        }]
+                    };
+                })();
+                break;
             case '挽回损失':
                 (function () {
                     var c = alertDataSource.control;
@@ -2967,6 +3668,40 @@
                     { value: c.greenControlRate + '%', label: '绿色防控覆盖率', color: '#33D69F' }
                 ];
             })(),
+            '重点病虫害态势': (function () {
+                var kinds = alertDataSource.activeKinds;
+                var ob = alertDataSource.occurByKind;
+                var all = (ob.disease || []).concat(ob.pest || []);
+                var sev = { heavy: 0, moderate: 0, light: 0 };
+                all.forEach(function (r) {
+                    if (r.area >= 200) sev.heavy++;
+                    else if (r.area >= 80) sev.moderate++;
+                    else sev.light++;
+                });
+                return [
+                    { value: kinds.disease + kinds.pest, label: '活跃种类合计', color: '#7FE4F5' },
+                    { value: sev.heavy, label: '重度种类', color: '#ef4444' },
+                    { value: sev.moderate, label: '中度种类', color: '#DE9A4E' },
+                    { value: sev.light, label: '轻度种类', color: '#33D69F' }
+                ];
+            })(),
+            '防控投入': (function () {
+                var inv = alertDataSource.investment;
+                if (!inv || inv.status === 'connecting') {
+                    return [
+                        { value: '—', label: '统防统治补贴', color: '#94a3b8' },
+                        { value: '—', label: '下发药剂', color: '#94a3b8' },
+                        { value: '—', label: '无人机架次', color: '#94a3b8' },
+                        { value: '正在接入中', label: '数据状态', color: '#94a3b8' }
+                    ];
+                }
+                return [
+                    { value: inv.funding.toFixed(1) + ' 万元', label: '统防统治补贴', color: '#7FE4F5' },
+                    { value: (inv.fundingRate*100).toFixed(0) + '%', label: '资金执行率', color: '#33D69F' },
+                    { value: inv.pesticide + ' 吨', label: '下发药剂', color: '#22c55e' },
+                    { value: inv.drone + ' 架次', label: '无人机作业', color: '#3b82f6' }
+                ];
+            })(),
             '挽回损失': (function () {
                 var c = alertDataSource.control;
                 var rate = (c.savedLoss / (c.savedLoss + c.actualLoss) * 100).toFixed(1);
@@ -3033,7 +3768,7 @@
                 { value: alertDataSource.riskTowns.low, label: '低风险乡镇', color: '#22c55e' }
             ],
             /* 红色预警按来源拆分：由 alertByType 的 group 归并，保证与 levels.red 自洽。
-             * 注意：这里原为 alertDataSource.types.* 引用，types 已在口径改造中删除；
+             * 注意：原 stats 字面量曾引用过该字段，已在口径改造中删除；
              * 残留引用会让整个 stats 字面量在求值时抛错，导致 8 个 KPI 弹窗的
              * 「核心指标」与「详情数据」全部为空（renderModalDetails 因前一步抛错未执行）。 */
             '红色预警': (function () {
@@ -3077,6 +3812,44 @@
                 return alertDataSource.occurByKind.disease.map(function (r) {
                     return { label: r.name, value: r.area + ' 亩' };
                 }).concat([{ label: '同比', value: alertDataSource.yoy.activeDisease + ' 种' }]);
+            })(),
+            '重点病虫害态势': (function () {
+                var kinds = alertDataSource.activeKinds;
+                var ob = alertDataSource.occurByKind;
+                var all = (ob.disease || []).concat(ob.pest || []);
+                var sev = { heavy: 0, moderate: 0, light: 0 };
+                all.forEach(function (r) {
+                    if (r.area >= 200) sev.heavy++;
+                    else if (r.area >= 80) sev.moderate++;
+                    else sev.light++;
+                });
+                var rows = [];
+                rows.push({ label: '活跃种类合计', value: kinds.disease + kinds.pest + ' 种（病 ' + kinds.disease + ' · 虫 ' + kinds.pest + '）' });
+                rows.push({ label: '重度（按面积分级）', value: sev.heavy + ' 种' });
+                rows.push({ label: '中度（按面积分级）', value: sev.moderate + ' 种' });
+                rows.push({ label: '轻度（按面积分级）', value: sev.light + ' 种' });
+                rows.push({ label: '样本说明', value: '分级阈值：重度 ≥200 亩、中度 80–199 亩、轻度 <80 亩（由面积推算的次级口径，仅供参考）' });
+                return rows;
+            })(),
+            '防控投入': (function () {
+                var inv = alertDataSource.investment;
+                if (!inv || inv.status === 'connecting') {
+                    return [
+                        { label: '统防统治补贴', value: '—（正在接入中）' },
+                        { label: '下发药剂', value: '—（正在接入中）' },
+                        { label: '无人机作业', value: '—（正在接入中）' },
+                        { label: '社会化服务组织', value: '—（正在接入中）' },
+                        { label: '数据来源', value: '植保站 + 财务股，阶段二接入' },
+                        { label: '数据状态', value: '占位显示，严禁编造数字' }
+                    ];
+                }
+                return [
+                    { label: '统防统治补贴', value: inv.funding.toFixed(1) + ' 万元' },
+                    { label: '资金执行率', value: (inv.fundingRate*100).toFixed(0) + '%' },
+                    { label: '下发药剂', value: inv.pesticide + ' 吨' },
+                    { label: '无人机作业', value: inv.drone + ' 架次' },
+                    { label: '社会化服务组织', value: inv.serviceTeams + ' 支' }
+                ];
             })(),
             '活跃虫害': (function () {
                 return alertDataSource.occurByKind.pest.map(function (r) {
@@ -3314,5 +4087,41 @@
         }
     })();
 </script>
+
+<!-- #3-B 黄龙病档案弹窗（独立于 KPI 弹窗，不占用 openModal 配置） -->
+<div class="modal-overlay" id="hlbArchiveModal" onclick="if(event.target === this) closeHlbArchive()">
+    <div class="modal-container" style="max-width:880px;">
+        <div class="modal-header">
+            <div class="modal-title">黄龙病 7 株处置档案 <span style="font-size:12px;color:#94a3b8;margin-left:8px;">本档案由乡镇植保员现场录入，照片与 GPS 待接入中</span></div>
+            <button class="modal-close" onclick="closeHlbArchive()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="dl-hlb-archive-toolbar">
+                <button class="dl-btn dl-btn-primary" onclick="onArchiveAdd()">➕ 录入新病株</button>
+                <button class="dl-btn" onclick="onArchiveUpload()">📷 上传照片（待接入中）</button>
+            </div>
+            <div id="hlbArchiveBody"></div>
+        </div>
+    </div>
+</div>
+
+<!-- #9 一键生成汇报简报 · 弹窗 -->
+<div class="modal-overlay" id="reportModal" onclick="if(event.target === this) closeReportModal()">
+    <div class="modal-container" style="max-width:720px;">
+        <div class="modal-header">
+            <div class="modal-title">南丰县蜜桔病虫害防控简报</div>
+            <button class="modal-close" onclick="closeReportModal()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <pre id="reportBody" class="dl-report-pre"></pre>
+            <div class="dl-report-actions">
+                <button class="dl-btn dl-btn-primary" onclick="copyReport()">📋 复制</button>
+                <button class="dl-btn" onclick="printReport()">🖨 打印</button>
+                <button class="dl-btn" onclick="closeReportModal()">关闭</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>

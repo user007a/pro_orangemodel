@@ -1,0 +1,50 @@
+
+===== growth_dashboard.html =====
+  内联 script: 3 块，语法 OK
+
+===== pest_dashboard.html =====
+  内联 script: 2 块，语法 OK
+
+===== 字体资源 =====
+  BarlowCondensed-500.woff2  21424
+  BarlowCondensed-600.woff2  22308
+  BarlowCondensed-700.woff2  22444
+  NotoSansSC-400.woff2  1142552
+  NotoSansSC-500.woff2  1159128
+  NotoSansSC-700.woff2  1172244
+
+===== 地图数据 =====
+  区域数: 14
+  琴城镇、太和镇、白舍镇、市山镇、洽湾镇、桑田镇、紫霄镇、三溪乡、东坪乡、莱溪乡、太源乡、傅坊乡、南丰县长红垦殖场、南丰工业园区
+
+===== 数据口径一致性 =====
+  预警分解矩阵与等级口径一致，合计 184 条
+  发生面积分解与 KPI 一致：990 + 870 = 1860 亩
+  [FAIL] 未找到 KPI「重点病虫害发生态势」
+  [FAIL] 未找到 KPI「防控投入」
+  KPI 与数据源一致性：6 项已核对（阶段一重构后 6 张：发生面积/重点病虫害态势/红色预警/已防治/挽回损失/防控投入）
+  乡镇发生面积合计与 KPI 一致：1860 亩
+  乡镇预警数合计与等级口径一致：184 条
+  趋势线末位与 KPI 对齐：4 条序列已核对
+  待办清单字段完整性：7 项已核对
+  弹窗数据完整性：6 个 openModal 入口均有核心指标与详情数据
+  弹窗渲染实测：6 个入口 × 2 个区块，全部有内容且无异常
+  样本量合计与数据源一致：26 株
+  乡镇评分加权均值与 KPI 一致：77.92 ≈ 77.9
+
+===== 生长大屏数据口径 =====
+  KPI 与数据源一致性：5 项已核对
+  趋势线末位与 KPI 对齐：3 条序列已核对
+  农事待办字段完整性：9 项已核对
+  弹窗数据完整性：5 个 openModal 入口均有核心指标与详情数据
+  生长侧弹窗渲染实测：5 个入口 × 2 个区块，全部有内容且无异常
+
+===== DOM 引用完整性 =====
+  growth_dashboard.html：20 个 getElementById 目标均存在或已做空值保护，2 条趋势线键均已定义
+  pest_dashboard.html：35 个 getElementById 目标均存在或已做空值保护，3 条趋势线键均已定义
+
+===== 运行时冒烟（沙箱实跑内联脚本） =====
+  growth_dashboard.html：3 段内联脚本在沙箱中全部执行完成，无运行时异常；已渲染 5 处：score、qualityRate、#todoList、#townRank、#townCauseList
+  pest_dashboard.html：2 段内联脚本在沙箱中全部执行完成，无运行时异常；已渲染 6 处：occurArea、redAlert、controlledArea、#todoList、#townRank、#disasterList
+
+结果: 2 项未通过

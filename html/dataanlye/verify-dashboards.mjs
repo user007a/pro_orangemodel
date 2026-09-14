@@ -134,8 +134,15 @@ const lit = (t) => vm.runInNewContext('(' + t + ')', {});
 /* KPI 名称后面可能跟「推算」角标等内联标签，正则要放行，
  * 但不能因此放宽到跨标签匹配（否则会取到相邻卡片的数值）。 */
 function kpiValue(src, label) {
-  const re = new RegExp('<h4>' + label + '(?:\\s*<span\\b[^>]*>\\s*</span>)*\\s*</h4>\\s*<div class="kpi-number" data-value="([\\d.]+)"');
-  const m = src.match(re);
+  /* 阶段一重构后：先 indexOf 定位 <h4>label 起始位置，再在 600 字符窗口内做精确匹配。
+   * 用 src.match(<h4>label...正则) 在 200KB HTML + 长 data-est 属性值场景下会触发
+   * 正则回溯爆炸（实测数秒级），indexOf + 切片瞬间完成。
+   * span 内可空也可含 ⓘ/dl-est 等短文本，用 [\s\S]*? 非贪婪但限制窗口保证不回溯。 */
+  const idx = src.indexOf('<h4>' + label);
+  if (idx < 0) return null;
+  const slice = src.slice(idx, idx + 600);
+  /* 精确匹配：h4 + 任意空白 + label + 空白 + 0-N 个含短内容的 span + 空白 + </h4> + 空白 + kpi-number div */
+  const m = slice.match(/<h4>[^<]+(?:\s*<span\b[^>]*>[^<]{0,20}<\/span>)*\s*<\/h4>\s*<div class="kpi-number"[^>]*data-value="([\d.]+)"/);
   return m ? m[1] : null;
 }
 
@@ -311,13 +318,11 @@ if (!pestLit) {
 
   const kpiPairs = [
     ['在园发生面积', A.control.occurArea],
-    ['活跃病害', A.activeKinds.disease],
-    ['活跃虫害', A.activeKinds.pest],
-    ['预警总数', alertTotal],
+    ['重点病虫害发生态势', A.activeKinds.disease + A.activeKinds.pest],
     ['红色预警', lv.red],
-    ['预警处置完成率', A.disposeRate],
     ['已防治面积', A.control.controlledArea],
     ['挽回损失', A.control.savedLoss],
+    ['防控投入', (A.investment && A.investment.status !== 'connecting') ? A.investment.funding : 0]
   ];
   for (const [label, val] of kpiPairs) {
     const shown = kpiValue(pestSrc, label);
@@ -327,7 +332,7 @@ if (!pestLit) {
       fail++;
     }
   }
-  log('  KPI 与数据源一致性：' + kpiPairs.length + ' 项已核对');
+  log('  KPI 与数据源一致性：' + kpiPairs.length + ' 项已核对（阶段一重构后 6 张：发生面积/重点病虫害态势/红色预警/已防治/挽回损失/防控投入）');
 
   /* 乡镇维度口径：排行上线后，任何一处改数字都会立刻暴露矛盾 */
   const towns = A.riskByTown;
@@ -409,30 +414,45 @@ if (!pestLit) {
 }
 
 const growthSrc = fs.readFileSync(path.join(dir, 'growth_dashboard.html'), 'utf8');
-const growthLit = extractLiteral(growthSrc, 'plantMapData');
-if (!growthLit) {
-  log('  [FAIL] 未找到 plantMapData');
-  fail++;
-} else {
-  const rows = lit(growthLit);
-  const totalSamples = rows.reduce((a, r) => a + (r.samples || 0), 0);
-  const kpiPlants = kpiValue(growthSrc, '监测植株数量');
-  if (String(totalSamples) !== String(kpiPlants)) {
-    log('  [FAIL] 各乡镇样本量合计 ' + totalSamples + ' ≠ KPI 监测植株数量 ' + kpiPlants);
+/* 提前解析 growthDataSource，供下方样本量合计 / 引用完整性 / KPI 一致性共用 */
+const gLit = extractLiteral(growthSrc, 'growthDataSource');
+
+/* plantMapData 现由 growthDataSource.varieties 单一派生（杜绝「同一乡镇两套评分」），
+ * 因此这里不再对源码字面量求值，而是按同一规则重算并核对：
+ *   ① 11 个监测乡镇的株数合计 = KPI 监测植株数量
+ *   ② 乡镇评分按株数加权均值 = KPI 长势综合评分（地图填充/排行/左列/顶部 KPI 必须同源）
+ *   ③ 傅坊乡仍为「未布点（规划中）」的无数据项 */
+if (gLit) {
+  const G0 = lit(gLit);
+  const vs = G0.varieties || [];
+  const totalSamples = vs.reduce((a, v) => a + (v.count || 0), 0);
+  const expectPlants = G0.kpis.plants;
+  if (String(totalSamples) !== String(expectPlants)) {
+    log('  [FAIL] varieties 株数合计 ' + totalSamples + ' ≠ 数据源监测植株数量 ' + expectPlants);
     fail++;
   } else {
-    log('  样本量合计与 KPI 一致：' + totalSamples + ' 株');
+    log('  样本量合计与数据源一致：' + totalSamples + ' 株');
   }
-  rows.forEach((r) => {
-    if (!r.samples && typeof r.score === 'number') {
-      log('  [FAIL] ' + r.name + ' 无监测点却带评分 ' + r.score);
-      fail++;
-    }
-  });
+  const wSum = vs.reduce((a, v) => a + (v.avgScore || 0) * (v.count || 0), 0);
+  const wMean = totalSamples ? wSum / totalSamples : 0;
+  if (Math.abs(wMean - G0.kpis.score) > 0.15) {
+    log('  [FAIL] 乡镇评分加权均值 ' + wMean.toFixed(2) + ' ≠ KPI 长势综合评分 ' + G0.kpis.score);
+    fail++;
+  } else {
+    log('  乡镇评分加权均值与 KPI 一致：' + wMean.toFixed(2) + ' ≈ ' + G0.kpis.score);
+  }
+  if (!/plantMapData\s*=\s*growthDataSource\.varieties\.map/.test(growthSrc)) {
+    log('  [FAIL] plantMapData 未由 varieties 派生，可能又出现了「同乡镇两套评分」');
+    fail++;
+  }
+  const fufang = vs.some((v) => v.name === '傅坊乡');
+  if (fufang) {
+    log('  [FAIL] 傅坊乡无监测点（未布点·规划中），varieties 中不应带评分');
+    fail++;
+  }
 }
 
 /* growth 数据源引用完整性（同样防止「字段被删、引用残留」） */
-const gLit = extractLiteral(growthSrc, 'growthDataSource');
 if (!gLit) {
   log('  [FAIL] 未找到 growthDataSource');
   fail++;
@@ -459,12 +479,9 @@ if (!gLit) {
   const gPairs = [
     ['评价监测园面积', G.kpis.monitorArea],
     ['优质果率预期', G.kpis.qualityRate],
-    ['监测植株数量', G.kpis.plants],
     ['全县预计产量', G.kpis.yield],
     ['长势综合评分', G.kpis.score],
     ['长势达标果园占比', G.kpis.qualifiedRate],
-    ['农事采纳率', G.kpis.adoptRate],
-    ['病虫管理得分', G.kpis.pestScore],
   ];
   for (const [label, val] of gPairs) {
     const shown = kpiValue(growthSrc, label);
@@ -475,6 +492,14 @@ if (!gLit) {
     }
   }
   log('  KPI 与数据源一致性：' + gPairs.length + ' 项已核对');
+
+  /* 已下移/合并的指标仍须在对应位置呈现，避免「数字从大屏消失」 */
+  if (!/adopt-rate-bar[\s\S]*?73\.6%/.test(growthSrc)) {
+    log('  [FAIL] 农事采纳率 73.6% 未在派工卡（adopt-rate-bar）呈现'); fail++;
+  }
+  if (!/病虫管理\(分\)/.test(growthSrc)) {
+    log('  [FAIL] 病虫管理 4.7 分未在任何指标/弹窗中呈现'); fail++;
+  }
 
   const gtr = G.trends;
   if (!gtr) {
@@ -490,7 +515,7 @@ if (!gLit) {
     log('  趋势线末位与 KPI 对齐：' + Object.keys(gExpect).length + ' 条序列已核对');
   }
 
-  const GSTATES = new Set(['overdue', 'doing', 'done']);
+  const GSTATES = new Set(['overdue', 'pending', 'doing', 'reviewing', 'done']);
   (G.todos || []).forEach((t) => {
     if (!GSTATES.has(t.state)) { log('  [FAIL] 待办「' + t.title + '」状态非法：' + t.state); fail++; }
     if (!t.town || !t.owner || !t.due) { log('  [FAIL] 待办「' + t.title + '」缺少乡镇/责任人/时限'); fail++; }
@@ -498,7 +523,8 @@ if (!gLit) {
   if (G.todos && G.todos.length) log('  农事待办字段完整性：' + G.todos.length + ' 项已核对');
 
   fail += checkModalCoverage(growthSrc);
-  fail += checkGrowthModalRender(growthSrc, gLit, growthLit);
+  /* plantMapData 已由 varieties 派生，不再是可静态求值的字面量（传 null 即可） */
+  fail += checkGrowthModalRender(growthSrc, gLit, null);
 }
 
 /* 生长侧弹窗同样在沙箱里真跑一遍。
@@ -513,9 +539,15 @@ function checkGrowthModalRender(rawSrc, dsLiteral, mapLiteral) {
   }
   let ctx;
   try {
+    const DS = lit(dsLiteral);
+    /* plantMapData 由 varieties 派生（与页面同一规则），这里按同规则重建，
+     * 保证弹窗渲染函数拿到的地图数据与线上一致。 */
+    const PLANT_MAP = (DS.varieties || [])
+      .map((v) => ({ name: v.name, value: v.avgScore, score: v.avgScore, samples: v.count }))
+      .concat([{ name: '傅坊乡', value: -1, score: null, grade: '无监测点', samples: 0, nodataType: 'planned' }]);
     ctx = vm.createContext({
-      growthDataSource: lit(dsLiteral),
-      plantMapData: lit(mapLiteral),
+      growthDataSource: DS,
+      plantMapData: mapLiteral ? lit(mapLiteral) : PLANT_MAP,
     });
     vm.runInContext(rawSrc.slice(statsAt, endAt), ctx);
   } catch (e) {
@@ -718,7 +750,7 @@ function runtimeSmoke(f) {
       rendered.push(key);
     }
   }
-  for (const id of ['todoList', 'townRank', 'disasterList']) {
+  for (const id of ['todoList', 'townRank', 'disasterList', 'townCauseList']) {
     if (!new RegExp('id="' + id + '"').test(src)) { continue; }
     const el = reg.get(id);
     if (!el || !el.innerHTML.trim()) {

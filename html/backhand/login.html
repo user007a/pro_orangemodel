@@ -4,172 +4,214 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>登录 - 南丰蜜桔模型管理系统</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { height: 100%; }
         body {
             font-family: "Microsoft YaHei", "PingFang SC", "Hiragino Sans GB", -apple-system, "Segoe UI", sans-serif;
             min-height: 100vh;
-            background: url('../dataanlye/images/login_bg_orchard.jpg') center/cover no-repeat fixed;
-            background-color: #5b8ab0;
-            background-color: #7fae4e;
             overflow-x: hidden;
         }
+        #nf-orchard-login { font-family: "Microsoft YaHei", "Noto Sans SC", sans-serif; }
+        #nf-orchard-login * { box-sizing: border-box; }
 
-        /* ========== 居中大圆登录区 ========== */
-        .login-area {
-            position: fixed;
-            inset: 0;
-            z-index: 2;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .orb-wrap {
+        /* ========== 整页容器 ========== */
+        .page {
             position: relative;
-            /* 参考站：圆 7.5rem，根字号 100vw/19.2 → 1920 宽时 750px，随视口等比缩放 */
-            width: clamp(480px, 39.06vw, 820px);
-            aspect-ratio: 1 / 1;
+            min-height: 100vh;
+            overflow: hidden;
+            border-radius: 0;
+            color: #fff;
+            background: #093f33 url('../dataanlye/images/login_bg_source.jpg') center/cover no-repeat;
         }
-        /* 参考站 kuang.svg 同款环组：15 秒转一圈（CSS 实现，等价于其 SMIL animateTransform） */
-        .orb-rings {
+        /* 暗角：源网页精确参数（仅水平方向） */
+        .shade {
             position: absolute;
             inset: 0;
-            width: 100%;
-            height: 100%;
-            animation: spin 15s linear infinite;
-            transform-origin: 50% 50%;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        @media (prefers-reduced-motion: reduce) {
-            .orb-rings { animation: none; }
+            background: linear-gradient(90deg,
+                rgba(1,28,23,0.12) 0%,
+                rgba(1,28,23,0.12) 41%,
+                rgba(2,30,24,0.74) 63%,
+                rgba(1,20,17,0.94) 100%);
         }
 
-        /* 主圆卡片（对应 kuang.svg 中 r=331 的实心白圆） */
-        .login-card {
-            position: absolute;
-            inset: 5.87%;
+        /* ========== 顶部栏 ========== */
+        .top {
+            position: relative;
+            z-index: 1;
+            height: 78px;
+            margin: 0 6%;
+            border-bottom: 1px solid rgba(255,255,255,0.32);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12px;
+            letter-spacing: 1.5px;
+        }
+        .top-brand {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            font-size: 14px;
+            letter-spacing: 1px;
+        }
+        .nf-mark {
+            width: 30px;
+            height: 30px;
+            border: 1px solid rgba(255,255,255,0.76);
             border-radius: 50%;
-            background: rgba(255,255,255,0.9);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            position: relative;
         }
-        .card-inner {
-            width: 58.7%;
-            max-width: 440px;
-            text-align: center;
+        .nf-mark:after {
+            content: "";
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #ed991c;
+            border-radius: 50%;
+            left: 9px;
+            top: 9px;
         }
 
-        /* ========== 品牌区（标题 + 英文，图 1 字号版式） ========== */
-        .brand-header {
+        /* ========== 右侧登录面板 ========== */
+        .panel {
+            z-index: 1;
+            position: relative;
+            margin-left: auto;
+            width: 46%;
+            min-width: 460px;
+            padding: 62px 12% 56px 7.2%;
+            min-height: calc(100vh - 78px);
             display: flex;
-            align-items: center;
+            flex-direction: column;
             justify-content: center;
-            gap: 16px;
+        }
+        .overline {
+            font-size: 11px;
+            color: #eeb35c;
+            letter-spacing: 4px;
+            margin-bottom: 17px;
         }
         .brand-title {
-            font-size: 40px;
-            font-weight: 800;
-            color: #333;
-            letter-spacing: 2px;
-            line-height: 1.2;
-            white-space: nowrap;
+            font-family: Georgia, "Microsoft YaHei", serif;
+            font-weight: 500;
+            font-size: 55px;
+            letter-spacing: 3px;
+            line-height: 1.1;
+            margin: 0;
+            color: #fff;
         }
-        .brand-en {
-            font-size: 15px;
-            color: #47a14b;
-            letter-spacing: 2.5px;
+        .brand-title .sub {
+            display: block;
+            font-family: "Microsoft YaHei", sans-serif;
             font-weight: 400;
-            white-space: nowrap;
-            margin-top: 12px;
+            font-size: 26px;
+            letter-spacing: 9px;
+            margin-top: 15px;
         }
-        .brand-tagline {
-            display: inline-block;
-            font-size: 20px;
-            color: #666;
-            letter-spacing: 5px;
-            margin: 12px 0 0;
+        .rule {
+            width: 58px;
+            height: 2px;
+            background: #efaa44;
+            margin: 29px 0 24px;
         }
 
-        /* ========== 输入区（参考站：440×56，组间距 30/12px） ========== */
-        .input-group {
-            position: relative;
-            margin-top: 12px;
+        /* ========== 登录表单 ========== */
+        .enter {
+            font-size: 13px;
+            letter-spacing: 2px;
+            margin: 0 0 17px;
+            color: rgba(255,255,255,0.86);
         }
-        .input-group:first-of-type { margin-top: 30px; }
-        .input-icon {
-            position: absolute;
-            left: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #b2b2b2;
-            font-size: 17px;
-            pointer-events: none;
-            z-index: 1;
+        .form-label {
+            font-size: 12px;
+            color: rgba(255,255,255,0.7);
+            display: block;
+            margin: 13px 0 7px;
         }
-        .input-field {
+        .form-input {
+            height: 44px;
             width: 100%;
-            height: 56px;
-            padding: 0 44px 0 46px;
-            border: 1px solid #e3e3e3;
-            border-radius: 6px;
-            font-size: 16px;
+            border: 0;
+            border-bottom: 1px solid rgba(255,255,255,0.46);
+            color: #fff;
+            background: rgba(255,255,255,0.06);
+            outline: 0;
+            padding: 0 13px;
+            font-size: 14px;
             font-family: inherit;
-            transition: border-color 0.2s, box-shadow 0.2s;
-            outline: none;
-            background: #fff;
-            color: #333;
+            transition: border-color 0.2s;
         }
-        .input-field::placeholder { color: #b2b2b2; font-size: 16px; }
-        .input-field:focus {
-            border-color: #4caf50;
-            box-shadow: none;
-        }
+        .form-input::placeholder { color: rgba(255,255,255,0.55); }
+        .form-input:focus { border-bottom-color: rgba(255,255,255,0.85); }
+        .pwd-wrap { position: relative; }
         .toggle-pwd {
             position: absolute;
-            right: 15px;
+            right: 8px;
             top: 50%;
             transform: translateY(-50%);
-            color: #b2b2b2;
-            cursor: pointer;
-            font-size: 16px;
-            transition: color 0.2s;
+            color: rgba(255,255,255,0.55);
             background: none;
             border: none;
+            cursor: pointer;
+            font-size: 13px;
             padding: 4px;
         }
-        .toggle-pwd:hover { color: #4caf50; }
+        .toggle-pwd:hover { color: #f6bb60; }
 
-        /* ========== 登录按钮（参考站：60 高 / #4caf50 / 圆角 6 / 21px） ========== */
-        .login-btn {
-            width: 100%;
-            height: 60px;
-            margin-top: 32px;
-            background: #4caf50;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 21px;
-            font-family: inherit;
-            font-weight: 400;
-            cursor: pointer;
-            transition: background 0.2s;
-            letter-spacing: 4px;
-            text-indent: 4px;
+        /* 选项行 */
+        .actions {
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-content: space-between;
+            font-size: 12px;
+            color: rgba(255,255,255,0.7);
+            margin: 18px 0 25px;
+        }
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .remember-me input { accent-color: #ed991c; cursor: pointer; }
+        .forgot-link {
+            color: #f6bb60;
+            text-decoration: none;
+        }
+        .forgot-link:hover { text-decoration: underline; }
+
+        /* 登录按钮 */
+        .login-btn {
+            height: 50px;
+            border: 1px solid #ef9d28;
+            background: #ed981f;
+            color: #fff;
+            width: 100%;
+            font-size: 14px;
+            letter-spacing: 8px;
+            font-weight: 500;
+            font-family: inherit;
+            cursor: pointer;
+            transition: background 0.2s, box-shadow 0.2s;
         }
         .login-btn:hover {
-            background: #3f9542;
-            box-shadow: none;
+            background: #d9881a;
+            box-shadow: 0 4px 14px rgba(237,152,31,0.35);
         }
-        .login-btn:active { background: #38873c; }
-        .login-btn:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
+        .login-btn:active { background: #c47a14; }
+        .login-btn:disabled { opacity: 0.7; cursor: not-allowed; }
+
+        /* ========== 版权 ========== */
+        .foot {
+            position: absolute;
+            z-index: 1;
+            left: 6%;
+            bottom: 24px;
+            font-size: 11px;
+            color: rgba(255,255,255,0.62);
+            letter-spacing: 1px;
         }
 
         /* Toast */
@@ -183,13 +225,10 @@
             color: white;
             font-size: 14px;
             z-index: 10000;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.25);
             animation: toastIn 0.3s ease;
         }
-        .toast.success { background: #34a952; }
+        .toast.success { background: #ed981f; }
         .toast.error { background: #f56c6c; }
         .toast.info { background: #409eff; }
         @keyframes toastIn {
@@ -197,79 +236,90 @@
             to { opacity: 1; transform: translate(-50%, 0); }
         }
 
-        /* Responsive */
-        @media (max-width: 1280px), (max-height: 900px) {
-            .orb-wrap { width: clamp(560px, 52vw, 700px); }
-            .brand-title { font-size: 34px; }
-        }
-        @media (max-width: 700px), (max-height: 760px) {
-            .orb-wrap { width: min(92vw, 560px); }
-            .brand-title { font-size: 24px; }
-            .brand-en { font-size: 11px; }
-            .brand-tagline { font-size: 15px; letter-spacing: 3px; }
-            .input-field { height: 46px; }
-            .login-btn { height: 48px; font-size: 18px; }
+        /* ========== 响应式（沿用源网页断点） ========== */
+        @media (max-width: 760px) {
+            .top { margin: 0 28px; }
+            .top span:last-child { display: none; }
+            .page { min-height: 720px; }
+            .shade { background: rgba(1,23,18,0.66); }
+            .panel {
+                margin: 0;
+                width: auto;
+                min-width: 0;
+                padding: 80px 36px 65px;
+                min-height: 642px;
+            }
+            .brand-title { font-size: 44px; }
+            .foot { left: 28px; }
         }
     </style>
 </head>
 <body>
-    <!-- 居中大圆登录区 -->
-    <div class="login-area">
-        <div class="orb-wrap">
-            <!-- 参考站 kuang.svg 同款环组（15s/圈）：淡白晕环 + 双弧线 + 绿色虚线刻度环 -->
-            <svg class="orb-rings" viewBox="0 0 750 750" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                <circle cx="375" cy="375" r="375" fill="#FFFFFF" opacity="0.117"/>
-                <path d="M375,28 C183.357192,28 28,183.357192 28,375 M375,722 C566.642808,722 722,566.642808 722,375"
-                      stroke="#FFFFFF" stroke-width="8" opacity="0.602" fill="none"
-                      stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M60,375 C60,548.969696 201.030304,690 375,690 M690,375 C690,201.030304 548.969696,60 375,60"
-                      stroke="#cfedd4" stroke-width="9" stroke-dasharray="2,16" fill="none"/>
-            </svg>
-            <div class="login-card">
-                <div class="card-inner">
-                    <!-- 品牌区 -->
-                    <div class="brand-header">
-                        <div class="brand-title-wrap">
-                            <div class="brand-title">南丰蜜桔模型管理系统</div>
-                            <div class="brand-en">NANFENG MANDARIN MODEL MANAGEMENT SYSTEM</div>
-                        </div>
+    <div id="nf-orchard-login">
+        <section class="page" aria-label="南丰蜜桔模型管理系统登录页">
+            <div class="shade"></div>
+
+            <!-- 顶部栏：左 logo+品牌名，右 位置 -->
+            <header class="top">
+                <div class="top-brand">
+                    <span class="nf-mark" aria-hidden="true"></span>
+                    <span>南丰蜜桔模型管理系统</span>
+                </div>
+                <span>中国 · 江西 · 南丰</span>
+            </header>
+
+            <!-- 右侧登录面板 -->
+            <main class="panel">
+                <div class="overline">NANFENG MANDARIN</div>
+                <h1 class="brand-title">南丰蜜桔<span class="sub">模型管理系统</span></h1>
+                <div class="rule"></div>
+
+                <p class="enter">登录入口</p>
+
+                <form id="loginForm" onsubmit="return handleLogin(event)">
+                    <label class="form-label" for="account">账号</label>
+                    <input id="account" class="form-input" placeholder="请输入账号" autocomplete="username" autofocus>
+
+                    <label class="form-label" for="password">密码</label>
+                    <div class="pwd-wrap">
+                        <input id="password" class="form-input" placeholder="请输入密码" autocomplete="current-password" type="password">
+                        <button type="button" class="toggle-pwd" onclick="togglePassword()" aria-label="显示/隐藏密码">👁</button>
                     </div>
 
-                    <div class="brand-tagline">精准辅助生长、科学指导防控</div>
+                    <div class="actions">
+                        <label class="remember-me">
+                            <input type="checkbox" id="remember">
+                            <span>记住登录状态</span>
+                        </label>
+                        <a class="forgot-link" href="#" onclick="showToast('请联系管理员重置密码', 'info'); return false;">忘记密码</a>
+                    </div>
 
-                    <form id="loginForm" onsubmit="return handleLogin(event)">
-                        <div class="input-group">
-                            <i class="fas fa-user input-icon"></i>
-                            <input type="text" id="username" class="input-field" placeholder="请输入账号" autocomplete="username" autofocus>
-                        </div>
-                        <div class="input-group">
-                            <i class="fas fa-lock input-icon"></i>
-                            <input type="password" id="password" class="input-field" placeholder="请输入密码" autocomplete="current-password">
-                            <button type="button" class="toggle-pwd" onclick="togglePassword()" aria-label="显示/隐藏密码">
-                                <i class="fas fa-eye" id="pwdIcon"></i>
-                            </button>
-                        </div>
-                        <button type="submit" class="login-btn" id="loginBtn">
-                            <span>登 录</span>
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
+                    <button type="submit" class="login-btn" id="loginBtn">登 录</button>
+                </form>
+            </main>
+
+            <div class="foot">© 2026 南丰县农业农村局</div>
+        </section>
     </div>
 
     <script>
+        (function() {
+            var remembered = localStorage.getItem('nf_username');
+            if (remembered) {
+                document.getElementById('account').value = remembered;
+                document.getElementById('remember').checked = true;
+            }
+        })();
+
         function togglePassword() {
             var pwd = document.getElementById('password');
-            var icon = document.getElementById('pwdIcon');
+            var btn = document.querySelector('.toggle-pwd');
             if (pwd.type === 'password') {
                 pwd.type = 'text';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
+                btn.textContent = '🙈';
             } else {
                 pwd.type = 'password';
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
+                btn.textContent = '👁';
             }
         }
 
@@ -279,8 +329,7 @@
             if (existing) existing.remove();
             var toast = document.createElement('div');
             toast.className = 'toast ' + type;
-            var iconMap = { success: 'fa-check-circle', error: 'fa-times-circle', info: 'fa-info-circle' };
-            toast.innerHTML = '<i class="fas ' + (iconMap[type] || iconMap.info) + '"></i><span>' + message + '</span>';
+            toast.textContent = message;
             document.body.appendChild(toast);
             setTimeout(function() {
                 toast.style.opacity = '0';
@@ -292,13 +341,14 @@
 
         function handleLogin(e) {
             e.preventDefault();
-            var username = document.getElementById('username').value.trim();
+            var username = document.getElementById('account').value.trim();
             var password = document.getElementById('password').value.trim();
+            var remember = document.getElementById('remember').checked;
             var btn = document.getElementById('loginBtn');
 
             if (!username) {
                 showToast('请输入账号', 'error');
-                document.getElementById('username').focus();
+                document.getElementById('account').focus();
                 return false;
             }
             if (!password) {
@@ -308,9 +358,14 @@
             }
 
             btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>登录中...</span>';
+            btn.innerHTML = '登录中...';
 
             setTimeout(function() {
+                if (remember) {
+                    localStorage.setItem('nf_username', username);
+                } else {
+                    localStorage.removeItem('nf_username');
+                }
                 showToast('登录成功，正在跳转...', 'success');
                 setTimeout(function() {
                     window.location.href = 'index.html';

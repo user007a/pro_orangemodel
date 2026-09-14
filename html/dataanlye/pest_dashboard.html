@@ -335,7 +335,7 @@
         .risk-struct-chart { position: relative; }
         /* 由 .board-struct-pie canvas 内部控制，此处保留容器自适应即可 */
 
-        /* ===== 右栏：高风险基地 ===== */
+        /* ===== 右栏：高风险果园 ===== */
         /* 让多张内容卡脱离 .side-card 的 420px 固定高度，按内容收缩（避免空白过多撑高整列） */
 .hr-base-card.side-card,
 .dp-progress-card.side-card,
@@ -1937,9 +1937,9 @@
         </div>
 
         <div class="side-col">
-            <!-- 高风险基地：当前评定为高风险的果园基地，数据取自 alertDataSource.board.highBases -->
+            <!-- 高风险果园：当前评定为高风险的果园果园，数据取自 alertDataSource.board.highBases -->
             <div class="card side-card hr-base-card">
-                <div class="card-header"><span><i class="fas fa-triangle-exclamation" style="color:#ff9437 !important;"></i> 高风险基地</span><span class="header-extra">需立即处置</span></div>
+                <div class="card-header"><span><i class="fas fa-triangle-exclamation" style="color:#ff9437 !important;"></i> 高风险果园</span><span class="header-extra">需立即处置</span></div>
                 <div id="highBaseList" class="hr-base-list"></div>
             </div>
 
@@ -2207,7 +2207,7 @@
         /* ============================================================
          * 病虫害识别看板（2026-09 重构）
          * 顶部 6 张 KPI、左栏（紧急预警 / 识别趋势 / 风险类型结构）、
-         * 右栏（高风险基地 / 防控处置进度 / 今日防控待办）与对应 KPI 弹窗
+         * 右栏（高风险果园 / 防控处置进度 / 今日防控待办）与对应 KPI 弹窗
          * 全部从本对象取数，避免「卡片一套、弹窗一套」。
          * ============================================================ */
         board: {
@@ -2228,28 +2228,28 @@
                 { name: '溃疡病',   value: 90,  pct: 32, color: '#ff9437' },
                 { name: '红蜘蛛',   value: 72,  pct: 26, color: '#f6c945' }
             ],
-            // 当前紧急预警（时间倒序，高风险在前；基地名均为南丰县真实基地）
+            // 当前紧急预警（时间倒序，高风险在前；果园名均为南丰县真实果园）
             urgentAlerts: [
-                { time: '2026-09-13 08:32', base: '明成果品合作社基地',     pest: '柑桔木虱', level: '高' },
+                { time: '2026-09-13 08:32', base: '明成果品合作社果园',     pest: '柑桔木虱', level: '高' },
                 { time: '2026-09-13 10:17', base: '市山镇耀里村精品示范园', pest: '溃疡病',   level: '高' },
                 { time: '2026-09-13 11:03', base: '白舍镇学凌农场',         pest: '红蜘蛛',   level: '中' },
                 { time: '2026-09-12 16:40', base: '紫霄镇朱坊村精品园',     pest: '柑桔木虱', level: '高' },
                 { time: '2026-09-12 15:20', base: '东坪乡下堡村繁育圃',     pest: '红蜘蛛',   level: '中' },
-                { time: '2026-09-12 09:48', base: '桑田镇奔象基地',         pest: '潜叶蛾',   level: '中' }
+                { time: '2026-09-12 09:48', base: '桑田镇奔象果园',         pest: '潜叶蛾',   level: '中' }
             ],
-            // 高风险基地（= KPI「高风险果园」3 个，全部用南丰县真实基地名称）
+            // 高风险果园（= KPI「高风险果园」3 个；与「当前紧急预警」的果园刻意区分，避免内容重复）
             highBases: [
-                { name: '明成果品合作社基地',     pest: '柑桔木虱', foundAt: '2026-09-13 08:32' },
-                { name: '市山镇耀里村精品示范园', pest: '溃疡病',   foundAt: '2026-09-13 10:17' },
-                { name: '紫霄镇朱坊村精品园',     pest: '柑桔木虱', foundAt: '2026-09-12 16:40' }
+                { name: '瑶浦蜜桔园', pest: '柑桔木虱', foundAt: '2026-09-13 09:06' },
+                { name: '翠云生态园', pest: '溃疡病',   foundAt: '2026-09-13 10:41' },
+                { name: '琴城示范园', pest: '红蜘蛛',   foundAt: '2026-09-12 17:18' }
             ],
             // 防控处置进度（当前在办任务阶段占比，合计 100%）
             progress: { wait: 23, doing: 34, done: 43 },
-            // 今日防控待办（基地名均为南丰县真实基地）
+            // 今日防控待办（果园名与「当前紧急预警」「高风险果园」均不重名）
             todayTodos: [
-                { level: '高', title: '明成果品合作社基地药剂防治', pest: '柑桔木虱', date: '2026-09-13', status: '待处理', state: 'wait' },
-                { level: '中', title: '市山镇耀里村精品示范园巡查', pest: '溃疡病',   date: '2026-09-13', status: '进行中', state: 'doing' },
-                { level: '低', title: '白舍镇学凌农场巡查复核',     pest: '红蜘蛛',   date: '2026-09-13', status: '待排期', state: 'schedule' }
+                { level: '高', title: '洽湾镇蜜桔示范园药剂防治', pest: '柑桔木虱', date: '2026-09-13', status: '待处理', state: 'wait' },
+                { level: '中', title: '太和镇生态桔园巡查',       pest: '溃疡病',   date: '2026-09-13', status: '进行中', state: 'doing' },
+                { level: '低', title: '莱溪乡精品果园巡查复核',   pest: '红蜘蛛',   date: '2026-09-13', status: '待排期', state: 'schedule' }
             ],
             // 待响应预警按病虫类型拆分（合计 = pendingAlerts 23）
             pendingByType: [
@@ -2276,14 +2276,15 @@
                 total: 358, done: 266, doing: 56, wait: 36,
                 rateMonthly: [61.2, 63.8, 66.5, 69.1, 70.4, 71.8, 72.6, 73.5, 74.3]
             },
-            // 基地风险榜（共 16 个接入基地：高 3 / 中 2 / 低 11，全部为南丰县真实基地）
+            // 果园风险榜（共 16 个接入果园：高 3 / 中 2 / 低 11）
+            // 前 3 名与 highBases 一致；中/低示例果园与「当前紧急预警」「今日防控待办」均不重名
             baseRisk: [
-                { name: '明成果品合作社基地',     score: 88, pest: '柑桔木虱' },
-                { name: '市山镇耀里村精品示范园', score: 85, pest: '溃疡病' },
-                { name: '紫霄镇朱坊村精品园',     score: 82, pest: '柑桔木虱' },
-                { name: '白舍镇学凌农场',         score: 62, pest: '红蜘蛛' },
-                { name: '东坪乡下堡村繁育圃',     score: 57, pest: '红蜘蛛' },
-                { name: '桑田镇奔象基地',         score: 41, pest: '炭疽病' }
+                { name: '瑶浦蜜桔园',     score: 88, pest: '柑桔木虱' },
+                { name: '翠云生态园',     score: 85, pest: '溃疡病' },
+                { name: '琴城示范园',     score: 82, pest: '红蜘蛛' },
+                { name: '太源乡蜜桔基地', score: 62, pest: '潜叶蛾' },
+                { name: '傅坊乡生态果园', score: 57, pest: '蚜虫' },
+                { name: '琴城镇桔兴果园', score: 41, pest: '炭疽病' }
             ],
             // 监测点位乡镇分布（合计 = monitorPoints 16，在线 15 / 离线 1）
             pointByTown: [
@@ -2854,7 +2855,7 @@
         });
     })();
 
-    /* --- 右栏 1：高风险基地 --- */
+    /* --- 右栏 1：高风险果园 --- */
     (function renderHighBases() {
         var box = document.getElementById('highBaseList');
         if (!box) return;
@@ -4157,7 +4158,7 @@
                 { value: board.highOrchards, label: '高风险果园(个)', color: '#ef4444' },
                 { value: 2, label: '中风险果园(个)', color: '#E39A3C' },
                 { value: 11, label: '低风险果园(个)', color: '#33D69F' },
-                { value: board.monitorPoints, label: '接入基地总数(个)', color: '#7FE4F5' }
+                { value: board.monitorPoints, label: '接入果园总数(个)', color: '#7FE4F5' }
             ],
             '已接入监测点位': [
                 { value: board.monitorPoints, label: '接入点位(个)', color: '#7FE4F5' },

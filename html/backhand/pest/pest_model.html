@@ -1,6 +1,195 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>病虫模型说明</title><script src="https://cdn.tailwindcss.com"></script><script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"><style>body{margin:0;background:#eff7ff;color:#12305f;font-family:-apple-system,BlinkMacSystemFont,"Microsoft YaHei",sans-serif}.page{max-width:1680px;margin:auto;padding:18px}.card{background:#fff;border:1px solid #e1edf9;border-radius:12px;box-shadow:0 5px 16px rgba(20,75,135,.06)}.hero{background-image:linear-gradient(90deg,rgba(0,28,56,.97),rgba(2,42,73,.83) 62%,rgba(0,74,70,.72)),url('../..//../assets/images/pest-model-hero-v2.png');background-size:100% 100%;background-position:center;border-radius:14px;color:#fff;overflow:hidden}.flow-arrow{font-size:28px;color:#90a7c4;font-weight:600}.formula{font-family:Georgia,serif;background:#eaf4ff;color:#183d73}.factor{background:#f3f8ff;border:1px solid #e4edf8}</style></head><body><main class="page"><section class="hero relative p-5 grid lg:grid-cols-[1.15fr_.52fr] gap-7"><img class="absolute inset-0 w-full h-full object-fill opacity-60" src="../../../assets/images/pest-model-hero-v2.png" alt=""><div class="relative z-10"><p class="text-emerald-300 text-sm font-semibold">基于多源数据的智能预测</p><h1 class="text-[29px] font-bold mt-1">南丰蜜桔病虫害<span class="text-emerald-300">风险预测模型</span></h1><p class="text-blue-100 mt-3">融合气象、物候、虫情、历史发生数据，预测未来时空风险，辅助精准防控。</p><div class="grid sm:grid-cols-4 gap-3 mt-3"><div class="bg-white/10 border border-white/15 rounded-xl px-3 py-1.5"><b>多因子</b><p class="text-xs text-blue-100 mt-1">多源数据综合分析</p></div><div class="bg-white/10 border border-white/15 rounded-xl px-3 py-1.5"><b>耦合</b><p class="text-xs text-blue-100 mt-1">病虫因子相互作用</p></div><div class="bg-white/10 border border-white/15 rounded-xl px-3 py-1.5"><b>时序</b><p class="text-xs text-blue-100 mt-1">14–30天预测</p></div><div class="bg-white/10 border border-white/15 rounded-xl px-3 py-1.5"><b>空间</b><p class="text-xs text-blue-100 mt-1">县域多尺度预测</p></div></div></div><aside class="relative z-10 bg-slate-950/45 rounded-xl p-4 border border-white/10"><h2 class="font-bold">预测输出摘要</h2><div class="mt-3 space-y-2 text-sm"><div class="bg-white/10 rounded-lg p-3 flex justify-between"><span>未来3天风险</span><b class="text-amber-300">中–高　↑</b></div><div class="bg-white/10 rounded-lg p-3 flex justify-between"><span>未来7天趋势</span><b class="text-orange-300">持续上升　↑</b></div><div class="bg-white/10 rounded-lg p-3 flex justify-between"><span>重点风险区</span><b class="text-amber-300">县城东部、南部</b></div></div></aside></section><section class="card mt-3 p-3"><div class="flex items-center gap-3"><h2 class="text-lg font-bold">模型如何工作</h2><span class="text-sm text-slate-500">从多源数据到风险预测，形成可解释、可落地的防控建议。</span></div><div class="grid lg:grid-cols-[1fr_30px_1fr_30px_1fr_30px_1fr] gap-2 items-center mt-3"><div class="factor p-3 rounded-xl flex gap-3"><b class="bg-blue-500 text-white rounded-full w-8 h-8 text-center leading-8">1</b><div><b>数据读取</b><p class="text-xs text-slate-500 mt-1">气象数据、虫情监测、历史数据</p></div></div><span class="flow-arrow">→</span><div class="factor p-3 rounded-xl flex gap-3"><b class="bg-emerald-500 text-white rounded-full w-8 h-8 text-center leading-8">2</b><div><b>因子评分</b><p class="text-xs text-slate-500 mt-1">计算各因子适宜度与权重</p></div></div><span class="flow-arrow">→</span><div class="factor p-3 rounded-xl flex gap-3"><b class="bg-violet-500 text-white rounded-full w-8 h-8 text-center leading-8">3</b><div><b>耦合预测</b><p class="text-xs text-slate-500 mt-1">多因子耦合与时空预测</p></div></div><span class="flow-arrow">→</span><div class="factor p-3 rounded-xl flex gap-3"><b class="bg-orange-500 text-white rounded-full w-8 h-8 text-center leading-8">4</b><div><b>输出建议</b><p class="text-xs text-slate-500 mt-1">风险等级与重点区域</p></div></div></div></section><section class="grid lg:grid-cols-[1fr_1fr] gap-3 mt-3"><article class="card p-3"><div class="flex justify-between"><h2 class="text-lg font-bold">输入因子矩阵</h2><span class="text-sm text-slate-500">8个核心因子</span></div><div class="grid grid-cols-2 md:grid-cols-4 gap-2 mt-3 text-sm"><div class="factor px-3 py-2 rounded-lg"><b class="text-red-500">温度</b><p class="text-xs text-slate-500 mt-1">气温变化</p></div><div class="factor px-3 py-2 rounded-lg"><b class="text-blue-500">湿度</b><p class="text-xs text-slate-500 mt-1">空气湿度</p></div><div class="factor px-3 py-2 rounded-lg"><b class="text-emerald-500">降雨</b><p class="text-xs text-slate-500 mt-1">降雨量</p></div><div class="factor px-3 py-2 rounded-lg"><b class="text-amber-500">光照</b><p class="text-xs text-slate-500 mt-1">日照时数</p></div><div class="factor px-3 py-2 rounded-lg"><b class="text-violet-500">叶面湿润</b><p class="text-xs text-slate-500 mt-1">叶片湿度</p></div><div class="factor px-3 py-2 rounded-lg"><b class="text-orange-500">土壤湿度</b><p class="text-xs text-slate-500 mt-1">土壤含水量</p></div><div class="factor px-3 py-2 rounded-lg"><b class="text-teal-500">虫情密度</b><p class="text-xs text-slate-500 mt-1">诱捕/调查数据</p></div><div class="factor px-3 py-2 rounded-lg"><b class="text-slate-500">历史发生</b><p class="text-xs text-slate-500 mt-1">历史数据参考</p></div></div></article><article class="card p-3"><div class="flex justify-between"><h2 class="text-lg font-bold">预测结果</h2><span class="text-sm text-slate-500">未来7天风险趋势</span></div><div class="grid md:grid-cols-[175px_1fr] gap-3 mt-3 items-center"><div><p class="text-sm">总体风险等级</p><b class="block bg-rose-100 text-rose-600 rounded-xl p-3 text-xl mt-2">⚠ 高风险</b><p class="text-sm text-slate-500 mt-2">未来3天风险上升，需重点关注</p></div><div class="h-[130px]"><canvas id="trend"></canvas></div></div></article></section><section class="card mt-3 p-4"><div class="flex items-center gap-4"><h2 class="text-xl font-bold">模型公式与计算依据</h2><span class="text-sm text-slate-500">模型基于多因子加权、耦合项和空间传播机制。</span></div><div class="grid lg:grid-cols-[1.08fr_1fr] gap-3 mt-3"><div class="formula rounded-lg p-5"><b class="text-sm">主要预测公式</b><p class="text-2xl italic mt-3">Risk(t + h) = Σ wᵢ · fᵢ(t) + β · C(t) + γ · S(t)</p><p class="text-sm text-slate-500 mt-3">基于近14–30天监测数据与未来3–7天天气预报计算。</p></div><div class="border rounded-lg p-4 text-sm"><b>变量说明</b><div class="grid grid-cols-[70px_1fr] gap-y-2 mt-3 text-slate-600"><b>fᵢ(t)</b><span>因子适宜度</span><b>wᵢ</b><span>因子权重</span><b>C(t)</b><span>因子耦合项</span><b>S(t)</b><span>空间传播项</span></div></div></div></section></main><script>new Chart(trend,{type:'line',data:{labels:['03-12','03-13','03-14','03-15','03-16','03-17','03-18'],datasets:[{data:[32,40,48,55,62,70,77],borderColor:'#fb5b17',backgroundColor:'rgba(251,91,23,.15)',fill:true,tension:.35,pointRadius:4,pointBackgroundColor:'#fb5b17'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:0,max:100,ticks:{callback:v=>v==0?'低':v==50?'中':v==100?'高':''},grid:{color:'#edf1f6'}},x:{grid:{display:false}}}}})</script></body></html>
+<!doctype html>
+<html lang="zh-CN">
 
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>病虫模型说明</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            background: #eff7ff;
+            color: #12305f;
+            font-family: -apple-system, BlinkMacSystemFont, "Microsoft YaHei", sans-serif
+        }
 
+        .page {
+            max-width: 1680px;
+            margin: auto;
+            padding: 18px
+        }
 
+        .card {
+            background: #fff;
+            border: 1px solid #e1edf9;
+            border-radius: 12px;
+            box-shadow: 0 5px 16px rgba(20, 75, 135, .06)
+        }
 
+        .hero {
+            background-image: linear-gradient(90deg, rgba(0, 28, 56, .97), rgba(2, 42, 73, .83) 62%, rgba(0, 74, 70, .72)), url('../..//../assets/images/pest-model-hero-v2.png');
+            background-size: 100% 100%;
+            background-position: center;
+            border-radius: 14px;
+            color: #fff;
+            overflow: hidden
+        }
 
+        .flow-arrow {
+            font-size: 28px;
+            color: #90a7c4;
+            font-weight: 600
+        }
+
+        .formula {
+            font-family: Georgia, serif;
+            background: #eaf4ff;
+            color: #183d73
+        }
+
+        .factor {
+            background: #f3f8ff;
+            border: 1px solid #e4edf8
+        }
+    </style>
+</head>
+
+<body>
+    <main class="page">
+        <section class="hero relative p-5 grid lg:grid-cols-[1.15fr_.52fr] gap-7"><img
+                class="absolute inset-0 w-full h-full object-fill opacity-60"
+                src="../../../assets/images/pest-model-hero-v2.png" alt="">
+            <div class="relative z-10">
+                <p class="text-emerald-300 text-sm font-semibold">基于多源数据的智能预测</p>
+                <h1 class="text-[29px] font-bold mt-1">南丰蜜桔病虫害<span class="text-emerald-300">风险预测模型</span></h1>
+                <p class="text-blue-100 mt-3">融合气象、物候、虫情、历史发生数据，预测未来时空风险，辅助精准防控。</p>
+                <div class="grid sm:grid-cols-4 gap-3 mt-3">
+                    <div class="bg-white/10 border border-white/15 rounded-xl px-3 py-1.5"><b>多因子</b>
+                        <p class="text-xs text-blue-100 mt-1">多源数据综合分析</p>
+                    </div>
+                    <div class="bg-white/10 border border-white/15 rounded-xl px-3 py-1.5"><b>耦合</b>
+                        <p class="text-xs text-blue-100 mt-1">病虫因子相互作用</p>
+                    </div>
+                    <div class="bg-white/10 border border-white/15 rounded-xl px-3 py-1.5"><b>时序</b>
+                        <p class="text-xs text-blue-100 mt-1">14–30天预测</p>
+                    </div>
+                    <div class="bg-white/10 border border-white/15 rounded-xl px-3 py-1.5"><b>空间</b>
+                        <p class="text-xs text-blue-100 mt-1">县域多尺度预测</p>
+                    </div>
+                </div>
+            </div>
+            <aside class="relative z-10 bg-slate-950/45 rounded-xl p-4 border border-white/10">
+                <h2 class="font-bold">预测输出摘要</h2>
+                <div class="mt-3 space-y-2 text-sm">
+                    <div class="bg-white/10 rounded-lg p-3 flex justify-between"><span>未来3天风险</span><b
+                            class="text-amber-300">中–高　↑</b></div>
+                    <div class="bg-white/10 rounded-lg p-3 flex justify-between"><span>未来7天趋势</span><b
+                            class="text-orange-300">持续上升　↑</b></div>
+                    <div class="bg-white/10 rounded-lg p-3 flex justify-between"><span>重点风险区</span><b
+                            class="text-amber-300">县城东部、南部</b></div>
+                </div>
+            </aside>
+        </section>
+        <section class="card mt-3 p-3">
+            <div class="flex items-center gap-3">
+                <h2 class="text-lg font-bold">模型如何工作</h2><span
+                    class="text-sm text-slate-500">从多源数据到风险预测，形成可解释、可落地的防控建议。</span>
+            </div>
+            <div class="grid lg:grid-cols-[1fr_30px_1fr_30px_1fr_30px_1fr] gap-2 items-center mt-3">
+                <div class="factor p-3 rounded-xl flex gap-3"><b
+                        class="bg-blue-500 text-white rounded-full w-8 h-8 text-center leading-8">1</b>
+                    <div><b>数据读取</b>
+                        <p class="text-xs text-slate-500 mt-1">气象数据、虫情监测、历史数据</p>
+                    </div>
+                </div><span class="flow-arrow">→</span>
+                <div class="factor p-3 rounded-xl flex gap-3"><b
+                        class="bg-emerald-500 text-white rounded-full w-8 h-8 text-center leading-8">2</b>
+                    <div><b>因子评分</b>
+                        <p class="text-xs text-slate-500 mt-1">计算各因子适宜度与权重</p>
+                    </div>
+                </div><span class="flow-arrow">→</span>
+                <div class="factor p-3 rounded-xl flex gap-3"><b
+                        class="bg-violet-500 text-white rounded-full w-8 h-8 text-center leading-8">3</b>
+                    <div><b>耦合预测</b>
+                        <p class="text-xs text-slate-500 mt-1">多因子耦合与时空预测</p>
+                    </div>
+                </div><span class="flow-arrow">→</span>
+                <div class="factor p-3 rounded-xl flex gap-3"><b
+                        class="bg-orange-500 text-white rounded-full w-8 h-8 text-center leading-8">4</b>
+                    <div><b>输出建议</b>
+                        <p class="text-xs text-slate-500 mt-1">风险等级与重点区域</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="grid lg:grid-cols-[1fr_1fr] gap-3 mt-3">
+            <article class="card p-3">
+                <div class="flex justify-between">
+                    <h2 class="text-lg font-bold">输入因子矩阵</h2><span class="text-sm text-slate-500">8个核心因子</span>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mt-3 text-sm">
+                    <div class="factor px-3 py-2 rounded-lg"><b class="text-red-500">温度</b>
+                        <p class="text-xs text-slate-500 mt-1">气温变化</p>
+                    </div>
+                    <div class="factor px-3 py-2 rounded-lg"><b class="text-blue-500">湿度</b>
+                        <p class="text-xs text-slate-500 mt-1">空气湿度</p>
+                    </div>
+                    <div class="factor px-3 py-2 rounded-lg"><b class="text-emerald-500">降雨</b>
+                        <p class="text-xs text-slate-500 mt-1">降雨量</p>
+                    </div>
+                    <div class="factor px-3 py-2 rounded-lg"><b class="text-amber-500">光照</b>
+                        <p class="text-xs text-slate-500 mt-1">日照时数</p>
+                    </div>
+                    <div class="factor px-3 py-2 rounded-lg"><b class="text-violet-500">叶面湿润</b>
+                        <p class="text-xs text-slate-500 mt-1">叶片湿度</p>
+                    </div>
+                    <div class="factor px-3 py-2 rounded-lg"><b class="text-orange-500">土壤湿度</b>
+                        <p class="text-xs text-slate-500 mt-1">土壤含水量</p>
+                    </div>
+                    <div class="factor px-3 py-2 rounded-lg"><b class="text-teal-500">虫情密度</b>
+                        <p class="text-xs text-slate-500 mt-1">诱捕/调查数据</p>
+                    </div>
+                    <div class="factor px-3 py-2 rounded-lg"><b class="text-slate-500">历史发生</b>
+                        <p class="text-xs text-slate-500 mt-1">历史数据参考</p>
+                    </div>
+                </div>
+            </article>
+            <article class="card p-3">
+                <div class="flex justify-between">
+                    <h2 class="text-lg font-bold">预测结果</h2><span class="text-sm text-slate-500">未来7天风险趋势</span>
+                </div>
+                <div class="grid md:grid-cols-[175px_1fr] gap-3 mt-3 items-center">
+                    <div>
+                        <p class="text-sm">总体风险等级</p><b
+                            class="block bg-rose-100 text-rose-600 rounded-xl p-3 text-xl mt-2">⚠ 高风险</b>
+                        <p class="text-sm text-slate-500 mt-2">未来3天风险上升，需重点关注</p>
+                    </div>
+                    <div class="h-[130px]"><canvas id="trend"></canvas></div>
+                </div>
+            </article>
+        </section>
+        <section class="card mt-3 p-4">
+            <div class="flex items-center gap-4">
+                <h2 class="text-xl font-bold">模型公式与计算依据</h2><span
+                    class="text-sm text-slate-500">模型基于多因子加权、耦合项和空间传播机制。</span>
+            </div>
+            <div class="grid lg:grid-cols-[1.08fr_1fr] gap-3 mt-3">
+                <div class="formula rounded-lg p-5"><b class="text-sm">主要预测公式</b>
+                    <p class="text-2xl italic mt-3">Risk(t + h) = Σ wᵢ · fᵢ(t) + β · C(t) + γ · S(t)</p>
+                    <p class="text-sm text-slate-500 mt-3">基于近14–30天监测数据与未来3–7天天气预报计算。</p>
+                </div>
+                <div class="border rounded-lg p-4 text-sm"><b>变量说明</b>
+                    <div class="grid grid-cols-[70px_1fr] gap-y-2 mt-3 text-slate-600">
+                        <b>fᵢ(t)</b><span>因子适宜度</span><b>wᵢ</b><span>因子权重</span><b>C(t)</b><span>因子耦合项</span><b>S(t)</b><span>空间传播项</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <script>new Chart(trend, { type: 'line', data: { labels: ['03-12', '03-13', '03-14', '03-15', '03-16', '03-17', '03-18'], datasets: [{ data: [32, 40, 48, 55, 62, 70, 77], borderColor: '#fb5b17', backgroundColor: 'rgba(251,91,23,.15)', fill: true, tension: .35, pointRadius: 4, pointBackgroundColor: '#fb5b17' }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { min: 0, max: 100, ticks: { callback: v => v == 0 ? '低' : v == 50 ? '中' : v == 100 ? '高' : '' }, grid: { color: '#edf1f6' } }, x: { grid: { display: false } } } } })</script>
+</body>
+
+</html>

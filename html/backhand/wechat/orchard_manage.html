@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>果园管理 - 南丰蜜桔模型管理系统</title>
+  <title>果园管理 - 南丰蜜桔产业模型平台</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = { theme: { extend: { colors: {
@@ -88,7 +88,7 @@
   <div class="page-header">
     <div>
       <div class="page-title">果园管理</div>
-      <div class="page-subtitle">管理微信端用户添加的果园和地块信息</div>
+      <div class="page-subtitle">管理移动端用户添加的果园和地块信息</div>
     </div>
     <button class="btn btn-primary" onclick="openAddModal()">+ 新增地块</button>
   </div>
@@ -238,10 +238,13 @@
         <div class="form-item">
           <label class="form-label">品种 *</label>
           <select class="form-select" id="add-variety">
-            <option value="南丰蜜桔早熟种">南丰蜜桔早熟种</option>
-            <option value="南丰蜜桔中熟种">南丰蜜桔中熟种</option>
-            <option value="南丰蜜桔晚熟种">南丰蜜桔晚熟种</option>
-            <option value="其他">其他</option>
+            <option value="小果系（杨小2-6，金钱蜜桔）">小果系（杨小2-6，金钱蜜桔）</option>
+            <option value="大果系">大果系</option>
+            <option value="桂花蒂系（柿蒂蜜桔）">桂花蒂系（柿蒂蜜桔）</option>
+            <option value="早熟系（普通早熟蜜桔）">早熟系（普通早熟蜜桔）</option>
+            <option value="桂月红（特早熟芽变）">桂月红（特早熟芽变）</option>
+            <option value="蜜广1号（晚熟蜜广）">蜜广1号（晚熟蜜广）</option>
+            <option value="其他引进柑橘（金秋砂糖桔等）">其他引进柑橘（金秋砂糖桔等）</option>
           </select>
         </div>
         <div class="form-item">
@@ -301,21 +304,21 @@
 
   <script>
     var orchards = [
-      { id: 'oc-001', orchard: '瑶浦蜜桔园', name: '1号早熟蜜桔区', user: '肖武', area: '15', variety: '南丰蜜桔早熟种', address: '南丰县白舍镇瑶浦村', manager: '肖武', age: '8', status: '正常' },
-      { id: 'oc-002', orchard: '瑶浦蜜桔园', name: '2号中熟蜜桔区', user: '肖武', area: '18', variety: '南丰蜜桔中熟种', address: '南丰县白舍镇茅埠村', manager: '肖武', age: '10', status: '预警' },
-      { id: 'oc-003', orchard: '翠云生态园', name: '3号晚熟蜜桔区', user: '蔚晓阳', area: '20', variety: '南丰蜜桔晚熟种', address: '南丰县市山镇翠云村', manager: '蔚晓阳', age: '6', status: '正常' },
-      { id: 'oc-004', orchard: '翠云生态园', name: '4号试验田', user: '蔚晓阳', area: '15', variety: '新品种试验', address: '南丰县市山镇梓和村', manager: '蔚晓阳', age: '3', status: '正常' },
-      { id: 'oc-005', orchard: '白舍丰产基地', name: '5号丰产园', user: '袁国娇', area: '25', variety: '南丰蜜桔中熟种', address: '南丰县白舍镇鄱阳村', manager: '袁国娇', age: '12', status: '正常' },
-      { id: 'oc-006', orchard: '白舍丰产基地', name: '6号精品园', user: '袁国娇', area: '12', variety: '南丰蜜桔早熟种', address: '南丰县白舍镇望天村', manager: '袁国娇', age: '8', status: '正常' },
-      { id: 'oc-007', orchard: '洽湾标准化基地', name: '7号标准化基地', user: '甘小平', area: '50', variety: '南丰蜜桔中熟种', address: '南丰县洽湾镇洽湾村', manager: '甘小平', age: '10', status: '正常' },
-      { id: 'oc-008', orchard: '桑田生态果园', name: '8号生态果园', user: '黄智利', area: '30', variety: '南丰蜜桔晚熟种', address: '南丰县桑田镇桑田村', manager: '黄智利', age: '7', status: '预警' },
-      { id: 'oc-009', orchard: '紫霄密植园', name: '9号密植园', user: '邱婷', area: '18', variety: '南丰蜜桔早熟种', address: '南丰县紫霄镇紫霄村', manager: '邱婷', age: '9', status: '正常' },
-      { id: 'oc-010', orchard: '莱溪观光园', name: '10号观光园', user: '席必生', area: '40', variety: '南丰蜜桔中熟种', address: '南丰县莱溪乡莱溪村', manager: '席必生', age: '15', status: '正常' },
-      { id: 'oc-011', orchard: '东坪育苗基地', name: '11号育苗基地', user: '崔大明', area: '22', variety: '南丰蜜桔早熟种', address: '南丰县东坪乡东坪村', manager: '崔大明', age: '2', status: '正常' },
-      { id: 'oc-012', orchard: '傅坊老树园', name: '12号老树园', user: '严长根', area: '35', variety: '南丰蜜桔晚熟种', address: '南丰县傅坊乡傅坊村', manager: '严长根', age: '20', status: '预警' },
-      { id: 'oc-013', orchard: '太和新开发基地', name: '13号新开发', user: '方超', area: '10', variety: '南丰蜜桔中熟种', address: '南丰县太和镇太和村', manager: '方超', age: '4', status: '正常' },
-      { id: 'oc-014', orchard: '三溪高产园', name: '14号高产园', user: '王才华', area: '28', variety: '南丰蜜桔早熟种', address: '南丰县三溪乡三溪村', manager: '王才华', age: '8', status: '正常' },
-      { id: 'oc-015', orchard: '琴城示范园', name: '15号示范园', user: '廖长根', area: '32', variety: '南丰蜜桔中熟种', address: '南丰县琴城镇瑶浦村', manager: '廖长根', age: '11', status: '正常' }
+      { id: 'oc-001', orchard: '瑶浦蜜桔园', name: '1号早熟蜜桔区', user: '肖武', area: '15', variety: '早熟系（普通早熟蜜桔）', address: '南丰县白舍镇瑶浦村', manager: '肖武', age: '8', status: '正常' },
+      { id: 'oc-002', orchard: '瑶浦蜜桔园', name: '2号中熟蜜桔区', user: '肖武', area: '18', variety: '大果系', address: '南丰县白舍镇茅埠村', manager: '肖武', age: '10', status: '预警' },
+      { id: 'oc-003', orchard: '翠云生态园', name: '3号晚熟蜜桔区', user: '蔚晓阳', area: '20', variety: '蜜广1号（晚熟蜜广）', address: '南丰县市山镇翠云村', manager: '蔚晓阳', age: '6', status: '正常' },
+      { id: 'oc-004', orchard: '翠云生态园', name: '4号试验田', user: '蔚晓阳', area: '15', variety: '桂月红（特早熟芽变）', address: '南丰县市山镇梓和村', manager: '蔚晓阳', age: '3', status: '正常' },
+      { id: 'oc-005', orchard: '白舍丰产基地', name: '5号丰产园', user: '袁国娇', area: '25', variety: '大果系', address: '南丰县白舍镇鄱阳村', manager: '袁国娇', age: '12', status: '正常' },
+      { id: 'oc-006', orchard: '白舍丰产基地', name: '6号精品园', user: '袁国娇', area: '12', variety: '早熟系（普通早熟蜜桔）', address: '南丰县白舍镇望天村', manager: '袁国娇', age: '8', status: '正常' },
+      { id: 'oc-007', orchard: '洽湾标准化基地', name: '7号标准化基地', user: '甘小平', area: '50', variety: '小果系（杨小2-6，金钱蜜桔）', address: '南丰县洽湾镇洽湾村', manager: '甘小平', age: '10', status: '正常' },
+      { id: 'oc-008', orchard: '桑田生态果园', name: '8号生态果园', user: '黄智利', area: '30', variety: '蜜广1号（晚熟蜜广）', address: '南丰县桑田镇桑田村', manager: '黄智利', age: '7', status: '预警' },
+      { id: 'oc-009', orchard: '紫霄密植园', name: '9号密植园', user: '邱婷', area: '18', variety: '早熟系（普通早熟蜜桔）', address: '南丰县紫霄镇紫霄村', manager: '邱婷', age: '9', status: '正常' },
+      { id: 'oc-010', orchard: '莱溪观光园', name: '10号观光园', user: '席必生', area: '40', variety: '大果系', address: '南丰县莱溪乡莱溪村', manager: '席必生', age: '15', status: '正常' },
+      { id: 'oc-011', orchard: '东坪育苗基地', name: '11号育苗基地', user: '崔大明', area: '22', variety: '早熟系（普通早熟蜜桔）', address: '南丰县东坪乡东坪村', manager: '崔大明', age: '2', status: '正常' },
+      { id: 'oc-012', orchard: '傅坊老树园', name: '12号老树园', user: '严长根', area: '35', variety: '蜜广1号（晚熟蜜广）', address: '南丰县傅坊乡傅坊村', manager: '严长根', age: '20', status: '预警' },
+      { id: 'oc-013', orchard: '太和新开发基地', name: '13号新开发', user: '方超', area: '10', variety: '桂花蒂系（柿蒂蜜桔）', address: '南丰县太和镇太和村', manager: '方超', age: '4', status: '正常' },
+      { id: 'oc-014', orchard: '三溪高产园', name: '14号高产园', user: '王才华', area: '28', variety: '早熟系（普通早熟蜜桔）', address: '南丰县三溪乡三溪村', manager: '王才华', age: '8', status: '正常' },
+      { id: 'oc-015', orchard: '琴城示范园', name: '15号示范园', user: '廖长根', area: '32', variety: '小果系（杨小2-6，金钱蜜桔）', address: '南丰县琴城镇瑶浦村', manager: '廖长根', age: '11', status: '正常' }
     ];
 
     var originalOrchards = JSON.parse(JSON.stringify(orchards));
@@ -456,7 +459,7 @@
       document.getElementById('add-name').value = '';
       document.getElementById('add-user').value = '肖武';
       document.getElementById('add-area').value = '';
-      document.getElementById('add-variety').value = '南丰蜜桔早熟种';
+      document.getElementById('add-variety').value = '早熟系（普通早熟蜜桔）';
       document.getElementById('add-address').value = '';
       document.getElementById('add-age').value = '';
       document.getElementById('add-status').value = '正常';

@@ -1,2 +1,223 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>诊断分析</title><script src="https://cdn.tailwindcss.com"></script><script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script><style>body{margin:0;background:#f1f7ff;color:#102d61;font-family:-apple-system,BlinkMacSystemFont,"Microsoft YaHei",sans-serif}.page{max-width:1660px;padding:24px 28px;margin:auto}.card{background:#fff;border:1px solid #dceafa;border-radius:14px;box-shadow:0 5px 18px rgba(32,92,150,.06)}.bar{height:10px;background:#e8f0f8;border-radius:99px;overflow:hidden}.bar i{display:block;height:100%;border-radius:99px}.row+.row{border-top:1px solid #e4edf7}</style></head><body><main class="page"><header class="flex flex-wrap items-start justify-between gap-4 mb-4"><div><h1 class="text-[28px] font-bold">诊断分析</h1><p class="text-[16px] text-slate-500 mt-1">查看一个果园某次模型运行的诊断结果、原因与处置建议。</p></div><div class="flex gap-3"><select class="card px-4 h-11 text-sm font-medium"><option>南丰镇示范果园 09</option><option>朱衣镇 A-03 示范园</option></select><select class="card px-4 h-11 text-sm font-medium"><option>2026-09-12 10:30</option><option>2026-09-11 15:32</option></select></div></header><section class="grid xl:grid-cols-[.85fr_1.15fr] gap-4"><article class="card p-6"><div class="flex justify-between"><h2 class="text-xl font-bold">诊断结果概览</h2><span class="text-sm text-slate-500">模型运行时间：2026-09-12 10:30</span></div><div class="grid md:grid-cols-[220px_1fr] items-center gap-4 mt-5"><div class="h-[205px] relative"><canvas id="score"></canvas><div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none"><b class="text-6xl leading-none">86</b><span class="text-slate-500 mt-2">/ 100</span></div></div><div><h3 class="text-2xl text-teal-500 font-bold">长势状态良好</h3><p class="text-sm text-slate-600 leading-7 mt-3">果园整体长势良好，树体健壮，叶片功能正常，花果发育正常。当前主要问题为土壤水分接近适宜下限，建议及时补水并持续关注。</p><div class="grid grid-cols-3 gap-2 mt-4 text-center text-sm"><div class="rounded-lg bg-blue-50 p-3"><span class="text-slate-500">数据完整度</span><b class="block text-xl">95%</b></div><div class="rounded-lg bg-blue-50 p-3"><span class="text-slate-500">结果可信度</span><b class="block text-xl">92%</b></div><div class="rounded-lg bg-blue-50 p-3"><span class="text-slate-500">模型版本</span><b class="block text-xl">V2.3.1</b></div></div></div></div><button class="w-full rounded-lg bg-amber-50 text-amber-700 text-left px-5 py-4 mt-4 font-semibold">需关注：土壤水分偏低　<span class="float-right text-xl">›</span></button></article><article class="card p-6"><h2 class="text-xl font-bold">六维长势画像</h2><div class="grid md:grid-cols-[260px_1fr] xl:grid-cols-[.9fr_1.05fr_.8fr] gap-5 mt-2 items-center"><div class="h-[270px]"><canvas id="radar"></canvas></div><div class="space-y-3"><div class="flex items-center gap-3"><b class="w-10">树势</b><b>91</b><span class="text-slate-400">/100</span><div class="bar flex-1"><i class="bg-teal-500" style="width:91%"></i></div><em class="not-italic bg-emerald-50 text-emerald-600 px-2 py-1 rounded">优</em></div><div class="flex items-center gap-3"><b class="w-10">叶片</b><b>86</b><span class="text-slate-400">/100</span><div class="bar flex-1"><i class="bg-teal-500" style="width:86%"></i></div><em class="not-italic bg-blue-50 text-blue-600 px-2 py-1 rounded">良</em></div><div class="flex items-center gap-3"><b class="w-10">根系</b><b>82</b><span class="text-slate-400">/100</span><div class="bar flex-1"><i class="bg-teal-500" style="width:82%"></i></div><em class="not-italic bg-blue-50 text-blue-600 px-2 py-1 rounded">良</em></div><div class="flex items-center gap-3"><b class="w-10">花果</b><b>88</b><span class="text-slate-400">/100</span><div class="bar flex-1"><i class="bg-teal-500" style="width:88%"></i></div><em class="not-italic bg-blue-50 text-blue-600 px-2 py-1 rounded">良</em></div><div class="flex items-center gap-3"><b class="w-10">环境</b><b>74</b><span class="text-slate-400">/100</span><div class="bar flex-1"><i class="bg-amber-400" style="width:74%"></i></div><em class="not-italic bg-amber-50 text-amber-600 px-2 py-1 rounded">关注</em></div><div class="flex items-center gap-3"><b class="w-10">病虫</b><b>89</b><span class="text-slate-400">/100</span><div class="bar flex-1"><i class="bg-teal-500" style="width:89%"></i></div><em class="not-italic bg-blue-50 text-blue-600 px-2 py-1 rounded">良</em></div></div><aside class="md:col-span-2 xl:col-span-1 bg-[#f7fbff] rounded-xl p-4 border-l border-blue-100"><h3 class="font-bold text-lg">模型解读</h3><div class="bg-amber-50 text-amber-700 p-3 rounded-lg font-bold mt-3">环境维度偏弱</div><ul class="text-sm text-slate-600 leading-6 mt-3 list-disc pl-4"><li>土壤水分接近适宜下限，可能影响根系活性和养分吸收。</li><li>近期降雨偏少，蒸发较强，需及时补水。</li><li>其他维度未发现明显异常。</li></ul><button class="text-blue-600 font-medium mt-3">查看处置建议　→</button></aside></div></article></section><section class="grid xl:grid-cols-[.85fr_1.15fr] gap-4 mt-4"><article class="card p-5"><h2 class="text-xl font-bold">问题优先级</h2><div class="mt-3"><div class="row border rounded-xl p-3 flex gap-4 items-center"><b class="bg-amber-400 text-white rounded-lg px-3 py-2 text-xl">1</b><div class="flex-1"><b>土壤水分偏低　<span class="text-amber-600 text-sm">影响中等</span></b><p class="text-sm text-slate-500 mt-1">当前土壤水分为 24.6%，接近适宜下限，可能影响根系活性和养分吸收。</p></div><span class="text-2xl text-slate-400">›</span></div><div class="row border rounded-xl p-3 flex gap-4 items-center mt-2"><b class="bg-blue-400 text-white rounded-lg px-3 py-2 text-xl">2</b><div class="flex-1"><b>冠层通风一般　<span class="text-blue-600 text-sm">持续观察</span></b><p class="text-sm text-slate-500 mt-1">果园局部郁闭，湿度偏高时可能增加病害发生风险。</p></div><span class="text-2xl text-slate-400">›</span></div></div></article><article class="card p-5"><div class="flex justify-between items-center"><h2 class="text-xl font-bold">处置建议</h2><button class="bg-blue-600 text-white px-4 py-2 rounded-lg">＋ 创建处置任务</button></div><div class="mt-3 overflow-x-auto"><table class="w-full min-w-[620px] text-sm"><thead class="bg-[#eaf4ff] text-slate-500"><tr><th class="p-3">序号</th><th class="text-left">处置建议</th><th>责任人</th><th>建议完成时间</th><th>状态</th></tr></thead><tbody><tr class="border-b"><td class="p-3 text-center"><b class="bg-amber-400 text-white rounded-full px-2 py-1">1</b></td><td>及时补充灌溉，保持土壤水分在适宜范围（25%–35%）。</td><td class="text-center">张师傅</td><td class="text-center">2026-09-14</td><td class="text-center">待处理</td></tr><tr class="border-b"><td class="p-3 text-center"><b class="bg-blue-400 text-white rounded-full px-2 py-1">2</b></td><td>适当修剪内膛弱枝，改善冠层通风透光。</td><td class="text-center">李技术员</td><td class="text-center">2026-09-20</td><td class="text-center">待处理</td></tr><tr><td class="p-3 text-center"><b class="bg-blue-400 text-white rounded-full px-2 py-1">3</b></td><td>加强病虫害监测，重点关注炭疽病、红蜘蛛等。</td><td class="text-center">王植保</td><td class="text-center">2026-09-25</td><td class="text-center">待处理</td></tr></tbody></table></div></article></section><section class="card p-5 mt-4"><div class="flex justify-between"><h2 class="text-xl font-bold">本次模型输入快照</h2><span class="text-sm text-slate-500">数据采集时间：2026-09-12 10:00</span></div><div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3 mt-3 text-sm"><div class="bg-[#f0f7ff] p-4 rounded-lg">空气温度<b class="block text-2xl">31.2℃</b></div><div class="bg-[#f0f7ff] p-4 rounded-lg">土壤水分<b class="block text-2xl">24.6%</b></div><div class="bg-[#f0f7ff] p-4 rounded-lg">近7日降雨<b class="block text-2xl">18.5mm</b></div><div class="bg-[#f0f7ff] p-4 rounded-lg">最近农事<b class="block text-2xl">滴灌</b></div><div class="bg-[#f0f7ff] p-4 rounded-lg">物候期<b class="block text-2xl">果实膨大期</b></div><div class="bg-[#f0f7ff] p-4 rounded-lg">现场照片<b class="block text-2xl">3 张</b></div></div></section></main><script>const center={id:'center',afterDraw(c,a,o){let{x,y,width,height}=c.chartArea,ctx=c.ctx;ctx.save();ctx.textAlign='center';ctx.fillStyle='#102d61';ctx.font='700 58px Microsoft YaHei';ctx.fillText('86',x+width/2,y+height/2+4);ctx.font='18px Microsoft YaHei';ctx.fillStyle='#58749b';ctx.fillText('/ 100',x+width/2,y+height/2+34);ctx.restore()}};new Chart(score,{type:'doughnut',data:{datasets:[{data:[86,14],backgroundColor:['#14b8b5','#e7eef4'],borderWidth:0,borderRadius:9}]},options:{cutout:'75%',plugins:{legend:{display:false},tooltip:{enabled:false}}},plugins:[center]});new Chart(radar,{type:'radar',data:{labels:['树势','叶片','根系','花果','环境','病虫'],datasets:[{data:[91,86,82,88,74,89],backgroundColor:'rgba(20,184,181,.22)',borderColor:'#12b8b5',pointBackgroundColor:'#12b8b5',borderWidth:2},{data:[85,85,85,85,85,85],borderColor:'#8ba1b8',borderDash:[5,4],pointRadius:0,borderWidth:1}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{r:{min:0,max:100,ticks:{display:false},grid:{color:'#dce8f4'},angleLines:{color:'#dce8f4'},pointLabels:{color:'#12305f',font:{weight:'600'}}}}}})</script></body></html>
+<!doctype html>
+<html lang="zh-CN">
 
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>诊断分析</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            background: #f1f7ff;
+            color: #102d61;
+            font-family: -apple-system, BlinkMacSystemFont, "Microsoft YaHei", sans-serif
+        }
+
+        .page {
+            max-width: 1660px;
+            padding: 24px 28px;
+            margin: auto
+        }
+
+        .card {
+            background: #fff;
+            border: 1px solid #dceafa;
+            border-radius: 14px;
+            box-shadow: 0 5px 18px rgba(32, 92, 150, .06)
+        }
+
+        .bar {
+            height: 10px;
+            background: #e8f0f8;
+            border-radius: 99px;
+            overflow: hidden
+        }
+
+        .bar i {
+            display: block;
+            height: 100%;
+            border-radius: 99px
+        }
+
+        .row+.row {
+            border-top: 1px solid #e4edf7
+        }
+    </style>
+</head>
+
+<body>
+    <main class="page">
+        <header class="flex flex-wrap items-start justify-between gap-4 mb-4">
+            <div>
+                <h1 class="text-[28px] font-bold">诊断分析</h1>
+                <p class="text-[16px] text-slate-500 mt-1">查看一个果园某次模型运行的诊断结果、原因与处置建议。</p>
+            </div>
+            <div class="flex gap-3"><select class="card px-4 h-11 text-sm font-medium">
+                    <option>市山镇示范果园 09</option>
+                    <option>白舍镇 A-03 示范园</option>
+                </select><select class="card px-4 h-11 text-sm font-medium">
+                    <option>2026-09-12 10:30</option>
+                    <option>2026-09-11 15:32</option>
+                </select></div>
+        </header>
+        <section class="grid xl:grid-cols-[.85fr_1.15fr] gap-4">
+            <article class="card p-6">
+                <div class="flex justify-between">
+                    <h2 class="text-xl font-bold">诊断结果概览</h2><span class="text-sm text-slate-500">模型运行时间：2026-09-12
+                        10:30</span>
+                </div>
+                <div class="grid md:grid-cols-[220px_1fr] items-center gap-4 mt-5">
+                    <div class="h-[205px] relative"><canvas id="score"></canvas>
+                        <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none"><b
+                                class="text-6xl leading-none">86</b><span class="text-slate-500 mt-2">/ 100</span></div>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl text-teal-500 font-bold">长势状态良好</h3>
+                        <p class="text-sm text-slate-600 leading-7 mt-3">
+                            果园整体长势良好，树体健壮，叶片功能正常，花果发育正常。当前主要问题为土壤水分接近适宜下限，建议及时补水并持续关注。</p>
+                        <div class="grid grid-cols-3 gap-2 mt-4 text-center text-sm">
+                            <div class="rounded-lg bg-blue-50 p-3"><span class="text-slate-500">数据完整度</span><b
+                                    class="block text-xl">95%</b></div>
+                            <div class="rounded-lg bg-blue-50 p-3"><span class="text-slate-500">结果可信度</span><b
+                                    class="block text-xl">92%</b></div>
+                            <div class="rounded-lg bg-blue-50 p-3"><span class="text-slate-500">模型版本</span><b
+                                    class="block text-xl">V2.3.1</b></div>
+                        </div>
+                    </div>
+                </div><button
+                    class="w-full rounded-lg bg-amber-50 text-amber-700 text-left px-5 py-4 mt-4 font-semibold">需关注：土壤水分偏低　<span
+                        class="float-right text-xl">›</span></button>
+            </article>
+            <article class="card p-6">
+                <h2 class="text-xl font-bold">六维长势画像</h2>
+                <div class="grid md:grid-cols-[260px_1fr] xl:grid-cols-[.9fr_1.05fr_.8fr] gap-5 mt-2 items-center">
+                    <div class="h-[270px]"><canvas id="radar"></canvas></div>
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-3"><b class="w-10">树势</b><b>91</b><span
+                                class="text-slate-400">/100</span>
+                            <div class="bar flex-1"><i class="bg-teal-500" style="width:91%"></i></div><em
+                                class="not-italic bg-emerald-50 text-emerald-600 px-2 py-1 rounded">优</em>
+                        </div>
+                        <div class="flex items-center gap-3"><b class="w-10">叶片</b><b>86</b><span
+                                class="text-slate-400">/100</span>
+                            <div class="bar flex-1"><i class="bg-teal-500" style="width:86%"></i></div><em
+                                class="not-italic bg-blue-50 text-blue-600 px-2 py-1 rounded">良</em>
+                        </div>
+                        <div class="flex items-center gap-3"><b class="w-10">根系</b><b>82</b><span
+                                class="text-slate-400">/100</span>
+                            <div class="bar flex-1"><i class="bg-teal-500" style="width:82%"></i></div><em
+                                class="not-italic bg-blue-50 text-blue-600 px-2 py-1 rounded">良</em>
+                        </div>
+                        <div class="flex items-center gap-3"><b class="w-10">花果</b><b>88</b><span
+                                class="text-slate-400">/100</span>
+                            <div class="bar flex-1"><i class="bg-teal-500" style="width:88%"></i></div><em
+                                class="not-italic bg-blue-50 text-blue-600 px-2 py-1 rounded">良</em>
+                        </div>
+                        <div class="flex items-center gap-3"><b class="w-10">环境</b><b>74</b><span
+                                class="text-slate-400">/100</span>
+                            <div class="bar flex-1"><i class="bg-amber-400" style="width:74%"></i></div><em
+                                class="not-italic bg-amber-50 text-amber-600 px-2 py-1 rounded">关注</em>
+                        </div>
+                        <div class="flex items-center gap-3"><b class="w-10">病虫</b><b>89</b><span
+                                class="text-slate-400">/100</span>
+                            <div class="bar flex-1"><i class="bg-teal-500" style="width:89%"></i></div><em
+                                class="not-italic bg-blue-50 text-blue-600 px-2 py-1 rounded">良</em>
+                        </div>
+                    </div>
+                    <aside class="md:col-span-2 xl:col-span-1 bg-[#f7fbff] rounded-xl p-4 border-l border-blue-100">
+                        <h3 class="font-bold text-lg">模型解读</h3>
+                        <div class="bg-amber-50 text-amber-700 p-3 rounded-lg font-bold mt-3">环境维度偏弱</div>
+                        <ul class="text-sm text-slate-600 leading-6 mt-3 list-disc pl-4">
+                            <li>土壤水分接近适宜下限，可能影响根系活性和养分吸收。</li>
+                            <li>近期降雨偏少，蒸发较强，需及时补水。</li>
+                            <li>其他维度未发现明显异常。</li>
+                        </ul><button class="text-blue-600 font-medium mt-3">查看处置建议　→</button>
+                    </aside>
+                </div>
+            </article>
+        </section>
+        <section class="grid xl:grid-cols-[.85fr_1.15fr] gap-4 mt-4">
+            <article class="card p-5">
+                <h2 class="text-xl font-bold">问题优先级</h2>
+                <div class="mt-3">
+                    <div class="row border rounded-xl p-3 flex gap-4 items-center"><b
+                            class="bg-amber-400 text-white rounded-lg px-3 py-2 text-xl">1</b>
+                        <div class="flex-1"><b>土壤水分偏低　<span class="text-amber-600 text-sm">影响中等</span></b>
+                            <p class="text-sm text-slate-500 mt-1">当前土壤水分为 24.6%，接近适宜下限，可能影响根系活性和养分吸收。</p>
+                        </div><span class="text-2xl text-slate-400">›</span>
+                    </div>
+                    <div class="row border rounded-xl p-3 flex gap-4 items-center mt-2"><b
+                            class="bg-blue-400 text-white rounded-lg px-3 py-2 text-xl">2</b>
+                        <div class="flex-1"><b>冠层通风一般　<span class="text-blue-600 text-sm">持续观察</span></b>
+                            <p class="text-sm text-slate-500 mt-1">果园局部郁闭，湿度偏高时可能增加病害发生风险。</p>
+                        </div><span class="text-2xl text-slate-400">›</span>
+                    </div>
+                </div>
+            </article>
+            <article class="card p-5">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-xl font-bold">处置建议</h2><button class="bg-blue-600 text-white px-4 py-2 rounded-lg">＋
+                        创建处置任务</button>
+                </div>
+                <div class="mt-3 overflow-x-auto">
+                    <table class="w-full min-w-[620px] text-sm">
+                        <thead class="bg-[#eaf4ff] text-slate-500">
+                            <tr>
+                                <th class="p-3">序号</th>
+                                <th class="text-left">处置建议</th>
+                                <th>责任人</th>
+                                <th>建议完成时间</th>
+                                <th>状态</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-b">
+                                <td class="p-3 text-center"><b
+                                        class="bg-amber-400 text-white rounded-full px-2 py-1">1</b></td>
+                                <td>及时补充灌溉，保持土壤水分在适宜范围（25%–35%）。</td>
+                                <td class="text-center">张师傅</td>
+                                <td class="text-center">2026-09-14</td>
+                                <td class="text-center">待处理</td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="p-3 text-center"><b
+                                        class="bg-blue-400 text-white rounded-full px-2 py-1">2</b></td>
+                                <td>适当修剪内膛弱枝，改善冠层通风透光。</td>
+                                <td class="text-center">李技术员</td>
+                                <td class="text-center">2026-09-20</td>
+                                <td class="text-center">待处理</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 text-center"><b
+                                        class="bg-blue-400 text-white rounded-full px-2 py-1">3</b></td>
+                                <td>加强病虫害监测，重点关注炭疽病、红蜘蛛等。</td>
+                                <td class="text-center">王植保</td>
+                                <td class="text-center">2026-09-25</td>
+                                <td class="text-center">待处理</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </article>
+        </section>
+        <section class="card p-5 mt-4">
+            <div class="flex justify-between">
+                <h2 class="text-xl font-bold">本次模型输入快照</h2><span class="text-sm text-slate-500">数据采集时间：2026-09-12
+                    10:00</span>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3 mt-3 text-sm">
+                <div class="bg-[#f0f7ff] p-4 rounded-lg">空气温度<b class="block text-2xl">31.2℃</b></div>
+                <div class="bg-[#f0f7ff] p-4 rounded-lg">土壤水分<b class="block text-2xl">24.6%</b></div>
+                <div class="bg-[#f0f7ff] p-4 rounded-lg">近7日降雨<b class="block text-2xl">18.5mm</b></div>
+                <div class="bg-[#f0f7ff] p-4 rounded-lg">最近农事<b class="block text-2xl">滴灌</b></div>
+                <div class="bg-[#f0f7ff] p-4 rounded-lg">物候期<b class="block text-2xl">果实膨大期</b></div>
+                <div class="bg-[#f0f7ff] p-4 rounded-lg">现场照片<b class="block text-2xl">3 张</b></div>
+            </div>
+        </section>
+    </main>
+    <script>const center = { id: 'center', afterDraw(c, a, o) { let { x, y, width, height } = c.chartArea, ctx = c.ctx; ctx.save(); ctx.textAlign = 'center'; ctx.fillStyle = '#102d61'; ctx.font = '700 58px Microsoft YaHei'; ctx.fillText('86', x + width / 2, y + height / 2 + 4); ctx.font = '18px Microsoft YaHei'; ctx.fillStyle = '#58749b'; ctx.fillText('/ 100', x + width / 2, y + height / 2 + 34); ctx.restore() } }; new Chart(score, { type: 'doughnut', data: { datasets: [{ data: [86, 14], backgroundColor: ['#14b8b5', '#e7eef4'], borderWidth: 0, borderRadius: 9 }] }, options: { cutout: '75%', plugins: { legend: { display: false }, tooltip: { enabled: false } } }, plugins: [center] }); new Chart(radar, { type: 'radar', data: { labels: ['树势', '叶片', '根系', '花果', '环境', '病虫'], datasets: [{ data: [91, 86, 82, 88, 74, 89], backgroundColor: 'rgba(20,184,181,.22)', borderColor: '#12b8b5', pointBackgroundColor: '#12b8b5', borderWidth: 2 }, { data: [85, 85, 85, 85, 85, 85], borderColor: '#8ba1b8', borderDash: [5, 4], pointRadius: 0, borderWidth: 1 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { r: { min: 0, max: 100, ticks: { display: false }, grid: { color: '#dce8f4' }, angleLines: { color: '#dce8f4' }, pointLabels: { color: '#12305f', font: { weight: '600' } } } } } })</script>
+</body>
+
+</html>

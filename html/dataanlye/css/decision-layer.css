@@ -1,0 +1,270 @@
+/* ============================================================
+ * 决策层增强样式 (Decision Layer)
+ * 生长模型大屏 与 病虫害大屏 共用
+ *
+ * 目标：把大屏从「看数据」推进到「能派工、能汇报」。
+ * 覆盖项：A1 待办派工 / A2 趋势 / A3 乡镇排行 / A4 推算标识 /
+ *        B1 焦点层级 / B2 播报分段 / B4 图例阈值 / B5 状态色降噪 /
+ *        B6 两屏一致性 / B7 动效与字号
+ *
+ * 主题：深色驾驶舱。所有颜色与 css/cockpit-theme.css 保持同一体系，
+ *      红/橙/黄只用于状态语义，连续数值一律走青色系色阶。
+ * ============================================================ */
+
+/* ============================================================
+ * B2 结论播报分段：形势徽标 → 关键数字 → 待办动作
+ * 原来是一整段文字，数据、短板、建议混在一起，扫读成本高。
+ * ============================================================ */
+.ck-brief { flex-wrap: wrap; row-gap: 8px; }
+.ck-brief-badge {
+    flex-shrink: 0;
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 12px; border-radius: 6px;
+    font-size: 13px; font-weight: 600; letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+.ck-brief-badge.level-ok   { background: rgba(90, 215, 240, 0.14); border: 1px solid rgba(90, 215, 240, 0.45); color: #5AD7F0; }
+.ck-brief-badge.level-mid  { background: rgba(227, 154, 60, 0.14); border: 1px solid rgba(227, 154, 60, 0.45); color: #E39A3C; }
+.ck-brief-badge.level-bad  { background: rgba(255, 107, 107, 0.14); border: 1px solid rgba(255, 107, 107, 0.45); color: #ff8f8f; }
+
+/* 待办动作：可点击，直达派工清单 */
+.ck-brief-action {
+    flex-shrink: 0; display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 14px; border-radius: 6px; text-decoration: none; white-space: nowrap;
+    background: rgba(255, 107, 107, 0.16);
+    border: 1px solid rgba(255, 107, 107, 0.45);
+    color: #ff9b9b; font-size: 13px; font-weight: 600;
+    cursor: pointer;
+}
+.ck-brief-action:hover { background: rgba(255, 107, 107, 0.28); color: #ffc2c2; }
+
+/* 跨屏归因（A5）：一句话串起「病虫 → 长势 → 产量」 */
+.ck-brief-cause {
+    flex-basis: 100%;
+    margin-top: 2px; padding-top: 8px;
+    border-top: 1px dashed rgba(0, 212, 255, 0.22);
+    font-size: 13px; color: #94a3b8;
+}
+.ck-brief-cause b { color: #7dd3fc; font-weight: 600; }
+
+/* A7 同比标签：向好=青绿，需关注=红，持平/测算=中性灰。
+ * 全部指标一律标绿反而会让人怀疑数据被修饰过，必须允许中性色存在。 */
+.kpi-yoy.flat { color: #94a3b8; }
+
+/* ============================================================
+ * A2 关键指标迷你趋势线（sparkline）
+ * 同比是结论，趋势才是依据 —— 领导据此判断「在恶化还是好转」。
+ * 紧凑布局：趋势线与同比标签同行（左同比、右趋势），说明文字收进悬浮 title。
+ * ============================================================ */
+.kpi-spark {
+    width: 84px;
+    height: 22px;
+    line-height: 0;
+    justify-self: end;
+    align-self: center;
+}
+.kpi-spark svg { display: block; width: 100%; height: 22px; overflow: visible; }
+
+/* KPI 卡片内网格排布（紧凑重构）：
+ *   第 1 行  标题（占满两列）
+ *   第 2 行  数字 | 单位徽标
+ *   第 3 行  同比 | 趋势线
+ * 子元素在 DOM 中依次为 h4 / kpi-number / trend-badge / kpi-yoy / kpi-spark，
+ * 自动落位正好构成上述三行，无需改动 HTML。 */
+.kpi-card .kpi-info {
+    display: grid !important;
+    grid-template-columns: auto 1fr;
+    column-gap: 8px;
+    align-items: center;
+    width: 100%;
+}
+.kpi-card .kpi-info h4 { grid-column: 1 / -1; margin-bottom: 2px; }
+.kpi-card .kpi-info .trend-badge { justify-self: start; margin-top: 0; }
+.kpi-card .kpi-info .kpi-yoy { justify-self: start; }
+
+/* ============================================================
+ * A4 推算值口径标识
+ * 推算值与实测值在视觉上必须可区分，否则拿去汇报有风险。
+ * ============================================================ */
+.dl-est {
+    display: inline-block;
+    margin-left: 4px; padding: 0 4px;
+    font-size: 10px; font-weight: 600; line-height: 15px;
+    vertical-align: 2px;
+    color: #94a3b8;
+    border: 1px dashed rgba(148, 163, 184, 0.65);
+    border-radius: 3px;
+    cursor: help;
+}
+.dl-est::before { content: '推算'; }
+.dl-est-num {
+    border-bottom: 1px dashed rgba(148, 163, 184, 0.75);
+    cursor: help;
+}
+/* 悬浮说明气泡（由 js/decision-layer.js 统一渲染） */
+.dl-tip {
+    position: fixed; z-index: 99999; max-width: 300px;
+    padding: 10px 12px; border-radius: 8px;
+    background: rgba(8, 22, 46, 0.97);
+    border: 1px solid rgba(0, 212, 255, 0.35);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    color: #cbd5e1; font-size: 12px; line-height: 1.7;
+    pointer-events: none; opacity: 0; transition: opacity .12s;
+}
+.dl-tip.show { opacity: 1; }
+.dl-tip-title { color: #5AD7F0; font-weight: 600; margin-bottom: 4px; }
+
+/* ============================================================
+ * A1 待办 / 派工清单
+ * 领导看完问的第一句是「那我现在要找谁办」——这一块直接回答。
+ * ============================================================ */
+/* 容器本身要是纵向 flex，列表的 flex:1 + overflow 才生效（否则会撑破固定高度的卡片） */
+#todoList, #townRank {
+    display: flex; flex-direction: column;
+    flex: 1; min-height: 0;
+}
+.dl-todo-head {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 8px;
+    padding: 8px 12px 6px;
+}
+.dl-todo-count { font-size: 12px; color: #94a3b8; }
+.dl-todo-count b { color: #ff8f8f; font-size: 15px; font-family: var(--ck-font-num, inherit); }
+.dl-todo-list { flex: 1; overflow-y: auto; padding: 0 12px 8px; }
+
+.dl-todo-item {
+    display: flex; align-items: flex-start; gap: 8px;
+    padding: 7px 8px; margin-bottom: 6px;
+    border-radius: 6px;
+    background: rgba(0, 212, 255, 0.05);
+    border-left: 3px solid rgba(0, 212, 255, 0.45);
+}
+/* 逾期：转红并置顶（由 JS 排序保证顺序） */
+.dl-todo-item.overdue {
+    background: rgba(255, 107, 107, 0.10);
+    border-left-color: #ff6b6b;
+}
+.dl-todo-item.doing { border-left-color: #E39A3C; }
+.dl-todo-item.done  { border-left-color: rgba(148, 163, 184, 0.5); opacity: .62; }
+
+.dl-todo-main { flex: 1; min-width: 0; }
+.dl-todo-title {
+    font-size: 13px; font-weight: 600; color: #e6f1ff; line-height: 1.45;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.dl-todo-meta { margin-top: 3px; font-size: 11px; color: #94a3b8; }
+.dl-todo-meta span + span::before { content: '·'; margin: 0 5px; color: #5b6b82; }
+
+.dl-todo-right { flex-shrink: 0; text-align: right; }
+.dl-todo-due { font-size: 11px; color: #94a3b8; font-variant-numeric: tabular-nums; }
+.dl-todo-item.overdue .dl-todo-due { color: #ff8f8f; font-weight: 600; }
+.dl-pill {
+    display: inline-block; margin-top: 3px; padding: 1px 7px;
+    border-radius: 10px; font-size: 11px; font-weight: 600;
+}
+.dl-pill.s-overdue { background: rgba(255, 107, 107, 0.18); color: #ff8f8f; }
+.dl-pill.s-doing   { background: rgba(227, 154, 60, 0.18); color: #E39A3C; }
+.dl-pill.s-done    { background: rgba(148, 163, 184, 0.18); color: #94a3b8; }
+
+.dl-foot-note {
+    padding: 6px 12px 8px; border-top: 1px solid rgba(148, 163, 184, 0.12);
+    font-size: 11px; color: #7c8ba1; line-height: 1.6;
+}
+
+/* ============================================================
+ * A3 乡镇排行 + 地图联动
+ * 领导最常问的是「最该盯哪三个乡镇」。
+ * ============================================================ */
+.dl-rank-list { flex: 1; overflow-y: auto; padding: 6px 12px 8px; }
+.dl-rank-row {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 6px; border-radius: 6px; cursor: default;
+    transition: background .15s;
+}
+.dl-rank-row:hover, .dl-rank-row.active { background: rgba(0, 212, 255, 0.10); }
+.dl-rank-no {
+    flex-shrink: 0; width: 18px; height: 18px; line-height: 18px;
+    text-align: center; border-radius: 4px;
+    font-size: 11px; font-weight: 700; color: #0a1a2f;
+    background: #3F4A5C;
+}
+.dl-rank-row.top1 .dl-rank-no { background: #5AD7F0; }
+.dl-rank-row.top2 .dl-rank-no { background: #35B4DE; }
+.dl-rank-row.top3 .dl-rank-no { background: #1E7FB8; color: #e6f1ff; }
+.dl-rank-name { flex-shrink: 0; width: 66px; font-size: 14px; color: #e6f1ff; }
+.dl-rank-bar-wrap { flex: 1; height: 8px; border-radius: 4px; background: rgba(148, 163, 184, 0.14); overflow: hidden; }
+.dl-rank-bar { height: 100%; border-radius: 4px; background: #35B4DE; }
+.dl-rank-row.top1 .dl-rank-bar { background: #5AD7F0; }
+.dl-rank-val {
+    flex-shrink: 0; width: 78px; text-align: right;
+    font-size: 12px; color: #cbd5e1; font-variant-numeric: tabular-nums;
+}
+.dl-rank-val b { color: #5AD7F0; font-weight: 600; }
+.dl-rank-row.nodata .dl-rank-name,
+.dl-rank-row.nodata .dl-rank-val { color: #7c8ba1; }
+
+/* ============================================================
+ * B4 图例阈值：色块必须带数值区间，否则看不出分档依据
+ * 生长模型大屏原本没有这套样式，统一放到共用层，保证两屏一致。
+ * ============================================================ */
+.risk-legend-bar {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 10px; margin-top: 6px;
+    border-radius: 8px;
+    background: rgba(15, 35, 75, 0.55);
+    border: 1px solid rgba(0, 212, 255, 0.14);
+}
+.risk-legend-title { font-size: 12px; color: #94a3b8; white-space: nowrap; }
+
+.dl-scale { display: flex; align-items: center; gap: 0; flex-wrap: wrap; }
+.dl-scale-cell {
+    display: flex; align-items: center; gap: 6px;
+    padding: 0 10px; border-right: 1px solid rgba(148, 163, 184, 0.16);
+}
+.dl-scale-cell:last-child { border-right: 0; }
+.dl-scale-chip { width: 16px; height: 10px; border-radius: 2px; border: 1px solid rgba(127, 228, 245, 0.45); }
+.dl-scale-text { font-size: 12px; color: #cbd5e1; white-space: nowrap; }
+
+/* ============================================================
+ * B6 两屏一致性：数据更新时间
+ * 实际是定时采集，写「实时监控」是夸大表述，统一改为更新时间。
+ * ============================================================ */
+.ck-update-chip { font-size: 12px; color: #94a3b8; white-space: nowrap; }
+.ck-update-chip b { color: #cbd5e1; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* ============================================================
+ * B1 焦点层级：整屏只保留一个强调态
+ * 强调态过多 = 没有强调。其余卡片统一降饱和，让视线有唯一落点。
+ * ============================================================ */
+.kpi-card.dl-muted { border-color: rgba(0, 212, 255, 0.14) !important; }
+.kpi-card.dl-focus {
+    border-color: rgba(255, 107, 107, 0.55) !important;
+    box-shadow: 0 0 0 1px rgba(255, 107, 107, 0.18), 0 8px 22px rgba(255, 107, 107, 0.10) !important;
+}
+
+/* ============================================================
+ * B7 动效：滚动事件流持续运动干扰阅读，悬停即暂停
+ * ============================================================ */
+.scrolling-container:hover { animation-play-state: paused; }
+.scrolling-cards:hover .scrolling-container { animation-play-state: paused; }
+
+/* ============================================================
+ * B7 字号：会议室远视距下 12px 偏小，正文提到 14px、KPI 提到 36px
+ * ============================================================ */
+/* 紧凑重构（方案 A）：图标已从卡片中移除（趋势线接管了其视觉职责），
+ * 数字 36→30px（仍满足会议室远视距），内边距收紧，卡片高度约 150→100px。 */
+.kpi-card { padding: 12px 14px !important; }
+.kpi-number { font-size: 1.875rem !important; line-height: 1.1 !important; }
+.kpi-info h4 { font-size: 13px !important; }
+.card-header { font-size: 15px !important; }
+.header-extra { font-size: 12px !important; }
+
+/* 滚动条（深色） */
+.dl-todo-list::-webkit-scrollbar,
+.dl-rank-list::-webkit-scrollbar { width: 6px; }
+.dl-todo-list::-webkit-scrollbar-track,
+.dl-rank-list::-webkit-scrollbar-track { background: rgba(0, 212, 255, 0.05); }
+.dl-todo-list::-webkit-scrollbar-thumb,
+.dl-rank-list::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #00d4ff, #4fc3f7);
+    border-radius: 3px;
+}

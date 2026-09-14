@@ -16,8 +16,11 @@
     var CITY = '抚州市';
     var COUNTY = '南丰县';
 
-    /* 单一青色系 5 级色阶（浅 → 深） */
-    var RAMP = ['#123A6E', '#16528F', '#1E7FB8', '#35B4DE', '#5AD7F0'];
+    /* 单一青色系 5 级色阶（浅 → 深）
+     * 端点在 B4 优化中刻意拉开：原来最低两级 #123A6E / #16528F 在会议室
+     * 投影下几乎不可分，现在把暗端压到 #0C2A55、亮端提到 #74E8FB，
+     * 极差更大但仍是单一色相，不引入第二种颜色。 */
+    var RAMP = ['#0C2A55', '#14508F', '#1E7FB8', '#3CBEE6', '#74E8FB'];
 
     var STROKE = '#7FE4F5';          /* 区域描边：固定亮青 */
     var STROKE_WIDTH = 1.5;
@@ -107,7 +110,7 @@
         if (v >= 70) { return RAMP[3]; }
         if (v >= 55) { return RAMP[2]; }
         if (v >= 40) { return '#2A7FB5'; }
-        return '#1E6EA0';
+        return '#1A5A87';
     }
 
     /* 同一维度、多条柱子时按排名取色：
@@ -115,8 +118,8 @@
      * 不要用「红黄绿」给同类目上色 —— 那会让色相变成装饰而非信息。 */
     var BAR_STEPS = ['#1E6EA0', '#288EC1', '#329CCB', '#3CABD4',
                      '#46BADD', '#50C8E7', '#5AD7F0'];
-    var BAR_MIN_RGB = [30, 110, 160];   /* #1E6EA0 起点：保证在深色面板上仍有对比度 */
-    var BAR_MAX_RGB = [90, 215, 240];   /* #5AD7F0 终点 */
+    var BAR_MIN_RGB = [26, 90, 135];    /* #1A5A87 起点：保证在深色面板上仍有对比度 */
+    var BAR_MAX_RGB = [116, 232, 251];  /* #74E8FB 终点（与 RAMP 亮端一致） */
 
     /* 按排名在青色区间内连续插值，条目数任意都不会出现重色 */
     function rampByRank(values) {
@@ -247,7 +250,7 @@
                 itemGap: 8,
                 textStyle: {
                     color: TEXT_SECONDARY,
-                    fontSize: 12,
+                    fontSize: 13,
                     fontFamily: 'inherit'
                 },
                 outOfRange: { color: NODATA_FILL },

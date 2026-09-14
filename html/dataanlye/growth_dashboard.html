@@ -1422,8 +1422,10 @@
            它们会把卡撑高到 152.5px，与病虫害大屏的 98.4px 不一致。
            两屏卡高已在 css/decision-layer.css 用 grid-auto-rows 统一为 110px。
            原副信息去处：kpi-tag 角标（4.7 分拉分）/ 顶部 .ck-brief / 雷达图 / KPI 弹窗 / 弹窗口径脚注。 */
-        /* 左侧环图移除后，柱状图（乡镇评分）撑满卡片 */
-        #townRank { width: 100%; flex: 1; overflow-y: auto; }
+        /* 乡镇植株综合评价表：撑满卡片，行多时卡内滚动 */
+        #townRank { width: 100%; flex: 1; min-height: 0; overflow-y: auto; }
+        #townRank::-webkit-scrollbar { width: 5px; }
+        #townRank::-webkit-scrollbar-thumb { background: rgba(0, 212, 255, 0.25); border-radius: 4px; }
         /* 「重点关注基地」表格：5 列紧凑表格，序号方块 + 风险徽章，
          * 整体复用大屏青蓝深色基调（与 ck-brief / risk-legend-bar 同源）。 */
         #townCauseList { width: 100%; }
@@ -1460,6 +1462,30 @@
             font-size: 11px; font-weight: 700;
             font-family: var(--ck-font-num); font-variant-numeric: tabular-nums;
             color: #0a1a2f; background: rgba(0, 212, 255, 0.55);
+        }
+        /* ============================================================
+         * 序号强调（2026-09-14）：求「头部名次一眼可辨」，不改数据、不改列宽。
+         * 【为什么是青色提亮而不是金银铜】本屏色相承载语义：红＝告警、琥珀＝预警。
+         *   序号若另起一套色相，风险原因Top7 的金色序号会被读成「预警」，
+         *   而乡镇表第 1 名标金、同行的风险等级却是绿，一行里出现两种信号；
+         *   这也是 js/nf-map.js 里「不要用红黄绿给同类目上色」的同一取舍。
+         *   故沿用青色相，只用「亮度 + 发光」分层，与地图色阶的表达方式一致。
+         * 作用范围：
+         *   · 乡镇植株综合评价排行 —— 前 3 名（tbody 前 3 行＝序号 1/2/3，傅坊乡恒在末行）
+         *   · 重点关注果园 —— 整列（该表按短板在前排序，序号即紧迫度）
+         *   · 评分不足的风险原因Top7 —— 前 3 名
+         * ============================================================ */
+        #townRank tbody tr:nth-child(-n+3) .tc-no,
+        #townCauseList .tc-no {
+            color: #04202b;
+            background: linear-gradient(135deg, #7FE4F5 0%, #39E6C8 100%);
+            box-shadow: 0 0 8px rgba(127, 228, 245, 0.50);
+        }
+        .rt7-list .rt7-row:nth-child(-n+3) .rt7-no {
+            color: #04202b;
+            background: linear-gradient(135deg, #7FE4F5 0%, #39E6C8 100%);
+            border-color: rgba(127, 228, 245, 0.95);
+            box-shadow: 0 0 8px rgba(127, 228, 245, 0.50);
         }
         .tc-table .tc-base { color: #e6f1ff; font-weight: 600; }
         .tc-table .tc-town-col { color: #94a3b8; }
@@ -1557,9 +1583,8 @@
         .town-subrank-line { font-size: 11px; color: #94a3b8; line-height: 1.5; }
         .ts-note { font-size: 11px; color: #64748b; }
         .ts-sep { margin: 0 4px; }
-        /* 右列排行：容纳「头部 3 + 尾部 4」，略压行高（仅限本屏，不影响 pest） */
-        #townRank .dl-rank-row { padding: 4px 6px; }
-        #townRank .dl-rank-list { padding: 4px 12px 6px; }
+        /* 原「#townRank .dl-rank-*」行高压缩样式已随排行条下线（2026-09-14）：
+           该卡片现为 .town-eval-table 五列表，行高由 .town-eval-table tbody td 控制。 */
         /* 地图告警角标（红，仅告警语义） */
         .map-alarm-legend {
             display: inline-flex; align-items: center; gap: 6px;
@@ -1775,15 +1800,99 @@
         .wh-count span { font-size: 0.82rem; font-weight: 500; margin-left: 2px; }
         /* 右列③ 农事待办：原 420 → 440，与中列 1160 底部对齐（420+240+440+2×20=1160） */
         #todoPanel { height: 440px; }
+
+        /* ============================================================
+         * 顶部标题栏层级：主标题 + 副标题 双层居中，右侧数据时间
+         * （沿用 cockpit-theme 的 .ck-topbar / .ck-topbar-clock token，
+         *   仅在本屏加高并做居中/定位，不改共用主题文件）
+         * ============================================================ */
+        .ck-topbar--stack {
+            height: auto;
+            min-height: 72px;
+            padding: 10px 24px 12px;
+        }
+        .ck-topbar-stack { margin: 0 auto; text-align: center; }
+        .ck-topbar-title--center { justify-content: center; }
+        .ck-topbar-sub {
+            margin-top: 4px;
+            font-size: 13px;
+            letter-spacing: 4px;
+            color: #7dd3fc;
+            opacity: .85;
+        }
+        /* 数据时间：绝对定位到右侧，保证主标题在屏内真正居中 */
+        .ck-topbar-clock--abs {
+            position: absolute;
+            right: 24px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        .ck-topbar-clock--abs b { font-weight: 600; font-variant-numeric: tabular-nums; }
+        .ck-clock-sep { color: rgba(0, 212, 255, .45); margin: 0 2px; }
+
+        /* ============================================================
+         * 左列② 乡镇植株综合评价表（替代原排行条）
+         * 七列：序号 / 乡镇 / 监测面积 / 监测株数 / 整体长势 / 风险等级 / 综合评分
+         * 卡片内容宽仅 ~404px，七列靠 11px 表头才排得下，
+         * 列宽按实测逐列校准（表头不许换行，故以表头文字宽度为下限）。
+         * ============================================================ */
+        /* 表头吸顶，行多时滚动仍可读列表头 */
+        .town-eval-table thead th {
+            position: sticky; top: 0; z-index: 1;
+            background: rgba(10, 28, 60, 0.98);
+            padding: 5px 6px;
+            font-size: 11px;
+        }
+        /* 六列均为四字表头，宽度按「文字宽 44px + 左右内边距 12px」取整为 56px；
+         * 乡镇列不写宽度，自动吃掉剩余空间（约 76px）。
+         * 2026-09-14：面积列表头去掉「(万亩)」小字单位，该列由 82px 收回到 56px。 */
+        .town-eval-table thead th:first-child { width: 34px; }   /* 序号 */
+        .town-eval-table thead th:nth-child(3) { width: 56px; }  /* 监测面积 */
+        .town-eval-table thead th:nth-child(4) { width: 56px; }  /* 监测株数 */
+        .town-eval-table thead th:nth-child(5) { width: 56px; }  /* 整体长势 */
+        .town-eval-table thead th:nth-child(6) { width: 70px; }  /* 风险等级 */
+        .town-eval-table thead th:nth-child(7) { width: 56px; text-align: right; } /* 综合评分 */
+        /* 行高压到 12 行全可见：大屏上「卡内滚动＝看不见」，
+         * 而排在最后的恰是短板乡镇（三溪/东坪/傅坊），必须一屏内直读。 */
+        .town-eval-table tbody td { padding: 2px 6px; }
+        .town-eval-table .tc-no { min-width: 17px; height: 17px; line-height: 17px; }
+        .town-eval-table .tc-risk { padding: 1px 7px; }
+        .town-eval-table tbody td:nth-child(3) { color: #94a3b8; }  /* 面积 */
+        .town-eval-table tbody td:nth-child(4) { color: #94a3b8; }  /* 株数 */
+        .town-eval-table tbody td:nth-child(7) { text-align: right; }
+        /* 悬停行高亮：与地图区块高亮同步 */
+        .town-eval-table tbody tr.active {
+            background: rgba(0, 212, 255, 0.18) !important;
+            box-shadow: inset 2px 0 0 #00d4ff;
+        }
+        .town-eval-table .te-score {
+            font-family: var(--ck-font-num); font-weight: 700;
+            font-size: 15px; color: #7dd3fc;
+            font-variant-numeric: tabular-nums;
+        }
+        /* 无有效样本乡镇（傅坊乡，点位新建调试中）：灰阶，不给评分 */
+        .town-eval-table tr.te-nodata td { color: #64748b; }
+        .town-eval-table .tc-risk.risk-none {
+            background: rgba(148, 163, 184, 0.16); color: #94a3b8;
+            border: 1px solid rgba(148, 163, 184, 0.35);
+        }
     </style>
 </head>
 <body class="cockpit">
 
-<!-- ==================== 顶部标题栏（导航已移除，标题居中） ==================== -->
-<header class="ck-topbar">
-  <div class="ck-topbar-title ck-topbar-title--center" style="margin: 0 auto;">
-    <i class="fas fa-leaf"></i>
-    <span>南丰蜜桔全产业链大数据平台 · 生长模型</span>
+<!-- ==================== 顶部标题栏（导航已移除；主标题 + 副标题 双层居中，右侧数据时间） ==================== -->
+<header class="ck-topbar ck-topbar--stack">
+  <div class="ck-topbar-stack">
+    <div class="ck-topbar-title ck-topbar-title--center">
+      <i class="fas fa-leaf"></i>
+      <span>南丰蜜桔全产业链大数据平台 · 生长模型</span>
+    </div>
+    <div class="ck-topbar-sub">真实点位监测 · 风险研判 · 农事决策支持</div>
+  </div>
+  <div class="ck-topbar-clock ck-topbar-clock--abs">
+    <b id="ckDateText">--</b>
+    <span class="ck-clock-sep">·</span>
+    <b id="ckTimeText">--:--:--</b>
   </div>
 </header>
 
@@ -1848,7 +1957,8 @@
                 <h4>逾期农事任务</h4>
                 <div class="kpi-number" data-value="2">0</div>
                 <span class="trend-badge">条</span>
-                <span class="kpi-yoy bad">最长逾期 2 天</span>
+                <!-- 最长逾期天数由 todos 现算回写（见 syncKpiFromSource），防止与派工清单/弹窗三个数字 -->
+                <span class="kpi-yoy bad" id="kpiOverdueNote">最长逾期 3 天</span>
             </div>
         </div>
         <div class="kpi-card animate-fade-in-up" style="animation-delay: 0.40s;" onclick="openModal('处理率')">
@@ -1877,7 +1987,10 @@
                 </div>
             </div>
 
-            <!-- ② 乡镇植株综合评价排行（按植株监测样本综合评价分值倒序）+ 地图联动 -->
+            <!-- ② 乡镇植株综合评价表（按综合评分倒序）：
+                 原排行条（名次条+横条）改为七列表——序号/乡镇/监测面积/监测株数/
+                 整体长势/风险等级/综合评分，评分口径不变（仍取 plantMapData，与地图填充色同源），
+                 面积（万亩）取监测覆盖数据源，悬停行联动高亮地图区块。 -->
             <div class="card side-card">
                 <div class="card-header"><span><i class="fas fa-ranking-star"></i> 乡镇植株综合评价排行</span><span class="header-extra">悬停联动地图</span></div>
                 <div id="townRank"></div>
@@ -1989,9 +2102,9 @@
                 </div>
             </div>
 
-            <!-- A1 农事待办 · 派工：原来的建议清单没有责任人与状态，无法跟踪 -->
+            <!-- A1 农事任务督办（原「农事待办 · 派工建议」）：原来的建议清单没有责任人与状态，无法跟踪 -->
             <div class="card side-card" id="todoPanel">
-                <div class="card-header"><span><i class="fas fa-clipboard-check"></i> 农事待办 · 派工建议</span><span class="header-extra">逾期置顶</span></div>
+                <div class="card-header"><span><i class="fas fa-clipboard-check"></i> 农事任务督办</span><span class="header-extra">逾期置顶</span></div>
                 <div class="adopt-rate-bar">农事采纳率 <b data-kpi="adoptRate" style="color:#00d4ff;font-family:var(--ck-font-num);">78.2%</b> · 配合度需提高乡镇如下：</div>
                 <div class="todo-drill-head" id="todoDrillHead" style="display:none;"></div>
                 <div id="todoList"></div>
@@ -2020,7 +2133,7 @@
             { key: 'demonstration', type: '早熟系',   color: '#E39A3C' },
             { key: 'iot',           type: '蜜广1号',  color: '#39e6c8' }
         ],
-        /* 乡镇级长势评分（11 个有监测点的乡镇；傅坊乡未布点，见 plantMapData）
+        /* 乡镇级长势评分（11 个有有效样本的乡镇；傅坊乡点位新建调试中、无样本，见 plantMapData）
          * 【口径真源】本数组是乡镇评分的唯一真源：地图填充色、右列乡镇排行、
          * 左列「植株综合评测分析」三处全部由它派生，避免同屏出现「同一乡镇两个分数」。
          * 【为什么是这个分布】顶部「长势综合评分 81.5」＝下列 26 株按 count 加权的均值
@@ -2208,16 +2321,20 @@
             ['病虫害预警', '木虱监测点复查正常',       '市山镇', '市山镇监测点', '邱泉江', '09-07 09:30', 'done',    '低']
         ],
         /* ===== 农事待办 / 派工（A1）=====
-         * 原来的建议清单只有「做什么 + 时限」，没有责任人和状态，无法跟踪是否落地。 */
+         * 原来的建议清单只有「做什么 + 时限」，没有责任人和状态，无法跟踪是否落地。
+         * 【逾期口径 2026-09-14】「逾期」= 期限已过且未完成（state ≠ done），一律由 due 现算
+         * （见 overdueTodoStats），不再用「手填 overdue 状态」表示逾期——
+         * 原实现给 due 09-15（尚未到期）的派工标了 overdue，屏上同时出现「逾期」和「剩1天」，
+         * 且三处口径不一致：KPI 说 2 条、派工卡头部说 3 项、清单里有逾期 6 天。 */
         // 责任人：取自后台管理系统 / 系统管理 / 用户管理 中「农技员」角色名单，
         // 且按乡镇匹配（每位责任人 department 与 town 一一对应，保证「所有乡镇都对得上」）。
         todos: [
-            { id: 1, title: '东坪乡弱树复壮续推（评分 58，仍在短板）', town: '东坪乡', owner: '邓小华', due: '09-15', state: 'overdue' },
+            { id: 1, title: '东坪乡弱树复壮续推（评分 58，仍在短板）', town: '东坪乡', owner: '邓小华', due: '09-15', state: 'doing' },
             { id: 2, title: '三溪乡病虫管理专项复查',             town: '三溪乡', owner: '聂学全', due: '09-11', state: 'overdue' },
             { id: 3, title: '洽湾镇控氮增钾肥施用（防浮皮）',     town: '洽湾镇', owner: '崔新根', due: '09-13', state: 'doing' },
             { id: 4, title: '太源乡均衡供水防裂果',               town: '太源乡', owner: '江国平', due: '09-14', state: 'doing' },
             { id: 5, title: '紫霄镇撑枝吊果防断枝',               town: '紫霄镇', owner: '陈金泉', due: '09-15', state: 'doing' },
-            { id: 6, title: '傅坊乡补设监测点（目前无数据）',     town: '傅坊乡', owner: '黄云贵', due: '09-20', state: 'doing' },
+            { id: 6, title: '傅坊乡监测点设备调试收尾（暂不纳入评分）', town: '傅坊乡', owner: '黄云贵', due: '09-20', state: 'doing' },
             { id: 7, title: '桑田镇秋梢管控复查',                 town: '桑田镇', owner: '危志刚', due: '09-18', state: 'reviewing' },
             { id: 8, title: '白舍镇采后清园（待销账）',           town: '白舍镇', owner: '惠加宁', due: '09-08', state: 'done' },
             { id: 9, title: '莱溪乡统防统治方案待派发',           town: '莱溪乡', owner: '鲁志明', due: '09-16', state: 'pending' }
@@ -2373,38 +2490,65 @@
     /* 乡镇评分 + 监测样本量（samples，合计 26 株）。
      * 样本量是这张地图的可信度前提：多数乡镇仅 2~3 株，
      * 因此必须在 tooltip 中如实标注，样本 <3 株时额外提示「仅供参考」。
-     * 傅坊乡目前没有布设监测点（samples: 0），用哨兵值 -1 走 outOfRange 显示为灰色，
-     * 不参与色阶，避免出现「无监测数据却有评分」的情况。 */
+     * 傅坊乡当前无有效监测样本（samples: 0），用哨兵值 -1 走 outOfRange 显示为灰色，
+     * 不参与色阶，避免出现「无监测数据却有评分」的情况。
+     * 【口径统一 2026-09-14】傅坊乡的表述此前三处打架：
+     *   地图 tooltip / 左列综合评价表写「未布点（规划中）/ 无监测点」，
+     *   而「覆盖乡镇」「连接监测点位」两个弹窗与顶部 KPI 写「2026 年 9 月新建点位、调试中
+     *   （在线 15 · 调试 1）」。现统一为后者——点位已建、设备调试期、暂不纳入评分。 */
     /* 地图填充数据：由 growthDataSource.varieties 单一派生（乡镇级评分），
-     * 再补一条「傅坊乡＝未布点（规划中）」的无数据项。
+     * 再补一条「傅坊乡＝点位新建调试中」的无数据项。
      * —— 原实现在这里另写了一套 45~85 的分数，与左列 varieties 在同屏形成
      *    「同一乡镇两个评分」，违反口径诚实铁律；现改为单一真源派生。 */
     var plantMapData = growthDataSource.varieties.map(function (v) {
         return { name: v.name, value: v.avgScore, score: v.avgScore, samples: v.count };
     }).concat([
         {
-            name: '傅坊乡', value: -1, score: null, grade: '无监测点', samples: 0, nodataType: 'planned',
+            name: '傅坊乡', value: -1, score: null, grade: '调试中', samples: 0, nodataType: 'planned',
             itemStyle: { areaColor: '#3F4A5C', borderColor: 'rgba(203, 213, 225, 0.75)', borderWidth: 1.2, borderType: 'dashed' },
             label: { color: 'rgba(203, 213, 225, 0.90)' }
         }
     ]);
 
-    // 监测点：锚定到所属乡镇的真实坐标（评分与所属乡镇同源，1 乡镇 1 监测点）。
+    // 监测点：锚定到所属乡镇的真实坐标（1 乡镇 1 监测点）。
     // person 取自后台管理系统 / 系统管理 / 用户管理 中「农技员」角色名单，
     // 与所属乡镇 department 一一对应，保证「所有乡镇都对得上」。
-    var plantScatterData = [
-        { name: '太和镇监测点', coord: NFMap.pointIn('太和镇', -0.012, 0.008), score: 90, grade: '优秀', plants: 2, person: '涂国平' },
-        { name: '桑田镇监测点', coord: NFMap.pointIn('桑田镇', 0.006, 0.004), score: 88, grade: '优秀', plants: 3, person: '黎青年' },
-        { name: '白舍镇监测点', coord: NFMap.pointIn('白舍镇', -0.020, 0.012), score: 86, grade: '优秀', plants: 2, person: '李建明' },
-        { name: '市山镇监测点', coord: NFMap.pointIn('市山镇', 0.008, -0.006), score: 85, grade: '优秀', plants: 2, person: '邱泉江' },
-        { name: '太源乡监测点', coord: NFMap.pointIn('太源乡', -0.010, 0.006), score: 87, grade: '优秀', plants: 2, person: '谢先龙' },
-        { name: '琴城镇监测点', coord: NFMap.pointIn('琴城镇', -0.014, 0.004), score: 89, grade: '优秀', plants: 3, person: '余江华' },
-        { name: '紫霄镇监测点', coord: NFMap.pointIn('紫霄镇', 0.010, -0.004), score: 86, grade: '优秀', plants: 2, person: '杨海平' },
-        { name: '洽湾镇监测点', coord: NFMap.pointIn('洽湾镇', 0.004, 0.010), score: 87, grade: '优秀', plants: 3, person: '吴克宁' },
-        { name: '东坪乡监测点', coord: NFMap.pointIn('东坪乡', -0.006, -0.008), score: 45, grade: '一般', plants: 2, person: '程名高' },
-        { name: '莱溪乡监测点', coord: NFMap.pointIn('莱溪乡', -0.004, 0.010), score: 60, grade: '一般', plants: 2, person: '周长国' },
-        { name: '三溪乡监测点', coord: NFMap.pointIn('三溪乡', 0.010, 0.008), score: 52, grade: '一般', plants: 3, person: '邱水凤' }
+    /* 【口径统一 2026-09-14】这里原来另写了一整套监测点评分
+     * （东坪 45 / 三溪 52 / 莱溪 60 / 市山 85），属于 9 月统防统治前的旧值、未随
+     * growthDataSource.varieties（58 / 65 / 70 / 89）一起更新，于是同屏出现两套分数：
+     *   左列「乡镇植株综合评价表：东坪乡 58」 vs 卡下方「植株评价明细：东坪乡各株 45」。
+     * 现在与 plantMapData 采取同一做法——score / grade / plants 全部由 varieties 派生，
+     * 本数组只保留本屏独有的「坐标偏移 + 责任人」。
+     * 影响面（均为同源后的应有变化）：监测点 tooltip 评分、明细表评分与等级、
+     * <70 红色告警角标（3 → 2 个，莱溪乡 70 不再落入告警段）、明细表异常株数（7 → 5 株）。 */
+    var monitorStationMeta = [
+        { town: '太和镇',  dx: -0.012, dy:  0.008, person: '涂国平' },
+        { town: '桑田镇',  dx:  0.006, dy:  0.004, person: '黎青年' },
+        { town: '白舍镇',  dx: -0.020, dy:  0.012, person: '李建明' },
+        { town: '市山镇',  dx:  0.008, dy: -0.006, person: '邱泉江' },
+        { town: '太源乡',  dx: -0.010, dy:  0.006, person: '谢先龙' },
+        { town: '琴城镇',  dx: -0.014, dy:  0.004, person: '余江华' },
+        { town: '紫霄镇',  dx:  0.010, dy: -0.004, person: '杨海平' },
+        { town: '洽湾镇',  dx:  0.004, dy:  0.010, person: '吴克宁' },
+        { town: '东坪乡',  dx: -0.006, dy: -0.008, person: '程名高' },
+        { town: '莱溪乡',  dx: -0.004, dy:  0.010, person: '周长国' },
+        { town: '三溪乡',  dx:  0.010, dy:  0.008, person: '邱水凤' }
     ];
+    var varietyByName = {};
+    growthDataSource.varieties.forEach(function (v) { varietyByName[v.name] = v; });
+    var plantScatterData = monitorStationMeta.map(function (m) {
+        var v = varietyByName[m.town] || {};
+        var score = v.avgScore;
+        return {
+            name: m.town + '监测点',
+            coord: NFMap.pointIn(m.town, m.dx, m.dy),
+            score: score,
+            /* 风险三档，与乡镇综合评价表、地图图例与 tooltip、明细表同一套阈值 */
+            grade: score >= 80 ? '正常' : (score >= 70 ? '预警' : '高风险'),
+            plants: v.count,
+            person: m.person
+        };
+    });
 
     var plantMapChart = echarts.init(document.getElementById('plantMap'));
 
@@ -2417,7 +2561,8 @@
         emphasisLabel: function(params) {
             if (!params.data) return params.name;
             var score = params.data.score || 0;
-            var grade = score >= 80 ? '优秀' : score >= 60 ? '良好' : '一般';
+            /* 风险三档，与乡镇综合评价表、地图图例、tooltip、明细表同一套阈值 */
+            var grade = score >= 80 ? '正常' : score >= 70 ? '预警' : '高风险';
             return params.name + '\n' + score + ' 分 · ' + grade;
         },
         tooltip: {
@@ -2436,16 +2581,16 @@
                     var head = '<div style="font-weight:600;font-size:15px;margin-bottom:8px;color:#5AD7F0;">' + data.name + '</div>';
                     var n = data.samples;
                     /* 没有监测点的乡镇不给评分 —— 避免「无监测数据却有评分」。
-                     * 区分两种状态：未布点（规划中）vs 设备掉线（需抢修），避免误问责 */
+                     * 区分两种状态：新建调试中 vs 设备掉线（需抢修），避免误问责 */
                     if (!n) {
                         if (data.nodataType === 'offline') {
                             return head + '<div style="color:#ff9b9b;">⚠ 设备掉线，数据中断</div>' +
                                 '<div style="color:#94a3b8;margin-top:3px;">请乡镇核查监测设备并上报</div>';
                         }
-                        return head + '<div style="color:#94a3b8;">未布点（规划中），暂未纳入评分</div>';
+                        return head + '<div style="color:#94a3b8;">点位新建调试中，暂未纳入评分</div>';
                     }
                     var score = data.score || 0;
-                    var grade = score >= 80 ? '优秀' : score >= 60 ? '良好' : '一般';
+                    var grade = score >= 80 ? '正常' : score >= 70 ? '预警' : '高风险';
                     var body = '<div style="display:flex;justify-content:space-between;gap:20px;">' +
                                '<span style="color:#94a3b8;">综合评分</span>' +
                                '<span style="color:#e6f1ff;font-weight:600;">' + score + ' 分 · ' + grade + '</span></div>' +
@@ -2459,7 +2604,7 @@
                 } else if (params.seriesName === '监测点') {
                     var d = (params.data && params.data.raw) || {};
                     var sc = d.score || 0;
-                    var gd = d.grade || (sc >= 80 ? '优秀' : sc >= 60 ? '良好' : '一般');
+                    var gd = d.grade || (sc >= 80 ? '正常' : sc >= 70 ? '预警' : '高风险');
                     return '<div style="font-weight:600;font-size:15px;margin-bottom:8px;color:#5AD7F0;">' + d.name + '</div>' +
                            '<div style="display:flex;justify-content:space-between;gap:20px;margin-bottom:6px;">' +
                            '<span style="color:#94a3b8;">监测植株</span>' +
@@ -2501,8 +2646,9 @@
         plantMapChart.setOption({ series: [{}, { data: styled }] });
     })();
 
-    // 重构（5.3）：无数据区区分「未布点（规划中）」与「设备掉线（需抢修）」
-    // 傅坊乡当前为未布点（规划中）；若后续出现掉线区域，标 nodataType:'offline' 即走红色感叹号分支
+    // 重构（5.3）：无数据区区分「新建调试中」与「设备掉线（需抢修）」
+    // 傅坊乡为 2026 年 9 月新建点位、设备调试中（nodataType 沿用 'planned'，仍走灰色虚框）；
+    // 若后续出现掉线区域，标 nodataType:'offline' 即走红色感叹号分支
     (function tagNoDataRegions() {
         var styled = plantMapOption.series[0].data.map(function (d) {
             if (d.nodataType === 'offline') {
@@ -2574,23 +2720,94 @@
         }), { name: '监测样本量', min: 14, max: 34 })]
     });
 
-    /* ====== A3 乡镇评分排行 + 地图联动 ======
-     * 傅坊乡无监测点，排在最后并标注，不给分数。 */
-    DL.rank(document.getElementById('townRank'),
-        plantMapData.map(function (r) {
-            return {
-                name: r.name,
-                value: r.samples ? r.score : 0,
-                nodata: !r.samples,
-                display: '<b>' + r.score + '</b> 分'
-            };
-        }),
-        {
-            /* 按用户要求改为全量显示，卡片内部滚动查看完整乡镇排行。
-             * 傅坊乡无监测点，排在最后并标注，不给分数。 */
-            note: '',
-            onHover: function (name) { DL.highlightRegion(plantMapChart, name); }
+    /* ====== A3 乡镇植株综合评价表 + 地图联动 ======
+     * 七列表替代原排行条（名次+横条）：
+     *   序号 / 乡镇 / 监测面积 / 监测株数 / 整体长势 / 风险等级 / 综合评分。
+     * 评分口径不变：仍取 plantMapData（＝growthDataSource.varieties 派生，与地图填充色同源）；
+     * 面积列（万亩）取自 growthDataSource.coverage.townAreas，不另写一套数字。
+     * 傅坊乡点位新建调试中、无有效样本，按样本量置底、不给评分
+     * （序号/株数/整体长势/评分列显示「–」，面积照常显示，风险列显示「调试中」）。
+     * 悬停行 → DL.highlightRegion 高亮地图区块，联动能力与原排行条一致。 */
+    (function renderTownEval() {
+        var wrap = document.getElementById('townRank');
+        if (!wrap) { return; }
+        function esc(s) {
+            return String(s == null ? '' : s).replace(/[&<>"']/g, function (m) {
+                return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m];
+            });
+        }
+        /* 风险档位与「重点关注果园」表、地图「评分<70 红色告警」保持同一阈值 */
+        function riskLevel(score) {
+            if (score < 70) return { label: '高风险', cls: 'risk-high' };
+            if (score < 80) return { label: '预警', cls: 'risk-warn' };
+            return { label: '正常', cls: 'risk-ok' };
+        }
+        /* 监测面积（万亩）：与「监测覆盖」同源（growthDataSource.coverage.townAreas），
+         * 不在这里另写一套面积数字；傅坊乡虽暂无有效样本但有面积，照常显示。 */
+        var areaByName = {};
+        ((growthDataSource.coverage && growthDataSource.coverage.townAreas) || [])
+            .forEach(function (t) { areaByName[t.name] = t.area; });
+        /* 整体长势：与「风险等级」是同一分数的两种说法（三档一一对应）——
+         * 优秀 ↔ 正常（≥80）/ 良好 ↔ 预警（70–79）/ 中等 ↔ 高风险（<70）。
+         * 因此两列不会出现「一个说好、一个说差」的矛盾。 */
+        function growthGrade(score) {
+            if (score >= 80) return '优秀';
+            if (score >= 70) return '良好';
+            return '中等';
+        }
+        var list = plantMapData.slice().sort(function (a, b) {
+            if (!!a.samples !== !!b.samples) { return a.samples ? -1 : 1; }
+            return (b.value || 0) - (a.value || 0);
         });
+        var html = '<table class="tc-table town-eval-table"><thead><tr>' +
+            '<th>序号</th><th>乡镇</th>' +
+            '<th>监测面积</th>' +
+            '<th>监测株数</th><th>整体长势</th><th>风险等级</th><th>综合评分</th>' +
+            '</tr></thead><tbody>';
+        list.forEach(function (r, i) {
+            var area = areaByName[r.name];
+            var areaTxt = (area == null) ? '–' : area.toFixed(2);
+            if (!r.samples) {
+                html += '<tr class="te-nodata" data-town="' + esc(r.name) + '">' +
+                    '<td>–</td>' +
+                    '<td class="tc-base">' + esc(r.name) + '</td>' +
+                    '<td>' + areaTxt + '</td>' +
+                    '<td>–</td>' +
+                    '<td>–</td>' +
+                    '<td><span class="tc-risk risk-none">调试中</span></td>' +
+                    '<td>–</td>' +
+                '</tr>';
+                return;
+            }
+            var risk = riskLevel(r.value);
+            html += '<tr data-town="' + esc(r.name) + '">' +
+                '<td><span class="tc-no">' + (i + 1) + '</span></td>' +
+                '<td class="tc-base">' + esc(r.name) + '</td>' +
+                '<td>' + areaTxt + '</td>' +
+                '<td>' + r.samples + ' 株</td>' +
+                '<td>' + growthGrade(r.value) + '</td>' +
+                '<td><span class="tc-risk ' + risk.cls + '">' + risk.label + '</span></td>' +
+                '<td class="te-score">' + r.score + '</td>' +
+            '</tr>';
+        });
+        html += '</tbody></table>';
+        wrap.innerHTML = html;
+
+        var rows = wrap.querySelectorAll('tbody tr');
+        var fire = function (name) {
+            for (var k = 0; k < rows.length; k++) {
+                rows[k].classList.toggle('active', rows[k].getAttribute('data-town') === name);
+            }
+            DL.highlightRegion(plantMapChart, name);
+        };
+        for (var k = 0; k < rows.length; k++) {
+            (function (node) {
+                var nm = node.getAttribute('data-town');
+                node.addEventListener('mouseenter', function () { fire(nm); });
+                node.addEventListener('mouseleave', function () { fire(null); });
+            })(rows[k]);
+        }
+    })();
 
     /* ====== A1 农事待办 / 派工 ====== */
     DL.todo(document.getElementById('todoList'), growthDataSource.todos, {
@@ -2614,15 +2831,16 @@
      * 现仅靠 #orchardMap 上的 ECharts tooltip 与右侧下钻面板呈现监测点详情。 */
 
     var scrollingEntities = (function() {
-        /* 单一真源：直接沿用地图 plantScatterData 的监测点评分（26 株 = 各监测点 plants 之和），
-         * 避免与地图各写一套分数导致「同一乡镇两种评分」。 */
+        /* 单一真源：沿用地图 plantScatterData 的监测点评分，而 plantScatterData 的
+         * score / plants 又由 growthDataSource.varieties 派生（26 株 = 各监测点 plants 之和）。
+         * 于是「乡镇综合评价表 — 监测点 tooltip — 本明细表」三处同分，不再出现两套评分。 */
         var entities = [];
         var num = 100;
         plantScatterData.forEach(function(pt, idx) {
             for (var k = 0; k < pt.plants; k++) {
                 num++;
                 var score = pt.score;
-                var grade = score >= 80 ? '优秀' : (score >= 60 ? '良好' : '一般');
+                var grade = score >= 80 ? '正常' : (score >= 70 ? '预警' : '高风险');
                 entities.push({
                     evalId: 'PF-2026-' + ('000' + num).slice(-4),
                     evalObj: pt.name + ' · 第' + (k + 1) + '株',
@@ -2658,12 +2876,14 @@
             }
         }
 
-        /* 评分色调：等级与分数必须同源同阈值。
+        /* 评分色调：等级与分数必须同源同阈值 —— 全屏统一为风险三档
+           （<70 高风险 / 70–79 预警 / ≥80 正常）。
            原实现里「评分结果」按 >=90 判绿、而「评分等级」按 >=80 判优秀，
-           于是 80~89 分这一档会出现「等级写优秀(绿)、分数却是橙」的自相矛盾。 */
+           于是 80~89 分这一档会出现「等级写优秀(绿)、分数却是橙」的自相矛盾；
+           上一轮改成 80/60 后仍与屏上其余位置的 70/80 断点不一致，本轮一并对齐。 */
         function scoreTone(score) {
             var s = parseFloat(score);
-            return s >= 80 ? '#4ade80' : (s >= 60 ? '#E39A3C' : '#ff6b6b');
+            return s >= 80 ? '#4ade80' : (s >= 70 ? '#E39A3C' : '#ff6b6b');
         }
 
         function generateRows(data) {
@@ -2851,6 +3071,12 @@
             }
             el.textContent = text;
         });
+        /* 顶部「逾期农事任务」卡的最长逾期天数＝由 todos 现算，
+         * 与派工卡头部「其中逾期 N 项」、逾期任务弹窗同源（口径诚实铁律——禁止三处各写一个数）。 */
+        var overdueNoteEl = document.getElementById('kpiOverdueNote');
+        if (overdueNoteEl) {
+            overdueNoteEl.textContent = '最长逾期 ' + overdueTodoStats().maxDays + ' 天';
+        }
     })();
 
     setTimeout(animateNumbers, 500);
@@ -2890,7 +3116,7 @@
             '待处理预警': '待处理预警清单（5 条）',
             '处理中': '处理中预警清单（5 条）',
             '预警已处理': '已处理预警清单（12 条）',
-            '逾期任务': '逾期农事任务（2 条）',
+            '逾期任务': '逾期任务明细（逾期预警 2 条 · 逾期派工 2 条）',
             '处理率': '问题处理率分析（92%）'
         };
 
@@ -3450,12 +3676,16 @@
                 { value: '18.5h', label: '平均处置时长', color: '#4fc3f7' },
                 { value: '100%', label: '复查通过率', color: '#39e6c8' }
             ],
-            '逾期任务': [
-                { value: '2', label: '逾期任务(条)', color: '#ff6b6b' },
-                { value: '2', label: '涉及乡镇', color: '#E39A3C' },
-                { value: '2天', label: '最长逾期', color: '#fbbf24' },
-                { value: '2', label: '已通知到人', color: '#4ade80' }
-            ],
+            /* 逾期任务：三项均由 overdueTodoStats() 现算，与派工卡、顶部 KPI 同源 */
+            '逾期任务': (function () {
+                var s = overdueTodoStats();
+                return [
+                    { value: String(s.count), label: '逾期任务(条)', color: '#ff6b6b' },
+                    { value: String(s.towns), label: '涉及乡镇', color: '#E39A3C' },
+                    { value: s.maxDays + '天', label: '最长逾期', color: '#fbbf24' },
+                    { value: String(s.count), label: '已通知到人', color: '#4ade80' }
+                ];
+            })(),
             '处理率': [
                 { value: '92%', label: '问题处理率', color: '#00d4ff' },
                 { value: '387', label: '已处理(次)', color: '#4ade80' },
@@ -3823,7 +4053,33 @@
         return html;
     }
 
-    /* 逾期任务 = 2 条逾期预警 + 2 条逾期农事派工（todos 中 state='overdue'） */
+    /* 逾期任务弹窗＝「逾期预警」+「逾期农事派工」两块，两者口径不同、分别计数；
+     * 顶部 KPI「逾期农事任务」只取后者（农事派工），弹窗标题已写明两块各自的条数。 */
+    /* ---------- 逾期农事派工：单一口径出口 ----------
+     * 「逾期」= 期限已过且未完成（state ≠ 'done'），由 due 与当天日期现算，
+     * 判定规则与 js/decision-layer.js 里 DL.todo 完全一致（dueDays > 0 && state !== 'done'）。
+     * 顶部 KPI 的「最长逾期 N 天」、派工卡头部的「其中逾期 N 项」、逾期任务弹窗
+     * 三处都从此处取数，避免再出现「KPI 2 条 / 头部 3 项 / 清单逾期 6 天」的漂移。 */
+    function overdueDaysOf(dueStr) {
+        var p = String(dueStr || '').split('-');
+        if (p.length < 2) { return 0; }
+        var now = new Date();
+        var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        var due = new Date(today.getFullYear(), parseInt(p[0], 10) - 1, parseInt(p[1], 10));
+        return Math.round((today - due) / 86400000);
+    }
+    function overdueTodoStats() {
+        var list = (growthDataSource.todos || []).filter(function (t) {
+            return t.state !== 'done' && overdueDaysOf(t.due) > 0;
+        });
+        var towns = {}, maxDays = 0;
+        list.forEach(function (t) {
+            towns[t.town] = 1;
+            maxDays = Math.max(maxDays, overdueDaysOf(t.due));
+        });
+        return { list: list, count: list.length, towns: Object.keys(towns).length, maxDays: maxDays };
+    }
+
     function renderOverdueTasks() {
         var warns = (growthDataSource.warningRecords || []).filter(function (r) { return r[6] === 'overdue'; });
         var html = '<div class="warn-sub-title"><i class="fas fa-triangle-exclamation" style="color:#ff6b6b;margin-right:6px;"></i>一、逾期预警（' + warns.length + ' 条）</div>';
@@ -3842,7 +4098,9 @@
         });
         html += '</tbody></table></div>';
 
-        var todos = (growthDataSource.todos || []).filter(function (t) { return t.state === 'overdue'; });
+        /* 派工表按「期限已过且未完成」取数（与 KPI、派工卡同源），
+         * 状态列写实际逾期天数而不是恒写「已逾期」——原来恒写，看不出逾期多久。 */
+        var todos = overdueTodoStats().list;
         html += '<div class="warn-sub-title"><i class="fas fa-calendar-xmark" style="color:#fbbf24;margin-right:6px;"></i>二、逾期农事派工（' + todos.length + ' 条）</div>';
         html += '<div class="warn-table-wrap"><table class="tc-table warn-table">' +
             '<thead><tr><th>派工任务</th><th>乡镇</th><th>责任人</th><th>应完成期限</th><th>状态</th></tr></thead><tbody>';
@@ -3852,7 +4110,7 @@
                 '<td>' + t.town + '</td>' +
                 '<td>' + t.owner + '</td>' +
                 '<td style="white-space:nowrap;">' + t.due + '</td>' +
-                '<td><span class="wt-badge wt-over">已逾期</span></td>' +
+                '<td><span class="wt-badge wt-over">逾期' + overdueDaysOf(t.due) + '天</span></td>' +
                 '</tr>';
         });
         html += '</tbody></table></div>';
@@ -3974,11 +4232,14 @@ function closeFarmCalendar() {
 </script>
 
 <script>
-// 实时更新顶部日期 + 时间（每秒刷新时间，每分钟刷新日期，确保领导每次看大屏都是当下时刻）
+// 实时更新顶部数据时间（每秒刷新，确保领导每次看大屏都是当下时刻）
+// 2026-09-14：顶栏改为「主标题 + 副标题」双层居中并补回右侧时间胶囊，
+// 本脚本随之重新接上（此前元素被移除、脚本空转，被校验脚本报为死代码）。
 (function updateClock() {
   var d = new Date();
   var pad = function(n) { return n < 10 ? '0' + n : '' + n; };
-  var dateText = d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+  var WEEK = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+  var dateText = d.getFullYear() + '年' + pad(d.getMonth() + 1) + '月' + pad(d.getDate()) + '日 ' + WEEK[d.getDay()];
   var timeText = pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
   var dateEl = document.getElementById('ckDateText');
   if (dateEl) dateEl.textContent = dateText;

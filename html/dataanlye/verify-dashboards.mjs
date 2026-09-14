@@ -247,7 +247,11 @@ function checkModalRender(rawSrc, dataLiteral) {
   }
   let ctx;
   try {
-    ctx = vm.createContext({ alertDataSource: lit(dataLiteral) });
+    /* 沙箱只截取「renderModalStats 起 → 脚本结束」，而页面里的
+     * `var board = alertDataSource.board` 定义在这段之前，因此必须显式补进上下文，
+     * 否则弹窗函数一引用 board 就抛 ReferenceError，被误报成页面缺陷。 */
+    const DS = lit(dataLiteral);
+    ctx = vm.createContext({ alertDataSource: DS, board: DS.board });
     vm.runInContext(src.slice(statsAt, endAt), ctx);
   } catch (e) {
     log('  [FAIL] 弹窗渲染函数加载失败：' + e.message);
@@ -316,23 +320,124 @@ if (!pestLit) {
     fail++;
   }
 
-    ['已防治面积', A.control.controlledArea],
-    ['在园发生面积', A.control.occurArea],
-    ['重点病虫害发生态势', A.activeKinds.disease + A.activeKinds.pest],
-    ['红色预警', lv.red],
-    ['已防治面积', A.control.controlledArea],
-    ['挽回损失', A.control.savedLoss],
-    ['防控投入', (A.investment && A.investment.status !== 'connecting') ? A.investment.funding : 0]
+  /* KPI 与数据源一致性：口径改造后大屏为 6 张卡（待响应预警 / 今日新增识别 /
+   * 累计识别 / 防控完成率 / 高风险果园 / 已接入监测点位），显示值统一取自
+   * alertDataSource.board，防止「卡片与数据源各写一套数字」再次漂移。 */
+  const kpiPairs = [
+    ['待响应预警', A.board.pendingAlerts],
+    ['今日新增识别', A.board.todayRecog],
+    ['累计识别', A.board.totalRecog],
+    ['防控完成率', A.board.controlRate],
+    ['高风险果园', A.board.highOrchards],
+    ['已接入监测点位', A.board.monitorPoints],
+  ];
+  let kpiBad = 0;
+  for (const [label, val] of kpiPairs) {
+    const shown = kpiValue(pestSrc, label);
+    if (shown === null) { log('  [FAIL] 未找到 KPI「' + label + '」'); fail++; kpiBad++; }
     else if (parseFloat(shown) !== val) {
       log('  [FAIL] KPI「' + label + '」显示 ' + shown + '，数据源为 ' + val);
-      fail++;
+      fail++; kpiBad++;
     }
   }
-  log('  KPI 与数据源一致性：' + kpiPairs.length + ' 项已核对（阶段一重构后 6 张：发生面积/重点病虫害态势/红色预警/已防治/挽回损失/防控投入）');
+  if (!kpiBad) {
+    log('  KPI 与数据源一致性：' + kpiPairs.length + ' 项已核对' +
+        '（待响应预警/今日新增识别/累计识别/防控完成率/高风险果园/已接入监测点位）');
+  }
 
-  /* 乡镇维度口径：排行上线后，任何一处改数字都会立刻暴露矛盾 */
-  const towns = A.riskByTown;
-  log('  KPI 与数据源一致性：' + kpiPairs.length + ' 项已核对（阶段一重构后 6 张：发生面积/重点病虫害态势/红色预警/已防治/挽回损失/防控投入）');
+  /* ============================================================
+   * board 内部口径自洽
+   * 背景：KPI 卡背后的 board 是一组互相推导的派生量（趋势末位 = 今日识别、
+   * 分项之和 = 合计、清单条数 = KPI 个数）。任一处手改数值都会让同屏出现
+   * 两套数字，而静态语法与引用检查都看不出来。这里逐条做加法校验。
+   * ============================================================ */
+  const B = A.board;
+  const sumOf = (arr) => arr.reduce((a, r) => a + (r.value || 0), 0);
+  const sumNum = (arr) => arr.reduce((a, v) => a + v, 0);
+  const eqNum = (name, got, want) => {
+    if (got !== want) { log('  [FAIL] ' + name + '：' + got + ' ≠ ' + want); fail++; return false; }
+    return true;
+  };
+
+  /* 近 7 日识别趋势：末位 = 今日新增识别，且日期与数值等长 */
+  eqNum('近7日识别趋势末位', B.weekTrend.values[B.weekTrend.values.length - 1], B.todayRecog);
+  eqNum('近7日识别趋势长度', B.weekTrend.values.length, B.weekTrend.dates.length);
+
+  /* 风险类型结构：占比必须能由分值反算出来（默认按四舍五入，容差 1） */
+  const rsSum = sumOf(B.riskStruct);
+  B.riskStruct.forEach((r) => {
+    const pct = Math.round((r.value / rsSum) * 100);
+    if (Math.abs(pct - r.pct) > 1) {
+      log('  [FAIL] 风险类型结构「' + r.name + '」占比 ' + r.pct + '% ≠ 按分值重算 ' + pct + '%');
+      fail++;
+    }
+  });
+
+  /* 各类分项之和必须等于合计口径 */
+  eqNum('待响应预警按类型合计', sumOf(B.pendingByType), B.pendingAlerts);
+  eqNum('监测点位乡镇分布合计', sumOf(B.pointByTown), B.monitorPoints);
+  eqNum('设备类型构成合计', sumOf(B.deviceTypes), B.monitorPoints);
+  eqNum('设备状态合计', B.deviceStatus.normal + B.deviceStatus.maintain + B.deviceStatus.repair, B.monitorPoints);
+  eqNum('在线+离线', B.pointsOnline + B.pointsOffline, B.monitorPoints);
+  eqNum('今日识别按类型合计', sumOf(B.todayByType), B.todayRecog);
+  eqNum('今日24小时分布合计', sumNum(B.todayHourly), B.todayRecog);
+  eqNum('累计识别与月度合计', sumNum(B.recogMonthly), B.totalRecog);
+
+  /* 趋势序列末位必须等于当前值，否则图上会出现「末点跳变」 */
+  eqNum('近7日在线设备数末位', B.deviceWeek.values[B.deviceWeek.values.length - 1], B.pointsOnline);
+  eqNum('近7日在线设备数长度', B.deviceWeek.values.length, B.deviceWeek.dates.length);
+
+  /* 清单条数 / 占比口径 */
+  eqNum('高风险果园清单条数', B.highBases.length, B.highOrchards);
+  eqNum('防控处置进度合计', B.progress.wait + B.progress.doing + B.progress.done, 100);
+  eqNum('防控完成率与任务口径',
+        Number(((B.controlTasks.done / B.controlTasks.total) * 100).toFixed(1)), B.controlRate);
+
+  /* 防控处置进度必须与任务累计口径同源
+   * 真实事故：HTML 里曾硬编码 23/34/43，既与数据源重复（改数据源不生效），
+   * 又与同屏 KPI「防控完成率 74.3%」冲突（一个说已完成 43%、一个说完成率 74.3%）。 */
+  const ctlPct = {
+    wait: Math.round(B.controlTasks.wait / B.controlTasks.total * 100),
+    doing: Math.round(B.controlTasks.doing / B.controlTasks.total * 100),
+    done: Math.round(B.controlTasks.done / B.controlTasks.total * 100),
+  };
+  eqNum('处置进度·待派单%', B.progress.wait, ctlPct.wait);
+  eqNum('处置进度·处理中%', B.progress.doing, ctlPct.doing);
+  eqNum('处置进度·已完成%', B.progress.done, ctlPct.done);
+  eqNum('处置进度已完成% = 防控完成率(取整)', B.progress.done, Math.round(B.controlRate));
+  if (/dp-seg wait"\s+style="width:/.test(pestSrc)) {
+    log('  [FAIL] 防控处置进度仍在 HTML 里硬编码宽度（应由 JS 从数据源写入）');
+    fail++;
+  }
+
+  /* 地图图例不得把「病虫监测点」写成「监测点」——后者与 KPI「已接入监测点位」是两套数据
+   * （前者 24 个病虫发生点，后者 16 个设备点位），同名会让看的人误以为对不上。 */
+  if (/>监测点（数字为发生次数）/.test(pestSrc)) {
+    log('  [FAIL] 地图图例仍把病虫监测点简写成「监测点」，与 KPI「已接入监测点位」同名');
+    fail++;
+  }
+
+  /* 风险结构与今日识别共用同一套病虫占比，不允许各写一套 */
+  B.riskStruct.forEach((r) => {
+    const t = B.todayByType.find((x) => x.name === r.name);
+    if (!t) { log('  [FAIL] 今日识别按类型缺少「' + r.name + '」'); fail++; return; }
+    if (t.pct !== r.pct) {
+      log('  [FAIL] 「' + r.name + '」今日占比 ' + t.pct + '% ≠ 风险结构占比 ' + r.pct + '%');
+      fail++;
+    }
+  });
+
+  /* 待办状态合法性（board.todayTodos 的状态集与全局待办不同，单独校验） */
+  const TODO_STATES = new Set(['wait', 'doing', 'schedule', 'done']);
+  (B.todayTodos || []).forEach((t) => {
+    if (!TODO_STATES.has(t.state)) { log('  [FAIL] 今日防控待办「' + t.title + '」状态非法：' + t.state); fail++; }
+    if (!t.title || !t.level || !t.status || !t.date) {
+      log('  [FAIL] 今日防控待办「' + t.title + '」缺少 等级/状态/日期 字段'); fail++;
+    }
+  });
+  if ((B.todayTodos || []).length) {
+    log('  今日防控待办字段完整性：' + B.todayTodos.length + ' 项已核对');
+  }
   const STATES = new Set(['overdue', 'doing', 'done']);
   (A.todos || []).forEach((t) => {
     if (!STATES.has(t.state)) { log('  [FAIL] 待办「' + t.title + '」状态非法：' + t.state); fail++; }

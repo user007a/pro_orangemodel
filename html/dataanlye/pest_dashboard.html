@@ -1855,7 +1855,6 @@
                         <i class="fas fa-triangle-exclamation"></i>
                         <span>传播媒介<b>柑桔木虱</b>本周诱捕 <b>46 头</b>，同比+12头，建议立即组织统防统治</span>
                     </div>
-                    <div id="hlbPsylTrend" style="width:100%;height:38px;"></div>
                     <div class="hlb-grid">
                         <div class="hlb-item">
                             <div class="hlb-num">23</div>
@@ -2140,7 +2139,6 @@
             area: 1860, yield: 2000, price: 1.5, rate: 0.225,
             src: '发生面积 × 平均亩产 × 单价 × 挽回比例'
         },
-        hlbPsylNaTrend: [18, 21, 24, 26, 29, 31, 32],   // 末位 32 = 「同比 +32 头」
         hlbTreeArchive: [
             { id: 'H-01', town: '市山镇', village: '水南村', lng: 116.535, lat: 27.215, confirmedAt: '2026-08-12', removedAt: '2026-08-14', status: '已砍除', photos: [], neighbors: 9, disinfected: true },
             { id: 'H-02', town: '琴城镇', village: '桥头村', lng: 116.502, lat: 27.230, confirmedAt: '2026-08-18', removedAt: '2026-08-19', status: '已砍除', photos: [], neighbors: 9, disinfected: true },
@@ -3044,40 +3042,6 @@
         document.addEventListener('click', hide);
     }
 
-    /* --- #3-A 木虱近 7 天微型折线图（120×38）--- */
-    function renderHlbPsylTrend() {
-        var el = document.getElementById('hlbPsylTrend');
-        if (!el) return;
-        var data = alertDataSource.hlbPsylNaTrend;
-        var chart = echarts.init(el);
-        chart.setOption({
-            grid: { left: 0, right: 0, top: 4, bottom: 4, containLabel: false },
-            xAxis: { type: 'category', show: false,
-                     data: ['D-6','D-5','D-4','D-3','D-2','D-1','今'] },
-            yAxis: { type: 'value', show: false, scale: true },
-            tooltip: { show: false },
-            series: [{
-                type: 'line', data: data,
-                symbol: 'circle', symbolSize: 4, smooth: true,
-                lineStyle: { color: '#74E8FB', width: 1.5 },
-                itemStyle: { color: '#ff6b6b' },
-                areaStyle: { color: 'rgba(116,232,251,0.15)' }
-            }]
-        });
-        /* 末端红色标记 + 提示标签 */
-        var tip = document.createElement('span');
-        tip.className = 'dl-mini-tip';
-        tip.style.cssText = 'position:relative;top:-22px;left:84px;color:#ff6b6b;font-size:10px;white-space:nowrap;pointer-events:none;';
-        tip.textContent = '';
-        el.parentNode && el.parentNode.insertBefore(tip, el.nextSibling);
-        /* resize 监听（地图卡片高度变化时重画） */
-        if (window.addEventListener) {
-            window.addEventListener('resize', function () {
-                try { chart.resize(); } catch (e) {}
-            });
-        }
-    }
-
     /* --- #4 一键督办（含夜间免打扰） --- */
     function isQuietHours() {
         var h = new Date().getHours();
@@ -3331,7 +3295,6 @@
         renderActiveBySeverity();
         renderInvestment();
         bindLossTip();
-        renderHlbPsylTrend();
         renderAlertEvents();
         renderTownRankTabs();
     })();

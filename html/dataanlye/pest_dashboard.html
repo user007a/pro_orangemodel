@@ -268,11 +268,12 @@
         .trend-badge { font-size: 0.75rem; background: rgba(34, 197, 94, 0.16); display: inline-block; padding: 2px 8px; border-radius: 20px; margin-top: 5px; color: #4ade80; }
         .trend-badge.warning { background: rgba(54, 42, 16, 0.90); color: #C4832F; }
         .trend-badge.danger { background: rgba(58, 22, 28, 0.90); color: #dc2626; }
-        /* 同比标注：向好=青绿，需关注=红。
-         * 农业场景下发生面积下降、挽回损失上升都属于「向好」，因此颜色按业务含义而非数字增减。 */
+        /* 同比标注：向好=青绿，需关注=橙（语义分级，避免红色过载）。
+         * 农业场景下发生面积下降、挽回损失上升都属于「向好」；同比下行 ≠ 风险，仅作中性提醒。
+         * 真红（#ef4444）只留给：红色预警、风险等级高、逾期未处置、黄龙病确诊。 */
         .kpi-yoy { display: block; margin-top: 3px; font-size: 12px; font-weight: 500; letter-spacing: 0.2px; }
         .kpi-yoy.good { color: #33D69F; }
-        .kpi-yoy.bad  { color: #ff6b6b; }
+        .kpi-yoy.bad  { color: #fbbf24; }
         /* ===== 一句话结论播报：让领导扫一眼就知道「现在怎样、要做什么」===== */
         .ck-brief {
             display: flex; align-items: center; gap: 10px;
@@ -286,7 +287,7 @@
         .ck-brief > i { color: #00d4ff; flex-shrink: 0; }
         .ck-brief-text { flex: 1; }
         .ck-brief b { color: #7dd3fc; font-weight: 600; }
-        .ck-brief-warn { color: #ff9b9b; font-weight: 600; }
+        .ck-brief-warn { color: #fbbf24; font-weight: 600; }
         /* 两屏联动：病虫害防控 → 长势评价，形成闭环 */
         .ck-brief-link {
             flex-shrink: 0; display: inline-flex; align-items: center; gap: 6px;
@@ -296,14 +297,16 @@
             color: #7dd3fc; font-size: 13px; font-weight: 500;
         }
         .ck-brief-link:hover { background: rgba(0,212,255,0.24); color: #5AD7F0; }
-        /* ===== 柑橘黄龙病专项防控（检疫性病害，需最高视觉权重）===== */
-        .hlb-card { border-color: rgba(255,107,107,0.35); }
+        /* ===== 柑橘黄龙病专项防控（检疫性病害，需最高视觉权重）=====
+         * 边框与背景红色透明度从 0.35/0.30 降到 0.20/0.18，
+         * 让卡片仍能"一眼看到"但不再像警示灯一样刺眼。文字色与左侧重点条保留真红。 */
+        .hlb-card { border-color: rgba(255,107,107,0.20); }
         .hlb-flag { color: #ff6b6b; font-weight: 600; }
         .hlb-body { padding: 8px 12px 10px; }
         .hlb-alert {
             display: flex; align-items: flex-start; gap: 8px;
-            background: rgba(255,107,107,0.10);
-            border: 1px solid rgba(255,107,107,0.30);
+            background: rgba(255,107,107,0.08);
+            border: 1px solid rgba(255,107,107,0.20);
             border-left: 3px solid #ff6b6b;
             border-radius: 6px; padding: 6px 10px; margin-bottom: 8px;
             font-size: 12px; line-height: 1.6; color: #fca5a5;
@@ -340,7 +343,7 @@
             font-size: 12px; color: #94a3b8;
         }
         .disaster-owner i { color: #7dd3fc; margin-right: 4px; }
-        .disaster-owner span { color: #ff9b9b; font-weight: 600; }
+        .disaster-owner span { color: #fbbf24; font-weight: 600; }
         /* 灾害列表可滚动：6 张子卡（每张 4 行）远超 420px 卡高，
          * 不设 overflow 时超出部分被静默裁剪（暴雨预警的责任人行曾被切掉）。 */
         #disasterList {
@@ -374,7 +377,7 @@
             border-radius: 20px;
             padding: 0;
             width: 680px;
-            max-height: 85vh;
+            max-height: 92vh;
             overflow: hidden;
             box-shadow: 0 25px 80px rgba(0,0,0,0.2);
             border: 1px solid rgba(0, 212, 255, 0.28);
@@ -421,7 +424,7 @@
         }
         .modal-body {
             padding: 24px;
-            max-height: calc(85vh - 70px);
+            max-height: calc(92vh - 70px);
             overflow-y: visible;
         }
         .modal-chart {
@@ -444,6 +447,37 @@
             line-height: 1.5;
         }
         .modal-explain i { color: #4ade80; margin-right: 6px; }
+        /* 弹窗内公式块（挽回损失 等测算口径） */
+        .dl-modal-formula {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-top: 6px;
+            padding: 8px 10px;
+            background: rgba(0, 212, 255, 0.08);
+            border: 1px solid rgba(0, 212, 255, 0.22);
+            border-radius: 6px;
+        }
+        .dl-formula-eq {
+            color: #e2e8f0;
+            font-size: 13px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            line-height: 1.7;
+            word-break: break-word;
+        }
+        .dl-formula-eq b { color: #00d4ff; }
+        .dl-formula-sub {
+            color: #94a3b8;
+            font-size: 12px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            line-height: 1.6;
+        }
+        .dl-formula-sub b { color: #33D69F; }
+        .dl-formula-warn {
+            color: #fbbf24;
+            font-size: 11px;
+            margin-top: 2px;
+        }
         .modal-section-title {
             font-size: 0.9rem;
             font-weight: 600;
@@ -709,7 +743,9 @@
             background: rgba(0, 212, 255, 0.12); color: #7dd3fc; font-size: 14px;
         }
         .atlas-icon.dis { background: rgba(51, 214, 159, 0.12); color: #5EE6BC; }
-        .atlas-icon.hlb { background: rgba(255, 107, 107, 0.14); color: #ff6b6b; }
+        /* 黄龙病图标：在图谱区与柑桔木虱/红蜘蛛等虫害一致使用青色；
+         * 保留语义：HLD 一号防控对象的红色强调留给专项卡（黄龙病专项防控卡 / 检疫性媒介标签）。 */
+        .atlas-icon.hlb { background: rgba(0, 212, 255, 0.12); color: #7dd3fc; }
         .atlas-text { min-width: 0; }
         .atlas-name {
             font-size: 13px; color: #e6f1ff; line-height: 1.2;
@@ -864,7 +900,7 @@
         .highlight-row:hover td {
             background: rgba(54, 42, 16, 0.90);
         }
-        .warning-cell { color: #dc2626; font-weight: 500; }
+        .warning-cell { color: #fbbf24; font-weight: 500; }
         .normal-cell { color: #22c55e; }
         .row-grid {
             display: grid;
@@ -934,7 +970,7 @@
         .knowledge-card.insect {
             background: linear-gradient(135deg, rgba(54, 42, 16, 0.90), rgba(54, 42, 16, 0.90));
         }
-        .knowledge-count { font-size: 1.8rem; font-weight: 700; color: #dc2626; }
+        .knowledge-count { font-size: 1.8rem; font-weight: 700; color: #fbbf24; }
         .knowledge-card.insect .knowledge-count { color: #C4832F; }
         .knowledge-label { font-size: 0.85rem; color: #94a3b8; margin-top: 4px; }
         .warning-list { overflow-y: auto; max-height: 180px; }
@@ -954,14 +990,14 @@
             border-left-color: #3b82f6;
             background: rgba(13, 39, 69, 0.85);
         }
-        .warning-title { font-weight: 600; color: #dc2626; margin-bottom: 4px; }
+        .warning-title { font-weight: 600; color: #fbbf24; margin-bottom: 4px; }
         .warning-warning .warning-title { color: #C4832F; }
         .warning-info .warning-title { color: #2563eb; }
         .warning-time { font-size: 0.75rem; color: #94a3b8; }
         .status-badge { padding: 3px 8px; border-radius: 20px; font-size: 0.75rem; font-weight: 500; display: inline-block; }
         .status-completed { background: rgba(34, 197, 94, 0.15); color: #4ade80; }
         .status-progress { background: rgba(245, 158, 11, 0.15); color: #E39A3C; }
-        .status-pending { background: rgba(255, 71, 87, 0.15); color: #ff6b6b; }
+        .status-pending { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
         .status-info { background: rgba(13, 39, 69, 0.85); color: #2563eb; }
         .pest-rank-list {
             display: flex;
@@ -1235,11 +1271,11 @@
         }
         .highlight-row { background: rgba(245, 158, 11, 0.1) !important; }
         .highlight-row:hover { background: rgba(245, 158, 11, 0.15) !important; }
-        .warning-cell { color: #ff6b6b !important; }
+        .warning-cell { color: #fbbf24 !important; }
         .normal-cell { color: #4ade80 !important; }
         .status-completed { background: rgba(34, 197, 94, 0.15) !important; color: #4ade80 !important; border: 1px solid rgba(34, 197, 94, 0.4); }
         .status-progress  { background: rgba(245, 158, 11, 0.15) !important; color: #E39A3C !important; border: 1px solid rgba(245, 158, 11, 0.4); }
-        .status-pending   { background: rgba(255, 71, 87, 0.15) !important; color: #ff6b6b !important; border: 1px solid rgba(255, 71, 87, 0.4); }
+        .status-pending   { background: rgba(245, 158, 11, 0.15) !important; color: #fbbf24 !important; border: 1px solid rgba(245, 158, 11, 0.4); }
         .status-info      { background: rgba(0, 212, 255, 0.15) !important; color: #7dd3fc !important; border: 1px solid rgba(0, 212, 255, 0.4); }
 
         /* 滚动卡片容器（深色覆盖） */
@@ -1584,16 +1620,18 @@
         .hlb-tree-actions { display: flex; gap: 10px; padding: 14px 0 4px; border-top: 1px dashed rgba(127, 228, 245, 0.20); margin-top: 14px; }
         .hlb-tree-actions button { background: rgba(0, 212, 255, 0.10); border: 1px solid #00d4ff; color: #7FE4F5; padding: 6px 14px; border-radius: 4px; cursor: pointer; font-size: 13px; }
         .hlb-tree-actions button:hover { background: rgba(0, 212, 255, 0.20); }
-        /* GE 待办督办强化 */
-        .dl-todo-item.overdue { border: 1px solid rgba(239, 68, 68, 0.55); background: rgba(239, 68, 68, 0.10); animation: overdueBlink 1.2s ease-in-out infinite; }
-        @keyframes overdueBlink { 0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.30); } 50% { box-shadow: 0 0 12px 4px rgba(239, 68, 68, 0.55); } }
+        /* GE 待办督办强化：
+         * 「逾期」属于业务警示（不是真红级别风险），从真红降到橙色 + 弱闪烁，
+         * 屏幕红色密度降低，与「督办/电话绿色化」保持语义一致。 */
+        .dl-todo-item.overdue { border: 1px solid rgba(251, 191, 36, 0.50); background: rgba(251, 191, 36, 0.08); animation: overdueBlink 1.6s ease-in-out infinite; }
+        @keyframes overdueBlink { 0%, 100% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.20); } 50% { box-shadow: 0 0 10px 3px rgba(251, 191, 36, 0.40); } }
         .dl-todo-village { display: block; font-size: 11px; color: #94a3b8; margin-top: 2px; }
         .dl-todo-village b { color: #cbd5e1; font-weight: 500; }
         .dl-todo-actions { display: flex; gap: 6px; margin-top: 4px; align-items: center; flex-wrap: wrap; }
         .dl-todo-btn { background: transparent; border: 1px solid #475569; color: #94a3b8; padding: 2px 8px; border-radius: 3px; font-size: 11px; cursor: pointer; }
         .dl-todo-btn:hover { color: #7FE4F5; border-color: #00d4ff; }
-        .dl-todo-btn.danger { border-color: #ef4444; color: #fca5a5; }
-        .dl-todo-btn.danger:hover { background: rgba(239, 68, 68, 0.15); }
+        .dl-todo-btn.danger { border-color: rgba(251, 191, 36, 0.55); color: #fbbf24; }
+        .dl-todo-btn.danger:hover { background: rgba(251, 191, 36, 0.12); }
         .dl-todo-supervised { font-size: 11px; color: #22c55e; padding-left: 4px; }
         /* GF 地图气泡预警条数 */
         .gf-alert-popup { padding: 8px 12px; min-width: 160px; }
@@ -1633,8 +1671,8 @@
     <a href="growth_dashboard.html"><i class="fas fa-leaf"></i> 生长模型</a>
     <a href="javascript:void(0)" class="active"><i class="fas fa-bug"></i> 病虫害模型</a>
     <a href="javascript:void(0)" onclick="toggleFullscreen()"><i class="fas fa-expand"></i> 全屏</a>
-    <a href="../backhand/login.html" target="_blank"><i class="fas fa-cogs"></i> 模型后台</a>
-    <a href="../mobile/mb_home.html" target="_blank"><i class="fas fa-mobile-alt"></i> 蜜桔助手</a>
+    <a href="../backhand/login.html" target="_blank"><i class="fas fa-cogs"></i> 模型管理后台</a>
+    <a href="../mobile/mb_home.html" target="_blank"><i class="fas fa-mobile-alt"></i> 蜜桔农业助手</a>
   </nav>
   <div class="ck-topbar-right">
     <div class="ck-topbar-date" id="ckTopbarDate">
@@ -1648,16 +1686,12 @@
 
 <div class="dashboard-container" style="max-width:1920px;padding-top:16px;">
 
-    <!-- B2 结论播报分段：形势徽标 → 关键数字 → 待办动作；末尾补跨屏归因（A5） -->
+    <!-- B2 结论播报分段：形势徽标 → 关键数字 -->
     <div class="ck-brief">
         <i class="fas fa-bullhorn"></i>
         <span class="ck-brief-badge level-bad">防控形势 · 偏重</span>
         <span class="ck-brief-text">当前处于<b>果实转色期</b>：全县在园发生面积 <b>1,860 亩</b>（同比 -8.4%），已防治 <b>1,540 亩</b>、覆盖率 82.8%；
         仍有 <span class="ck-brief-warn">红色预警 41 条</span>待处置，柑橘黄龙病确诊 <span class="ck-brief-warn">7 株已全部砍除</span>，木虱诱捕量同比上升。</span>
-        <a class="ck-brief-action" href="javascript:void(0)" onclick="document.getElementById('todoPanel').scrollIntoView({behavior:'smooth',block:'center'});">本周内组织统防统治 <i class="fas fa-arrow-right"></i></a>
-        <a class="ck-brief-link" href="growth_dashboard.html">查看长势评价大屏 <i class="fas fa-arrow-right"></i></a>
-        <div class="ck-brief-cause"><i class="fas fa-link"></i> 跨屏影响：在园发生面积 <b>1,860 亩</b>占全县果园面积 23,500 亩的 <b>7.9%</b>。
-        长势侧的实测短板请见<a href="growth_dashboard.html" style="color:#7dd3fc;">长势评价大屏</a>；对长势评分/产量的影响为模型推算值，见「在园发生面积」弹窗。</div>
     </div>
 
     <div class="kpi-grid">
@@ -1678,23 +1712,21 @@
                 <span class="kpi-yoy flat" id="kpiActiveBySeverityYoy">按严重程度分组 · 共 13 种活跃</span>
             </div>
         </div>
-        <!-- B1 焦点层级：整屏只保留「红色预警」一个强调态，其余回到基准态 -->
-        <div class="kpi-card danger dl-focus animate-fade-in-up" style="animation-delay: 0.3s;" onclick="openModal('红色预警')">
-            <div class="kpi-info">
-                <h4>红色预警</h4>
-                <div class="kpi-number" data-value="41">0</div>
-                <span class="trend-badge danger">条</span>
-                <span class="kpi-yoy bad">同比 +6 条</span>
-                <div class="kpi-spark" data-spark="redAlert"></div>
-            </div>
-        </div>
-        <div class="kpi-card animate-fade-in-up" style="animation-delay: 0.4s;" onclick="openModal('已防治')">
+        <div class="kpi-card animate-fade-in-up" style="animation-delay: 0.3s;" onclick="openModal('已防治')">
             <div class="kpi-info">
                 <h4>已防治面积</h4>
                 <div class="kpi-number" data-value="1540">0</div>
                 <span class="trend-badge">亩</span>
                 <span class="kpi-yoy good">同比 +14.2%</span>
                 <div class="kpi-spark" data-spark="controlledArea"></div>
+            </div>
+        </div>
+        <div class="kpi-card animate-fade-in-up" style="animation-delay: 0.4s;" onclick="openModal('防控投入')">
+            <div class="kpi-info">
+                <h4>防控投入 <span class="dl-est" data-est-title="防控投入数据" data-est-short="正在接入中"></span></h4>
+                <div class="kpi-number" id="kpiInvestment" data-value="38.6">—</div>
+                <span class="trend-badge">万元</span>
+                <span class="kpi-yoy flat" id="kpiInvestmentYoy">正在接入中 · 数据抽检中</span>
             </div>
         </div>
         <div class="kpi-card animate-fade-in-up" style="animation-delay: 0.5s;" onclick="openModal('挽回损失')">
@@ -1706,12 +1738,14 @@
                 <span class="kpi-yoy flat">测算值 · 同比 +9.8%</span>
             </div>
         </div>
-        <div class="kpi-card animate-fade-in-up" style="animation-delay: 0.6s;" onclick="openModal('防控投入')">
+        <!-- B1 焦点层级：整屏只保留「红色预警」一个强调态，其余回到基准态 -->
+        <div class="kpi-card danger dl-focus animate-fade-in-up" style="animation-delay: 0.6s;" onclick="openModal('红色预警')">
             <div class="kpi-info">
-                <h4>防控投入 <span class="dl-est" data-est-title="防控投入数据" data-est-short="正在接入中"></span></h4>
-                <div class="kpi-number" id="kpiInvestment" data-value="38.6">—</div>
-                <span class="trend-badge">万元</span>
-                <span class="kpi-yoy flat" id="kpiInvestmentYoy">正在接入中 · 数据抽检中</span>
+                <h4>红色预警</h4>
+                <div class="kpi-number" data-value="41">0</div>
+                <span class="trend-badge danger">条</span>
+                <span class="kpi-yoy bad">同比 +6 条</span>
+                <div class="kpi-spark" data-spark="redAlert"></div>
             </div>
         </div>
     </div>
@@ -1721,12 +1755,12 @@
             <!-- A3 乡镇排行 + 地图联动：领导最常问「最该盯哪三个乡镇」。
                  原「模型预警准确率」是算法运维指标，已在 A6 中降级为底部一行说明。 -->
             <div class="card side-card">
-                <div class="card-header"><span><i class="fas fa-ranking-star"></i> 乡镇发生面积 Top</span><span class="header-extra">悬停联动地图</span></div>
+                <div class="card-header"><span><i class="fas fa-ranking-star"></i> 乡镇发生面积排行</span><span class="header-extra">悬停联动地图</span></div>
                 <div id="townRank"></div>
             </div>
 
             <div class="card side-card top5-card">
-                <div class="card-header"><span><i class="fas fa-chart-line"></i> 病虫害本月发生 Top5</span><span class="header-extra">按严重程度排序</span></div>
+                <div class="card-header"><span><i class="fas fa-chart-line"></i> 病虫害本月发生排行</span><span class="header-extra">按严重程度排序</span></div>
                 <div class="pest-rank-list">
                     <div class="pest-rank-item">
                         <div class="pest-rank-num top3">1</div>
@@ -1760,14 +1794,14 @@
                  原「实时识别记录」是算法运维视角（识别了多少次），对决策无直接价值，
                  已替换为可直接派工的清单。 -->
             <div class="card side-card" id="todoPanel">
-                <div class="card-header"><span><i class="fas fa-clipboard-check"></i> 待办 · 派工清单</span><span class="header-extra">逾期置顶</span></div>
+                <div class="card-header"><span><i class="fas fa-clipboard-check"></i> 病虫害处置 · 待办清单</span><span class="header-extra">逾期置顶</span></div>
                 <div id="todoList"></div>
             </div>
         </div>
 
         <div class="card center-map-card">
             <!-- B6：「实时监控」是夸大表述，实际为定时采集，统一写更新时间 -->
-            <div class="card-header"><span><i class="fas fa-map-pin"></i> 区域病虫害风险分布</span><span class="ck-update-chip">数据更新于 <b id="pestUpdateTime">--:--</b></span></div>
+            <div class="card-header"><span><i class="fas fa-map-pin"></i> 全县病虫害风险分布</span><span class="ck-update-chip">数据更新于 <b id="pestUpdateTime">--:--</b></span></div>
             <div id="riskMap" style="width:100%;height:700px;border-radius:20px;position:relative;overflow:hidden;">
                 <div class="map-title-overlay">
                     <div class="map-title-main">区域病虫害风险分布</div>
@@ -1779,23 +1813,27 @@
                 </div>
             </div>
             <!-- B4 图例必须带数值区间：只有色块看不出分档依据，远视距下也无法核对 -->
-            <div class="risk-legend-bar" style="flex-wrap:wrap;row-gap:6px;">
-                <span class="risk-legend-title">风险分级</span>
-                <div class="dl-scale">
-                    <div class="dl-scale-cell"><span class="dl-scale-chip" style="background:#74E8FB;"></span><span class="dl-scale-text">85–100 高风险</span></div>
-                    <div class="dl-scale-cell"><span class="dl-scale-chip" style="background:#3CBEE6;"></span><span class="dl-scale-text">70–85 较高</span></div>
-                    <div class="dl-scale-cell"><span class="dl-scale-chip" style="background:#1E7FB8;"></span><span class="dl-scale-text">55–70 中等</span></div>
-                    <div class="dl-scale-cell"><span class="dl-scale-chip" style="background:#14508F;"></span><span class="dl-scale-text">40–55 较低</span></div>
-                    <div class="dl-scale-cell"><span class="dl-scale-chip" style="background:#0C2A55;"></span><span class="dl-scale-text">0–40 低</span></div>
-                    <div class="dl-scale-cell"><span class="dl-scale-chip" style="background:#3F4A5C;border:1px dashed rgba(203,213,225,0.75);"></span><span class="dl-scale-text">暂无数据</span></div>
+            <div class="risk-legend-bar" style="flex-wrap:wrap;row-gap:8px;flex-direction:column;align-items:flex-start;">
+                <div class="risk-legend-row" style="display:flex;align-items:center;flex-wrap:wrap;gap:8px;row-gap:6px;">
+                    <span class="risk-legend-title">风险分级</span>
+                    <div class="dl-scale">
+                        <div class="dl-scale-cell"><span class="dl-scale-chip" style="background:#74E8FB;"></span><span class="dl-scale-text">85–100 高风险</span></div>
+                        <div class="dl-scale-cell"><span class="dl-scale-chip" style="background:#3CBEE6;"></span><span class="dl-scale-text">70–85 较高</span></div>
+                        <div class="dl-scale-cell"><span class="dl-scale-chip" style="background:#1E7FB8;"></span><span class="dl-scale-text">55–70 中等</span></div>
+                        <div class="dl-scale-cell"><span class="dl-scale-chip" style="background:#14508F;"></span><span class="dl-scale-text">40–55 较低</span></div>
+                        <div class="dl-scale-cell"><span class="dl-scale-chip" style="background:#0C2A55;"></span><span class="dl-scale-text">0–40 低</span></div>
+                        <div class="dl-scale-cell"><span class="dl-scale-chip" style="background:#3F4A5C;border:1px dashed rgba(203,213,225,0.75);"></span><span class="dl-scale-text">暂无数据</span></div>
+                    </div>
                 </div>
-                <span class="risk-legend-title" style="margin-left:8px;">标注说明</span>
-                <div class="legend-item"><div class="legend-dot" style="background:#0A1A2F;border:2px solid #7FE4F5;box-shadow:none;"></div>监测点（数字为发生次数）</div>
-                <div class="legend-item"><div class="legend-dot" style="background:rgba(90,215,240,0.22);border:1px solid rgba(127,228,245,0.75);box-shadow:none;"></div>气泡＝在园发生面积（越大越多）</div>
+                <div class="risk-legend-row" style="display:flex;align-items:center;flex-wrap:wrap;gap:14px;">
+                    <span class="risk-legend-title">标注说明</span>
+                    <div class="legend-item"><div class="legend-dot" style="background:#0A1A2F;border:2px solid #7FE4F5;box-shadow:none;"></div>监测点（数字为发生次数）</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:rgba(90,215,240,0.22);border:1px solid rgba(127,228,245,0.75);box-shadow:none;"></div>气泡＝在园发生面积（越大越多）</div>
+                </div>
             </div>
             <div class="scrolling-cards">
                     <div class="scrolling-header">
-                        <div class="scrolling-title">最新预警事件流</div>
+                        <div class="scrolling-title">最新病虫害预警事件流</div>
                         <div class="filter-tabs">
                             <button class="filter-tab active" onclick="filterPestCards('all', this)">全部</button>
                             <button class="filter-tab" onclick="filterPestCards('disease', this)">病害</button>
@@ -1815,7 +1853,7 @@
                 <div class="hlb-body">
                     <div class="hlb-alert">
                         <i class="fas fa-triangle-exclamation"></i>
-                        <span>传播媒介<b>柑桔木虱</b>本周诱捕 <b>146 头</b>，同比 +32 头，建议立即组织统防统治</span>
+                        <span>传播媒介<b>柑桔木虱</b>本周诱捕 <b>46 头</b>，同比+12头，建议立即组织统防统治</span>
                     </div>
                     <div id="hlbPsylTrend" style="width:100%;height:38px;"></div>
                     <div class="hlb-grid">
@@ -1841,15 +1879,14 @@
                         <div class="hlb-bar"><div class="hlb-bar-fill" style="width:100%;"></div></div>
                     </div>
                     <div class="hlb-foot">
-                        <span>最近发现：市山镇 · 3 天前 · 责任人：王技术员</span>
-                        <span class="hlb-note">专项统计，不计入在园发生面积口径</span>
+                        <span>最近发现：市山镇 · 3 天前 · 责任人：雷林根</span>
                     </div>
                 </div>
             </div>
 
             <!-- 病虫害识别图谱：知识库速查（非监测数据），点击弹窗展示后台病虫害数据库中的详细信息 -->
             <div class="card side-card atlas-card">
-                <div class="card-header"><span><i class="fas fa-images"></i> 病虫害图谱</span><span class="header-extra">重点 6 种 · 点击查看详情</span></div>
+                <div class="card-header"><span><i class="fas fa-images"></i> 重点病虫害图谱</span><span class="header-extra">点击查看详情</span></div>
                 <div class="atlas-grid">
                     <div class="atlas-tile" onclick="openAtlasModal('hlb')" title="点击查看柑橘黄龙病详情">
                         <div class="atlas-icon hlb"><i class="fas fa-shield-virus"></i></div><div class="atlas-name">柑橘黄龙病</div>
@@ -1873,7 +1910,7 @@
             </div>
 
             <div class="card side-card">
-                <div class="card-header"><span><i class="fas fa-cloud-sun"></i> 气象实时数据</span>
+                <div class="card-header"><span><i class="fas fa-cloud-sun"></i> 监测点实时气象数据</span>
                     <span class="header-extra">
                         <select id="weatherStationSelect" class="ds-select-sm" style="font-size:12px;color:#e6f1ff;background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.35);border-radius:6px;padding:3px 8px;cursor:pointer;outline:none;">
                             <option value="orchard-central">南丰蜜桔种质园</option>
@@ -1927,11 +1964,6 @@
                         <div class="disaster-title">大风预警</div>
                         <div class="disaster-info">风险等级：蓝色 | 影响范围：全县</div>
                         <div class="disaster-suggestion"><i class="fas fa-lightbulb"></i> 建议：注意加固果园支架、防风障，停止高空作业</div>
-                    </div>
-                    <div class="disaster-card info">
-                        <div class="disaster-title">地质灾害预警</div>
-                        <div class="disaster-info">风险等级：蓝色 | 影响范围：三溪乡、太源乡</div>
-                        <div class="disaster-suggestion"><i class="fas fa-lightbulb"></i> 建议：关注强降水引发的滑坡、泥石流，提前排查隐患</div>
                     </div>
                     <div class="disaster-card info">
                         <div class="disaster-title">暴雨预警</div>
@@ -2062,20 +2094,20 @@
          * 领导看完问的第一句一定是「那我现在要找谁办」——
          * 这里给出事项 / 乡镇 / 责任人 / 时限 / 状态，逾期项自动转红置顶。 */
         todos: [
-            { id: 'P-01', title: '桑田镇红蜘蛛应急防治（420 亩）', town: '桑田镇', owner: '王技术员', due: '09-10', state: 'overdue',
-              village: '肖坊村', gridman: '吴网格员', contact: '13979400101', supervised: 1 },
-            { id: 'P-02', title: '市山镇锈壁虱统防统治（340 亩）', town: '市山镇', owner: '宋农艺师', due: '09-11', state: 'overdue',
-              village: '水南村', gridman: '郑网格员', contact: '13979400102', supervised: 0 },
-            { id: 'P-03', title: '白舍镇炭疽病病株清理与隔离',     town: '白舍镇', owner: '张植保',   due: '09-13', state: 'doing',
-              village: '古竹村', gridman: '黄网格员', contact: '13979400103', supervised: 0 },
-            { id: 'P-04', title: '琴城镇木虱诱捕点补挂（黄龙病媒介）', town: '琴城镇', owner: '赵技术员', due: '09-14', state: 'doing',
-              village: '瑶浦村', gridman: '林网格员', contact: '13979400104', supervised: 0 },
-            { id: 'P-05', title: '洽湾镇树脂病枝干流胶处理',       town: '洽湾镇', owner: '陈专家',   due: '09-16', state: 'doing',
-              village: '洽湾村', gridman: '高网格员', contact: '13979400105', supervised: 0 },
-            { id: 'P-06', title: '太和镇木虱成虫加密监测（黄龙病媒介）', town: '太和镇', owner: '李农技员', due: '09-17', state: 'doing',
-              village: '官山村', gridman: '徐网格员', contact: '13979400106', supervised: 0 },
-            { id: 'P-07', title: '傅坊乡红蜘蛛虫口密度复查',       town: '傅坊乡', owner: '周植保',   due: '09-18', state: 'doing',
-              village: '傅坊村', gridman: '郭网格员', contact: '13979400107', supervised: 0 }
+            { id: 'P-01', title: '桑田镇红蜘蛛应急防治（420 亩）', town: '桑田镇', owner: '危志刚', due: '09-10', state: 'overdue',
+              village: '肖坊村', gridman: '吴网格员', contact: '18707914426', supervised: 1 },
+            { id: 'P-02', title: '市山镇锈壁虱统防统治（340 亩）', town: '市山镇', owner: '雷林根', due: '09-11', state: 'overdue',
+              village: '水南村', gridman: '郑网格员', contact: '15079427035', supervised: 0 },
+            { id: 'P-03', title: '白舍镇炭疽病病株清理与隔离',     town: '白舍镇', owner: '惠加宁',   due: '09-13', state: 'doing',
+              village: '古竹村', gridman: '黄网格员', contact: '13307912585', supervised: 0 },
+            { id: 'P-04', title: '琴城镇木虱诱捕点补挂（黄龙病媒介）', town: '琴城镇', owner: '余江华', due: '09-14', state: 'doing',
+              village: '瑶浦村', gridman: '林网格员', contact: '13507943124', supervised: 0 },
+            { id: 'P-05', title: '洽湾镇树脂病枝干流胶处理',       town: '洽湾镇', owner: '方超',   due: '09-16', state: 'doing',
+              village: '洽湾村', gridman: '高网格员', contact: '13437942227', supervised: 0 },
+            { id: 'P-06', title: '太和镇木虱成虫加密监测（黄龙病媒介）', town: '太和镇', owner: '涂国平', due: '09-17', state: 'doing',
+              village: '官山村', gridman: '徐网格员', contact: '15946980039', supervised: 0 },
+            { id: 'P-07', title: '傅坊乡红蜘蛛虫口密度复查',       town: '傅坊乡', owner: '王应根',   due: '09-18', state: 'doing',
+              village: '傅坊村', gridman: '郭网格员', contact: '13407946526', supervised: 0 }
         ],
         /* ===== 近 30 天趋势（A2）=====
          * 同比是结论，趋势才是依据 —— 用于判断「在恶化还是好转」。
@@ -2088,9 +2120,9 @@
         },
         // 灾害类型明细（驱动 KPI 弹窗与卡片）
         weatherDisasters: [
-            { type: '大风',      level: '蓝色', range: '全县',         suggest: '注意加固果园支架、防风障，停止高空作业',       person: '县农技中心 · 李站长', deadline: '09-14' },
-            { type: '地质灾害',  level: '蓝色', range: '三溪乡、太源乡', suggest: '关注强降水引发的滑坡、泥石流，提前排查隐患', person: '三溪乡 · 陈农技员',   deadline: '09-13' },
-            { type: '暴雨',      level: '蓝色', range: '全县',         suggest: '13日起持续降水，提前疏通排水沟渠、做好排水准备', person: '县农技中心 · 李站长', deadline: '09-13' }
+            { type: '大风',      level: '蓝色', range: '全县',         suggest: '注意加固果园支架、防风障，停止高空作业',       person: '县农技中心 · 李建明', deadline: '09-14' },
+            { type: '地质灾害',  level: '蓝色', range: '三溪乡、太源乡', suggest: '关注强降水引发的滑坡、泥石流，提前排查隐患', person: '三溪乡 · 邱水凤',   deadline: '09-13' },
+            { type: '暴雨',      level: '蓝色', range: '全县',         suggest: '13日起持续降水，提前疏通排水沟渠、做好排水准备', person: '县农技中心 · 李建明', deadline: '09-13' }
         ],
         /* ===== 阶段一扩展（重构执行工单）=====
          * 1) 防控投入（#1-B）—— 阶段一以「正在接入中」占位，不编造精确数
@@ -2125,25 +2157,25 @@
         /* 预警事件流（#6）：每条带 AI 防控建议 / 气象关联 / 联系电话 / 在线状态
          * aiAdvice / weatherRel 由 pest 字段匹配规则模板；contact / online 阶段一可 mock */
         alerts: [
-            { id: 'A-01', pest: '红蜘蛛', town: '桑田镇', level: '高', owner: '王技术员', contact: '13979400101', online: true,
+            { id: 'A-01', pest: '红蜘蛛', town: '桑田镇', level: '高', owner: '危志刚', contact: '18707914426', online: true,
               aiAdvice: '建议使用阿维菌素 + 哒螨灵，雨前 3 天抢喷，叶背叶面均匀喷雾',
               weatherRel: '未来 3 天累计降雨 50mm，湿度 85%，红蜘蛛极易爆发' },
-            { id: 'A-02', pest: '锈壁虱', town: '市山镇', level: '高', owner: '宋农艺师', contact: '13979400102', online: true,
+            { id: 'A-02', pest: '锈壁虱', town: '市山镇', level: '高', owner: '雷林根', contact: '15079427035', online: true,
               aiAdvice: '建议使用哒螨灵 + 唑螨酯，重点喷果面与叶背，间隔 7 天连喷 2 次',
               weatherRel: '高温干旱期（>30℃），锈壁虱进入盛发期' },
-            { id: 'A-03', pest: '炭疽病', town: '白舍镇', level: '中', owner: '张植保', contact: '13979400103', online: false,
+            { id: 'A-03', pest: '炭疽病', town: '白舍镇', level: '中', owner: '惠加宁', contact: '13307912585', online: false,
               aiAdvice: '建议使用代森锰锌 / 咪鲜胺，雨前抢喷保护性杀菌剂',
               weatherRel: '未来 3 天有阵雨，湿度>80%，炭疽病极易爆发' },
-            { id: 'A-04', pest: '柑桔木虱', town: '太和镇', level: '中', owner: '李农技员', contact: '13979400104', online: true,
+            { id: 'A-04', pest: '柑桔木虱', town: '太和镇', level: '中', owner: '涂国平', contact: '15946980039', online: true,
               aiAdvice: '黄龙病媒介昆虫，建议立即使用吡虫啉 + 噻虫嗪，连片统防统治',
               weatherRel: '木虱近 7 天诱捕量同比上升 32 头，需加密监测' },
-            { id: 'A-05', pest: '潜叶蛾', town: '市山镇', level: '中', owner: '刘农艺师', contact: '13979400105', online: false,
+            { id: 'A-05', pest: '潜叶蛾', town: '市山镇', level: '中', owner: '韩学印', contact: '15879826738', online: false,
               aiAdvice: '建议使用阿维菌素 + 灭幼脲，秋梢期重点防治',
               weatherRel: '气温适宜（24-28℃），潜叶蛾进入盛发期' },
-            { id: 'A-06', pest: '树脂病', town: '洽湾镇', level: '中', owner: '陈专家', contact: '13979400106', online: true,
+            { id: 'A-06', pest: '树脂病', town: '洽湾镇', level: '中', owner: '方超', contact: '13437942227', online: true,
               aiAdvice: '建议刮除病部后涂布波尔多液或甲基托布津',
               weatherRel: '雨后高湿，树脂病易扩散' },
-            { id: 'A-07', pest: '溃疡病', town: '太和镇', level: '低', owner: '李农技员', contact: '13979400104', online: true,
+            { id: 'A-07', pest: '溃疡病', town: '太和镇', level: '低', owner: '林九行', contact: '18296988008', online: true,
               aiAdvice: '春雷霉素 + 代森锰锌，重点保护幼果',
               weatherRel: '未来 3 天累计降雨 60mm，溃疡病爆发风险上升' }
         ],
@@ -2268,32 +2300,32 @@
         var container = document.getElementById('pestScrollingContainer');
         if (!container) return;
         var data = [
-            { name: '红蜘蛛', type: 'pest', area: '桑田镇', severity: '高', person: '王技术员', status: '预警中' },
-            { name: '锈壁虱', type: 'pest', area: '市山镇', severity: '高', person: '宋农艺师', status: '预警中' },
-            { name: '潜叶蛾', type: 'pest', area: '市山镇', severity: '中', person: '刘农艺师', status: '监测中' },
-            { name: '炭疽病', type: 'disease', area: '白舍镇', severity: '中', person: '张植保', status: '监测中' },
-            { name: '柑桔木虱', type: 'pest', area: '市山镇', severity: '中', person: '郑技术员', status: '监测中' },
-            { name: '黑点病', type: 'disease', area: '洽湾镇', severity: '低', person: '黄植保', status: '监测中' },
-            { name: '溃疡病', type: 'disease', area: '太和镇', severity: '低', person: '李农技员', status: '正常' },
-            { name: '树脂病', type: 'disease', area: '洽湾镇', severity: '中', person: '陈专家', status: '监测中' },
-            { name: '灰霉病', type: 'disease', area: '太和镇', severity: '中', person: '韩专家', status: '监测中' },
-            { name: '白绢病', type: 'disease', area: '太和镇', severity: '中', person: '金专家', status: '监测中' },
-            { name: '黑斑病', type: 'disease', area: '白舍镇', severity: '中', person: '谢专家', status: '监测中' },
-            { name: '毒蛾', type: 'pest', area: '市山镇', severity: '中', person: '石技术员', status: '监测中' },
-            { name: '褐腐病', type: 'disease', area: '洽湾镇', severity: '中', person: '曹植保', status: '监测中' },
-            { name: '粉虱', type: 'pest', area: '东坪乡', severity: '中', person: '冯农艺师', status: '监测中' },
-            { name: '蚜虫', type: 'pest', area: '琴城镇', severity: '低', person: '赵技术员', status: '正常' },
-            { name: '疮痂病', type: 'disease', area: '太源乡', severity: '低', person: '孙植保', status: '正常' },
-            { name: '介壳虫', type: 'pest', area: '琴城镇', severity: '低', person: '周农艺师', status: '正常' },
-            { name: '流胶病', type: 'disease', area: '太和镇', severity: '低', person: '何技术员', status: '正常' },
-            { name: '卷叶蛾', type: 'pest', area: '琴城镇', severity: '低', person: '梁植保', status: '正常' },
-            { name: '裂皮病', type: 'disease', area: '白舍镇', severity: '低', person: '邓农技员', status: '正常' },
-            { name: '煤污病', type: 'disease', area: '洽湾镇', severity: '低', person: '袁植保', status: '正常' },
-            { name: '天牛', type: 'pest', area: '东坪乡', severity: '低', person: '许技术员', status: '正常' },
-            { name: '象鼻虫', type: 'pest', area: '东坪乡', severity: '低', person: '史农艺师', status: '正常' },
-            { name: '凤蝶', type: 'pest', area: '琴城镇', severity: '低', person: '魏技术员', status: '正常' },
-            { name: '紫纹羽病', type: 'disease', area: '洽湾镇', severity: '低', person: '陶专家', status: '正常' },
-            { name: '金龟子', type: 'pest', area: '东坪乡', severity: '低', person: '姜农艺师', status: '正常' }
+            { name: '红蜘蛛', type: 'pest', area: '桑田镇', severity: '高', person: '危志刚', status: '预警中' },
+            { name: '锈壁虱', type: 'pest', area: '市山镇', severity: '高', person: '雷林根', status: '预警中' },
+            { name: '潜叶蛾', type: 'pest', area: '市山镇', severity: '中', person: '韩学印', status: '监测中' },
+            { name: '炭疽病', type: 'disease', area: '白舍镇', severity: '中', person: '惠加宁', status: '监测中' },
+            { name: '柑桔木虱', type: 'pest', area: '市山镇', severity: '中', person: '胡志才', status: '监测中' },
+            { name: '黑点病', type: 'disease', area: '洽湾镇', severity: '低', person: '曹红英', status: '监测中' },
+            { name: '溃疡病', type: 'disease', area: '太和镇', severity: '低', person: '涂国平', status: '正常' },
+            { name: '树脂病', type: 'disease', area: '洽湾镇', severity: '中', person: '方超', status: '监测中' },
+            { name: '灰霉病', type: 'disease', area: '太和镇', severity: '中', person: '林九行', status: '监测中' },
+            { name: '白绢病', type: 'disease', area: '太和镇', severity: '中', person: '王志刚', status: '监测中' },
+            { name: '黑斑病', type: 'disease', area: '白舍镇', severity: '中', person: '黄忠坚', status: '监测中' },
+            { name: '毒蛾', type: 'pest', area: '市山镇', severity: '中', person: '熊国庆', status: '监测中' },
+            { name: '褐腐病', type: 'disease', area: '洽湾镇', severity: '中', person: '崔新根', status: '监测中' },
+            { name: '粉虱', type: 'pest', area: '东坪乡', severity: '中', person: '邓小华', status: '监测中' },
+            { name: '蚜虫', type: 'pest', area: '琴城镇', severity: '低', person: '余江华', status: '正常' },
+            { name: '疮痂病', type: 'disease', area: '太源乡', severity: '低', person: '谢先龙', status: '正常' },
+            { name: '介壳虫', type: 'pest', area: '琴城镇', severity: '低', person: '徐国良', status: '正常' },
+            { name: '流胶病', type: 'disease', area: '太和镇', severity: '低', person: '王炳才', status: '正常' },
+            { name: '卷叶蛾', type: 'pest', area: '琴城镇', severity: '低', person: '徐国良', status: '正常' },
+            { name: '裂皮病', type: 'disease', area: '白舍镇', severity: '低', person: '陈小忠', status: '正常' },
+            { name: '煤污病', type: 'disease', area: '洽湾镇', severity: '低', person: '吴克宁', status: '正常' },
+            { name: '天牛', type: 'pest', area: '东坪乡', severity: '低', person: '周成友', status: '正常' },
+            { name: '象鼻虫', type: 'pest', area: '东坪乡', severity: '低', person: '危红卫', status: '正常' },
+            { name: '凤蝶', type: 'pest', area: '琴城镇', severity: '低', person: '余江华', status: '正常' },
+            { name: '紫纹羽病', type: 'disease', area: '洽湾镇', severity: '低', person: '崔新根', status: '正常' },
+            { name: '金龟子', type: 'pest', area: '东坪乡', severity: '低', person: '程名高', status: '正常' }
         ];
         var filtered = filterType === 'all' ? data : data.filter(function(e) { return e.type === filterType; });
         
@@ -2412,30 +2444,30 @@
 
     // 病虫监测点：锚定到发生区域乡镇的真实坐标
     var scatterData = [
-        { name: '红蜘蛛', coord: NFMap.pointIn('桑田镇', -0.006, 0.010), type: 'pest', severity: '高', alert: true, area: '桑田镇', count: 28, person: '王技术员', status: '预警中', desc: '叶片失绿发白，严重时导致落叶' },
-        { name: '锈壁虱', coord: NFMap.pointIn('市山镇', 0.010, -0.008), type: 'pest', severity: '高', alert: true, area: '市山镇', count: 22, person: '宋农艺师', status: '预警中', desc: '果实表面变黑，失去商品价值' },
-        { name: '潜叶蛾', coord: NFMap.pointIn('市山镇', 0.002, 0.006), type: 'pest', severity: '中', area: '市山镇', count: 16, person: '刘农艺师', status: '监测中', desc: '幼虫潜入叶片取食叶肉' },
-        { name: '炭疽病', coord: NFMap.pointIn('白舍镇', 0.004, 0.006), type: 'disease', severity: '中', area: '白舍镇', count: 12, person: '张植保', status: '监测中', desc: '果实和叶片出现褐色斑点' },
-        { name: '柑桔木虱', coord: NFMap.pointIn('市山镇', -0.004, 0.014), type: 'pest', severity: '中', area: '市山镇', count: 8, person: '郑技术员', status: '监测中', desc: '黄龙病传播媒介，需重点防控' },
-        { name: '黑点病', coord: NFMap.pointIn('洽湾镇', -0.008, 0.004), type: 'disease', severity: '低', area: '洽湾镇', count: 5, person: '黄植保', status: '监测中', desc: '果实表面出现黑色星状斑点' },
-        { name: '溃疡病', coord: NFMap.pointIn('太和镇', 0.004, 0.012), type: 'disease', severity: '低', area: '太和镇', count: 3, person: '李农技员', status: '正常', desc: '少量零星发生，处于控制期' },
-        { name: '树脂病', coord: NFMap.pointIn('洽湾镇', -0.006, -0.006), type: 'disease', severity: '中', area: '洽湾镇', count: 5, person: '陈专家', status: '监测中', desc: '枝干流胶，影响树势' },
-        { name: '灰霉病', coord: NFMap.pointIn('太和镇', -0.012, 0.006), type: 'disease', severity: '中', area: '太和镇', count: 7, person: '韩专家', status: '监测中', desc: '低温高湿条件下易爆发' },
-        { name: '白绢病', coord: NFMap.pointIn('太和镇', -0.006, -0.004), type: 'disease', severity: '中', area: '太和镇', count: 4, person: '金专家', status: '监测中', desc: '根部白色菌丝覆盖' },
-        { name: '黑斑病', coord: NFMap.pointIn('白舍镇', -0.008, 0.010), type: 'disease', severity: '中', area: '白舍镇', count: 6, person: '谢专家', status: '监测中', desc: '叶片出现黑色斑块' },
-        { name: '毒蛾', coord: NFMap.pointIn('市山镇', 0.002, -0.002), type: 'pest', severity: '中', area: '市山镇', count: 5, person: '石技术员', status: '监测中', desc: '幼虫取食叶片' },
-        { name: '褐腐病', coord: NFMap.pointIn('洽湾镇', -0.004, -0.012), type: 'disease', severity: '中', area: '洽湾镇', count: 4, person: '曹植保', status: '监测中', desc: '果实腐烂' },
-        { name: '粉虱', coord: NFMap.pointIn('东坪乡', -0.004, 0.002), type: 'pest', severity: '中', area: '东坪乡', count: 3, person: '冯农艺师', status: '监测中', desc: '吸食汁液，诱发煤烟病' },
-        { name: '蚜虫', coord: NFMap.pointIn('琴城镇', -0.006, -0.006), type: 'pest', severity: '低', area: '琴城镇', count: 2, person: '赵技术员', status: '正常', desc: '吸食叶片汁液，分泌蜜露' },
-        { name: '疮痂病', coord: NFMap.pointIn('太源乡', 0.008, -0.006), type: 'disease', severity: '低', area: '太源乡', count: 1, person: '孙植保', status: '正常', desc: '叶片和果实表面粗糙' },
-        { name: '介壳虫', coord: NFMap.pointIn('琴城镇', 0.004, -0.002), type: 'pest', severity: '低', area: '琴城镇', count: 1, person: '周农艺师', status: '正常', desc: '吸食汁液，影响生长' },
-        { name: '天牛', coord: NFMap.pointIn('东坪乡', 0.004, 0.004), type: 'pest', severity: '低', area: '东坪乡', count: 2, person: '许技术员', status: '正常', desc: '幼虫蛀食树干' },
-        { name: '象鼻虫', coord: NFMap.pointIn('东坪乡', -0.010, 0.008), type: 'pest', severity: '低', area: '东坪乡', count: 1, person: '史农艺师', status: '正常', desc: '取食叶片' },
-        { name: '卷叶蛾', coord: NFMap.pointIn('琴城镇', 0.002, -0.010), type: 'pest', severity: '低', area: '琴城镇', count: 1, person: '梁植保', status: '正常', desc: '卷叶取食' },
-        { name: '流胶病', coord: NFMap.pointIn('太和镇', 0.008, -0.006), type: 'disease', severity: '低', area: '太和镇', count: 2, person: '何技术员', status: '正常', desc: '枝干流胶' },
-        { name: '裂皮病', coord: NFMap.pointIn('白舍镇', 0.010, -0.008), type: 'disease', severity: '低', area: '白舍镇', count: 1, person: '邓农技员', status: '正常', desc: '树皮开裂' },
-        { name: '煤污病', coord: NFMap.pointIn('洽湾镇', -0.010, -0.008), type: 'disease', severity: '低', area: '洽湾镇', count: 1, person: '袁植保', status: '正常', desc: '叶片煤烟状覆盖' },
-        { name: '凤蝶', coord: NFMap.pointIn('琴城镇', 0.010, -0.008), type: 'pest', severity: '低', area: '琴城镇', count: 1, person: '魏技术员', status: '正常', desc: '幼虫取食叶片' }
+        { name: '红蜘蛛', coord: NFMap.pointIn('桑田镇', -0.006, 0.010), type: 'pest', severity: '高', alert: true, area: '桑田镇', count: 28, person: '危志刚', status: '预警中', desc: '叶片失绿发白，严重时导致落叶' },
+        { name: '锈壁虱', coord: NFMap.pointIn('市山镇', 0.010, -0.008), type: 'pest', severity: '高', alert: true, area: '市山镇', count: 22, person: '雷林根', status: '预警中', desc: '果实表面变黑，失去商品价值' },
+        { name: '潜叶蛾', coord: NFMap.pointIn('市山镇', 0.002, 0.006), type: 'pest', severity: '中', area: '市山镇', count: 16, person: '韩学印', status: '监测中', desc: '幼虫潜入叶片取食叶肉' },
+        { name: '炭疽病', coord: NFMap.pointIn('白舍镇', 0.004, 0.006), type: 'disease', severity: '中', area: '白舍镇', count: 12, person: '惠加宁', status: '监测中', desc: '果实和叶片出现褐色斑点' },
+        { name: '柑桔木虱', coord: NFMap.pointIn('市山镇', -0.004, 0.014), type: 'pest', severity: '中', area: '市山镇', count: 8, person: '胡志才', status: '监测中', desc: '黄龙病传播媒介，需重点防控' },
+        { name: '黑点病', coord: NFMap.pointIn('洽湾镇', -0.008, 0.004), type: 'disease', severity: '低', area: '洽湾镇', count: 5, person: '曹红英', status: '监测中', desc: '果实表面出现黑色星状斑点' },
+        { name: '溃疡病', coord: NFMap.pointIn('太和镇', 0.004, 0.012), type: 'disease', severity: '低', area: '太和镇', count: 3, person: '涂国平', status: '正常', desc: '少量零星发生，处于控制期' },
+        { name: '树脂病', coord: NFMap.pointIn('洽湾镇', -0.006, -0.006), type: 'disease', severity: '中', area: '洽湾镇', count: 5, person: '方超', status: '监测中', desc: '枝干流胶，影响树势' },
+        { name: '灰霉病', coord: NFMap.pointIn('太和镇', -0.012, 0.006), type: 'disease', severity: '中', area: '太和镇', count: 7, person: '林九行', status: '监测中', desc: '低温高湿条件下易爆发' },
+        { name: '白绢病', coord: NFMap.pointIn('太和镇', -0.006, -0.004), type: 'disease', severity: '中', area: '太和镇', count: 4, person: '王志刚', status: '监测中', desc: '根部白色菌丝覆盖' },
+        { name: '黑斑病', coord: NFMap.pointIn('白舍镇', -0.008, 0.010), type: 'disease', severity: '中', area: '白舍镇', count: 6, person: '黄忠坚', status: '监测中', desc: '叶片出现黑色斑块' },
+        { name: '毒蛾', coord: NFMap.pointIn('市山镇', 0.002, -0.002), type: 'pest', severity: '中', area: '市山镇', count: 5, person: '熊国庆', status: '监测中', desc: '幼虫取食叶片' },
+        { name: '褐腐病', coord: NFMap.pointIn('洽湾镇', -0.004, -0.012), type: 'disease', severity: '中', area: '洽湾镇', count: 4, person: '崔新根', status: '监测中', desc: '果实腐烂' },
+        { name: '粉虱', coord: NFMap.pointIn('东坪乡', -0.004, 0.002), type: 'pest', severity: '中', area: '东坪乡', count: 3, person: '邓小华', status: '监测中', desc: '吸食汁液，诱发煤烟病' },
+        { name: '蚜虫', coord: NFMap.pointIn('琴城镇', -0.006, -0.006), type: 'pest', severity: '低', area: '琴城镇', count: 2, person: '余江华', status: '正常', desc: '吸食叶片汁液，分泌蜜露' },
+        { name: '疮痂病', coord: NFMap.pointIn('太源乡', 0.008, -0.006), type: 'disease', severity: '低', area: '太源乡', count: 1, person: '谢先龙', status: '正常', desc: '叶片和果实表面粗糙' },
+        { name: '介壳虫', coord: NFMap.pointIn('琴城镇', 0.004, -0.002), type: 'pest', severity: '低', area: '琴城镇', count: 1, person: '徐国良', status: '正常', desc: '吸食汁液，影响生长' },
+        { name: '天牛', coord: NFMap.pointIn('东坪乡', 0.004, 0.004), type: 'pest', severity: '低', area: '东坪乡', count: 2, person: '周成友', status: '正常', desc: '幼虫蛀食树干' },
+        { name: '象鼻虫', coord: NFMap.pointIn('东坪乡', -0.010, 0.008), type: 'pest', severity: '低', area: '东坪乡', count: 1, person: '危红卫', status: '正常', desc: '取食叶片' },
+        { name: '卷叶蛾', coord: NFMap.pointIn('琴城镇', 0.002, -0.010), type: 'pest', severity: '低', area: '琴城镇', count: 1, person: '徐国良', status: '正常', desc: '卷叶取食' },
+        { name: '流胶病', coord: NFMap.pointIn('太和镇', 0.008, -0.006), type: 'disease', severity: '低', area: '太和镇', count: 2, person: '王炳才', status: '正常', desc: '枝干流胶' },
+        { name: '裂皮病', coord: NFMap.pointIn('白舍镇', 0.010, -0.008), type: 'disease', severity: '低', area: '白舍镇', count: 1, person: '陈小忠', status: '正常', desc: '树皮开裂' },
+        { name: '煤污病', coord: NFMap.pointIn('洽湾镇', -0.010, -0.008), type: 'disease', severity: '低', area: '洽湾镇', count: 1, person: '吴克宁', status: '正常', desc: '叶片煤烟状覆盖' },
+        { name: '凤蝶', coord: NFMap.pointIn('琴城镇', 0.010, -0.008), type: 'pest', severity: '低', area: '琴城镇', count: 1, person: '余江华', status: '正常', desc: '幼虫取食叶片' }
     ];
 
     var riskMapChart = echarts.init(document.getElementById('riskMap'));
@@ -2682,7 +2714,16 @@
         };
         var explains = {
             '识别准确': '<i class="fas fa-camera"></i> 图像识别：通过拍照或图像自动判断病虫害种类，输出诊断结论',
-            '预警模型准确': '<i class="fas fa-brain"></i> 预警模型：基于多源数据（气象、历史、画像）预测病虫害发生风险'
+            '预警模型准确': '<i class="fas fa-brain"></i> 预警模型：基于多源数据（气象、历史、画像）预测病虫害发生风险',
+            '挽回损失':
+                '<i class="fas fa-calculator"></i> <b>测算公式：</b>' +
+                '<div class="dl-modal-formula">' +
+                    '<span class="dl-formula-eq">' +
+                        '<b>挽回损失(万元)</b> = 发生面积(亩) × 平均亩产(斤) × 单价(元/斤) × 挽回比例 ÷ 10000' +
+                    '</span>' +
+                    '<span class="dl-formula-sub">代入：1 860 × 2 000 × 1.5 × 22.5% ÷ 10 000 ≈ <b>126 万元</b></span>' +
+                    '<span class="dl-formula-warn">测算值 · 误差区间约 ±15%，仅用于量级判断</span>' +
+                '</div>'
         };
         var explainEl = document.getElementById('modalExplain');
         if (explains[type]) {
@@ -3027,7 +3068,7 @@
         var tip = document.createElement('span');
         tip.className = 'dl-mini-tip';
         tip.style.cssText = 'position:relative;top:-22px;left:84px;color:#ff6b6b;font-size:10px;white-space:nowrap;pointer-events:none;';
-        tip.textContent = '⚠ 建议立即组织统防统治';
+        tip.textContent = '';
         el.parentNode && el.parentNode.insertBefore(tip, el.nextSibling);
         /* resize 监听（地图卡片高度变化时重画） */
         if (window.addEventListener) {
@@ -3109,10 +3150,10 @@
                 '<td>' + a.pest + '</td>' +
                 '<td>' + a.town + '</td>' +
                 '<td><span class="' + getSev(a.level) + '">' + a.level + '</span></td>' +
-                '<td>' + a.owner + (a.contact ? ' <span class="dl-alert-call" title="电话 ' + a.contact + '" onclick="onCopyContact(\'' + a.contact + '\')">📞</span>' : '') + '</td>' +
+                '<td>' + a.owner + '</td>' +
                 '<td>' +
-                    '<span class="dl-alert-ai" data-tip="' + a.aiAdvice + '">🤖 AI建议</span> ' +
-                    '<span class="dl-alert-wx" data-tip="' + a.weatherRel + '">🌧 气象</span>' +
+                    '<span class="dl-alert-ai" data-tip="' + a.aiAdvice + '">AI建议</span> ' +
+                    '<span class="dl-alert-wx" data-tip="' + a.weatherRel + '">气象</span>' +
                 '</td>' +
                 '</tr>';
         });

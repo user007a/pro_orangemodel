@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>因子数据采集 - 南丰蜜桔模型管理系统</title>
+    <title>数据记录 - 南丰蜜桔模型管理系统</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body{margin:0;padding:0;background-color:#F0F2F5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,'Noto Sans SC',sans-serif}
@@ -43,8 +43,8 @@
 
     <div class="flex items-center justify-between mb-6">
         <div>
-            <h1 class="text-xl font-bold text-gray-800">因子数据采集</h1>
-            <p class="text-gray-500 text-sm mt-1">采集南丰蜜桔生长相关的气象、土壤、农事等关键因子数据。</p>
+            <h1 class="text-xl font-bold text-gray-800">数据记录</h1>
+            <p class="text-gray-500 text-sm mt-1">按果园、时间窗和物候期汇集已确认数据，生成生长模型可读取的因子快照。</p>
         </div>
         <div class="flex items-center space-x-3">
             <span class="text-sm text-gray-500">当前季节: <span class="font-semibold text-green-600">果实膨大期 (8-9月)</span></span>
@@ -63,13 +63,13 @@
             <div class="tab-item px-4 py-4 cursor-pointer text-sm mr-6 tab-inactive" data-tab="manual" onclick="switchTab('manual')">
                 <span class="flex items-center">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                    人工采样录入
+                    数据来源与完整度
                 </span>
             </div>
             <div class="tab-item px-4 py-4 cursor-pointer text-sm mr-6 tab-inactive" data-tab="farm" onclick="switchTab('farm')">
                 <span class="flex items-center">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-                    农事记录录入
+                    因子快照
                 </span>
             </div>
         </div>

@@ -286,8 +286,8 @@
 /* 紧凑重构（方案 A）：图标已从卡片中移除（趋势线接管了其视觉职责），
  * 数字 36→30px（仍满足会议室远视距），内边距收紧，卡片高度约 150→100px。 */
 .kpi-card { padding: 12px 14px !important; }
-.kpi-number { font-size: 1.875rem !important; line-height: 1.1 !important; }
-.kpi-info h4 { font-size: 13px !important; }
+.kpi-number { font-size: 2.25rem !important; line-height: 1.1 !important; }
+.kpi-info h4 { font-size: 14px !important; }
 .card-header { font-size: 15px !important; }
 .header-extra { font-size: 12px !important; }
 

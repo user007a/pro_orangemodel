@@ -1,4 +1,4 @@
-﻿﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
@@ -9,931 +9,101 @@
   <link rel="stylesheet" href="css/mobile-icons.css">
   <link rel="stylesheet" href="css/mobile-components.css">
   <link rel="stylesheet" href="css/mobile-ds-override.css">
-  <style>
-    .page-header {
-      position: relative;
-      background: #fff;
-      border-bottom: 1px solid var(--border-light);
-      padding: 0 16px;
-      height: 56px;
-      display: flex;
-      align-items: center;
-      color: var(--text-primary);
-    }
-
-    .header-back {
-      position: absolute;
-      left: 8px;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 36px;
-      height: 36px;
-      background: transparent;
-      border-radius: var(--radius-md);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      color: var(--text-primary);
-    }
-
-    .header-back svg { width: 22px; height: 22px; }
-
-    .header-title {
-      font-size: var(--fs-h2);
-      font-weight: var(--fw-semibold);
-      flex: 1;
-      text-align: center;
-      color: var(--text-primary);
-    }
-
-    .header-sub {
-      display: none;
-    }
-
-    .tab-bar {
-      display: flex;
-      background: var(--bg-white);
-      padding: 4px;
-      margin: 16px;
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-sm);
-    }
-    
-    .tab-item {
-      flex: 1;
-      padding: 10px 0;
-      text-align: center;
-      font-size: var(--font-sm);
-      font-weight: 500;
-      color: var(--text-secondary);
-      border-radius: var(--radius-md);
-      cursor: pointer;
-      transition: all var(--transition-fast);
-    }
-    
-    .tab-item.active {
-      background: var(--primary-light);
-      color: var(--primary);
-      font-weight: 600;
-    }
-
-    .card {
-      background: var(--bg-white);
-      border-radius: var(--radius-xl);
-      padding: 20px;
-      margin: 0 16px 16px;
-      box-shadow: var(--shadow-card);
-    }
-    
-    .card-title {
-      font-size: var(--font-base);
-      font-weight: 600;
-      color: var(--text);
-      margin-bottom: 16px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    
-    .card-title svg {
-      width: 18px;
-      height: 18px;
-      color: var(--primary);
-    }
-
-    .form-item {
-      margin-bottom: 16px;
-    }
-    
-    .form-label {
-      font-size: var(--font-sm);
-      font-weight: 500;
-      color: var(--text-secondary);
-      margin-bottom: 8px;
-      display: block;
-    }
-    
-    .form-input {
-      width: 100%;
-      height: 44px;
-      padding: 0 14px;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      font-size: var(--font-base);
-      color: var(--text);
-      background: var(--bg-white);
-      transition: all var(--transition-fast);
-      box-sizing: border-box;
-    }
-    
-    .form-input:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px var(--primary-light);
-    }
-    
-    .form-input::placeholder { color: var(--text-light); }
-    
-    .form-select {
-      height: 44px;
-      padding: 0 14px;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      font-size: var(--font-base);
-      color: var(--text);
-      background: var(--bg-white);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      cursor: pointer;
-      transition: all var(--transition-fast);
-    }
-    
-    .form-select:focus, .form-select:active {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px var(--primary-light);
-    }
-    
-    .form-select svg {
-      width: 16px;
-      height: 16px;
-      color: var(--text-light);
-    }
-    
-    .form-select-value {
-      color: var(--text-secondary);
-    }
-
-    .location-picker {
-      height: 44px;
-      padding: 0 14px;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      font-size: var(--font-base);
-      color: var(--text);
-      background: var(--bg-white);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      cursor: pointer;
-      transition: all var(--transition-fast);
-    }
-    
-    .location-picker:active {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px var(--primary-light);
-    }
-    
-    .location-picker svg {
-      width: 18px;
-      height: 18px;
-      color: var(--primary);
-    }
-    
-    .location-value {
-      color: var(--text-secondary);
-      flex: 1;
-      text-align: left;
-    }
-
-    .radio-group {
-      display: flex;
-      gap: 12px;
-    }
-    
-    .radio-item {
-      flex: 1;
-      padding: 12px;
-      background: var(--gray-50);
-      border-radius: var(--radius-lg);
-      border: 2px solid transparent;
-      cursor: pointer;
-      text-align: center;
-      transition: all var(--transition-fast);
-    }
-    
-    .radio-item.active {
-      background: var(--primary-light);
-      border-color: var(--primary);
-    }
-    
-    .radio-item .radio-label {
-      font-size: var(--font-sm);
-      color: var(--text);
-      font-weight: 500;
-    }
-
-    .btn {
-      height: 48px;
-      border-radius: var(--radius-full);
-      font-size: var(--font-base);
-      font-weight: 600;
-      cursor: pointer;
-      border: none;
-      transition: all var(--transition-fast);
-    }
-    
-    .btn:active { transform: scale(0.98); }
-    
-    .btn-block { width: 100%; }
-    
-    .btn-primary {
-      background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
-      color: var(--bg-white);
-      box-shadow: 0 4px 14px rgba(34, 168, 74, 0.35);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-    
-    .btn-primary svg { width: 18px; height: 18px; }
-    
-    .btn-secondary {
-      background: var(--gray-100);
-      color: var(--text-secondary);
-    }
-    
-    .submit-wrap {
-      padding: 0 16px 16px;
-    }
-
-    .modal-box {
-      background: var(--bg-white);
-      border-radius: var(--radius-xl);
-      padding: 32px 24px;
-      width: 85%;
-      max-width: 320px;
-      text-align: center;
-    }
-    
-    .modal-icon {
-      width: 72px;
-      height: 72px;
-      margin: 0 auto 16px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    
-    .modal-icon.success { background: var(--success-bg); }
-    .modal-icon.success svg { width: 40px; height: 40px; color: var(--success); }
-    
-    .modal-title {
-      font-size: var(--font-lg);
-      font-weight: 700;
-      color: var(--text);
-      margin-bottom: 10px;
-    }
-    
-    .modal-desc {
-      font-size: var(--font-sm);
-      color: var(--text-secondary);
-      line-height: 1.6;
-    }
-    
-    .modal-btn {
-      width: 100%;
-      height: 44px;
-      background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
-      color: var(--bg-white);
-      border: none;
-      border-radius: var(--radius-full);
-      font-size: var(--font-base);
-      font-weight: 600;
-      cursor: pointer;
-      margin-top: 20px;
-    }
-
-    .picker-option {
-      padding: 14px;
-      border-radius: var(--radius-md);
-      background: var(--bg);
-      margin-bottom: 8px;
-      cursor: pointer;
-      font-size: var(--font-base);
-      color: var(--text);
-      transition: all var(--transition-fast);
-    }
-    
-    .picker-option:hover {
-      background: var(--primary-light);
-    }
-
-    /* ===== 病虫上报相关样式 ===== */
-    .dr-form-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px 0;
-      border-bottom: 1px solid var(--border-light);
-      cursor: pointer;
-    }
-    .dr-form-item:last-child { border-bottom: none; }
-    .dr-form-item .form-label { font-size: var(--font-base); color: var(--text); }
-    .dr-form-select {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 12px;
-      background: var(--bg);
-      border-radius: var(--radius-md);
-    }
-    .dr-form-select svg { width: 16px; height: 16px; color: var(--text-light); }
-    .dr-form-value { font-size: var(--font-base); color: var(--text-secondary); }
-    .dr-form-value.selected { color: var(--text); }
-
-    .level-options { display: flex; gap: 12px; }
-    .level-option {
-      flex: 1;
-      padding: 12px;
-      border-radius: var(--radius-md);
-      border: 2px solid var(--border);
-      text-align: center;
-      cursor: pointer;
-      transition: all var(--transition-fast);
-    }
-    .level-option.active { border-color: var(--primary); background: var(--primary-light); }
-    .level-option .level-name { font-size: var(--font-base); font-weight: 600; color: var(--text); }
-    .level-option .level-desc { font-size: var(--font-xs); color: var(--text-secondary); margin-top: 4px; }
-
-    .dr-radio-options { display: flex; gap: 12px; }
-    .dr-radio-option {
-      flex: 1;
-      padding: 12px;
-      border-radius: var(--radius-md);
-      border: 2px solid var(--border);
-      text-align: center;
-      cursor: pointer;
-      transition: all var(--transition-fast);
-    }
-    .dr-radio-option.active { border-color: var(--primary); background: var(--primary-light); }
-    .dr-radio-option span { font-size: var(--font-base); font-weight: 500; color: var(--text); }
-
-    .photo-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-    }
-    .photo-item {
-      aspect-ratio: 1;
-      border-radius: var(--radius-md);
-      background: var(--bg);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all var(--transition-fast);
-    }
-    .photo-item:active { transform: scale(0.95); }
-    .photo-item svg { width: 24px; height: 24px; color: var(--text-light); }
-
-    .textarea-box {
-      width: 100%;
-      height: 100px;
-      padding: 12px;
-      background: var(--bg);
-      border-radius: var(--radius-md);
-      border: 1px solid var(--border);
-      font-size: var(--font-base);
-      color: var(--text);
-      resize: none;
-      outline: none;
-      box-sizing: border-box;
-    }
-    .textarea-box:focus { border-color: var(--primary); }
-
-    .modal-overlay {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.5); z-index: 1000;
-      display: none; justify-content: center; align-items: center;
-    }
-    .modal-overlay.show { display: flex; }
-    .dr-modal-box {
-      background: var(--bg-white);
-      border-radius: var(--radius-xl);
-      width: 90%;
-      max-width: 360px;
-      max-height: 85vh;
-      overflow: hidden;
-    }
-    .dr-modal-header {
-      padding: 20px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .dr-modal-title { font-size: var(--font-lg); font-weight: 600; color: var(--text); }
-    .dr-modal-close {
-      width: 32px; height: 32px;
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer;
-      border-radius: var(--radius-md);
-      background: var(--gray-100);
-    }
-    .dr-modal-close svg { width: 18px; height: 18px; color: var(--text-secondary); }
-    .dr-modal-body { padding: 16px; max-height: 50vh; overflow-y: auto; }
-    .dr-modal-item {
-      padding: 12px;
-      border-radius: var(--radius-md);
-      background: var(--bg);
-      margin-bottom: 8px;
-      cursor: pointer;
-      transition: all var(--transition-fast);
-    }
-    .dr-modal-item:active { background: var(--gray-100); }
-    .dr-modal-item span { font-size: var(--font-base); color: var(--text); }
-    .dr-modal-footer { padding: 16px; border-top: 1px solid var(--border); }
-
-    .success-modal { text-align: center; padding: 32px 24px; }
-    .success-icon {
-      width: 64px; height: 64px;
-      margin: 0 auto 16px;
-      border-radius: 50%;
-      background: var(--success-bg);
-      display: flex; align-items: center; justify-content: center;
-    }
-    .success-icon svg { width: 32px; height: 32px; color: var(--success); }
-    .success-title { font-size: var(--font-lg); font-weight: 600; color: var(--text); margin-bottom: 8px; }
-    .success-desc { font-size: var(--font-sm); color: var(--text-secondary); }
-
-    .skeleton-state { display: none; }
-    .mb-app.loading .real-content { display: none; }
-    .mb-app.loading .skeleton-state { display: block; }
-  </style>
+  <link rel="stylesheet" href="css/mobile-form.css">
 </head>
 <body>
   <div class="mb-app loading">
     <div class="skeleton-state">
       <div class="page-header">
-        <div style="width:36px;height:36px;"></div>
-        <div class="mb-skeleton" style="width:100px;height:24px;margin-left:44px;"></div>
-        <div class="mb-skeleton" style="width:160px;height:14px;margin-left:44px;margin-top:6px;"></div>
+        <div class="mb-skeleton" style="width:120px;height:24px;"></div>
+        <div class="mb-skeleton" style="width:200px;height:14px;margin-top:8px;"></div>
       </div>
-      <div class="tab-bar">
-        <div class="mb-skeleton" style="flex:1;height:36px;border-radius:var(--radius-md);"></div>
-        <div class="mb-skeleton" style="flex:1;height:36px;border-radius:var(--radius-md);"></div>
-        <div class="mb-skeleton" style="flex:1;height:36px;border-radius:var(--radius-md);"></div>
-        <div class="mb-skeleton" style="flex:1;height:36px;border-radius:var(--radius-md);"></div>
-        <div class="mb-skeleton" style="flex:1;height:36px;border-radius:var(--radius-md);"></div>
+      <div class="entry-card">
+        <div class="mb-skeleton" style="width:40px;height:40px;border-radius:var(--radius-md);"></div>
+        <div style="flex:1;">
+          <div class="mb-skeleton" style="width:96px;height:16px;"></div>
+          <div class="mb-skeleton" style="width:180px;height:12px;margin-top:8px;"></div>
+        </div>
       </div>
-      <div class="card">
-        <div class="mb-skeleton" style="width:80px;height:16px;margin-bottom:16px;"></div>
-        <div class="mb-skeleton" style="width:100%;height:44px;border-radius:var(--radius-lg);margin-bottom:16px;"></div>
-        <div class="mb-skeleton" style="width:100%;height:44px;border-radius:var(--radius-lg);margin-bottom:16px;"></div>
-        <div class="mb-skeleton" style="width:100%;height:44px;border-radius:var(--radius-lg);margin-bottom:16px;"></div>
-        <div class="mb-skeleton" style="width:100%;height:44px;border-radius:var(--radius-lg);"></div>
+      <div class="entry-card">
+        <div class="mb-skeleton" style="width:40px;height:40px;border-radius:var(--radius-md);"></div>
+        <div style="flex:1;">
+          <div class="mb-skeleton" style="width:96px;height:16px;"></div>
+          <div class="mb-skeleton" style="width:180px;height:12px;margin-top:8px;"></div>
+        </div>
       </div>
-      <div class="card">
-        <div class="mb-skeleton" style="width:80px;height:16px;margin-bottom:16px;"></div>
-        <div class="mb-skeleton" style="width:100%;height:44px;border-radius:var(--radius-lg);margin-bottom:16px;"></div>
-        <div class="mb-skeleton" style="width:100%;height:44px;border-radius:var(--radius-lg);"></div>
+      <div class="entry-card">
+        <div class="mb-skeleton" style="width:40px;height:40px;border-radius:var(--radius-md);"></div>
+        <div style="flex:1;">
+          <div class="mb-skeleton" style="width:96px;height:16px;"></div>
+          <div class="mb-skeleton" style="width:180px;height:12px;margin-top:8px;"></div>
+        </div>
       </div>
-      <div class="submit-wrap">
-        <div class="mb-skeleton" style="width:100%;height:48px;border-radius:var(--radius-full);"></div>
+      <div class="entry-card">
+        <div class="mb-skeleton" style="width:40px;height:40px;border-radius:var(--radius-md);"></div>
+        <div style="flex:1;">
+          <div class="mb-skeleton" style="width:96px;height:16px;"></div>
+          <div class="mb-skeleton" style="width:180px;height:12px;margin-top:8px;"></div>
+        </div>
       </div>
     </div>
 
     <div class="real-content">
       <div class="page-header">
-      <div class="header-back" onclick="goBack()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M15 18l-6-6 6-6"/>
-        </svg>
-      </div>
-      <div class="header-title">数据上报</div>
-      <div class="header-sub">记录果园各项数据信息</div>
-    </div>
-
-    <div class="tab-bar">
-      <div class="tab-item active" onclick="switchTab('soil', this)">土壤数据</div>
-      <div class="tab-item" onclick="switchTab('weather', this)">气象数据</div>
-      <div class="tab-item" onclick="switchTab('farming', this)">农事记录</div>
-      <div class="tab-item" onclick="switchTab('disease', this)">病虫上报</div>
-      <div class="tab-item" onclick="switchTab('sales', this)">蜜桔销售</div>
-    </div>
-
-    <div id="soilForm" class="content">
-      <div class="card">
-        <div class="card-title">
+        <div class="header-back" onclick="goBack()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-            <line x1="9" y1="9" x2="15" y2="9"/>
-            <line x1="9" y1="15" x2="15" y2="15"/>
+            <path d="M15 18l-6-6 6-6"/>
           </svg>
-          地块信息
         </div>
-        <div class="form-item">
-          <label class="form-label">定位地块</label>
-          <div class="location-picker" onclick="getLocation('soil')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/>
-              <circle cx="12" cy="10" r="3"/>
-            </svg>
-            <span class="location-value" id="soilLocation">点击定位</span>
-          </div>
-        </div>
-        <div class="form-item">
-          <label class="form-label">采样日期</label>
-          <input type="date" class="form-input" value="2026-08-10">
-        </div>
+        <div class="header-title">数据上报</div>
+        <div class="header-sub">记录果园各项数据信息</div>
       </div>
-      <div class="card">
-        <div class="card-title">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-            <path d="M9 12l2 2 4-4"/>
-          </svg>
-          土壤指标
+
+      <div class="entry-card type-farming" onclick="navigateTo('mb_input_farming.html')">
+        <div class="entry-icon farming">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
         </div>
-        <div class="form-item">
-          <label class="form-label">pH值</label>
-          <input type="number" class="form-input" placeholder="请输入pH值" step="0.1">
+        <div class="entry-main">
+          <div class="entry-name">农事数据</div>
+          <div class="entry-desc">记录施肥、灌溉、剪枝等农事操作</div>
         </div>
-        <div class="form-item">
-          <label class="form-label">有机质(%)</label>
-          <input type="number" class="form-input" placeholder="请输入有机质含量" step="0.01">
-        </div>
-        <div class="form-item">
-          <label class="form-label">氮含量(mg/kg)</label>
-          <input type="number" class="form-input" placeholder="请输入氮含量">
-        </div>
-        <div class="form-item">
-          <label class="form-label">磷含量(mg/kg)</label>
-          <input type="number" class="form-input" placeholder="请输入磷含量">
-        </div>
-        <div class="form-item">
-          <label class="form-label">钾含量(mg/kg)</label>
-          <input type="number" class="form-input" placeholder="请输入钾含量">
-        </div>
+        <svg class="entry-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
       </div>
-      <div class="card">
-        <div class="card-title">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 2l-5.5 9 1.8 0 0 5.5 7.4 0 0-5.5 1.8 0z"/>
-            <circle cx="12" cy="7" r="2"/>
-          </svg>
-          墒情数据
+
+      <div class="entry-card type-disease" onclick="navigateTo('mb_input_disease.html')">
+        <div class="entry-icon disease">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><circle cx="12" cy="10" r="3"/></svg>
         </div>
-        <div class="form-item">
-          <label class="form-label">土壤湿度(%)</label>
-          <input type="number" class="form-input" placeholder="请输入土壤湿度">
+        <div class="entry-main">
+          <div class="entry-name">病虫害数据</div>
+          <div class="entry-desc">上报病虫害发生程度与处置情况</div>
         </div>
-        <div class="form-item">
-          <label class="form-label">墒情等级</label>
-          <div class="radio-group">
-            <div class="radio-item" onclick="selectMoistureLevel('dry', this)"><div class="radio-label">干旱</div></div>
-            <div class="radio-item" onclick="selectMoistureLevel('normal', this)"><div class="radio-label">适中</div></div>
-            <div class="radio-item" onclick="selectMoistureLevel('wet', this)"><div class="radio-label">充足</div></div>
-          </div>
+        <svg class="entry-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+
+      <div class="entry-card type-weather" onclick="navigateTo('mb_input_weather.html')">
+        <div class="entry-icon weather">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h2M20 12h2"/></svg>
         </div>
+        <div class="entry-main">
+          <div class="entry-name">气象数据</div>
+          <div class="entry-desc">记录温度、降雨量与天气状况</div>
+        </div>
+        <svg class="entry-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+
+      <div class="entry-card type-soil" onclick="navigateTo('mb_input_soil.html')">
+        <div class="entry-icon soil">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+        </div>
+        <div class="entry-main">
+          <div class="entry-name">土壤数据</div>
+          <div class="entry-desc">记录土壤pH、有机质、氮磷钾与墒情</div>
+        </div>
+        <svg class="entry-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
       </div>
     </div>
 
-    <div id="weatherForm" class="content" style="display: none;">
-      <div class="card">
-        <div class="card-title">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="4"/>
-            <path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 2.83 2.83"/><path d="m16.24 16.24 2.83 2.83"/><path d="M2 12h2"/><path d="M20 12h2"/>
-          </svg>
-          气象数据
-        </div>
-        <div class="form-item">
-          <label class="form-label">记录日期</label>
-          <input type="date" class="form-input" value="2026-08-10">
-        </div>
-        <div class="form-item">
-          <label class="form-label">最高温度(°C)</label>
-          <input type="number" class="form-input" placeholder="请输入最高温度">
-        </div>
-        <div class="form-item">
-          <label class="form-label">最低温度(°C)</label>
-          <input type="number" class="form-input" placeholder="请输入最低温度">
-        </div>
-        <div class="form-item">
-          <label class="form-label">降雨量(mm)</label>
-          <input type="number" class="form-input" placeholder="请输入降雨量">
-        </div>
-        <div class="form-item">
-          <label class="form-label">天气状况</label>
-          <div class="radio-group">
-            <div class="radio-item" onclick="selectWeather('晴', this)"><div class="radio-label">晴</div></div>
-            <div class="radio-item" onclick="selectWeather('多云', this)"><div class="radio-label">多云</div></div>
-            <div class="radio-item" onclick="selectWeather('阴', this)"><div class="radio-label">阴</div></div>
-            <div class="radio-item" onclick="selectWeather('小雨', this)"><div class="radio-label">小雨</div></div>
-            <div class="radio-item" onclick="selectWeather('中雨', this)"><div class="radio-label">中雨</div></div>
-            <div class="radio-item" onclick="selectWeather('大雨', this)"><div class="radio-label">大雨</div></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div id="farmingForm" class="content" style="display: none;">
-      <div class="card">
-        <div class="card-title">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
-          </svg>
-          农事记录
-        </div>
-        <div class="form-item">
-          <label class="form-label">定位地块</label>
-          <div class="location-picker" onclick="getLocation('farming')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/>
-              <circle cx="12" cy="10" r="3"/>
-            </svg>
-            <span class="location-value" id="farmingLocation">点击定位</span>
-          </div>
-        </div>
-        <div class="form-item">
-          <label class="form-label">农事类型</label>
-          <div class="radio-group">
-            <div class="radio-item" onclick="selectFarmingType('施肥', this)"><div class="radio-label">施肥</div></div>
-            <div class="radio-item" onclick="selectFarmingType('灌溉', this)"><div class="radio-label">灌溉</div></div>
-            <div class="radio-item" onclick="selectFarmingType('剪枝', this)"><div class="radio-label">剪枝</div></div>
-            <div class="radio-item" onclick="selectFarmingType('疏果', this)"><div class="radio-label">疏果</div></div>
-            <div class="radio-item" onclick="selectFarmingType('喷药', this)"><div class="radio-label">喷药</div></div>
-            <div class="radio-item" onclick="selectFarmingType('其他', this)"><div class="radio-label">其他</div></div>
-          </div>
-        </div>
-        <div class="form-item">
-          <label class="form-label">执行日期</label>
-          <input type="date" class="form-input" value="2026-08-10">
-        </div>
-        <div class="form-item">
-          <label class="form-label">备注说明</label>
-          <textarea class="form-input" rows="3" placeholder="请输入备注说明..." style="height: auto;"></textarea>
-        </div>
-      </div>
-    </div>
-
-    <div id="diseaseForm" class="content" style="display: none;">
-      <div class="card">
-        <div class="card-title">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
-          基本信息
-        </div>
-        <div class="dr-form-item" onclick="showTypeSelect()">
-          <div class="form-label">病虫害类型</div>
-          <div class="dr-form-select">
-            <span class="dr-form-value" id="diseaseType">请选择</span>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
-          </div>
-        </div>
-        <div class="dr-form-item" onclick="showLocationSelect()">
-          <div class="form-label">发生地块</div>
-          <div class="dr-form-select">
-            <span class="dr-form-value" id="diseaseLocation">请选择</span>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
-          </div>
-        </div>
-        <div class="dr-form-item">
-          <div class="form-label">发生日期</div>
-          <div class="dr-form-value" id="reportDate">2026-08-19</div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-          发生程度
-        </div>
-        <div class="level-options">
-          <div class="level-option" id="level-light" onclick="selectLevel('light')">
-            <div class="level-name">轻度</div>
-            <div class="level-desc">零星发生</div>
-          </div>
-          <div class="level-option" id="level-medium" onclick="selectLevel('medium')">
-            <div class="level-name">中度</div>
-            <div class="level-desc">部分发生</div>
-          </div>
-          <div class="level-option" id="level-heavy" onclick="selectLevel('heavy')">
-            <div class="level-name">重度</div>
-            <div class="level-desc">大面积发生</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
-          现场照片
-        </div>
-        <div class="photo-grid" id="photoGrid">
-          <div class="photo-item" onclick="uploadPhoto()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
-          </div>
-          <div class="photo-item" onclick="selectPhoto()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-          处置情况
-        </div>
-        <div class="dr-radio-options">
-          <div class="dr-radio-option" id="disposed-no" onclick="selectDisposed('no')">
-            <span>未处置</span>
-          </div>
-          <div class="dr-radio-option" id="disposed-yes" onclick="selectDisposed('yes')">
-            <span>已处置</span>
-          </div>
-        </div>
-        <div id="disposalMethod" style="display:none; margin-top: 12px;">
-          <div class="dr-form-item" onclick="showMethodSelect()">
-            <div class="form-label">处置方式</div>
-            <div class="dr-form-select">
-              <span class="dr-form-value" id="methodValue">请选择</span>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
-            </div>
-          </div>
-        </div>
-        <div id="disposalNote" style="display:none; margin-top: 12px;">
-          <div class="form-label" style="margin-bottom: 8px;">处置备注</div>
-          <textarea class="textarea-box" placeholder="请描述具体的处置措施..."></textarea>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-          备注信息
-        </div>
-        <textarea class="textarea-box" placeholder="请描述病虫害发生情况，如症状表现、发生范围等..."></textarea>
-      </div>
-    </div>
-
-    <div id="salesForm" class="content" style="display: none;">
-      <div class="card">
-        <div class="card-title">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-            <line x1="16" y1="2" x2="16" y2="6"/>
-            <line x1="8" y1="2" x2="8" y2="6"/>
-            <line x1="3" y1="10" x2="21" y2="10"/>
-          </svg>
-          销售信息
-        </div>
-        <div class="form-item">
-          <label class="form-label">销售日期</label>
-          <input type="date" class="form-input" value="2026-08-10">
-        </div>
-        <div class="form-item">
-          <label class="form-label">销售数量(公斤)</label>
-          <input type="number" class="form-input" placeholder="请输入销售数量" step="0.1" min="0">
-        </div>
-        <div class="form-item">
-          <label class="form-label">销售单价(元/公斤)</label>
-          <input type="number" class="form-input" placeholder="请输入销售单价" step="0.01" min="0">
-        </div>
-        <div class="form-item">
-          <label class="form-label">销售总价(元)</label>
-          <input type="number" class="form-input" placeholder="根据数量×单价自动计算" readonly style="background: var(--gray-50);">
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-title">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/>
-            <circle cx="12" cy="10" r="3"/>
-          </svg>
-          销往地区
-        </div>
-        <div class="form-item">
-          <label class="form-label">省份</label>
-          <div class="form-select" onclick="showProvinceSelect()">
-            <span class="form-select-value" id="salesProvince">请选择省份</span>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
-          </div>
-        </div>
-        <div class="form-item">
-          <label class="form-label">城市</label>
-          <div class="form-select" onclick="showCitySelect()">
-            <span class="form-select-value" id="salesCity">请先选择省份</span>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="submit-wrap">
-      <button class="btn btn-primary btn-block" onclick="submitData()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;"><polyline points="20 6 9 17 4 12"/></svg>
-        提交数据
-      </button>
-    </div>
-    </div>
-
-    <!-- 病虫害类型选择 -->
-    <div class="modal-overlay" id="typeModal">
-      <div class="dr-modal-box">
-        <div class="dr-modal-header">
-          <div class="dr-modal-title">选择病虫害类型</div>
-          <div class="dr-modal-close" onclick="closeModal('typeModal')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
-          </div>
-        </div>
-        <div class="dr-modal-body">
-          <div style="font-size: var(--font-sm); font-weight: 600; color: var(--text-secondary); margin-bottom: 8px;">病害</div>
-          <div class="dr-modal-item" onclick="selectType('黄龙病')"><span>黄龙病</span></div>
-          <div class="dr-modal-item" onclick="selectType('黑点病')"><span>黑点病</span></div>
-          <div class="dr-modal-item" onclick="selectType('疮痂病')"><span>疮痂病</span></div>
-          <div class="dr-modal-item" onclick="selectType('炭疽病')"><span>炭疽病</span></div>
-          <div style="font-size: var(--font-sm); font-weight: 600; color: var(--text-secondary); margin: 12px 0 8px;">虫害</div>
-          <div class="dr-modal-item" onclick="selectType('红蜘蛛')"><span>红蜘蛛</span></div>
-          <div class="dr-modal-item" onclick="selectType('蚧壳虫')"><span>蚧壳虫</span></div>
-          <div class="dr-modal-item" onclick="selectType('木虱')"><span>木虱</span></div>
-          <div class="dr-modal-item" onclick="selectType('蚜虫')"><span>蚜虫</span></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 地块选择 -->
-    <div class="modal-overlay" id="locationModal">
-      <div class="dr-modal-box">
-        <div class="dr-modal-header">
-          <div class="dr-modal-title">选择地块</div>
-          <div class="dr-modal-close" onclick="closeModal('locationModal')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
-          </div>
-        </div>
-        <div class="dr-modal-body">
-          <div class="dr-modal-item" onclick="selectLocation('1号早熟蜜桔区')"><span>1号早熟蜜桔区</span></div>
-          <div class="dr-modal-item" onclick="selectLocation('2号中熟蜜桔区')"><span>2号中熟蜜桔区</span></div>
-          <div class="dr-modal-item" onclick="selectLocation('3号晚熟蜜桔区')"><span>3号晚熟蜜桔区</span></div>
-          <div class="dr-modal-item" onclick="selectLocation('4号试验田')"><span>4号试验田</span></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 处置方式选择 -->
-    <div class="modal-overlay" id="methodModal">
-      <div class="dr-modal-box">
-        <div class="dr-modal-header">
-          <div class="dr-modal-title">选择处置方式</div>
-          <div class="dr-modal-close" onclick="closeModal('methodModal')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
-          </div>
-        </div>
-        <div class="dr-modal-body">
-          <div class="dr-modal-item" onclick="selectMethod('化学防治')"><span>化学防治</span></div>
-          <div class="dr-modal-item" onclick="selectMethod('生物防治')"><span>生物防治</span></div>
-          <div class="dr-modal-item" onclick="selectMethod('物理防治')"><span>物理防治</span></div>
-          <div class="dr-modal-item" onclick="selectMethod('农业防治')"><span>农业防治</span></div>
-          <div class="dr-modal-item" onclick="selectMethod('综合防治')"><span>综合防治</span></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 省份选择 -->
-    <div class="modal-overlay" id="provinceModal">
-      <div class="dr-modal-box">
-        <div class="dr-modal-header">
-          <div class="dr-modal-title">选择省份</div>
-          <div class="dr-modal-close" onclick="closeModal('provinceModal')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
-          </div>
-        </div>
-        <div class="dr-modal-body" id="provinceList"></div>
-      </div>
-    </div>
-
-    <!-- 城市选择 -->
-    <div class="modal-overlay" id="cityModal">
-      <div class="dr-modal-box">
-        <div class="dr-modal-header">
-          <div class="dr-modal-title" id="cityModalTitle">选择城市</div>
-          <div class="dr-modal-close" onclick="closeModal('cityModal')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
-          </div>
-        </div>
-        <div class="dr-modal-body" id="cityList"></div>
-      </div>
-    </div>
-
-    <!-- 成功提示 -->
-    <div class="modal-overlay" id="successModal">
-      <div class="dr-modal-box">
-        <div class="success-modal">
-          <div class="success-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-          </div>
-          <div class="success-title">提交成功</div>
-          <div class="success-desc" id="successDesc">数据已提交，感谢您的记录</div>
-        </div>
-        <div class="dr-modal-footer">
-          <button class="btn btn-primary btn-block" onclick="closeSuccess()">确定</button>
-        </div>
-      </div>
-    </div>
     <!-- 底部导航 -->
     <div class="mb-tab-bar">
       <div class="mb-tab-item" onclick="navigateTo('mb_home.html')">
@@ -953,273 +123,32 @@
         <span>我的</span>
       </div>
     </div>
-<script>
-    var orchardLocations = ['1号早熟蜜桔区', '2号中熟蜜桔区', '3号晚熟蜜桔区', '4号试验田'];
-    var currentTab = 'soil';
+  </div>
 
+  <script>
     function goBack() { navigateTo('mb_home.html'); }
 
-    function switchTab(type, el) {
-      var tabs = document.querySelectorAll('.tab-item');
-      tabs.forEach(function(item) { item.classList.remove('active'); });
-      if (el) el.classList.add('active');
-      else if (event && event.target) event.target.classList.add('active');
-
-      document.getElementById('soilForm').style.display = 'none';
-      document.getElementById('weatherForm').style.display = 'none';
-      document.getElementById('farmingForm').style.display = 'none';
-      document.getElementById('diseaseForm').style.display = 'none';
-      document.getElementById('salesForm').style.display = 'none';
-      document.getElementById(type + 'Form').style.display = 'block';
-      currentTab = type;
-    }
-
-    function getLocation(type) {
-      var locationSpan = document.getElementById(type + 'Location');
-      locationSpan.textContent = '定位中...';
-
-      setTimeout(function() {
-        var randomLocation = orchardLocations[Math.floor(Math.random() * orchardLocations.length)];
-        locationSpan.textContent = randomLocation;
-        locationSpan.style.color = 'var(--text)';
-      }, 1000);
-    }
-
-    function selectMoistureLevel(level, element) {
-      var container = element.closest('.card');
-      container.querySelectorAll('.radio-item').forEach(item => item.classList.remove('active'));
-      element.classList.add('active');
-    }
-
-    function selectWeather(weather, element) {
-      var container = element.closest('.card');
-      container.querySelectorAll('.radio-item').forEach(item => item.classList.remove('active'));
-      element.classList.add('active');
-    }
-
-    function selectFarmingType(type, element) {
-      var container = element.closest('.card');
-      container.querySelectorAll('.radio-item').forEach(item => item.classList.remove('active'));
-      element.classList.add('active');
-    }
-
-    /* ===== 病虫上报相关函数 ===== */
-    function showTypeSelect() {
-      document.getElementById('typeModal').classList.add('show');
-    }
-
-    function selectType(type) {
-      var el = document.getElementById('diseaseType');
-      el.textContent = type;
-      el.classList.add('selected');
-      closeModal('typeModal');
-    }
-
-    function showLocationSelect() {
-      document.getElementById('locationModal').classList.add('show');
-    }
-
-    function selectLocation(loc) {
-      var el = document.getElementById('diseaseLocation');
-      el.textContent = loc;
-      el.classList.add('selected');
-      closeModal('locationModal');
-    }
-
-    function selectLevel(level) {
-      ['light', 'medium', 'heavy'].forEach(function(l) {
-        document.getElementById('level-' + l).classList.remove('active');
-      });
-      document.getElementById('level-' + level).classList.add('active');
-    }
-
-    function selectDisposed(val) {
-      ['yes', 'no'].forEach(function(v) {
-        document.getElementById('disposed-' + v).classList.remove('active');
-      });
-      document.getElementById('disposed-' + val).classList.add('active');
-      var show = val === 'yes';
-      document.getElementById('disposalMethod').style.display = show ? 'block' : 'none';
-      document.getElementById('disposalNote').style.display = show ? 'block' : 'none';
-    }
-
-    function showMethodSelect() {
-      document.getElementById('methodModal').classList.add('show');
-    }
-
-    function selectMethod(method) {
-      var el = document.getElementById('methodValue');
-      el.textContent = method;
-      el.classList.add('selected');
-      closeModal('methodModal');
-    }
-
-    function uploadPhoto() {
-      var grid = document.getElementById('photoGrid');
-      var photo = document.createElement('div');
-      photo.className = 'photo-item';
-      photo.style.background = 'linear-gradient(135deg, #ffebee, #ffcdd2)';
-      photo.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="#e57373" stroke-width="1.5" style="width:24px;height:24px;opacity:0.5;"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>';
-      grid.insertBefore(photo, grid.lastElementChild);
-    }
-
-    function selectPhoto() {
-      var grid = document.getElementById('photoGrid');
-      var photo = document.createElement('div');
-      photo.className = 'photo-item';
-      photo.style.background = 'linear-gradient(135deg, #fff3e0, #ffe0b2)';
-      photo.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="#ffb74d" stroke-width="1.5" style="width:24px;height:24px;opacity:0.5;"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>';
-      grid.insertBefore(photo, grid.lastElementChild);
-    }
-
-    function closeModal(id) {
-      document.getElementById(id).classList.remove('show');
-    }
-
-    function submitData() {
-      if (currentTab === 'disease') {
-        var type = document.getElementById('diseaseType').textContent;
-        if (type === '请选择') {
-          alert('请选择病虫害类型');
-          return;
-        }
-        document.getElementById('successDesc').textContent = '预警信息已提交，农技人员将尽快处理';
-      } else if (currentTab === 'sales') {
-        var form = document.getElementById('salesForm');
-        var inputs = form.querySelectorAll('input[type="number"]');
-        if (!inputs[0].value || !inputs[1].value) {
-          alert('请填写销售数量和销售单价');
-          return;
-        }
-        if (document.getElementById('salesProvince').textContent === '请选择省份') {
-          alert('请选择销往省份');
-          return;
-        }
-        document.getElementById('successDesc').textContent = '销售记录已提交，感谢您的记录';
-      } else {
-        document.getElementById('successDesc').textContent = '数据已提交，感谢您的记录';
-      }
-      document.getElementById('successModal').classList.add('show');
-    }
-
-    function closeSuccess() {
-      document.getElementById('successModal').classList.remove('show');
-      window.history.back();
-    }
-
-    /* ===== 蜜桔销售相关 ===== */
-    var regionData = {
-      '北京': ['北京市'],
-      '上海': ['上海市'],
-      '广东': ['广州', '深圳', '东莞', '佛山', '珠海', '中山'],
-      '浙江': ['杭州', '宁波', '温州', '嘉兴', '绍兴', '金华', '台州'],
-      '江苏': ['南京', '苏州', '无锡', '常州', '南通', '扬州'],
-      '福建': ['福州', '厦门', '泉州', '漳州'],
-      '湖北': ['武汉', '宜昌', '襄阳'],
-      '湖南': ['长沙', '株洲', '湘潭', '衡阳'],
-      '四川': ['成都', '绵阳', '德阳', '南充'],
-      '江西': ['南昌', '赣州', '九江', '抚州', '吉安'],
-      '安徽': ['合肥', '芜湖', '蚌埠'],
-      '河南': ['郑州', '洛阳', '开封'],
-      '山东': ['济南', '青岛', '烟台', '潍坊'],
-      '河北': ['石家庄', '唐山', '保定'],
-      '陕西': ['西安', '咸阳', '宝鸡'],
-      '辽宁': ['沈阳', '大连', '鞍山']
-    };
-    var selectedProvince = '';
-
-    function showProvinceSelect() {
-      var list = document.getElementById('provinceList');
-      var html = '';
-      Object.keys(regionData).forEach(function(prov) {
-        html += '<div class="dr-modal-item" onclick="selectProvince(\'' + prov + '\')"><span>' + prov + '</span></div>';
-      });
-      list.innerHTML = html;
-      document.getElementById('provinceModal').classList.add('show');
-    }
-
-    function selectProvince(prov) {
-      selectedProvince = prov;
-      var el = document.getElementById('salesProvince');
-      el.textContent = prov;
-      el.style.color = 'var(--text)';
-      document.getElementById('salesCity').textContent = '请选择城市';
-      document.getElementById('salesCity').style.color = '';
-      closeModal('provinceModal');
-    }
-
-    function showCitySelect() {
-      if (!selectedProvince) {
-        showProvinceSelect();
-        return;
-      }
-      document.getElementById('cityModalTitle').textContent = '选择城市 - ' + selectedProvince;
-      var list = document.getElementById('cityList');
-      var html = '';
-      var cities = regionData[selectedProvince] || [];
-      cities.forEach(function(city) {
-        html += '<div class="dr-modal-item" onclick="selectCity(\'' + city + '\')"><span>' + city + '</span></div>';
-      });
-      list.innerHTML = html;
-      document.getElementById('cityModal').classList.add('show');
-    }
-
-    function selectCity(city) {
-      var el = document.getElementById('salesCity');
-      el.textContent = selectedProvince + ' · ' + city;
-      el.style.color = 'var(--text)';
-      closeModal('cityModal');
-    }
-
-    function calcSalesTotal() {
-      var form = document.getElementById('salesForm');
-      if (!form) return;
-      var inputs = form.querySelectorAll('input[type="number"]');
-      var qty = parseFloat(inputs[0].value) || 0;
-      var price = parseFloat(inputs[1].value) || 0;
-      var totalInput = inputs[2];
-      if (qty > 0 && price > 0) {
-        totalInput.value = (qty * price).toFixed(2);
-      } else {
-        totalInput.value = '';
-      }
-    }
-
-    (function() {
-      var form = document.getElementById('salesForm');
-      if (!form) return;
-      var inputs = form.querySelectorAll('input[type="number"]');
-      inputs[0].addEventListener('input', calcSalesTotal);
-      inputs[1].addEventListener('input', calcSalesTotal);
-    })();
-
-    function navigateTo(url) {
-      window.location.href = url;
-    }
+    function navigateTo(url) { window.location.href = url; }
 
     (function() {
       var app = document.querySelector('.mb-app');
-      setTimeout(function() {
-        app.classList.remove('loading');
-      }, 600);
+      setTimeout(function() { app.classList.remove('loading'); }, 600);
     })();
 
-    // 支持通过 URL 参数（如 ?tab=disease / ?tab=farming）定位到指定 Tab
+    // 兼容旧链接（?tab=soil/weather/farming/disease/sales），直接跳转到对应的独立上报页
     (function() {
-      var params = new URLSearchParams(window.location.search);
-      var tab = params.get('tab');
-      var validTabs = ['soil', 'weather', 'farming', 'disease', 'sales'];
-      if (tab && validTabs.indexOf(tab) !== -1) {
-        var tabItems = document.querySelectorAll('.tab-bar .tab-item');
-        for (var i = 0; i < tabItems.length; i++) {
-          if (tabItems[i].getAttribute('onclick') && tabItems[i].getAttribute('onclick').indexOf("'" + tab + "'") !== -1) {
-            switchTab(tab, tabItems[i]);
-            break;
-          }
-        }
+      var tabPageMap = {
+        soil: 'mb_input_soil.html',
+        weather: 'mb_input_weather.html',
+        farming: 'mb_input_farming.html',
+        disease: 'mb_input_disease.html',
+        sales: 'mb_input_sales.html'
+      };
+      var tab = new URLSearchParams(window.location.search).get('tab');
+      if (tab && tabPageMap[tab]) {
+        window.location.replace(tabPageMap[tab]);
       }
     })();
   </script>
 </body>
 </html>
-

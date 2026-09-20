@@ -1,4 +1,4 @@
-﻿﻿﻿<!DOCTYPE html>
+﻿﻿﻿﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -79,13 +79,17 @@
         }
         .judge-form-select {
             width: 100%;
-            padding: 10px 12px;
+            padding: 10px 34px 10px 12px;
             border: 1px solid var(--border);
             border-radius: var(--radius-md);
             font-size: 14px;
             color: var(--text);
             background: var(--bg-white);
             appearance: none;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            box-sizing: border-box;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23bfbfbf' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
             background-repeat: no-repeat;
             background-position: right 12px center;
@@ -373,23 +377,24 @@
                         <span class="judge-section-dot"></span>
                         <span>评价对象</span>
                     </div>
-                    <p class="judge-section-desc">用于匹配品系、砧木、树龄和生育阶段参数</p>
+                    <p class="judge-section-desc">评价对象为评价前已编制的监测点编号，选择后自动带出品系、砧木、树龄等参数</p>
                     <div class="judge-grid">
-                        <div class="judge-form-item">
-                            <label class="judge-form-label">对象编码</label>
-                            <input type="text" class="judge-form-input" id="input-orchard" value="南丰蜜桔-品系A-枳砧-10年生-D004">
+                        <div class="judge-form-item" style="grid-column: span 2;">
+                            <label class="judge-form-label">评价对象 <span class="core-tag">监测点编号</span></label>
+                            <select class="judge-form-select" id="input-orchard" onchange="applyJudgeObject()"></select>
+                            <div class="judge-hint"><span class="range">由系统预先编制并联动带入，不可手动修改</span></div>
                         </div>
-                        <div class="judge-form-item">
-                            <label class="judge-form-label">地块简称</label>
-                            <input type="text" class="judge-form-input" id="input-plot" value="东坡 A-03 地块">
+                        <div class="judge-form-item" style="grid-column: span 2;">
+                            <label class="judge-form-label">品系</label>
+                            <select class="judge-form-select" id="input-variety"></select>
                         </div>
-                        <div class="judge-form-item">
-                            <label class="judge-form-label">品系/株系</label>
-                            <input type="text" class="judge-form-input" id="input-variety" value="品系 A">
+                        <div class="judge-form-item" style="grid-column: span 2;">
+                            <label class="judge-form-label">所在地块</label>
+                            <select class="judge-form-select" id="input-plot" onchange="linkJudgeObjectByPlot()"></select>
                         </div>
                         <div class="judge-form-item">
                             <label class="judge-form-label">砧木</label>
-                            <input type="text" class="judge-form-input" id="input-rootstock" value="枳砧">
+                            <select class="judge-form-select" id="input-rootstock"></select>
                         </div>
                         <div class="judge-form-item">
                             <label class="judge-form-label">树龄</label>
@@ -398,7 +403,7 @@
                                 <span class="unit">年</span>
                             </div>
                         </div>
-                        <div class="judge-form-item">
+                        <div class="judge-form-item" style="grid-column: span 2;">
                             <label class="judge-form-label">生育阶段</label>
                             <select class="judge-form-select" id="input-stage">
                                 <option value="幼苗期">幼苗期</option>
@@ -693,10 +698,71 @@
             window.location.href = page;
         }
 
+        // 评价对象（监测点编号）——评价前已编制，随地块联动带入；单个用户监测植株不超过 4 株
+        const MONITOR_OBJECTS = [
+            { code: '南丰蜜桔-早熟系-枳砧-8年生-D002', plot: '1号早熟蜜桔区', variety: '早熟系（普通早熟蜜桔）', rootstock: '枳砧', age: '8' },
+            { code: '南丰蜜桔-小果系-枳砧-10年生-D004', plot: '2号中熟蜜桔区', variety: '小果系（杨小2-6，金钱蜜桔）', rootstock: '枳砧', age: '10' },
+            { code: '南丰蜜桔-蜜广1号-香橙砧-6年生-D006', plot: '3号晚熟蜜桔区', variety: '蜜广1号（晚熟蜜广）', rootstock: '香橙砧', age: '6' },
+            { code: '南丰蜜桔-桂月红-枳砧-5年生-D008', plot: '4号试验田', variety: '桂月红（特早熟芽变）', rootstock: '枳砧', age: '5' }
+        ];
+
+        // 所在地块：来自「我的果园」地块名称
+        const PLOTS = ['1号早熟蜜桔区', '2号中熟蜜桔区', '3号晚熟蜜桔区', '4号试验田'];
+
+        // 品系：来自后台管理系统品种数据库
+        const VARIETIES = [
+            '小果系（杨小2-6，金钱蜜桔）',
+            '大果系',
+            '桂花蒂系（柿蒂蜜桔）',
+            '早熟系（普通早熟蜜桔）',
+            '桂月红（特早熟芽变）',
+            '蜜广1号（晚熟蜜广）',
+            '其他引进柑橘（金秋砂糖桔等）'
+        ];
+
+        // 砧木候选
+        const ROOTSTOCKS = ['枳砧', '香橙砧', '红桔砧', '枳橙砧', '酸柚砧'];
+
+        const DEFAULT_OBJECT_CODE = '南丰蜜桔-小果系-枳砧-10年生-D004';
+
+        function fillSelect(id, options, selected) {
+            var el = document.getElementById(id);
+            if (!el) return;
+            el.innerHTML = options.map(function(v) {
+                return '<option value="' + v + '"' + (v === selected ? ' selected' : '') + '>' + v + '</option>';
+            }).join('');
+        }
+
+        function applyJudgeObject() {
+            var code = document.getElementById('input-orchard').value;
+            var obj = MONITOR_OBJECTS.filter(function(o) { return o.code === code; })[0];
+            if (!obj) return;
+            document.getElementById('input-plot').value = obj.plot;
+            document.getElementById('input-variety').value = obj.variety;
+            document.getElementById('input-rootstock').value = obj.rootstock;
+            document.getElementById('input-age').value = obj.age;
+        }
+
+        // 切换所在地块时，反向联动到该地块对应的监测点对象
+        function linkJudgeObjectByPlot() {
+            var plot = document.getElementById('input-plot').value;
+            var obj = MONITOR_OBJECTS.filter(function(o) { return o.plot === plot; })[0];
+            if (obj) document.getElementById('input-orchard').value = obj.code;
+            applyJudgeObject();
+        }
+
+        function initJudgeObject() {
+            fillSelect('input-orchard', MONITOR_OBJECTS.map(function(o) { return o.code; }), DEFAULT_OBJECT_CODE);
+            fillSelect('input-plot', PLOTS, MONITOR_OBJECTS[1].plot);
+            fillSelect('input-variety', VARIETIES, MONITOR_OBJECTS[1].variety);
+            fillSelect('input-rootstock', ROOTSTOCKS, MONITOR_OBJECTS[1].rootstock);
+            applyJudgeObject();
+        }
+
         const mockData = {
-            'input-orchard': '南丰蜜桔-品系A-枳砧-10年生-D004',
-            'input-plot': '东坡 A-03 地块',
-            'input-variety': '品系 A',
+            'input-orchard': '南丰蜜桔-小果系-枳砧-10年生-D004',
+            'input-plot': '2号中熟蜜桔区',
+            'input-variety': '小果系（杨小2-6，金钱蜜桔）',
             'input-rootstock': '枳砧',
             'input-age': '10',
             'input-stage': '果实膨大期',
@@ -935,6 +1001,7 @@
             if (farmRecords[idx]) farmRecords[idx].text = value;
         }
 
+        initJudgeObject();
         initJudgeMode();
         renderFarmRecords();
     </script>

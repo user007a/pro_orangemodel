@@ -1,6 +1,162 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>模型计算</title><script src="https://cdn.tailwindcss.com"></script><style>body{margin:0;background:#f3f6fa;font-family:-apple-system,BlinkMacSystemFont,'Microsoft YaHei',sans-serif;color:#172033}.page{padding:26px;max-width:1500px;margin:auto}.card{background:#fff;border:1px solid #dfe8f3;border-radius:16px;box-shadow:0 4px 14px #15345b0b}.row{display:flex;justify-content:space-between;padding:13px 0;border-bottom:1px solid #e8eef5}.row:last-child{border:0}.tag{border-radius:99px;padding:3px 9px;font-size:12px;font-weight:600}</style></head><body><main class="page"><header class="flex justify-between gap-4 mb-6"><div><h1 class="text-xl font-bold">模型计算</h1><p class="text-sm text-slate-500 mt-1">选择果园后自动带入已有数据；补充数据并确认后，由使用者点击运行。</p></div><a href="growth_model.html" class="text-sm text-blue-700">模型说明 →</a></header><section class="grid lg:grid-cols-[1fr_1.05fr] gap-5"><article class="card p-6"><div class="flex justify-between"><h2 class="font-semibold">本次模型输入</h2><span class="tag bg-blue-50 text-blue-700">已带入数据</span></div><div class="grid sm:grid-cols-2 gap-4 mt-5"><label class="text-sm text-slate-600">果园地块<select class="mt-1.5 w-full border rounded-lg px-3 py-2 text-slate-800"><option>朱衣镇A-03示范园</option><option>南丰镇示范果园 09</option><option>琴城镇蜜广一号园</option></select></label><div class="text-sm text-slate-600">当前物候期<div class="mt-1.5 border rounded-lg px-3 py-2 bg-slate-50 text-slate-800">果实膨大期 <span class="float-right text-xs text-emerald-600">自动识别</span></div></div><label class="text-sm text-slate-600">计算日期<input type="date" value="2026-09-12" class="mt-1.5 w-full border rounded-lg px-3 py-2"></label><label class="text-sm text-slate-600">数据范围<select class="mt-1.5 w-full border rounded-lg px-3 py-2"><option>近 7 日有效数据</option><option>近 3 日有效数据</option></select></label></div><div class="mt-6"><div class="flex justify-between"><h3 class="font-semibold text-sm">已带入的模型因子</h3><span class="text-xs text-emerald-600">完整度 95%</span></div><div class="mt-2"><div class="row"><span class="text-slate-500">果园档案</span><b>纽荷尔脐橙 · 8年</b></div><div class="row"><span class="text-slate-500">空气温度</span><b>31.2 ℃</b></div><div class="row"><span class="text-slate-500">土壤水分</span><b>24.6%</b></div><div class="row"><span class="text-slate-500">近 7 日降雨</span><b>18.5 mm</b></div><div class="row"><span class="text-slate-500">最近农事</span><b>8月15日滴灌</b></div><div class="row"><span class="text-slate-500">采集照片</span><b class="text-blue-700">3 张</b></div></div></div><div class="mt-5 p-3 bg-amber-50 text-xs leading-5 text-amber-800 rounded-lg flex justify-between gap-3"><span>缺少或需更新数据？补充后将保存为本次采集记录，并纳入模型。</span><button onclick="openSupplement()" class="shrink-0 border border-amber-300 bg-white px-3 py-1.5 rounded-md text-amber-800 font-medium">补充数据</button></div><button onclick="runModel(this)" class="w-full mt-5 bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-lg font-semibold">✧ 运行模型</button></article><article class="card p-6"><div class="flex justify-between"><h2 class="font-semibold">模型运行结果</h2><span id="state" class="tag bg-slate-100 text-slate-500">等待运行</span></div><div id="empty" class="h-[470px] flex flex-col items-center justify-center text-center"><div class="w-16 h-16 rounded-full bg-blue-50 text-blue-700 flex items-center justify-center text-2xl">◎</div><h3 class="font-semibold mt-5">尚未生成本次结果</h3><p class="text-sm text-slate-500 mt-2 max-w-sm">确认左侧自动带入的数据后，点击“运行模型”，即可生成当前果园的单园诊断。</p></div><div id="result" class="hidden"><div class="mt-6 rounded-xl bg-emerald-50 p-5"><p class="text-xs text-emerald-700">本次生长状态</p><div class="flex items-end gap-3 mt-2"><b class="text-6xl text-emerald-600">86</b><span class="text-sm mb-2">分　<b class="text-lg text-slate-800">生长状态良好</b></span></div></div><h3 class="font-semibold mt-5">主要判断</h3><p class="text-sm text-slate-600 leading-7 mt-2">当前总体长势正常，土壤水分接近适宜下限；未来 3 天气温偏高，需关注后续水分供应。</p><h3 class="font-semibold mt-5">处理建议</h3><ul class="text-sm text-slate-600 leading-7 mt-2 list-disc pl-5"><li>建议清晨分区滴灌，每亩 8—10m³</li><li>检查滴头流量，避免局部缺水</li><li>3 日后复测土壤墒情和果径增长</li></ul><p class="mt-6 text-sm text-emerald-700">结果可信度 92%　·　数据完整度 95%</p><button onclick="goDiagnosis()" class="mt-5 bg-blue-700 text-white px-4 py-2 rounded-lg text-sm">详细诊断</button></div></article></section><section class="card p-5 mt-5"><h2 class="font-semibold">运行记录</h2><p class="text-xs text-slate-500 mt-1">每次运行保存输入快照、模型版本和结果，供工作台汇总及后续追溯。</p><div class="mt-4 text-sm text-slate-600 border-t pt-3">2026-09-11 15:32　南丰镇示范果园 09　<span class="text-emerald-600">82 分 · 良好</span>　数据完整度 96%</div></section></main><div id="supplement" class="hidden fixed inset-0 bg-slate-900/40 z-50 items-center justify-center p-4"><div class="bg-white rounded-2xl w-full max-w-lg p-6 shadow-2xl"><div class="flex justify-between"><div><h2 class="font-semibold text-lg">补充数据</h2><p class="text-sm text-slate-500 mt-1">数据将保存为该果园采集记录，并带入当前模型。</p></div><button onclick="closeSupplement()" class="text-xl">×</button></div><div class="grid grid-cols-2 gap-4 mt-5"><label class="text-sm">土壤水分<input class="mt-1 w-full border rounded-lg px-3 py-2" placeholder="如：24.6%"></label><label class="text-sm">空气温度<input class="mt-1 w-full border rounded-lg px-3 py-2" placeholder="如：31.2℃"></label><label class="text-sm col-span-2">农事记录<input class="mt-1 w-full border rounded-lg px-3 py-2" placeholder="如：滴灌、施肥、修剪"></label><label class="text-sm col-span-2">现场照片<input type="file" accept="image/*" class="mt-1 w-full border rounded-lg px-3 py-2"></label></div><div class="flex justify-end gap-3 mt-6"><button onclick="closeSupplement()" class="px-4 py-2 border rounded-lg text-sm">取消</button><button onclick="saveSupplement()" class="px-4 py-2 bg-blue-700 text-white rounded-lg text-sm">保存并带入</button></div></div></div><script>function runModel(b){b.textContent='模型运行中...';b.disabled=true;setTimeout(()=>{b.textContent='✧ 运行模型';b.disabled=false;empty.classList.add('hidden');result.classList.remove('hidden');state.textContent='已完成';state.className='tag bg-emerald-100 text-emerald-700'},650)}function goDiagnosis(){try{parent.openPage('growth/diagnosis.html','诊断分析',parent.document.querySelector("[onclick*='growth/diagnosis.html']"))}catch(e){location.href='diagnosis.html'}}function openSupplement(){supplement.classList.remove('hidden');supplement.classList.add('flex')}function closeSupplement(){supplement.classList.add('hidden');supplement.classList.remove('flex')}function saveSupplement(){closeSupplement();alert('补充数据已保存，并带入本次模型输入。')}</script></body></html>
+<!doctype html>
+<html lang="zh-CN">
 
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>模型计算</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            margin: 0;
+            background: #f3f6fa;
+            font-family: -apple-system, BlinkMacSystemFont, 'Microsoft YaHei', sans-serif;
+            color: #172033
+        }
 
+        .page {
+            padding: 26px;
+            max-width: 1500px;
+            margin: auto
+        }
 
+        .card {
+            background: #fff;
+            border: 1px solid #dfe8f3;
+            border-radius: 16px;
+            box-shadow: 0 4px 14px #15345b0b
+        }
 
+        .row {
+            display: flex;
+            justify-content: space-between;
+            padding: 13px 0;
+            border-bottom: 1px solid #e8eef5
+        }
 
+        .row:last-child {
+            border: 0
+        }
+
+        .tag {
+            border-radius: 99px;
+            padding: 3px 9px;
+            font-size: 12px;
+            font-weight: 600
+        }
+    </style>
+</head>
+
+<body>
+    <main class="page">
+        <header class="flex justify-between gap-4 mb-6">
+            <div>
+                <h1 class="text-xl font-bold">模型计算</h1>
+                <p class="text-sm text-slate-500 mt-1">选择果园后自动带入已有数据；补充数据并确认后，由使用者点击运行。</p>
+            </div><a href="growth_model.html" class="text-sm text-blue-700">模型说明 →</a>
+        </header>
+        <section class="grid lg:grid-cols-[1fr_1.05fr] gap-5">
+            <article class="card p-6">
+                <div class="flex justify-between">
+                    <h2 class="font-semibold">本次模型输入</h2><span class="tag bg-blue-50 text-blue-700">已带入数据</span>
+                </div>
+                <div class="grid sm:grid-cols-2 gap-4 mt-5"><label class="text-sm text-slate-600">果园地块<select
+                            class="mt-1.5 w-full border rounded-lg px-3 py-2 text-slate-800">
+                            <option>市山镇A-03示范园</option>
+                            <option>市山镇示范果园 09</option>
+                            <option>琴城镇蜜广一号园</option>
+                        </select></label>
+                    <div class="text-sm text-slate-600">当前物候期<div
+                            class="mt-1.5 border rounded-lg px-3 py-2 bg-slate-50 text-slate-800">果实膨大期 <span
+                                class="float-right text-xs text-emerald-600">自动识别</span></div>
+                    </div><label class="text-sm text-slate-600">计算日期<input type="date" value="2026-09-12"
+                            class="mt-1.5 w-full border rounded-lg px-3 py-2"></label><label
+                        class="text-sm text-slate-600">数据范围<select class="mt-1.5 w-full border rounded-lg px-3 py-2">
+                            <option>近 7 日有效数据</option>
+                            <option>近 3 日有效数据</option>
+                        </select></label>
+                </div>
+                <div class="mt-6">
+                    <div class="flex justify-between">
+                        <h3 class="font-semibold text-sm">已带入的模型因子</h3><span class="text-xs text-emerald-600">完整度
+                            95%</span>
+                    </div>
+                    <div class="mt-2">
+                        <div class="row"><span class="text-slate-500">果园档案</span><b>杨小2-6 · 10年</b></div>
+                        <div class="row"><span class="text-slate-500">空气温度</span><b>31.2 ℃</b></div>
+                        <div class="row"><span class="text-slate-500">土壤水分</span><b>24.6%</b></div>
+                        <div class="row"><span class="text-slate-500">近 7 日降雨</span><b>18.5 mm</b></div>
+                        <div class="row"><span class="text-slate-500">最近农事</span><b>8月15日滴灌</b></div>
+                        <div class="row"><span class="text-slate-500">采集照片</span><b class="text-blue-700">3 张</b></div>
+                    </div>
+                </div>
+                <div
+                    class="mt-5 p-3 bg-amber-50 text-xs leading-5 text-amber-800 rounded-lg flex justify-between gap-3">
+                    <span>缺少或需更新数据？补充后将保存为本次采集记录，并纳入模型。</span><button onclick="openSupplement()"
+                        class="shrink-0 border border-amber-300 bg-white px-3 py-1.5 rounded-md text-amber-800 font-medium">补充数据</button>
+                </div><button onclick="runModel(this)"
+                    class="w-full mt-5 bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-lg font-semibold">✧
+                    运行模型</button>
+            </article>
+            <article class="card p-6">
+                <div class="flex justify-between">
+                    <h2 class="font-semibold">模型运行结果</h2><span id="state"
+                        class="tag bg-slate-100 text-slate-500">等待运行</span>
+                </div>
+                <div id="empty" class="h-[470px] flex flex-col items-center justify-center text-center">
+                    <div
+                        class="w-16 h-16 rounded-full bg-blue-50 text-blue-700 flex items-center justify-center text-2xl">
+                        ◎</div>
+                    <h3 class="font-semibold mt-5">尚未生成本次结果</h3>
+                    <p class="text-sm text-slate-500 mt-2 max-w-sm">确认左侧自动带入的数据后，点击“运行模型”，即可生成当前果园的单园诊断。</p>
+                </div>
+                <div id="result" class="hidden">
+                    <div class="mt-6 rounded-xl bg-emerald-50 p-5">
+                        <p class="text-xs text-emerald-700">本次生长状态</p>
+                        <div class="flex items-end gap-3 mt-2"><b class="text-6xl text-emerald-600">86</b><span
+                                class="text-sm mb-2">分　<b class="text-lg text-slate-800">生长状态良好</b></span></div>
+                    </div>
+                    <h3 class="font-semibold mt-5">主要判断</h3>
+                    <p class="text-sm text-slate-600 leading-7 mt-2">当前总体长势正常，土壤水分接近适宜下限；未来 3 天气温偏高，需关注后续水分供应。</p>
+                    <h3 class="font-semibold mt-5">处理建议</h3>
+                    <ul class="text-sm text-slate-600 leading-7 mt-2 list-disc pl-5">
+                        <li>建议清晨分区滴灌，每亩 8—10m³</li>
+                        <li>检查滴头流量，避免局部缺水</li>
+                        <li>3 日后复测土壤墒情和果径增长</li>
+                    </ul>
+                    <p class="mt-6 text-sm text-emerald-700">结果可信度 92%　·　数据完整度 95%</p><button onclick="goDiagnosis()"
+                        class="mt-5 bg-blue-700 text-white px-4 py-2 rounded-lg text-sm">详细诊断</button>
+                </div>
+            </article>
+        </section>
+        <section class="card p-5 mt-5">
+            <h2 class="font-semibold">运行记录</h2>
+            <p class="text-xs text-slate-500 mt-1">每次运行保存输入快照、模型版本和结果，供工作台汇总及后续追溯。</p>
+            <div class="mt-4 text-sm text-slate-600 border-t pt-3">2026-09-11 15:32　南丰镇示范果园 09　<span
+                    class="text-emerald-600">82 分 · 良好</span>　数据完整度 96%</div>
+        </section>
+    </main>
+    <div id="supplement" class="hidden fixed inset-0 bg-slate-900/40 z-50 items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-lg p-6 shadow-2xl">
+            <div class="flex justify-between">
+                <div>
+                    <h2 class="font-semibold text-lg">补充数据</h2>
+                    <p class="text-sm text-slate-500 mt-1">数据将保存为该果园采集记录，并带入当前模型。</p>
+                </div><button onclick="closeSupplement()" class="text-xl">×</button>
+            </div>
+            <div class="grid grid-cols-2 gap-4 mt-5"><label class="text-sm">土壤水分<input
+                        class="mt-1 w-full border rounded-lg px-3 py-2" placeholder="如：24.6%"></label><label
+                    class="text-sm">空气温度<input class="mt-1 w-full border rounded-lg px-3 py-2"
+                        placeholder="如：31.2℃"></label><label class="text-sm col-span-2">农事记录<input
+                        class="mt-1 w-full border rounded-lg px-3 py-2" placeholder="如：滴灌、施肥、修剪"></label><label
+                    class="text-sm col-span-2">现场照片<input type="file" accept="image/*"
+                        class="mt-1 w-full border rounded-lg px-3 py-2"></label></div>
+            <div class="flex justify-end gap-3 mt-6"><button onclick="closeSupplement()"
+                    class="px-4 py-2 border rounded-lg text-sm">取消</button><button onclick="saveSupplement()"
+                    class="px-4 py-2 bg-blue-700 text-white rounded-lg text-sm">保存并带入</button></div>
+        </div>
+    </div>
+    <script>function runModel(b) { b.textContent = '模型运行中...'; b.disabled = true; setTimeout(() => { b.textContent = '✧ 运行模型'; b.disabled = false; empty.classList.add('hidden'); result.classList.remove('hidden'); state.textContent = '已完成'; state.className = 'tag bg-emerald-100 text-emerald-700' }, 650) } function goDiagnosis() { try { parent.openPage('growth/diagnosis.html', '诊断分析', parent.document.querySelector("[onclick*='growth/diagnosis.html']")) } catch (e) { location.href = 'diagnosis.html' } } function openSupplement() { supplement.classList.remove('hidden'); supplement.classList.add('flex') } function closeSupplement() { supplement.classList.add('hidden'); supplement.classList.remove('flex') } function saveSupplement() { closeSupplement(); alert('补充数据已保存，并带入本次模型输入。') }</script>
+</body>
+
+</html>

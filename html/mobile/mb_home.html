@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
@@ -109,12 +109,13 @@
     .summary-card::before {
       content: '';
       position: absolute;
-      top: -20px; right: -30px;
-      width: 160px; height: 160px;
+      top: -10px; right: -10px;
+      width: 175px; height: 175px;
       background: url('images/orchard_hero.jpg') center / cover no-repeat;
-      opacity: 0.85;
+      opacity: 0.8;
       border-radius: 50%;
-      filter: none;
+      -webkit-mask-image: radial-gradient(circle at 50% 50%, #000 38%, rgba(0,0,0,0.55) 65%, rgba(0,0,0,0.12) 88%, transparent 100%);
+              mask-image: radial-gradient(circle at 50% 50%, #000 38%, rgba(0,0,0,0.55) 65%, rgba(0,0,0,0.12) 88%, transparent 100%);
       pointer-events: none;
     }
     .summary-header {
@@ -896,7 +897,7 @@
           <div class="mb-quick-name">生长评价</div>
         </div>
         <div class="mb-quick-item" onclick="navigateTo('mb_market.html')">
-          <div class="mb-quick-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+          <div class="mb-quick-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4l5 7h4l5-7"/><path d="M10 11v9"/><path d="M14 11v9"/><path d="M6 13h12"/><path d="M6 17h12"/></svg></div>
           <div class="mb-quick-name">价格指数</div>
         </div>
         <div class="mb-quick-item" onclick="navigateTo('mb_data.html')">
@@ -934,7 +935,7 @@
         <!-- 卡1：市场行情 -->
         <div class="dynamic-card" onclick="navigateTo('mb_market.html')">
           <div class="dynamic-card-label">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4l5 7h4l5-7"/><path d="M10 11v9"/><path d="M14 11v9"/><path d="M6 13h12"/><path d="M6 17h12"/></svg>
             今日价格
           </div>
           <div class="dynamic-card-value price">¥1.45<small>/斤</small></div>
@@ -1046,8 +1047,9 @@
         <div class="task-modal-desc" id="taskModalSuggestion">详细操作建议内容</div>
       </div>
       <div class="task-modal-btn-group">
-        <button class="task-modal-btn secondary" onclick="closeTaskModal()">关闭</button>
-        <button class="task-modal-btn primary" onclick="completeTask()">标记完成</button>
+        <button class="task-modal-btn secondary" onclick="executeTask()">执行</button>
+        <button class="task-modal-btn secondary" onclick="adoptTask()">采纳</button>
+        <button class="task-modal-btn primary" onclick="closeTaskModal()">关闭</button>
       </div>
     </div>
   </div>
@@ -1173,6 +1175,16 @@
   function completeTask() {
     closeTaskModal();
     alert('任务已标记完成！');
+  }
+
+  function executeTask() {
+    closeTaskModal();
+    alert('已开始执行任务！');
+  }
+
+  function adoptTask() {
+    closeTaskModal();
+    alert('建议已采纳！');
   }
 
   document.addEventListener('DOMContentLoaded', function() {

@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>预测报告 - 南丰蜜桔模型管理系统</title>
+<title>预测报告 - 南丰蜜桔产业模型平台</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
@@ -119,6 +119,20 @@ body { margin: 0; padding: 0; background-color: #F0F2F5; font-family: -apple-sys
     <div id="rm-body" style="padding:20px"></div>
     <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end">
       <button onclick="hideModal()" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">关闭</button>
+    </div>
+  </div>
+</div>
+<!-- 7. 一键发布预警确认弹窗 -->
+<div id="publish-modal" class="modal-overlay">
+  <div class="modal-content" style="max-width:520px">
+    <div style="padding:16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between">
+      <h3 style="font-size:18px;font-weight:600;color:#1f2937">一键发布预警</h3>
+      <button onclick="closePublishModal()" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px;color:#9ca3af">&times;</button>
+    </div>
+    <div id="publish-body" style="padding:20px"></div>
+    <div style="padding:16px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;gap:12px">
+      <button onclick="closePublishModal()" style="padding:8px 16px;border:1px solid #d1d5db;background:#fff;color:#374151;border-radius:8px;font-size:14px;cursor:pointer">取消</button>
+      <button onclick="confirmPublish()" style="padding:8px 16px;background:#dc2626;color:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer">确认发布</button>
     </div>
   </div>
 </div>
@@ -306,6 +320,8 @@ function exportReport(){
   showToast('预测报告已导出');
 }
 document.addEventListener('click',function(e){var m=document.getElementById('report-modal');if(m.style.display==='flex'&&e.target===m)hideModal();});
+document.addEventListener('click',function(e){var m=document.getElementById('publish-modal');if(m&&m.style.display==='flex'&&e.target===m)closePublishModal();});
+document.addEventListener('keydown',function(e){var m=document.getElementById('publish-modal');if(e.key==='Escape'&&m&&m.style.display==='flex')closePublishModal();});
 window.onload=function(){
   document.getElementById('fc-3').innerHTML=fcHTML('3');
   document.getElementById('fc-7').innerHTML=fcHTML('7');
@@ -340,8 +356,10 @@ function showPhenologyContext(){
 }
 
 /* ============ 一键发布预警 ============ */
-function publishAsAlerts(){
-  if(!confirm('确认将本报告中的所有高/极高风险条目发布为预警？\n将自动写入预警管理、推送至移动端待办。')) return;
+var pendingAlerts = [];
+
+/* 组装待发布预警数据 */
+function buildAlerts(){
   var arr = curPer==='7' ? P7[curPest] : P3[curPest];
   var rows = TOWNS.map(function(t,i){return {t:t,p:arr[i]};}).sort(function(a,b){return b.p-a.p;});
   var meta = META[curPest] || {f:[],c:[],m:''};
@@ -377,7 +395,58 @@ function publishAsAlerts(){
       seq++;
     }
   });
-  if(alerts.length === 0){ alert('本报告无高/极高风险条目，无需发布。'); return; }
+  return { alerts: alerts, rows: rows };
+}
+
+function publishAsAlerts(){
+  var built = buildAlerts();
+  if(built.alerts.length === 0){ alert('本报告无高/极高风险条目，无需发布。'); return; }
+  pendingAlerts = built.alerts;
+  renderPublishPreview(built);
+  var m = document.getElementById('publish-modal');
+  m.style.display = 'flex';
+  m.classList.add('active');
+}
+
+/* 渲染发布预览内容 */
+function renderPublishPreview(built){
+  var alerts = built.alerts;
+  var extreme = alerts.filter(function(a){ return a.level === '红色预警'; }).length;
+  var high = alerts.length - extreme;
+  var listHtml = alerts.map(function(a){
+    return '<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-bottom:1px solid #f3f4f6">' +
+      '<span style="font-size:13px;color:#374151">' + a.town + '</span>' +
+      '<span style="display:flex;align-items:center;gap:8px">' +
+      '<span style="font-size:13px;color:#6b7280">' + (a.prob*100).toFixed(0) + '%</span>' +
+      badge(a.level, a.prob >= 0.8 ? RL['极高'] : RL['高']) +
+      '</span></div>';
+  }).join('');
+  document.getElementById('publish-body').innerHTML =
+    '<div style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:12px;margin-bottom:16px">' +
+      '<p style="font-size:14px;color:#991b1b;font-weight:600;margin:0 0 4px">即将发布 ' + alerts.length + ' 条预警</p>' +
+      '<p style="font-size:13px;color:#b91c1c;margin:0">发布后将自动写入预警管理，并推送至移动端待办。</p>' +
+    '</div>' +
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">' +
+      infoItem('病虫害种类', curPest) +
+      infoItem('预测周期', curPer + ' 天') +
+      infoItem('极高风险条数', extreme + ' 条') +
+      infoItem('高风险条数', high + ' 条') +
+    '</div>' +
+    '<h4 style="font-size:14px;font-weight:600;color:#1f2937;margin:0 0 8px">发布清单</h4>' +
+    '<div style="max-height:220px;overflow-y:auto;border:1px solid #e5e7eb;border-radius:8px">' + listHtml + '</div>';
+}
+
+function closePublishModal(){
+  var m = document.getElementById('publish-modal');
+  m.style.display = 'none';
+  m.classList.remove('active');
+  pendingAlerts = [];
+}
+
+function confirmPublish(){
+  if(!pendingAlerts.length){ closePublishModal(); return; }
+  var alerts = pendingAlerts;
+  var now = new Date();
   try {
     var existing = JSON.parse(localStorage.getItem('alerts') || '[]');
     var newOnes = alerts.filter(function(a){
@@ -388,6 +457,7 @@ function publishAsAlerts(){
     localStorage.setItem('alerts.lastPublishedAt', now.toISOString());
     localStorage.setItem('alerts.lastReportPest', curPest);
     localStorage.setItem('alerts.lastReportPeriod', curPer);
+    closePublishModal();
     showToast('已发布 ' + newOnes.length + ' 条预警（去重跳过 ' + (alerts.length - newOnes.length) + ' 条）');
   } catch(e){
     alert('发布失败：' + e.message);

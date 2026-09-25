@@ -1,14 +1,257 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>生长模型说明</title><script src="https://cdn.tailwindcss.com"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"><style>body{margin:0;background:#f4f7fa;color:#14233b;font-family:-apple-system,BlinkMacSystemFont,"Microsoft YaHei",sans-serif}.page{max-width:1500px;margin:auto;padding:24px}.card{background:#fff;border:1px solid #e3ecf5;border-radius:18px;box-shadow:0 5px 18px rgba(30,58,91,.06)}.hero{min-height:300px;background-image:linear-gradient(90deg,rgba(8,34,37,.78),rgba(8,34,37,.25) 58%,rgba(8,34,37,.04)),url('../../../assets/images/growth-model-hero-v3.png');background-size:cover;background-position:center}.num{width:30px;height:30px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700}.step{position:relative}.step:not(:last-child):after{content:'→';position:absolute;right:-18px;top:20px;color:#9badc1;font-size:21px}img[src*="leaf.svg"]{filter:invert(52%) sepia(49%) saturate(523%) hue-rotate(99deg) brightness(91%) contrast(88%)}img[src*="clipboard-list.svg"],img[src*="database.svg"]{filter:invert(47%) sepia(86%) saturate(1887%) hue-rotate(199deg) brightness(97%) contrast(90%)}img[src*="lightbulb.svg"],img[src*="gear.svg"]{filter:invert(65%) sepia(91%) saturate(1786%) hue-rotate(349deg) brightness(101%) contrast(101%)}img[src*="clipboard.svg"]{filter:invert(43%) sepia(99%) saturate(875%) hue-rotate(231deg) brightness(98%) contrast(96%)}img[src*="chart-column.svg"]{filter:invert(47%) sepia(86%) saturate(1887%) hue-rotate(199deg) brightness(97%) contrast(90%)}</style></head><body><main class="page"><header class="flex flex-wrap justify-between items-start gap-4 mb-4"><div><h1 class="text-2xl font-bold">生长模型说明</h1><p class="text-sm text-slate-500 mt-1">评估单个果园当前生长状态，识别限制因子并生成管理建议。</p></div><div class="flex gap-3 text-xs"><span class="bg-emerald-50 text-emerald-700 px-3 py-2 rounded-full">● 当前启用</span><span class="bg-slate-100 text-slate-500 px-3 py-2 rounded-full">版本 V2.3.1</span></div></header><section class="hero rounded-[20px] overflow-hidden p-8 grid lg:grid-cols-[1.25fr_.65fr] gap-6 text-white"><div class="self-end"><span class="inline-flex bg-white/20 backdrop-blur px-3 py-1 rounded-full text-xs">适用对象：已建档果园</span><h2 class="text-4xl leading-tight font-bold mt-4">用数据读懂果园<br>让南丰蜜桔更好生长</h2><p class="text-sm leading-6 max-w-xl text-white/90 mt-4">整合果园档案、环境、长势和农事数据；由使用者确认后运行模型，生成可执行的管理建议。</p><button onclick="goApply()" class="mt-5 bg-orange-500 hover:bg-orange-600 rounded-full px-5 py-2.5 text-sm font-medium">开始模型分析　→</button><div class="flex gap-6 mt-6 text-xs text-white/85"><span>科学种植</span><span>精准管理</span><span>更好收成</span></div></div><aside class="bg-white/90 backdrop-blur rounded-2xl p-5 text-slate-800 self-center"><div class="flex justify-between text-xs"><b>本次模型输出</b><span class="text-slate-500">南丰蜜桔 · 生长评估</span></div><div class="flex justify-center gap-4 items-center mt-4"><div class="w-20 h-20 rounded-full border-[7px] border-emerald-400 flex items-center justify-center"><b class="text-3xl">86</b><span class="text-xs">分</span></div><div class="w-[155px]"><p class="text-xs text-slate-500">综合评分</p><b class="block mt-1">生长状态良好</b><span class="inline-block bg-emerald-50 text-emerald-700 text-xs mt-2 px-2 py-1 rounded-full">长势良好</span></div></div><div class="mt-4 border-t divide-y text-sm"><div class="py-3 grid grid-cols-[125px_155px_14px] justify-center items-center gap-2"><span class="flex items-center gap-2"><span class="w-7 h-7 rounded-full bg-emerald-50 inline-flex items-center justify-center"><img class="w-3.5 h-3.5" src="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/svgs/solid/leaf.svg" alt=""></span>诊断结论</span><span class="text-slate-500 whitespace-nowrap">健康 / 关注 / 风险</span><i class="fa-solid fa-chevron-right text-slate-400 text-[10px]"></i></div><div class="py-3 grid grid-cols-[125px_155px_14px] justify-center items-center gap-2"><span class="flex items-center gap-2"><span class="w-7 h-7 rounded-full bg-blue-50 inline-flex items-center justify-center"><img class="w-3.5 h-3.5" src="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/svgs/solid/clipboard-list.svg" alt=""></span>关键问题</span><span class="text-slate-500 whitespace-nowrap">发现 2 项需关注因素</span><i class="fa-solid fa-chevron-right text-slate-400 text-[10px]"></i></div><div class="py-3 grid grid-cols-[125px_155px_14px] justify-center items-center gap-2"><span class="flex items-center gap-2"><span class="w-7 h-7 rounded-full bg-orange-50 inline-flex items-center justify-center"><img class="w-3.5 h-3.5" src="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/svgs/solid/lightbulb.svg" alt=""></span>管理建议</span><span class="text-slate-500 whitespace-nowrap">提供针对性处置建议</span><i class="fa-solid fa-chevron-right text-slate-400 text-[10px]"></i></div></div></aside></section><section class="card mt-4 px-5 py-4"><div class="grid lg:grid-cols-[1.15fr_repeat(4,1fr)] items-center gap-3"><div><h2 class="font-semibold text-sm">模型运行流程</h2><p class="text-xs text-slate-500 mt-1">数据只在采集时录入一次，模型运行时自动带入。</p></div><div class="flex items-center gap-2"><span class="num bg-blue-100 text-blue-700 shrink-0">01</span><img class="w-5 h-5 shrink-0" src="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/svgs/solid/database.svg" alt=""><div><b class="text-sm block">选择果园</b><p class="text-[11px] text-slate-500 mt-1">带入档案与物候</p></div><span class="ml-auto text-slate-500 text-2xl font-semibold leading-none px-1">→</span></div><div class="flex items-center gap-2"><span class="num bg-emerald-100 text-emerald-700 shrink-0">02</span><img class="w-5 h-5 shrink-0" src="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/svgs/solid/leaf.svg" alt=""><div><b class="text-sm block">读取数据</b><p class="text-[11px] text-slate-500 mt-1">汇集环境与农事</p></div><span class="ml-auto text-slate-500 text-2xl font-semibold leading-none px-1">→</span></div><div class="flex items-center gap-2"><span class="num bg-amber-100 text-amber-700 shrink-0">03</span><img class="w-5 h-5 shrink-0" src="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/svgs/solid/gear.svg" alt=""><div><b class="text-sm block">运行模型</b><p class="text-[11px] text-slate-500 mt-1">确认后主动运行</p></div><span class="ml-auto text-slate-500 text-2xl font-semibold leading-none px-1">→</span></div><div class="flex items-center gap-2"><span class="num bg-violet-100 text-violet-700 shrink-0">04</span><img class="w-5 h-5 shrink-0" src="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/svgs/solid/clipboard.svg" alt=""><div><b class="text-sm block">查看诊断</b><p class="text-[11px] text-slate-500 mt-1">评分、原因和建议</p></div></div></div></section><section class="grid lg:grid-cols-2 gap-4 mt-4"><article class="card overflow-hidden grid sm:grid-cols-[1.15fr_.85fr]"><div class="min-h-[250px] bg-cover bg-center" style="background-image:linear-gradient(90deg,rgba(8,34,37,.58),rgba(8,34,37,.08)),url('../../../assets/images/growth-model-hero-v3.png')"><div class="p-7 text-white relative h-full"><p class="text-sm">数据驱动</p><h2 class="text-2xl font-bold leading-tight mt-4">从果园数据<br>看见生长的力量</h2><p class="text-xs mt-4 text-white/90">让每一项数据，都服务于更甜的南丰蜜桔。</p><div class="absolute right-4 bottom-4 rounded-xl bg-slate-950/45 backdrop-blur px-4 py-3 text-xs leading-6 border border-white/15"><div>🌡 24.3℃　当前气温</div><div>💧 68%　空气湿度</div><div>☀ 1,260 lx　光照强度</div></div></div></div><div class="p-6 flex flex-col justify-center"><p class="text-sm font-semibold">模型读取的数据</p><div class="space-y-3 mt-4 text-sm"><div><b>基础档案</b><p class="text-xs text-slate-500 mt-1">品种、树龄、砧木、栽培方式</p></div><div><b>环境长势</b><p class="text-xs text-slate-500 mt-1">温湿度、墒情、果径、叶色</p></div><div><b>农事反馈</b><p class="text-xs text-slate-500 mt-1">灌溉、施肥、修剪与处置记录</p></div></div></div></article><article class="card p-6 grid sm:grid-cols-[1fr_145px] gap-4 items-center"><div><h2 class="font-semibold">模型设计依据</h2><p class="text-xs text-slate-500 mt-1">基于南丰蜜桔生长规律，结合实际生产经验与数据分析。</p><div class="mt-5 space-y-4 text-sm"><div class="flex gap-3"><span class="num bg-blue-50 text-blue-700 shrink-0">01</span><img class="w-4 h-4 mt-2" src="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/svgs/solid/leaf.svg" alt=""><div><b>品种与物候特性</b><p class="text-xs text-slate-500 mt-1">不同品种及物候期的适宜条件和管理重点不同。</p></div></div><div class="flex gap-3"><span class="num bg-emerald-50 text-emerald-700 shrink-0">02</span><img class="w-4 h-4 mt-2" src="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/svgs/solid/chart-column.svg" alt=""><div><b>环境与长势关系</b><p class="text-xs text-slate-500 mt-1">温湿度、墒情、光照与树势、果实状态关系。</p></div></div><div class="flex gap-3"><span class="num bg-orange-50 text-orange-700 shrink-0">03</span><img class="w-4 h-4 mt-2" src="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/svgs/solid/database.svg" alt=""><div><b>历史结果与反馈</b><p class="text-xs text-slate-500 mt-1">结合诊断、处置和复查记录持续校对模型。</p></div></div></div></div><div class="hidden sm:flex h-full min-h-[180px] items-center justify-center"><div class="w-32 h-32 rounded-full bg-cover bg-center ring-8 ring-orange-50 shadow-sm" style="background-image:url('../../../assets/images/growth-model-hero-v3.png');background-position:42% 54%"></div></div></article></section></main><script>function goApply(){try{parent.openPage('growth/model_engine.html','模型应用',parent.document.querySelector("[onclick*='growth/model_engine.html']"))}catch(e){location.href='model_engine.html'}}</script></body></html>
+<!doctype html>
+<html lang="zh-CN">
 
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>生长模型说明</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            background: #f4f7fa;
+            color: #14233b;
+            font-family: -apple-system, BlinkMacSystemFont, "Microsoft YaHei", sans-serif
+        }
 
+        .page {
+            max-width: 1500px;
+            margin: auto;
+            padding: 24px
+        }
 
+        .card {
+            background: #fff;
+            border: 1px solid #e3ecf5;
+            border-radius: 18px;
+            box-shadow: 0 5px 18px rgba(30, 58, 91, .06)
+        }
 
+        .hero {
+            min-height: 300px;
+            background-image: linear-gradient(90deg, rgba(8, 34, 37, .78), rgba(8, 34, 37, .25) 58%, rgba(8, 34, 37, .04)), url('../../../assets/images/growth-model-hero-v3.png');
+            background-size: cover;
+            background-position: center
+        }
 
+        .num {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700
+        }
 
+        .step {
+            position: relative
+        }
 
+        .step:not(:last-child):after {
+            content: '→';
+            position: absolute;
+            right: -18px;
+            top: 20px;
+            color: #9badc1;
+            font-size: 21px
+        }
 
+        img[src*="leaf.svg"] {
+            filter: invert(52%) sepia(49%) saturate(523%) hue-rotate(99deg) brightness(91%) contrast(88%)
+        }
 
+        img[src*="clipboard-list.svg"],
+        img[src*="database.svg"] {
+            filter: invert(47%) sepia(86%) saturate(1887%) hue-rotate(199deg) brightness(97%) contrast(90%)
+        }
 
+        img[src*="lightbulb.svg"],
+        img[src*="gear.svg"] {
+            filter: invert(65%) sepia(91%) saturate(1786%) hue-rotate(349deg) brightness(101%) contrast(101%)
+        }
 
+        img[src*="clipboard.svg"] {
+            filter: invert(43%) sepia(99%) saturate(875%) hue-rotate(231deg) brightness(98%) contrast(96%)
+        }
 
+        img[src*="chart-column.svg"] {
+            filter: invert(47%) sepia(86%) saturate(1887%) hue-rotate(199deg) brightness(97%) contrast(90%)
+        }
+    </style>
+</head>
 
+<body>
+    <main class="page">
+        <header class="flex flex-wrap justify-between items-start gap-4 mb-4">
+            <div>
+                <h1 class="text-2xl font-bold">生长模型说明</h1>
+                <p class="text-sm text-slate-500 mt-1">评估单个果园当前生长状态，识别限制因子并生成管理建议。</p>
+            </div>
+            <div class="flex gap-3 text-xs"><span class="bg-emerald-50 text-emerald-700 px-3 py-2 rounded-full">●
+                    当前启用</span><span class="bg-slate-100 text-slate-500 px-3 py-2 rounded-full">版本 V2.3.1</span></div>
+        </header>
+        <section class="hero rounded-[20px] overflow-hidden p-8 grid lg:grid-cols-[1.25fr_.65fr] gap-6 text-white">
+            <div class="self-end"><span
+                    class="inline-flex bg-white/20 backdrop-blur px-3 py-1 rounded-full text-xs">适用对象：已建档果园</span>
+                <h2 class="text-4xl leading-tight font-bold mt-4">用数据读懂果园<br>让南丰蜜桔更好生长</h2>
+                <p class="text-sm leading-6 max-w-xl text-white/90 mt-4">整合果园档案、环境、长势和农事数据；由使用者确认后运行模型，生成可执行的管理建议。</p>
+                <button onclick="goApply()"
+                    class="mt-5 bg-orange-500 hover:bg-orange-600 rounded-full px-5 py-2.5 text-sm font-medium">开始模型分析　→</button>
+                <div class="flex gap-6 mt-6 text-xs text-white/85"><span>科学种植</span><span>精准管理</span><span>更好收成</span>
+                </div>
+            </div>
+            <aside class="bg-white/90 backdrop-blur rounded-2xl p-5 text-slate-800 self-center">
+                <div class="flex justify-between text-xs"><b>本次模型输出</b><span class="text-slate-500">南丰蜜桔 · 生长评估</span>
+                </div>
+                <div class="flex justify-center gap-4 items-center mt-4">
+                    <div
+                        class="w-20 h-20 rounded-full border-[7px] border-emerald-400 flex items-center justify-center">
+                        <b class="text-3xl">86</b><span class="text-xs">分</span></div>
+                    <div class="w-[155px]">
+                        <p class="text-xs text-slate-500">综合评分</p><b class="block mt-1">生长状态良好</b><span
+                            class="inline-block bg-emerald-50 text-emerald-700 text-xs mt-2 px-2 py-1 rounded-full">长势良好</span>
+                    </div>
+                </div>
+                <div class="mt-4 border-t divide-y text-sm">
+                    <div class="py-3 grid grid-cols-[125px_155px_14px] justify-center items-center gap-2"><span
+                            class="flex items-center gap-2"><span
+                                class="w-7 h-7 rounded-full bg-emerald-50 inline-flex items-center justify-center"><img
+                                    class="w-3.5 h-3.5"
+                                    src="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/svgs/solid/leaf.svg"
+                                    alt=""></span>诊断结论</span><span class="text-slate-500 whitespace-nowrap">健康 / 关注 /
+                            风险</span><i class="fa-solid fa-chevron-right text-slate-400 text-[10px]"></i></div>
+                    <div class="py-3 grid grid-cols-[125px_155px_14px] justify-center items-center gap-2"><span
+                            class="flex items-center gap-2"><span
+                                class="w-7 h-7 rounded-full bg-blue-50 inline-flex items-center justify-center"><img
+                                    class="w-3.5 h-3.5"
+                                    src="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/svgs/solid/clipboard-list.svg"
+                                    alt=""></span>关键问题</span><span class="text-slate-500 whitespace-nowrap">发现 2
+                            项需关注因素</span><i class="fa-solid fa-chevron-right text-slate-400 text-[10px]"></i></div>
+                    <div class="py-3 grid grid-cols-[125px_155px_14px] justify-center items-center gap-2"><span
+                            class="flex items-center gap-2"><span
+                                class="w-7 h-7 rounded-full bg-orange-50 inline-flex items-center justify-center"><img
+                                    class="w-3.5 h-3.5"
+                                    src="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/svgs/solid/lightbulb.svg"
+                                    alt=""></span>管理建议</span><span
+                            class="text-slate-500 whitespace-nowrap">提供针对性处置建议</span><i
+                            class="fa-solid fa-chevron-right text-slate-400 text-[10px]"></i></div>
+                </div>
+            </aside>
+        </section>
+        <section class="card mt-4 px-5 py-4">
+            <div class="grid lg:grid-cols-[1.15fr_repeat(4,1fr)] items-center gap-3">
+                <div>
+                    <h2 class="font-semibold text-sm">模型运行流程</h2>
+                    <p class="text-xs text-slate-500 mt-1">数据只在采集时录入一次，模型运行时自动带入。</p>
+                </div>
+                <div class="flex items-center gap-2"><span class="num bg-blue-100 text-blue-700 shrink-0">01</span><img
+                        class="w-5 h-5 shrink-0"
+                        src="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/svgs/solid/database.svg"
+                        alt="">
+                    <div><b class="text-sm block">选择果园</b>
+                        <p class="text-[11px] text-slate-500 mt-1">带入档案与物候</p>
+                    </div><span class="ml-auto text-slate-500 text-2xl font-semibold leading-none px-1">→</span>
+                </div>
+                <div class="flex items-center gap-2"><span
+                        class="num bg-emerald-100 text-emerald-700 shrink-0">02</span><img class="w-5 h-5 shrink-0"
+                        src="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/svgs/solid/leaf.svg"
+                        alt="">
+                    <div><b class="text-sm block">读取数据</b>
+                        <p class="text-[11px] text-slate-500 mt-1">汇集环境与农事</p>
+                    </div><span class="ml-auto text-slate-500 text-2xl font-semibold leading-none px-1">→</span>
+                </div>
+                <div class="flex items-center gap-2"><span
+                        class="num bg-amber-100 text-amber-700 shrink-0">03</span><img class="w-5 h-5 shrink-0"
+                        src="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/svgs/solid/gear.svg"
+                        alt="">
+                    <div><b class="text-sm block">运行模型</b>
+                        <p class="text-[11px] text-slate-500 mt-1">确认后主动运行</p>
+                    </div><span class="ml-auto text-slate-500 text-2xl font-semibold leading-none px-1">→</span>
+                </div>
+                <div class="flex items-center gap-2"><span
+                        class="num bg-violet-100 text-violet-700 shrink-0">04</span><img class="w-5 h-5 shrink-0"
+                        src="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/svgs/solid/clipboard.svg"
+                        alt="">
+                    <div><b class="text-sm block">查看诊断</b>
+                        <p class="text-[11px] text-slate-500 mt-1">评分、原因和建议</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="grid lg:grid-cols-2 gap-4 mt-4">
+            <article class="card overflow-hidden grid sm:grid-cols-[1.15fr_.85fr]">
+                <div class="min-h-[250px] bg-cover bg-center"
+                    style="background-image:linear-gradient(90deg,rgba(8,34,37,.58),rgba(8,34,37,.08)),url('../../../assets/images/growth-model-hero-v3.png')">
+                    <div class="p-7 text-white relative h-full">
+                        <p class="text-sm">数据驱动</p>
+                        <h2 class="text-2xl font-bold leading-tight mt-4">从果园数据<br>看见生长的力量</h2>
+                        <p class="text-xs mt-4 text-white/90">让每一项数据，都服务于更甜的南丰蜜桔。</p>
+                        <div
+                            class="absolute right-4 bottom-4 rounded-xl bg-slate-950/45 backdrop-blur px-4 py-3 text-xs leading-6 border border-white/15">
+                            <div>🌡 24.3℃　当前气温</div>
+                            <div>💧 68%　空气湿度</div>
+                            <div>☀ 1,260 lx　光照强度</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-6 flex flex-col justify-center">
+                    <p class="text-sm font-semibold">模型读取的数据</p>
+                    <div class="space-y-3 mt-4 text-sm">
+                        <div><b>基础档案</b>
+                            <p class="text-xs text-slate-500 mt-1">品种、树龄、砧木、栽培方式</p>
+                        </div>
+                        <div><b>环境长势</b>
+                            <p class="text-xs text-slate-500 mt-1">温湿度、墒情、果径、叶色</p>
+                        </div>
+                        <div><b>农事反馈</b>
+                            <p class="text-xs text-slate-500 mt-1">灌溉、施肥、修剪与处置记录</p>
+                        </div>
+                    </div>
+                </div>
+            </article>
+            <article class="card p-6 grid sm:grid-cols-[1fr_145px] gap-4 items-center">
+                <div>
+                    <h2 class="font-semibold">模型设计依据</h2>
+                    <p class="text-xs text-slate-500 mt-1">基于南丰蜜桔生长规律，结合实际生产经验与数据分析。</p>
+                    <div class="mt-5 space-y-4 text-sm">
+                        <div class="flex gap-3"><span class="num bg-blue-50 text-blue-700 shrink-0">01</span><img
+                                class="w-4 h-4 mt-2"
+                                src="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/svgs/solid/leaf.svg"
+                                alt="">
+                            <div><b>品种与物候特性</b>
+                                <p class="text-xs text-slate-500 mt-1">不同品种及物候期的适宜条件和管理重点不同。</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-3"><span class="num bg-emerald-50 text-emerald-700 shrink-0">02</span><img
+                                class="w-4 h-4 mt-2"
+                                src="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/svgs/solid/chart-column.svg"
+                                alt="">
+                            <div><b>环境与长势关系</b>
+                                <p class="text-xs text-slate-500 mt-1">温湿度、墒情、光照与树势、果实状态关系。</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-3"><span class="num bg-orange-50 text-orange-700 shrink-0">03</span><img
+                                class="w-4 h-4 mt-2"
+                                src="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/svgs/solid/database.svg"
+                                alt="">
+                            <div><b>历史结果与反馈</b>
+                                <p class="text-xs text-slate-500 mt-1">结合诊断、处置和复查记录持续校对模型。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="hidden sm:flex h-full min-h-[180px] items-center justify-center">
+                    <div class="w-32 h-32 rounded-full bg-cover bg-center ring-8 ring-orange-50 shadow-sm"
+                        style="background-image:url('../../../assets/images/growth-model-hero-v3.png');background-position:42% 54%">
+                    </div>
+                </div>
+            </article>
+        </section>
+    </main>
+    <script>function goApply() { try { parent.openPage('growth/model_engine.html', '模型应用', parent.document.querySelector("[onclick*='growth/model_engine.html']")) } catch (e) { location.href = 'model_engine.html' } }</script>
+</body>
+
+</html>

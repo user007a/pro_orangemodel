@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>种植标准库 - 南丰蜜桔模型管理系统</title>
+    <title>种植标准库 - 南丰蜜桔产业模型平台</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body{margin:0;padding:0;background-color:#F0F2F5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,'Noto Sans SC',sans-serif}
@@ -16,7 +16,7 @@
     <div class="flex items-center justify-between mb-6">
         <div>
             <h1 class="text-xl font-bold text-gray-800">种植标准库</h1>
-            <p class="text-gray-500 text-sm mt-1">管理南丰蜜桔种植标准（建园、密度、修剪、施肥、灌溉等）</p>
+            <p class="text-gray-500 text-sm mt-1">管理南丰蜜桔的生产技术、贮藏包装、病虫防控等各类国家和地方标准。</p>
         </div>
     </div>
 
@@ -31,12 +31,12 @@
         <div class="p-6 pt-0">
             <div class="overflow-x-auto">
                 <table class="w-full text-sm">
-                    <thead><tr class="border-b border-gray-200"><th class="text-left py-3 px-4 font-semibold text-gray-600">标准编号</th><th class="text-left py-3 px-4 font-semibold text-gray-600">标准名称</th><th class="text-left py-3 px-4 font-semibold text-gray-600">类别</th><th class="text-left py-3 px-4 font-semibold text-gray-600">适用品种</th><th class="text-left py-3 px-4 font-semibold text-gray-600">技术要点</th><th class="text-left py-3 px-4 font-semibold text-gray-600">生效日期</th><th class="text-left py-3 px-4 font-semibold text-gray-600">状态</th><th class="text-left py-3 px-4 font-semibold text-gray-600">操作</th></tr></thead>
+                    <thead><tr class="border-b border-gray-200"><th class="text-left py-3 px-4 font-semibold text-gray-600">标准编号</th><th class="text-left py-3 px-4 font-semibold text-gray-600">标准名称</th><th class="text-left py-3 px-4 font-semibold text-gray-600">标准级别</th><th class="text-left py-3 px-4 font-semibold text-gray-600">类别</th><th class="text-left py-3 px-4 font-semibold text-gray-600">适用品种</th><th class="text-left py-3 px-4 font-semibold text-gray-600">技术要点</th><th class="text-left py-3 px-4 font-semibold text-gray-600">生效日期</th><th class="text-left py-3 px-4 font-semibold text-gray-600">状态</th><th class="text-left py-3 px-4 font-semibold text-gray-600">操作</th></tr></thead>
                     <tbody id="standard-tbody"></tbody>
                 </table>
             </div>
             <div class="pt-4 border-t border-gray-100 flex items-center justify-between">
-                <p class="text-sm text-gray-500">共 <span id="standard-total-count">8</span> 条记录</p>
+                <p class="text-sm text-gray-500">共 <span id="standard-total-count">11</span> 条记录</p>
                 <div class="flex items-center space-x-2">
                     <button onclick="standardPrevPage()" class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50">上一页</button>
                     <span class="text-sm text-gray-600"><span id="standard-current-page">1</span> / <span id="standard-total-pages">1</span></span>
@@ -79,10 +79,12 @@
             <button onclick="closeModal('standard-add-modal')" style="padding:4px;background:none;border:none;cursor:pointer;font-size:20px">&times;</button>
         </div>
         <div style="padding:24px;display:flex;flex-direction:column;gap:16px">
+            <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">标准编号 <span style="color:#ef4444">*</span></label><input type="text" id="add-std-code" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box" placeholder="如：GB/T 19051-2008、DB36/T 928-2016"></div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">类别 <span style="color:#ef4444">*</span></label><select id="add-std-category" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"><option value="建园">建园</option><option value="修剪">修剪</option><option value="施肥">施肥</option><option value="灌溉">灌溉</option><option value="土壤">土壤</option><option value="病虫害">病虫害</option><option value="采收">采收</option><option value="其他">其他</option></select></div>
-                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">适用品种</label><input type="text" id="add-std-variety" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box" placeholder="如：南丰蜜桔"></div>
+                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">标准级别 <span style="color:#ef4444">*</span></label><select id="add-std-level" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"><option value="国家标准">国家标准</option><option value="地方标准">地方标准</option></select></div>
+                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">类别 <span style="color:#ef4444">*</span></label><select id="add-std-category" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"><option value="建园">建园</option><option value="修剪">修剪</option><option value="施肥">施肥</option><option value="灌溉">灌溉</option><option value="土壤">土壤</option><option value="病虫害">病虫害</option><option value="采收">采收</option><option value="栽培">栽培</option><option value="质量">质量</option><option value="综合">综合</option><option value="其他">其他</option></select></div>
             </div>
+            <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">适用品种</label><input type="text" id="add-std-variety" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box" placeholder="如：南丰蜜桔"></div>
             <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">标准名称 <span style="color:#ef4444">*</span></label><input type="text" id="add-std-name" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box" placeholder="请输入标准名称"></div>
             <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">技术要点 <span style="color:#ef4444">*</span></label><textarea id="add-std-content" rows="4" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box;resize:vertical" placeholder="请输入技术要点"></textarea></div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
@@ -106,7 +108,7 @@
         </div>
         <div style="padding:24px;display:flex;flex-direction:column;gap:16px">
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">类别 <span style="color:#ef4444">*</span></label><select id="edit-std-category" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"><option value="建园">建园</option><option value="修剪">修剪</option><option value="施肥">施肥</option><option value="灌溉">灌溉</option><option value="土壤">土壤</option><option value="病虫害">病虫害</option><option value="采收">采收</option><option value="其他">其他</option></select></div>
+                <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">类别 <span style="color:#ef4444">*</span></label><select id="edit-std-category" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"><option value="建园">建园</option><option value="修剪">修剪</option><option value="施肥">施肥</option><option value="灌溉">灌溉</option><option value="土壤">土壤</option><option value="病虫害">病虫害</option><option value="采收">采收</option><option value="栽培">栽培</option><option value="质量">质量</option><option value="综合">综合</option><option value="其他">其他</option></select></div>
                 <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">适用品种</label><input type="text" id="edit-std-variety" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"></div>
             </div>
             <div><label style="font-size:14px;font-weight:500;color:#374151;display:block;margin-bottom:4px">标准名称 <span style="color:#ef4444">*</span></label><input type="text" id="edit-std-name" style="width:100%;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;box-sizing:border-box"></div>
@@ -144,14 +146,17 @@
 
 <script>
 var standardData = [
-    { id: 'std-1', code: 'STD-001', name: '南丰蜜桔新建园标准', category: '建园', variety: '南丰蜜桔', content: '园地选择：土层厚度≥80cm，pH 5.5-6.5，地下水位≤1m；行株距 4m×3m；定植穴规格 80cm×80cm×80cm；施足基肥后回填。', date: '2025-03-01', status: '生效中', statusClass: 'bg-blue-100 text-blue-600' },
-    { id: 'std-2', code: 'STD-002', name: '密植园改造技术规范', category: '建园', variety: '南丰蜜桔', content: '针对 2m×1.5m 以下密植园，隔行间伐或隔株间伐，使改造后行株距不小于 3m×2m；修剪配合大枝回缩，逐年完成。', date: '2025-03-01', status: '生效中', statusClass: 'bg-blue-100 text-blue-600' },
-    { id: 'std-3', code: 'STD-003', name: '成年树修剪作业标准', category: '修剪', variety: '南丰蜜桔', content: '冬季修剪在 12 月-次年 1 月进行；剪除枯枝、病虫枝、交叉枝、内膛枝；保持树冠通风透光，结果母枝均匀分布。', date: '2025-04-15', status: '生效中', statusClass: 'bg-blue-100 text-blue-600' },
-    { id: 'std-4', code: 'STD-004', name: '幼龄树修剪作业标准', category: '修剪', variety: '南丰蜜桔', content: '定植后 1-3 年以整形为主，培养 3-4 个主枝；夏剪抹芽、摘心；冬剪轻剪，保留骨架枝，促发分枝。', date: '2025-04-15', status: '生效中', statusClass: 'bg-blue-100 text-blue-600' },
-    { id: 'std-5', code: 'STD-005', name: '基肥施用技术规范', category: '施肥', variety: '南丰蜜桔', content: '采果后至萌芽前施入；每株施有机肥 10-20kg + 复合肥 0.5-1kg；环状沟施或条沟施，施肥后覆土浇水。', date: '2025-05-10', status: '生效中', statusClass: 'bg-blue-100 text-blue-600' },
-    { id: 'std-6', code: 'STD-006', name: '追肥施用技术规范', category: '施肥', variety: '南丰蜜桔', content: '芽前肥（2 月）、稳果肥（5 月）、壮果肥（7 月）；以氮磷钾配合，按树龄与产量酌量；土壤追施与叶面喷施结合。', date: '2025-05-10', status: '生效中', statusClass: 'bg-blue-100 text-blue-600' },
-    { id: 'std-7', code: 'STD-007', name: '节水灌溉作业标准', category: '灌溉', variety: '南丰蜜桔', content: '采用滴灌或微喷；萌芽期、果实膨大期保证水分供应，成熟前 10-15 天适当控水；土壤含水量保持在田间持水量 60%-80%。', date: '2025-06-01', status: '生效中', statusClass: 'bg-blue-100 text-blue-600' },
-    { id: 'std-8', code: 'STD-008', name: '土壤改良作业标准', category: '土壤', variety: '南丰蜜桔', content: '针对 pH 过酸园地施用石灰或白云石粉调节；黏重土壤掺沙掺有机肥改良；坡地修筑梯田或鱼鳞坑保水保肥。', date: '2025-06-01', status: '草稿', statusClass: 'bg-gray-200 text-gray-500' }
+    { id: 'std-1', code: 'GB/T 19051-2008', name: '地理标志产品 南丰蜜桔', level: '国家标准', category: '质量', variety: '南丰蜜桔', content: '规定南丰蜜桔地理标志产品的保护范围、术语和定义、要求、试验方法、检验规则及标志、包装、运输与贮存；适用于国家质量监督检验检疫行政主管部门批准保护范围内生产的南丰蜜桔。', date: '2008-12-01', status: '生效中', statusClass: 'bg-blue-100 text-blue-600' },
+    { id: 'std-2', code: 'DB36/T 443-2005', name: '绿色食品 南丰蜜桔生产技术规程', level: '地方标准', category: '栽培', variety: '南丰蜜桔', content: '规定绿色食品南丰蜜桔生产所要求的果园建立、果园管理、贮藏保鲜等技术要求；适用于 A 级绿色食品南丰蜜桔的生产。', date: '2005-05-01', status: '已停用', statusClass: 'bg-gray-100 text-gray-600' },
+    { id: 'std-3', code: 'DB36/T 895-2024', name: '南丰蜜桔采后商品化处理程序', level: '地方标准', category: '采收', variety: '南丰蜜桔', content: '规定南丰蜜桔采收、初选与防腐处理、贮藏、出库、分级与包装等技术；适用于南丰蜜桔的采后商品化处理、贮藏和运输。', date: '2024-09-01', status: '已停用', statusClass: 'bg-gray-100 text-gray-600' },
+    { id: 'std-4', code: 'DB36/T 387-2020', name: '南丰蜜桔地方标准', level: '地方标准', category: '综合', variety: '南丰蜜桔', content: '规定南丰蜜桔的定义、要求、检验、包装、运输、贮存等内容，明确果实质量等级与 2S/S/M/L/2L 五个规格；适用于收购、贮存、运输、加工、销售的商品南丰蜜桔。', date: '2021-01-01', status: '已停用', statusClass: 'bg-gray-100 text-gray-600' },
+    { id: 'std-5', code: 'DB36/T 928-2016', name: '南丰蜜桔果实黑点病综合防控技术规程', level: '地方标准', category: '病虫害', variety: '南丰蜜桔', content: '规定南丰蜜桔新建桔园选址、土肥管理、冬季清园、树体管理、防寒抗冻和药剂防治等果实黑点病综合防控技术；适用于南丰蜜桔种植区果实黑点病的综合防控。', date: '2017-03-01', status: '生效中', statusClass: 'bg-blue-100 text-blue-600' },
+    { id: 'std-6', code: 'DB36/T 1619-2022', name: '南丰蜜桔留树保鲜技术规程', level: '地方标准', category: '采收', variety: '南丰蜜桔', content: '规定留树保鲜的适用果园条件、延迟采收期树体管理、防冻防落果措施、肥水调控、关键病虫害监测、采收与采后衔接要求，以及留树期间禁止使用的药剂清单。', date: '2023-02-01', status: '已停用', statusClass: 'bg-gray-100 text-gray-600' },
+    { id: 'std-7', code: 'DB36/T 388-2020', name: '南丰蜜桔生产技术规程', level: '地方标准', category: '栽培', variety: '南丰蜜桔', content: '南丰蜜桔通用生产技术规程，涵盖园地规划、苗木定植、土肥水管理、整形修剪、花果管理、病虫草害综合防治、采收与采后处理等全过程的规范化操作要求。', date: '2021-01-01', status: '生效中', statusClass: 'bg-blue-100 text-blue-600' },
+    { id: 'std-8', code: 'DB36/T 1620-2022', name: '南丰蜜桔树体管理技术规程', level: '地方标准', category: '修剪', variety: '南丰蜜桔', content: '规定幼龄树、结果初期树、盛果树、衰老树的整形修剪方法、枝组培养、花果调控、树体更新等技术要求，明确修剪时期、伤口保护和配套管理措施。', date: '2023-02-01', status: '已停用', statusClass: 'bg-gray-100 text-gray-600' },
+    { id: 'std-9', code: 'DB36/T 125-2018', name: '南丰蜜桔包装', level: '地方标准', category: '采收', variety: '南丰蜜桔', content: '规定南丰蜜橘包装的术语和定义、包装技术与方法、包装材料与要求、试验方法、检验规则等内容；适用于南丰蜜橘包装、贮存、运输和出口。', date: '2019-02-01', status: '已停用', statusClass: 'bg-gray-100 text-gray-600' },
+    { id: 'std-10', code: 'DB36/T 1463-2021', name: '南丰蜜桔黄龙病低度流行区防控技术规程', level: '地方标准', category: '病虫害', variety: '南丰蜜桔', content: '针对黄龙病低度流行区，规定种苗检疫与脱毒、媒介木虱监测与统防统治、感病植株标记挖除、隔离栽培、普查与宣传等综合防控策略与年度防控节奏。', date: '2022-03-01', status: '已停用', statusClass: 'bg-gray-100 text-gray-600' },
+    { id: 'std-11', code: 'DB36/T 126-2018', name: '南丰蜜桔贮藏保鲜', level: '地方标准', category: '采收', variety: '南丰蜜桔', content: '规定南丰蜜橘贮藏保鲜的果实采收要求、防腐保鲜处理、通风库与冷库贮藏管理、温湿度控制、出库与货架期管理等技术内容。', date: '2019-02-01', status: '已停用', statusClass: 'bg-gray-100 text-gray-600' }
 ];
 var standardCurrentPage = 1;
 var standardPageSize = 6;
@@ -165,16 +170,6 @@ function statusClassOf(status){
     return 'bg-gray-200 text-gray-500';
 }
 
-function nextCode(){
-    var maxNum = 0;
-    for(var i=0;i<standardData.length;i++){
-        var m = standardData[i].code.match(/STD-(\d+)/);
-        if(m){var n=parseInt(m[1],10); if(n>maxNum) maxNum=n;}
-    }
-    var next = maxNum + 1;
-    return 'STD-' + String(next).padStart(3,'0');
-}
-
 function renderStandardTable(){
     var tbody = document.getElementById('standard-tbody');
     var start = (standardCurrentPage - 1) * standardPageSize;
@@ -186,6 +181,7 @@ function renderStandardTable(){
         html += '<tr class="border-b border-gray-100 hover:bg-gray-50">';
         html += '<td class="py-3 px-4 font-medium text-gray-800">'+item.code+'</td>';
         html += '<td class="py-3 px-4 text-gray-800">'+item.name+'</td>';
+        html += '<td class="py-3 px-4"><span class="px-2 py-0.5 rounded-full text-xs '+(item.level === '国家标准' ? 'bg-amber-50 text-amber-700' : 'bg-slate-100 text-slate-600')+'">'+item.level+'</span></td>';
         html += '<td class="py-3 px-4"><span class="px-2 py-0.5 rounded-full text-xs bg-blue-50 text-blue-700">'+item.category+'</span></td>';
         html += '<td class="py-3 px-4 text-gray-600">'+item.variety+'</td>';
         html += '<td class="py-3 px-4 text-gray-600" style="max-width:280px">'+item.content+'</td>';
@@ -219,6 +215,8 @@ function standardPrevPage(){if(standardCurrentPage>1){standardCurrentPage--;rend
 function standardNextPage(){var t=Math.ceil(filteredStandardData.length/standardPageSize);if(standardCurrentPage<t){standardCurrentPage++;renderStandardTable();}}
 
 function openStandardAddModal(){
+    document.getElementById('add-std-code').value = '';
+    document.getElementById('add-std-level').value = '地方标准';
     document.getElementById('add-std-category').value = '建园';
     document.getElementById('add-std-variety').value = '';
     document.getElementById('add-std-name').value = '';
@@ -229,20 +227,24 @@ function openStandardAddModal(){
 }
 
 function submitStandardAdd(){
+    var code = document.getElementById('add-std-code').value.trim();
     var name = document.getElementById('add-std-name').value.trim();
+    var level = document.getElementById('add-std-level').value;
     var category = document.getElementById('add-std-category').value;
     var variety = document.getElementById('add-std-variety').value.trim();
     var content = document.getElementById('add-std-content').value.trim();
     var date = document.getElementById('add-std-date').value;
     var status = document.getElementById('add-std-status').value;
 
+    if(!code){alert('请填写标准编号');return;}
     if(!name){alert('请填写标准名称');return;}
     if(!content){alert('请填写技术要点');return;}
 
     var newItem = {
         id: 'std-' + (standardData.length + 1) + '-' + Date.now(),
-        code: nextCode(),
+        code: code,
         name: name,
+        level: level,
         category: category,
         variety: variety || '南丰蜜桔',
         content: content,

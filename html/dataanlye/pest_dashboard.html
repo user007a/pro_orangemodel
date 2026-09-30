@@ -202,7 +202,8 @@
             padding: 16px 18px;
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: flex-start;
+            gap: 12px;
             box-shadow: 0 4px 16px rgba(0, 212, 255,0.06);
             border: 1px solid rgba(0, 212, 255,0.08);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -265,13 +266,29 @@
             background-clip: text;
             color: transparent;
         }
-        .trend-badge { font-size: 0.85rem; background: rgba(34, 197, 94, 0.16); display: inline-block; padding: 2px 9px; border-radius: 20px; margin-top: 5px; color: #4ade80; }
-        .trend-badge.warning { background: rgba(54, 42, 16, 0.90); color: #C4832F; }
-        .trend-badge.danger { background: rgba(58, 22, 28, 0.90); color: #dc2626; }
+        /* ===== KPI 主视觉层级（参考稿为「标签 + 大数字(含单位)」两段式）=====
+         * 左侧补语义色图标徽章提升扫读速度；单位与数字同行、同比降为一行小字做信息降级。
+         * 结构约束：必须是 h4 → div.kpi-number → span.kpi-unit 的兄弟顺序，
+         * verify-dashboards.mjs 的 kpiValue() 依赖「</h4> 紧跟 .kpi-number[data-value]」取值。 */
+        .kpi-info { flex: 1 1 auto; min-width: 0; }
+        .kpi-icon {
+            flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            width: 40px; height: 40px;
+            border-radius: 12px;
+            font-size: 17px;
+            border: 1px solid transparent;
+        }
+        .kpi-icon.tone-red    { color: #ff8a8a; background: rgba(255, 107, 107, 0.12); border-color: rgba(255, 107, 107, 0.42); }
+        .kpi-icon.tone-orange { color: #ffb054; background: rgba(255, 148, 55, 0.12);  border-color: rgba(255, 148, 55, 0.42); }
+        .kpi-icon.tone-cyan   { color: #7FE4F5; background: rgba(0, 212, 255, 0.10);   border-color: rgba(0, 212, 255, 0.40); }
+        .kpi-icon.tone-teal   { color: #6ee7d0; background: rgba(57, 230, 200, 0.10);  border-color: rgba(57, 230, 200, 0.40); }
+        .kpi-number { display: inline-block; }
+        .kpi-unit { margin-left: 5px; font-size: 15px; font-weight: 600; color: #94a3b8; }
         /* 同比标注：向好=青绿，需关注=橙（语义分级，避免红色过载）。
          * 农业场景下发生面积下降、挽回损失上升都属于「向好」；同比下行 ≠ 风险，仅作中性提醒。
          * 真红（#ef4444）只留给：红色预警、风险等级高、逾期未处置、黄龙病确诊。 */
-        .kpi-yoy { display: block; margin-top: 3px; font-size: 13px; font-weight: 500; letter-spacing: 0.2px; }
+        .kpi-yoy { display: block; margin-top: 3px; font-size: 12px; font-weight: 400; letter-spacing: 0.2px; }
         .kpi-yoy.good { color: #33D69F; }
         .kpi-yoy.bad  { color: #fbbf24; }
         /* 责任闭环：预警不能只给「建议」，必须落到责任人与完成时限 */
@@ -336,20 +353,13 @@
         /* 由 .board-struct-pie canvas 内部控制，此处保留容器自适应即可 */
 
         /* ===== 右栏：高风险果园 ===== */
-        /* 让多张内容卡脱离 .side-card 的 420px 固定高度，按内容收缩（避免空白过多撑高整列） */
-.hr-base-card.side-card,
-.dp-progress-card.side-card,
-.dp-todo-card.side-card { height: auto; min-height: 0; flex-shrink: 1; }
-/* risk-struct-card 是左列最后子卡，需要吸收剩余列高以与右列 atlas 卡底对齐（由下方 @media 规则在宽屏下生效） */
-.risk-struct-card.side-card { height: auto; min-height: 0; }
-/* atlas-card 是右栏最后子卡，需重置 .side-col > .card:last-child 的 flex:1 1 auto，
- * 否则即使 height:auto 也会被 flex-grow:1 拉伸到剩余空间。 */
-.atlas-card.side-card { height: auto; min-height: 0; flex: 0 1 auto; }
-/* 这两张内容卡 padding 收一点，整体更紧凑（响应卡片空白过多） */
-.risk-struct-card.side-card,
-.atlas-card.side-card { padding: 0.75rem; }
-.risk-struct-card.side-card .card-header,
-.atlas-card.side-card .card-header { margin-bottom: 0.5rem; }
+        /* 这两张内容卡 padding 收一点，整体更紧凑（响应卡片空白过多）。
+         * 说明：这里原有一批「让卡片脱离 .side-card 420px 固定高」的 height / flex 覆盖，
+         * 现随 .side-card 改为按内容自适应而全部移除，避免两套高度策略互相打架。 */
+        .risk-struct-card.side-card,
+        .atlas-card.side-card { padding: 0.75rem; }
+        .risk-struct-card.side-card .card-header,
+        .atlas-card.side-card .card-header { margin-bottom: 0.5rem; }
         .hr-base-list { display: flex; flex-direction: column; gap: 8px; }
         .hr-base-item {
             background: rgba(58, 22, 28, 0.28);
@@ -537,7 +547,7 @@
             border-radius: 6px;
         }
         .dl-formula-eq {
-            color: #e2e8f0;
+            color: #cbd5e1;
             font-size: 13px;
             font-family: 'Consolas', 'Courier New', monospace;
             line-height: 1.7;
@@ -609,7 +619,10 @@
         .modal-detail-value { font-size: 0.9rem; font-weight: 600; color: #cbd5e1; }
         .map-core-grid {
             display: grid;
-            grid-template-columns: 1fr 2.2fr 1fr;
+            /* 侧栏 : 地图 : 侧栏 = 1.36 : 2.27 : 1.36
+             * 对齐参考稿实测 500 : 834 : 500（≈ 27.3% : 45.5% : 27.3%）；
+             * 原 1 : 2.2 : 1 侧栏仅 23.8%，左列 4 块内容偏挤。 */
+            grid-template-columns: 1.36fr 2.27fr 1.36fr;
             gap: 20px;
             margin-bottom: 28px;
         }
@@ -621,8 +634,11 @@
         .side-card {
             display: flex;
             flex-direction: column;
-            min-height: 260px;
-            height: 420px;
+            /* 卡高按内容自适应：原 min-height:260px + height:420px 的固定高，
+             * 在内容较少时会在卡内留下大片空白。
+             * 两列底边对齐改由「各列吸收卡吃掉余量」完成，
+             * 规则见文末 @media (min-width: 1101px) 对齐块。 */
+            min-height: 0;
         }
         .center-map-card {
             display: flex;
@@ -711,27 +727,8 @@
             border-right: 1px solid rgba(148, 163, 184, 0.18);
         }
         .map-panel-text { font-size: 12px; color: #94a3b8; }
-        .map-title-overlay {
-            position: absolute;
-            top: 14px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 10;
-            text-align: center;
-            pointer-events: none;
-        }
-        .map-title-overlay .map-title-main {
-            font-size: 18px;
-            font-weight: 700;
-            color: #7dd3fc;
-            letter-spacing: 2px;
-        }
-        .map-title-overlay .map-title-sub {
-            font-size: 12px;
-            color: #94a3b8;
-            margin-top: 2px;
-            letter-spacing: 1px;
-        }
+        /* 注：原 .map-title-overlay（地图内居中的中英文双层标题）已移除，
+         * 标题统一由卡头 .card-header 承担，避免同一块地图出现两处标题。 */
         .map-stats-badge {
             position: absolute;
             z-index: 10;
@@ -893,11 +890,18 @@
             border-bottom: 2px solid rgba(148, 163, 184, 0.22);
             background: rgba(15, 35, 75, 0.55);
         }
+        /* 与其它卡片的 .card-header 统一标题语言：左侧青色竖条 + 图标 + 标题。
+         * 设备块是地图卡内的嵌套面板，位置比外层卡头内缩一层，属预期行为。 */
         .scrolling-title {
-            font-size: 14px;
+            display: flex;
+            align-items: center;
+            border-left: 3px solid #00d4ff;
+            padding-left: 10px;
+            font-size: 0.95rem;
             font-weight: 600;
-            color: #cbd5e1;
+            color: #e6f1ff;
         }
+        .scrolling-title i { color: #00d4ff; margin-right: 6px; }
         /* ===== 监测设备运行卡内布局（替换原事件流，外层 .scrolling-cards 尺寸不变）===== */
         .device-chip {
             display: inline-flex; align-items: center; gap: 4px;
@@ -1306,16 +1310,8 @@
             border-color: rgba(245, 158, 11, 0.5) !important;
             box-shadow: 0 4px 16px rgba(0, 10, 30, 0.4), 0 0 8px rgba(245, 158, 11, 0.2) !important;
         }
-        .trend-badge {
-            background: rgba(0, 212, 255, 0.15) !important;
-            color: #7dd3fc !important;
-            border: 1px solid rgba(0, 212, 255, 0.3) !important;
-        }
-        .trend-badge.warning {
-            background: rgba(245, 158, 11, 0.15) !important;
-            color: #E39A3C !important;
-            border-color: rgba(245, 158, 11, 0.5) !important;
-        }
+        /* 注：原 .trend-badge（数字右侧的单位胶囊）已由 .kpi-unit 取代——
+         * 参考稿里单位是跟随大数字的普通文本，不是独立色块。 */
 
         /* 通用卡片 (Map core grid 与 side card) */
         .map-core-grid { gap: 16px; }
@@ -1459,13 +1455,7 @@
             border: 1px solid rgba(127, 228, 245, 0.18) !important;
             box-shadow: none !important;
         }
-        .map-title-overlay .map-title-main {
-            color: #7FE4F5 !important;
-            font-size: 16px !important;
-            font-weight: 500 !important;
-            letter-spacing: 2px;
-        }
-        .map-title-overlay .map-title-sub { color: #94a3b8 !important; font-size: 12px !important; }
+        /* 注：原 .map-title-overlay 的覆盖样式已随该节点一并移除 */
         .map-overlay {
             background: rgba(10, 28, 60, 0.92) !important;
             backdrop-filter: blur(12px);
@@ -1591,13 +1581,15 @@
 
         /* ===== 三列底边对齐（仅宽屏）=====
          * .map-core-grid 是 grid，align-items 默认 stretch：三列被拉伸到同一「行高」，
-         * 而行高 = 三列固有高度的最大值，即左列（3 张卡）决定的 1095px。
-         *  - 中列：事件流卡基础高 240px，使中列固有高度 < 左列；
-         *    列被拉伸后事件流卡由 flex-grow 自动填满剩余 → 中列底 = 行底。
-         *  - 左列：风险类型结构卡 flex:1 吸收剩余高度 → 底边落到行底。
-         *  - 右列：风险类型结构/图谱谁是末卡就由谁吸收；去掉黄龙病卡后右列变矮，
-         *    改由末卡「重点病虫害图谱」吸收剩余高度（其 2×3 格子等比放大填满卡片）。
-         * 注意：吸收规则必须写在 .card { flex-shrink: 0 } 之后且特异性更高，
+         * 行高 = 三列固有高度的最大值。
+         *  - 各列卡片已改为按内容自适应（.side-card 不再有固定高），
+         *    因此这里只需保证「每列恰好有一张卡吃掉剩余高度」：
+         *  - 左列：风险类型结构卡 flex:1 吸收 → 底边落到行底；
+         *    其后是「监测设备运行」块，高度由内容决定，跟在吸收卡之后。
+         *  - 右列：末张卡（重点病虫害图谱）吸收 → 底边落到行底
+         *    （其 3×2 格子等比放大填满卡片）。
+         *  - 中列：地图卡由 #riskMap 定高 + 下方设备块组成。
+         * 注意：吸收规则必须写成 `.map-core-grid > .side-col > .card` 级别的特异性，
          * 否则会被 flex-shrink:0 覆盖而失效（曾出现右列底部空出 172px）。 */
         @media (min-width: 1101px) {
             .map-core-grid > .side-col { height: auto; }
@@ -1682,32 +1674,34 @@
             box-shadow: 0 0 6px rgba(0, 212, 255, 0.5);
         }
 
-        /* 顶部导航栏 · 日期物候期 badge (深色主题) */
-        .ck-topbar-date {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 20px;
-            background: rgba(0, 212, 255, 0.08);
-            border: 1px solid rgba(0, 212, 255, 0.45);
-            border-radius: 999px;
+        /* ============================================================
+         * 顶部标题栏层级：主标题 + 副标题 双层居中，右侧数据时间
+         * 与生长屏（growth_dashboard）保持同一套实现与命名，
+         * 仅在本屏定义，不改共用主题文件 cockpit-theme.css。
+         * ============================================================ */
+        .ck-topbar--stack {
+            height: auto;
+            min-height: 72px;
+            padding: 10px 24px 12px;
+        }
+        .ck-topbar-stack { margin: 0 auto; text-align: center; }
+        .ck-topbar-title--center { justify-content: center; }
+        .ck-topbar-sub {
+            margin-top: 4px;
+            font-size: 13px;
+            letter-spacing: 4px;
             color: #7dd3fc;
-            font-size: 14px;
-            font-weight: 500;
-            box-shadow: 0 0 12px rgba(0, 212, 255, 0.18), inset 0 0 8px rgba(0, 212, 255, 0.06);
+            opacity: .85;
         }
-        .ck-topbar-date i {
-            color: #00d4ff;
-            font-size: 14px;
+        /* 数据时间：绝对定位到右侧，保证主标题在屏内真正居中 */
+        .ck-topbar-clock--abs {
+            position: absolute;
+            right: 24px;
+            top: 50%;
+            transform: translateY(-50%);
         }
-        .ck-topbar-date-sep {
-            color: rgba(125, 211, 252, 0.55);
-        }
-        .ck-topbar-phenophase {
-            color: #00d4ff;
-            font-weight: 600;
-            letter-spacing: 1px;
-        }
+        .ck-topbar-clock--abs b { font-weight: 600; font-variant-numeric: tabular-nums; }
+        .ck-clock-sep { color: rgba(0, 212, 255, .45); margin: 0 2px; }
 
         /* ===== 阶段一重构 · 9 个 Group CSS（GB 公式/GC 折线/GD 档案/GE 督办/GF 气泡/GG 预警/GH 履职/GI 简报） ===== */
         /* GB 挽回损失 ⓘ 公式浮层 */
@@ -1717,7 +1711,7 @@
             position: absolute; display: none; z-index: 9999;
             background: rgba(7, 17, 35, 0.96); border: 1px solid #00d4ff;
             border-radius: 8px; padding: 10px 14px; width: 360px;
-            color: #e2e8f0; font-size: 13px; line-height: 1.7;
+            color: #cbd5e1; font-size: 13px; line-height: 1.7;
             box-shadow: 0 8px 24px rgba(0, 212, 255, 0.20);
         }
         .dl-est-tooltip.show { display: block; }
@@ -1744,7 +1738,7 @@
         .situation-badge.lvl-orange { background: rgba(227, 154, 60, 0.20); color: #fbbf24; border: 1px solid #E39A3C; }
         .situation-badge.lvl-yellow { background: rgba(203, 176, 74, 0.20); color: #fde047; border: 1px solid #CBB04A; }
         .situation-badge.lvl-green  { background: rgba(34, 197, 94, 0.20); color: #86efac; border: 1px solid #22c55e; }
-        .situation-summary { color: #e2e8f0; font-size: 14px; line-height: 1.6; flex: 1; }
+        .situation-summary { color: #cbd5e1; font-size: 14px; line-height: 1.6; flex: 1; }
         .situation-summary b { color: #7FE4F5; font-weight: 600; }
         /* GC 木虱折线图 */
         .hlb-trend { height: 100px; margin: 8px 0 6px; padding: 0 4px; border-radius: 6px; background: rgba(10, 28, 60, 0.50); border: 1px solid rgba(127, 228, 245, 0.12); }
@@ -1753,16 +1747,16 @@
         /* GD 黄龙病档案弹窗 */
         .dl-modal { position: fixed; inset: 0; z-index: 9999; display: none; align-items: center; justify-content: center; background: rgba(2, 8, 18, 0.78); backdrop-filter: blur(4px); }
         .dl-modal.show { display: flex; }
-        .dl-modal-card { width: min(960px, 92vw); max-height: 80vh; overflow-y: auto; background: linear-gradient(180deg, rgba(15, 30, 60, 0.98), rgba(7, 17, 35, 0.98)); border: 1px solid rgba(0, 212, 255, 0.30); border-radius: 14px; padding: 22px 26px; color: #e2e8f0; box-shadow: 0 18px 60px rgba(0, 212, 255, 0.18); }
+        .dl-modal-card { width: min(960px, 92vw); max-height: 80vh; overflow-y: auto; background: linear-gradient(180deg, rgba(15, 30, 60, 0.98), rgba(7, 17, 35, 0.98)); border: 1px solid rgba(0, 212, 255, 0.30); border-radius: 14px; padding: 22px 26px; color: #cbd5e1; box-shadow: 0 18px 60px rgba(0, 212, 255, 0.18); }
         .dl-modal-head { display: flex; justify-content: space-between; align-items: center; padding-bottom: 14px; border-bottom: 1px solid rgba(127, 228, 245, 0.20); margin-bottom: 14px; }
         .dl-modal-title { font-size: 18px; font-weight: 700; color: #7FE4F5; letter-spacing: 1px; }
-        .dl-modal-close { background: transparent; border: 1px solid #475569; color: #94a3b8; padding: 4px 10px; border-radius: 4px; cursor: pointer; }
+        .dl-modal-close { background: transparent; border: 1px solid #64748b; color: #94a3b8; padding: 4px 10px; border-radius: 4px; cursor: pointer; }
         .dl-modal-close:hover { color: #7FE4F5; border-color: #7FE4F5; }
         .hlb-tree-table { width: 100%; border-collapse: collapse; font-size: 13px; }
         .hlb-tree-table th { padding: 8px 10px; background: rgba(0, 212, 255, 0.08); color: #7FE4F5; text-align: left; font-weight: 600; border-bottom: 1px solid rgba(0, 212, 255, 0.20); }
         .hlb-tree-table td { padding: 8px 10px; border-bottom: 1px solid rgba(127, 228, 245, 0.08); color: #cbd5e1; }
         .hlb-tree-table tr:hover td { background: rgba(0, 212, 255, 0.04); }
-        .hlb-photo-slot { width: 80px; height: 60px; border: 1px dashed #475569; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #64748b; font-size: 11px; }
+        .hlb-photo-slot { width: 80px; height: 60px; border: 1px dashed #64748b; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #64748b; font-size: 11px; }
         .hlb-tree-actions { display: flex; gap: 10px; padding: 14px 0 4px; border-top: 1px dashed rgba(127, 228, 245, 0.20); margin-top: 14px; }
         .hlb-tree-actions button { background: rgba(0, 212, 255, 0.10); border: 1px solid #00d4ff; color: #7FE4F5; padding: 6px 14px; border-radius: 4px; cursor: pointer; font-size: 13px; }
         .hlb-tree-actions button:hover { background: rgba(0, 212, 255, 0.20); }
@@ -1774,7 +1768,7 @@
         .dl-todo-village { display: block; font-size: 11px; color: #94a3b8; margin-top: 2px; }
         .dl-todo-village b { color: #cbd5e1; font-weight: 500; }
         .dl-todo-actions { display: flex; gap: 6px; margin-top: 4px; align-items: center; flex-wrap: wrap; }
-        .dl-todo-btn { background: transparent; border: 1px solid #475569; color: #94a3b8; padding: 2px 8px; border-radius: 3px; font-size: 11px; cursor: pointer; }
+        .dl-todo-btn { background: transparent; border: 1px solid #64748b; color: #94a3b8; padding: 2px 8px; border-radius: 3px; font-size: 11px; cursor: pointer; }
         .dl-todo-btn:hover { color: #7FE4F5; border-color: #00d4ff; }
         .dl-todo-btn.danger { border-color: rgba(251, 191, 36, 0.55); color: #fbbf24; }
         .dl-todo-btn.danger:hover { background: rgba(251, 191, 36, 0.12); }
@@ -1807,11 +1801,19 @@
 </head>
 <body class="cockpit">
 
-<!-- ==================== 顶部标题栏（已隐藏左侧导航与右上日期，让标题居中显示）==================== -->
-<header class="ck-topbar" style="justify-content:center;">
-  <div class="ck-topbar-title" style="margin:0 auto;">
-    <i class="fas fa-shield-virus"></i>
-    <span>南丰蜜桔全产业链大数据平台 · 病虫害模型</span>
+<!-- ==================== 顶部标题栏（导航已移除；主标题 + 副标题 双层居中，右侧数据时间） ==================== -->
+<header class="ck-topbar ck-topbar--stack">
+  <div class="ck-topbar-stack">
+    <div class="ck-topbar-title ck-topbar-title--center">
+      <i class="fas fa-shield-virus"></i>
+      <span>南丰蜜桔全产业链大数据平台 · 病虫害模型</span>
+    </div>
+    <div class="ck-topbar-sub">实时监测 · 风险预警 · 防控处置闭环</div>
+  </div>
+  <div class="ck-topbar-clock ck-topbar-clock--abs">
+    <b id="ckTopDate">--</b>
+    <span class="ck-clock-sep">·</span>
+    <b id="ckTopTime">--:--:--</b>
   </div>
 </header>
 
@@ -1819,50 +1821,56 @@
 
     <div class="kpi-grid">
         <div class="kpi-card warning animate-fade-in-up" style="animation-delay: 0.1s;" onclick="openModal('待响应预警')">
+            <div class="kpi-icon tone-red"><i class="fas fa-bell"></i></div>
             <div class="kpi-info">
                 <h4>待响应预警</h4>
                 <div class="kpi-number" data-value="23">0</div>
-                <span class="trend-badge warning">条</span>
+                <span class="kpi-unit">条</span>
                 <span class="kpi-yoy bad">其中高风险 8 条</span>
             </div>
         </div>
         <div class="kpi-card animate-fade-in-up" style="animation-delay: 0.2s;" onclick="openModal('今日新增识别')">
+            <div class="kpi-icon tone-cyan"><i class="fas fa-camera"></i></div>
             <div class="kpi-info">
                 <h4>今日新增识别</h4>
                 <div class="kpi-number" data-value="126">0</div>
-                <span class="trend-badge">次</span>
+                <span class="kpi-unit">次</span>
                 <span class="kpi-yoy good">较昨日 -16.0%</span>
             </div>
         </div>
         <div class="kpi-card animate-fade-in-up" style="animation-delay: 0.3s;" onclick="openModal('累计识别')">
+            <div class="kpi-icon tone-teal"><i class="fas fa-layer-group"></i></div>
             <div class="kpi-info">
                 <h4>累计识别</h4>
                 <div class="kpi-number" data-value="3842">0</div>
-                <span class="trend-badge">次</span>
+                <span class="kpi-unit">次</span>
                 <span class="kpi-yoy flat">本月已识别 802 次</span>
             </div>
         </div>
         <div class="kpi-card animate-fade-in-up" style="animation-delay: 0.4s;" onclick="openModal('防控完成率')">
+            <div class="kpi-icon tone-cyan"><i class="fas fa-circle-check"></i></div>
             <div class="kpi-info">
                 <h4>防控完成率</h4>
                 <div class="kpi-number" data-value="74.3">0</div>
-                <span class="trend-badge">%</span>
+                <span class="kpi-unit">%</span>
                 <span class="kpi-yoy good">较上周 +1.8%</span>
             </div>
         </div>
         <div class="kpi-card danger animate-fade-in-up" style="animation-delay: 0.5s;" onclick="openModal('高风险果园')">
+            <div class="kpi-icon tone-red"><i class="fas fa-triangle-exclamation"></i></div>
             <div class="kpi-info">
                 <h4>高风险果园</h4>
                 <div class="kpi-number" data-value="3">0</div>
-                <span class="trend-badge danger">个</span>
+                <span class="kpi-unit">个</span>
                 <span class="kpi-yoy bad">需立即响应处置</span>
             </div>
         </div>
         <div class="kpi-card animate-fade-in-up" style="animation-delay: 0.6s;" onclick="openModal('已接入监测点位')">
+            <div class="kpi-icon tone-orange"><i class="fas fa-tower-broadcast"></i></div>
             <div class="kpi-info">
                 <h4>已接入监测点位</h4>
                 <div class="kpi-number" data-value="16">0</div>
-                <span class="trend-badge">个</span>
+                <span class="kpi-unit">个</span>
                 <span class="kpi-yoy flat">在线 15 · 离线 1</span>
             </div>
         </div>
@@ -1892,28 +1900,24 @@
         <div class="card center-map-card">
             <!-- B6：「实时监控」是夸大表述，实际为定时采集，统一写更新时间 -->
             <div class="card-header"><span><i class="fas fa-map-pin"></i> 全县病虫害风险分布</span><span class="ck-update-chip">数据更新于 <b id="pestUpdateTime">--:--</b></span></div>
-            <div id="riskMap" style="width:100%;height:700px;border-radius:20px;position:relative;overflow:hidden;">
-                <div class="map-title-overlay">
-                    <div class="map-title-main">区域病虫害风险分布</div>
-                    <div class="map-title-sub">NANFENG · PEST RISK DISTRIBUTION</div>
-                </div>
-                <div class="map-overlay map-overlay-bl" style="left:18px;bottom:22px;right:auto;top:auto;">
-                    <div class="map-panel-row"><span class="live-dot"></span><span class="map-panel-text">数据更新: <span id="mapUpdateTime">--:--</span></span></div>
-                    <div class="map-panel-row"><span class="map-panel-dot" style="background:#00d4ff;color:#00d4ff;"></span><span class="map-panel-text">全县健康指数: <span id="healthIndex" style="color:#00d4ff;font-weight:600;">72.5</span></span></div>
-                </div>
-            </div>
+            <!-- 注：#riskMap 是 ECharts 容器，echarts.init() 会清空它的子节点，
+                 所以地图内不能再挂任何静态叠加层（原「区域病虫害风险分布」标题与
+                 「数据更新 / 健康指数」面板因此从未真正渲染，属既有问题）。
+                 现在：标题由卡头承担，数据更新只留卡头 chip，健康指数并入下方标注行。 -->
+            <div id="riskMap" style="width:100%;height:700px;border-radius:20px;position:relative;overflow:hidden;"></div>
             <!-- 风险分级色阶已在地图 visualMap 图例中呈现，此处仅保留标注说明，避免重复 -->
             <div class="risk-legend-bar" style="flex-wrap:wrap;row-gap:8px;flex-direction:column;align-items:flex-start;">
                 <div class="risk-legend-row" style="display:flex;align-items:center;flex-wrap:wrap;gap:14px;">
                     <span class="risk-legend-title">标注说明</span>
-                    <div class="legend-item"><div class="legend-dot" style="background:#0A1A2F;border:2px solid #7FE4F5;box-shadow:none;"></div>监测点（数字为发生次数）</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#0A1A2F;border:2px solid #7FE4F5;box-shadow:none;"></div>病虫监测点（数字为发生次数）</div>
                     <div class="legend-item"><div class="legend-dot" style="background:rgba(90,215,240,0.22);border:1px solid rgba(127,228,245,0.75);box-shadow:none;"></div>气泡＝在园发生面积（越大越多）</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:rgba(0,212,255,0.16);border:1px solid rgba(0,212,255,0.65);box-shadow:none;"></div>全县健康指数 <b id="healthIndex" style="color:#00d4ff;font-weight:600;">72.5</b></div>
                 </div>
             </div>
             <!-- 监测设备运行：在线监测设备台数 + 设备类型构成 + 近7日在线设备数 + 今日数据上报 -->
             <div class="scrolling-cards">
                     <div class="scrolling-header">
-                        <div class="scrolling-title">监测设备运行</div>
+                        <div class="scrolling-title"><i class="fas fa-tower-broadcast"></i> 监测设备运行</div>
                         <div class="filter-tabs">
                             <span class="device-chip">在线率 <b id="devOnlineRate">93.8%</b></span>
                         </div>
@@ -1943,24 +1947,26 @@
                 <div id="highBaseList" class="hr-base-list"></div>
             </div>
 
-            <!-- 防控处置进度：当前在办任务按处置阶段拆分 -->
+            <!-- 防控处置进度：口径与 KPI「防控完成率」同源（均来自 board.controlTasks），
+                 数值由 JS 从数据源写入。原来 HTML 里硬编码 23/34/43，既与数据源重复
+                 （改数据源不会生效），又与 KPI 完成率 74.3% 冲突，故改为单一来源。 -->
             <div class="card side-card dp-progress-card">
-                <div class="card-header"><span><i class="fas fa-gears"></i> 防控处置进度</span><span class="header-extra">当前在办</span></div>
+                <div class="card-header"><span><i class="fas fa-gears"></i> 防控处置进度</span><span class="header-extra" id="dpScopeChip">--</span></div>
                 <div class="dp-progress-bar">
-                    <div class="dp-seg wait" style="width:23%;"></div>
-                    <div class="dp-seg doing" style="width:34%;"></div>
-                    <div class="dp-seg done" style="width:43%;"></div>
+                    <div class="dp-seg wait" id="dpSegWait"></div>
+                    <div class="dp-seg doing" id="dpSegDoing"></div>
+                    <div class="dp-seg done" id="dpSegDone"></div>
                 </div>
                 <div class="dp-progress-legend">
-                    <div class="dp-legend-item wait"><div class="dp-legend-pct">23%</div><div class="dp-legend-label">待派单</div></div>
-                    <div class="dp-legend-item doing"><div class="dp-legend-pct">34%</div><div class="dp-legend-label">处理中</div></div>
-                    <div class="dp-legend-item done"><div class="dp-legend-pct">43%</div><div class="dp-legend-label">已完成</div></div>
+                    <div class="dp-legend-item wait"><div class="dp-legend-pct" id="dpPctWait">--</div><div class="dp-legend-label">待派单</div></div>
+                    <div class="dp-legend-item doing"><div class="dp-legend-pct" id="dpPctDoing">--</div><div class="dp-legend-label">处理中</div></div>
+                    <div class="dp-legend-item done"><div class="dp-legend-pct" id="dpPctDone">--</div><div class="dp-legend-label">已完成</div></div>
                 </div>
             </div>
 
             <!-- 今日防控待办：按高/中/低优先级排列 -->
             <div class="card side-card dp-todo-card">
-                <div class="card-header"><span><i class="fas fa-clipboard-list"></i> 今日防控待办</span><span class="header-extra">09-13</span></div>
+                <div class="card-header"><span><i class="fas fa-clipboard-list"></i> 今日防控待办</span><span class="header-extra" id="dpTodoDateChip">--</span></div>
                 <div id="todayTodoList" class="dp-todo-list"></div>
             </div>
 
@@ -1995,8 +2001,22 @@
 </div>
 
 <script>
-    var _ckDateEl = document.getElementById('ckCurrentDate');
-    if (_ckDateEl) _ckDateEl.textContent = new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' });
+    /* ===== 顶栏数据时间：秒级走时 =====
+     * 与生长屏同一套实现（#ckTopDate / #ckTopTime）。
+     * 注：原 ckCurrentDate 节点已随顶栏改造移除，不再引用。 */
+    (function ckTopClock() {
+        var WEEK = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+        function p2(n) { return (n < 10 ? '0' : '') + n; }
+        function tick() {
+            var t = new Date();
+            var dEl = document.getElementById('ckTopDate');
+            var tEl = document.getElementById('ckTopTime');
+            if (dEl) dEl.textContent = t.getFullYear() + '年' + p2(t.getMonth() + 1) + '月' + p2(t.getDate()) + '日 ' + WEEK[t.getDay()];
+            if (tEl) tEl.textContent = p2(t.getHours()) + ':' + p2(t.getMinutes()) + ':' + p2(t.getSeconds());
+        }
+        tick();
+        setInterval(tick, 1000);
+    })();
 
     // ===== 统一预警数据源（所有面板/KPI 共用） =====
     var alertDataSource = {
@@ -2071,9 +2091,14 @@
         healthIndex: 72.5,
         /* 全县果园面积合计（亩）= 各乡镇 orchardArea 之和，用于「发生面积占比」这类相对口径 */
         orchardAreaTotal: 23500,
-        /* 按乡镇风险等级统计（阈值与地图色阶一致：高 ≥80、中 55–79、低 <55）
+        /* 按乡镇风险等级统计：三档是对地图色阶（NFMap.riskPieces）5 档的三段归并——
+         *   高风险乡镇 = 高风险（≥85）                        → 太和镇 85
+         *   中风险乡镇 = 较高风险(70–85) + 中等风险(55–70)     → 82/72/68/65/60/58/55
+         *   低风险乡镇 = 较低风险(40–55) + 低风险(<40)         → 52/50/48/45
+         * 修正前注释写「高 ≥80」，与地图色阶（高风险 ≥85）不一致：
+         * 桑田镇 82 会被计为高风险乡镇，但图上颜色与悬停提示都是「较高风险」。
          * 三档之和恒等于有监测数据的乡镇数 12，由 assertAlertMatrix 校验。 */
-        riskTowns: { high: 2, mid: 6, low: 4 },
+        riskTowns: { high: 1, mid: 7, low: 4 },
         /* ===== 乡镇维度数据（地图 / 排行 / 弹窗共用同一份）=====
          * 放在数据源内部而不是散落成独立变量，好处是：
          *   1) 弹窗渲染函数在沙箱里可以直接引用（校验脚本因此能真跑一遍）；
@@ -2217,9 +2242,9 @@
             controlRate: 74.3,      // 防控完成率（%，= done / total）
             highOrchards: 3,        // 高风险果园（个，= highBases 条数）
             monitorPoints: 16,      // 已接入监测点位（个，= pointByTown 合计）
-            // 近 7 日识别次数（09-07 ~ 09-13，末位必须等于 todayRecog）
+            // 近 7 日识别次数（09-08 ~ 09-14，末位必须等于 todayRecog；末位即「今日」）
             weekTrend: {
-                dates: ['09-07', '09-08', '09-09', '09-10', '09-11', '09-12', '09-13'],
+                dates: ['09-08', '09-09', '09-10', '09-11', '09-12', '09-13', '09-14'],
                 values: [68, 92, 76, 118, 104, 150, 126]
             },
             // 风险类型结构（近 3 日风险识别合计 280 次，分项之和 = 280）
@@ -2230,26 +2255,29 @@
             ],
             // 当前紧急预警（时间倒序，高风险在前；果园名均为南丰县真实果园）
             urgentAlerts: [
-                { time: '2026-09-13 08:32', base: '明成果品合作社果园',     pest: '柑桔木虱', level: '高' },
-                { time: '2026-09-13 10:17', base: '市山镇耀里村精品示范园', pest: '溃疡病',   level: '高' },
-                { time: '2026-09-13 11:03', base: '白舍镇学凌农场',         pest: '红蜘蛛',   level: '中' },
-                { time: '2026-09-12 16:40', base: '紫霄镇朱坊村精品园',     pest: '柑桔木虱', level: '高' },
-                { time: '2026-09-12 15:20', base: '东坪乡下堡村繁育圃',     pest: '红蜘蛛',   level: '中' },
-                { time: '2026-09-12 09:48', base: '桑田镇奔象果园',         pest: '潜叶蛾',   level: '中' }
+                { time: '2026-09-14 08:32', base: '明成果品合作社果园',     pest: '柑桔木虱', level: '高' },
+                { time: '2026-09-14 10:17', base: '市山镇耀里村精品示范园', pest: '溃疡病',   level: '高' },
+                { time: '2026-09-14 11:03', base: '白舍镇学凌农场',         pest: '红蜘蛛',   level: '中' },
+                { time: '2026-09-13 16:40', base: '紫霄镇朱坊村精品园',     pest: '柑桔木虱', level: '高' },
+                { time: '2026-09-13 15:20', base: '东坪乡下堡村繁育圃',     pest: '红蜘蛛',   level: '中' },
+                { time: '2026-09-13 09:48', base: '桑田镇奔象果园',         pest: '潜叶蛾',   level: '中' }
             ],
             // 高风险果园（= KPI「高风险果园」3 个；与「当前紧急预警」的果园刻意区分，避免内容重复）
             highBases: [
-                { name: '瑶浦蜜桔园', pest: '柑桔木虱', foundAt: '2026-09-13 09:06' },
-                { name: '翠云生态园', pest: '溃疡病',   foundAt: '2026-09-13 10:41' },
-                { name: '琴城示范园', pest: '红蜘蛛',   foundAt: '2026-09-12 17:18' }
+                { name: '瑶浦蜜桔园', pest: '柑桔木虱', foundAt: '2026-09-14 09:06' },
+                { name: '翠云生态园', pest: '溃疡病',   foundAt: '2026-09-14 10:41' },
+                { name: '琴城示范园', pest: '红蜘蛛',   foundAt: '2026-09-13 17:18' }
             ],
-            // 防控处置进度（当前在办任务阶段占比，合计 100%）
-            progress: { wait: 23, doing: 34, done: 43 },
+            /* 防控处置进度：口径 = controlTasks 的 待派单/处理中/已完成 占任务总数 358 的百分比
+             * （36/358=10.1%、56/358=15.6%、266/358=74.3%，四舍五入后合计 100）。
+             * 修正前曾是 23/34/43，与同屏 KPI「防控完成率 74.3%」自相矛盾
+             * （一个说已完成 43%，一个说完成率 74.3%），且两个数字都与 controlTasks 对不上。 */
+            progress: { wait: 10, doing: 16, done: 74 },
             // 今日防控待办（果园名与「当前紧急预警」「高风险果园」均不重名）
             todayTodos: [
-                { level: '高', title: '洽湾镇蜜桔示范园药剂防治', pest: '柑桔木虱', date: '2026-09-13', status: '待处理', state: 'wait' },
-                { level: '中', title: '太和镇生态桔园巡查',       pest: '溃疡病',   date: '2026-09-13', status: '进行中', state: 'doing' },
-                { level: '低', title: '莱溪乡精品果园巡查复核',   pest: '红蜘蛛',   date: '2026-09-13', status: '待排期', state: 'schedule' }
+                { level: '高', title: '洽湾镇蜜桔示范园药剂防治', pest: '柑桔木虱', date: '2026-09-14', status: '待处理', state: 'wait' },
+                { level: '中', title: '太和镇生态桔园巡查',       pest: '溃疡病',   date: '2026-09-14', status: '进行中', state: 'doing' },
+                { level: '低', title: '莱溪乡精品果园巡查复核',   pest: '红蜘蛛',   date: '2026-09-14', status: '待排期', state: 'schedule' }
             ],
             // 待响应预警按病虫类型拆分（合计 = pendingAlerts 23）
             pendingByType: [
@@ -2268,7 +2296,7 @@
                 { name: '溃疡病',   value: 40, pct: 32 },
                 { name: '红蜘蛛',   value: 33, pct: 26 }
             ],
-            // 月度识别（1-9 月，合计 = totalRecog 3842，9 月为截至 13 日月累计）
+            // 月度识别（1-9 月，合计 = totalRecog 3842，9 月为截至 14 日月累计）
             recogMonthly: [180, 220, 280, 320, 380, 460, 540, 660, 802],
             recogYoy: '+18.6%',
             // 防控任务累计口径（done / total = 74.3%）
@@ -2307,9 +2335,9 @@
             // 今日数据上报（设备在线 ≠ 有效工作，需看数据产出）
             reportToday: 1284,
             reportRate: 98.6,
-            // 近 7 日在线设备数（末位 = pointsOnline 15）
+            // 近 7 日在线设备数（09-08 ~ 09-14，末位 = pointsOnline 15）
             deviceWeek: {
-                dates: ['09-07', '09-08', '09-09', '09-10', '09-11', '09-12', '09-13'],
+                dates: ['09-08', '09-09', '09-10', '09-11', '09-12', '09-13', '09-14'],
                 values: [14, 15, 15, 14, 15, 14, 15]
             }
         }
@@ -2599,6 +2627,20 @@
 
     var riskMapChart = echarts.init(document.getElementById('riskMap'));
 
+    /* 风险等级文案统一取地图色阶（NFMap.riskPieces）的分档：
+     * 修正前 emphasisLabel 用 80/50、tooltip 用 80/60、色阶用 85/70/55/40 三套阈值，
+     * 同一个乡镇会出现自相矛盾的两种说法（如莱溪乡 52：图上标签「中风险」、悬停提示「低风险」）。 */
+    function riskBandText(risk) {
+        var pcs = NFMap.riskPieces();
+        for (var i = 0; i < pcs.length; i++) {
+            if (risk >= pcs[i].min && risk <= pcs[i].max) {
+                var m = String(pcs[i].label).match(/[\u4e00-\u9fa5]+$/);
+                return m ? m[0] : '低风险';
+            }
+        }
+        return '低风险';
+    }
+
     var riskMapOption = NFMap.option({
         pieces: NFMap.riskPieces(),
         data: riskData,
@@ -2608,7 +2650,7 @@
         emphasisLabel: function(params) {
             if (!params.data) return params.name;
             var risk = params.data.risk || 0;
-            var level = risk >= 80 ? '高风险' : risk >= 50 ? '中风险' : '低风险';
+            var level = riskBandText(risk);
             return params.name + '\n' + level + ' · ' + params.data.warningCount + ' 条预警';
         },
         tooltip: {
@@ -2636,7 +2678,7 @@
                     return '<div style="font-weight:600;font-size:15px;margin-bottom:8px;color:#5AD7F0;">' + data.name + '</div>' +
                            '<div style="display:flex;justify-content:space-between;gap:20px;margin-bottom:6px;">' +
                            '<span style="color:#94a3b8;">风险值</span>' +
-                           '<span style="color:' + riskColor + ';font-weight:600;">' + data.risk + ' · ' + (data.risk >= 80 ? '高风险' : data.risk >= 60 ? '中风险' : '低风险') + '</span>' +
+                           '<span style="color:' + riskColor + ';font-weight:600;">' + data.risk + ' · ' + riskBandText(data.risk) + '</span>' +
                            '</div>' +
                            '<div style="display:flex;justify-content:space-between;gap:20px;margin-bottom:6px;">' +
                            '<span style="color:#94a3b8;">预警数量</span>' +
@@ -2877,6 +2919,9 @@
     (function renderTodayTodos() {
         var box = document.getElementById('todayTodoList');
         if (!box) return;
+        /* 卡头日期角标也从数据源取，避免 HTML 写死日期后与待办项日期脱节 */
+        var chip = document.getElementById('dpTodoDateChip');
+        if (chip && board.todayTodos.length) chip.textContent = String(board.todayTodos[0].date).slice(5);
         var levelCls = { '高': 'high', '中': 'mid', '低': 'low' };
         var html = '';
         board.todayTodos.forEach(function (t) {
@@ -2890,6 +2935,26 @@
             '</div>';
         });
         box.innerHTML = html;
+    })();
+
+    /* --- 右栏 3：防控处置进度 ---
+     * 数值只从 board 写入（HTML 不再硬编码），且 progress 本身由 controlTasks 推导，
+     * 保证「已完成 x%」与 KPI「防控完成率」永远同口径。 */
+    (function renderProgress() {
+        var p = board.progress || {};
+        var tasks = board.controlTasks || {};
+        var chip = document.getElementById('dpScopeChip');
+        if (chip && tasks.total) chip.textContent = '累计 ' + tasks.total + ' 项';
+        var segId = { wait: 'dpSegWait', doing: 'dpSegDoing', done: 'dpSegDone' };
+        var pctId = { wait: 'dpPctWait', doing: 'dpPctDoing', done: 'dpPctDone' };
+        Object.keys(segId).forEach(function (k) {
+            var v = p[k];
+            if (typeof v !== 'number') return;
+            var seg = document.getElementById(segId[k]);
+            if (seg) seg.style.width = v + '%';
+            var pct = document.getElementById(pctId[k]);
+            if (pct) pct.textContent = v + '%';
+        });
     })();
 
     function animateNumbers() {
@@ -3332,13 +3397,18 @@
         }
         item.supervised = (item.supervised || 0) + 1;
         dlToast('已向 ' + item.town + ' 负责人发送督办短信');
-        /* 重渲染：DL.todo 是幂等的，直接重跑即可更新计数 */
-        DL.todo(document.getElementById('todoList'), alertDataSource.todos, {
-            scope: '未处置约 ' + Math.round((alertDataSource.levels.red + alertDataSource.levels.orange +
-                       alertDataSource.levels.yellow + alertDataSource.levels.blue) *
-                       (100 - alertDataSource.disposeRate) / 100) + ' 条',
-            note: '状态由移动端上报回写；逾期项自动置顶。完整清单与派工入口在模型后台。'
-        });
+        /* 重渲染：DL.todo 是幂等的，直接重跑即可更新计数。
+         * 注：待办督办卡（#todoPanel / #todoList）已随左列改造下线，
+         * 容器可能不存在，这里做空值保护（DL.todo 本身也会挡 null）。 */
+        var todoEl = document.getElementById('todoList');
+        if (todoEl) {
+            DL.todo(todoEl, alertDataSource.todos, {
+                scope: '未处置约 ' + Math.round((alertDataSource.levels.red + alertDataSource.levels.orange +
+                           alertDataSource.levels.yellow + alertDataSource.levels.blue) *
+                           (100 - alertDataSource.disposeRate) / 100) + ' 条',
+                note: '状态由移动端上报回写；逾期项自动置顶。完整清单与派工入口在模型后台。'
+            });
+        }
     };
 
     /* --- 黄龙病档案弹窗已随「柑橘黄龙病专项防控」卡一并下线 --- */
@@ -4470,15 +4540,15 @@
     </div>
 </div>
 <script>
-    /* ===== B6 数据更新时间：两张屏统一格式，实际为定时采集，不写「实时监控」 ===== */
+    /* ===== B6 数据更新时间：两张屏统一格式，实际为定时采集，不写「实时监控」 =====
+     * 注：地图卡内原先还有一处重复的「数据更新」，已随地图叠加层收敛移除，
+     * 现在只写卡头 chip 一处（#pestUpdateTime）。 */
     (function stampTimes() {
         var now = new Date();
         var p = function (x) { return (x < 10 ? '0' : '') + x; };
         var txt = p(now.getHours()) + ':' + p(now.getMinutes());
-        var t1 = document.getElementById('mapUpdateTime');
-        var t2 = document.getElementById('pestUpdateTime');
-        if (t1) t1.textContent = txt;
-        if (t2) t2.textContent = txt;
+        var el = document.getElementById('pestUpdateTime');
+        if (el) el.textContent = txt;
     })();
 
     /* ===== A2 趋势线 / A4 推算口径提示 ===== */

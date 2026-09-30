@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>蜜桔农业助手 - 销售数据上报</title>
+  <link rel="stylesheet" href="css/mobile-design-system.css">
+  <link rel="stylesheet" href="css/mobile-tokens.css">
+  <link rel="stylesheet" href="css/mobile-icons.css">
+  <link rel="stylesheet" href="css/mobile-components.css">
+  <link rel="stylesheet" href="css/mobile-ds-override.css">
+  <link rel="stylesheet" href="css/mobile-form.css">
+</head>
+<body>
+  <div class="mb-app loading">
+    <div class="skeleton-state">
+      <div class="page-header">
+        <div class="mb-skeleton" style="width:140px;height:24px;"></div>
+        <div class="mb-skeleton" style="width:220px;height:14px;margin-top:8px;"></div>
+      </div>
+      <div class="card">
+        <div class="mb-skeleton" style="width:80px;height:16px;margin-bottom:16px;"></div>
+        <div class="mb-skeleton" style="width:100%;height:44px;border-radius:var(--radius-lg);margin-bottom:16px;"></div>
+        <div class="mb-skeleton" style="width:100%;height:44px;border-radius:var(--radius-lg);margin-bottom:16px;"></div>
+        <div class="mb-skeleton" style="width:100%;height:44px;border-radius:var(--radius-lg);"></div>
+      </div>
+      <div class="submit-wrap">
+        <div class="mb-skeleton" style="width:100%;height:48px;border-radius:var(--radius-full);"></div>
+      </div>
+    </div>
+
+    <div class="real-content">
+      <div class="page-header">
+        <div class="header-back" onclick="goBack()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M15 18l-6-6 6-6"/>
+          </svg>
+        </div>
+        <div class="header-title">销售数据上报</div>
+        <div class="header-sub">按月汇总填报，每月上报一次</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8" y1="2" x2="8" y2="6"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+          月度销售汇总
+        </div>
+        <div class="dr-form-item" onclick="showTownSelect()">
+          <div class="form-label">乡镇名称</div>
+          <div class="dr-form-select">
+            <span class="dr-form-value" id="townValue">请选择</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </div>
+        </div>
+        <div class="form-item" style="margin-top: 16px;">
+          <label class="form-label">销售月份</label>
+          <input type="month" class="form-input" id="salesMonth" value="2026-08">
+        </div>
+        <div class="form-item">
+          <label class="form-label">销售均价(元/公斤)</label>
+          <input type="number" class="form-input" id="salesPrice" placeholder="请输入本月销售均价" step="0.01" min="0">
+        </div>
+        <div class="form-item">
+          <label class="form-label">销售数量(吨)</label>
+          <input type="number" class="form-input" id="salesQty" placeholder="请输入本月销售数量" step="0.01" min="0">
+        </div>
+      </div>
+
+      <div class="submit-wrap">
+        <button class="btn btn-primary btn-block" onclick="submitData()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;"><polyline points="20 6 9 17 4 12"/></svg>
+          提交数据
+        </button>
+      </div>
+    </div>
+
+    <!-- 乡镇选择 -->
+    <div class="modal-overlay" id="townModal">
+      <div class="dr-modal-box">
+        <div class="dr-modal-header">
+          <div class="dr-modal-title">选择乡镇</div>
+          <div class="dr-modal-close" onclick="closeModal('townModal')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </div>
+        </div>
+        <div class="dr-modal-body" id="townList"></div>
+      </div>
+    </div>
+
+    <!-- 提交成功 -->
+    <div class="modal-overlay" id="successModal">
+      <div class="dr-modal-box">
+        <div class="success-modal">
+          <div class="success-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="success-title">提交成功</div>
+          <div class="success-desc" id="successDesc">销售月报已提交，感谢您的记录</div>
+        </div>
+        <div class="dr-modal-footer">
+          <button class="btn btn-primary btn-block" onclick="closeSuccess()">确定</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 底部导航 -->
+    <div class="mb-tab-bar">
+      <div class="mb-tab-item" onclick="navigateTo('mb_home.html')">
+        <svg class="mb-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span>首页</span>
+      </div>
+      <div class="mb-tab-item active">
+        <svg class="mb-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        <span>监测</span>
+      </div>
+      <div class="mb-tab-item" onclick="navigateTo('mb_disease_knowledge.html')">
+        <svg class="mb-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><circle cx="12" cy="10" r="3"/></svg>
+        <span>病虫害</span>
+      </div>
+      <div class="mb-tab-item" onclick="navigateTo('mb_profile.html')">
+        <svg class="mb-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span>我的</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 南丰县 7 镇 5 乡
+    var towns = ['琴城镇', '太和镇', '白舍镇', '洽湾镇', '桑田镇', '市山镇', '紫霄镇', '三溪乡', '东坪乡', '莱溪乡', '太源乡', '傅坊乡'];
+
+    function goBack() { navigateTo('mb_home.html'); }
+
+    function showTownSelect() {
+      var list = document.getElementById('townList');
+      var html = '';
+      towns.forEach(function(town) {
+        html += '<div class="dr-modal-item" onclick="selectTown(\'' + town + '\')"><span>' + town + '</span></div>';
+      });
+      list.innerHTML = html;
+      document.getElementById('townModal').classList.add('show');
+    }
+
+    function selectTown(town) {
+      var el = document.getElementById('townValue');
+      el.textContent = town;
+      el.classList.add('selected');
+      closeModal('townModal');
+    }
+
+    function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+    function submitData() {
+      if (document.getElementById('townValue').textContent === '请选择') {
+        alert('请选择乡镇名称');
+        return;
+      }
+      if (!document.getElementById('salesMonth').value) {
+        alert('请选择销售月份');
+        return;
+      }
+      if (!document.getElementById('salesPrice').value) {
+        alert('请填写销售均价');
+        return;
+      }
+      if (!document.getElementById('salesQty').value) {
+        alert('请填写销售数量');
+        return;
+      }
+      document.getElementById('successModal').classList.add('show');
+    }
+
+    function closeSuccess() {
+      document.getElementById('successModal').classList.remove('show');
+      navigateTo('mb_data_input.html');
+    }
+
+    function navigateTo(url) { window.location.href = url; }
+
+    (function() {
+      var app = document.querySelector('.mb-app');
+      setTimeout(function() { app.classList.remove('loading'); }, 600);
+    })();
+  </script>
+</body>
+</html>

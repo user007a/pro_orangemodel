@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>蜜桔农业助手 - 病虫上报</title>
+  <link rel="stylesheet" href="css/mobile-design-system.css">
+  <link rel="stylesheet" href="css/mobile-tokens.css">
+  <link rel="stylesheet" href="css/mobile-icons.css">
+  <link rel="stylesheet" href="css/mobile-components.css">
+  <link rel="stylesheet" href="css/mobile-ds-override.css">
+  <link rel="stylesheet" href="css/mobile-form.css">
+</head>
+<body>
+  <div class="mb-app loading">
+    <div class="skeleton-state">
+      <div class="page-header">
+        <div class="mb-skeleton" style="width:140px;height:24px;"></div>
+        <div class="mb-skeleton" style="width:200px;height:14px;margin-top:8px;"></div>
+      </div>
+      <div class="card">
+        <div class="mb-skeleton" style="width:80px;height:16px;margin-bottom:16px;"></div>
+        <div class="mb-skeleton" style="width:100%;height:44px;border-radius:var(--radius-lg);margin-bottom:16px;"></div>
+        <div class="mb-skeleton" style="width:100%;height:44px;border-radius:var(--radius-lg);margin-bottom:16px;"></div>
+        <div class="mb-skeleton" style="width:100%;height:44px;border-radius:var(--radius-lg);"></div>
+      </div>
+      <div class="card">
+        <div class="mb-skeleton" style="width:80px;height:16px;margin-bottom:16px;"></div>
+        <div class="mb-skeleton" style="width:100%;height:72px;border-radius:var(--radius-md);margin-bottom:16px;"></div>
+        <div class="mb-skeleton" style="width:100%;height:100px;border-radius:var(--radius-md);"></div>
+      </div>
+      <div class="submit-wrap">
+        <div class="mb-skeleton" style="width:100%;height:48px;border-radius:var(--radius-full);"></div>
+      </div>
+    </div>
+
+    <div class="real-content">
+      <div class="page-header">
+        <div class="header-back" onclick="goBack()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M15 18l-6-6 6-6"/>
+          </svg>
+        </div>
+        <div class="header-title">病虫上报</div>
+        <div class="header-sub">上报病虫害发生与处置情况</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+          基本信息
+        </div>
+        <div class="dr-form-item" onclick="showTypeSelect()">
+          <div class="form-label">病虫害类型</div>
+          <div class="dr-form-select">
+            <span class="dr-form-value" id="diseaseType">请选择</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </div>
+        </div>
+        <div class="dr-form-item" onclick="showLocationSelect()">
+          <div class="form-label">发生地块</div>
+          <div class="dr-form-select">
+            <span class="dr-form-value" id="diseaseLocation">请选择</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </div>
+        </div>
+        <div class="dr-form-item">
+          <div class="form-label">发生日期</div>
+          <div class="dr-form-value">2026-08-19</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          发生程度
+        </div>
+        <div class="level-options">
+          <div class="level-option" id="level-light" onclick="selectLevel('light')">
+            <div class="level-name">轻度</div>
+            <div class="level-desc">零星发生</div>
+          </div>
+          <div class="level-option" id="level-medium" onclick="selectLevel('medium')">
+            <div class="level-name">中度</div>
+            <div class="level-desc">部分发生</div>
+          </div>
+          <div class="level-option" id="level-heavy" onclick="selectLevel('heavy')">
+            <div class="level-name">重度</div>
+            <div class="level-desc">大面积发生</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          现场照片
+        </div>
+        <div class="photo-grid" id="photoGrid">
+          <div class="photo-item" onclick="uploadPhoto()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          </div>
+          <div class="photo-item" onclick="selectPhoto()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          处置情况
+        </div>
+        <div class="dr-radio-options">
+          <div class="dr-radio-option" id="disposed-no" onclick="selectDisposed('no')">
+            <span>未处置</span>
+          </div>
+          <div class="dr-radio-option" id="disposed-yes" onclick="selectDisposed('yes')">
+            <span>已处置</span>
+          </div>
+        </div>
+        <div id="disposalMethod" style="display:none; margin-top: 12px;">
+          <div class="dr-form-item" onclick="showMethodSelect()">
+            <div class="form-label">处置方式</div>
+            <div class="dr-form-select">
+              <span class="dr-form-value" id="methodValue">请选择</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </div>
+          </div>
+        </div>
+        <div id="disposalNote" style="display:none; margin-top: 12px;">
+          <div class="form-label" style="margin-bottom: 8px;">处置备注</div>
+          <textarea class="textarea-box" placeholder="请描述具体的处置措施..."></textarea>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+          备注信息
+        </div>
+        <textarea class="textarea-box" placeholder="请描述病虫害发生情况，如症状表现、发生范围等..."></textarea>
+      </div>
+
+      <div class="submit-wrap">
+        <button class="btn btn-primary btn-block" onclick="submitData()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;"><polyline points="20 6 9 17 4 12"/></svg>
+          提交数据
+        </button>
+      </div>
+    </div>
+
+    <!-- 病虫害类型选择 -->
+    <div class="modal-overlay" id="typeModal">
+      <div class="dr-modal-box">
+        <div class="dr-modal-header">
+          <div class="dr-modal-title">选择病虫害类型</div>
+          <div class="dr-modal-close" onclick="closeModal('typeModal')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </div>
+        </div>
+        <div class="dr-modal-body">
+          <div style="font-size: var(--font-sm); font-weight: 600; color: var(--text-secondary); margin-bottom: 8px;">病害</div>
+          <div class="dr-modal-item" onclick="selectType('黄龙病')"><span>黄龙病</span></div>
+          <div class="dr-modal-item" onclick="selectType('黑点病')"><span>黑点病</span></div>
+          <div class="dr-modal-item" onclick="selectType('疮痂病')"><span>疮痂病</span></div>
+          <div class="dr-modal-item" onclick="selectType('炭疽病')"><span>炭疽病</span></div>
+          <div style="font-size: var(--font-sm); font-weight: 600; color: var(--text-secondary); margin: 12px 0 8px;">虫害</div>
+          <div class="dr-modal-item" onclick="selectType('红蜘蛛')"><span>红蜘蛛</span></div>
+          <div class="dr-modal-item" onclick="selectType('蚧壳虫')"><span>蚧壳虫</span></div>
+          <div class="dr-modal-item" onclick="selectType('木虱')"><span>木虱</span></div>
+          <div class="dr-modal-item" onclick="selectType('蚜虫')"><span>蚜虫</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 地块选择 -->
+    <div class="modal-overlay" id="locationModal">
+      <div class="dr-modal-box">
+        <div class="dr-modal-header">
+          <div class="dr-modal-title">选择地块</div>
+          <div class="dr-modal-close" onclick="closeModal('locationModal')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </div>
+        </div>
+        <div class="dr-modal-body">
+          <div class="dr-modal-item" onclick="selectLocation('1号早熟蜜桔区')"><span>1号早熟蜜桔区</span></div>
+          <div class="dr-modal-item" onclick="selectLocation('2号中熟蜜桔区')"><span>2号中熟蜜桔区</span></div>
+          <div class="dr-modal-item" onclick="selectLocation('3号晚熟蜜桔区')"><span>3号晚熟蜜桔区</span></div>
+          <div class="dr-modal-item" onclick="selectLocation('4号试验田')"><span>4号试验田</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 处置方式选择 -->
+    <div class="modal-overlay" id="methodModal">
+      <div class="dr-modal-box">
+        <div class="dr-modal-header">
+          <div class="dr-modal-title">选择处置方式</div>
+          <div class="dr-modal-close" onclick="closeModal('methodModal')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </div>
+        </div>
+        <div class="dr-modal-body">
+          <div class="dr-modal-item" onclick="selectMethod('化学防治')"><span>化学防治</span></div>
+          <div class="dr-modal-item" onclick="selectMethod('生物防治')"><span>生物防治</span></div>
+          <div class="dr-modal-item" onclick="selectMethod('物理防治')"><span>物理防治</span></div>
+          <div class="dr-modal-item" onclick="selectMethod('农业防治')"><span>农业防治</span></div>
+          <div class="dr-modal-item" onclick="selectMethod('综合防治')"><span>综合防治</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 提交成功 -->
+    <div class="modal-overlay" id="successModal">
+      <div class="dr-modal-box">
+        <div class="success-modal">
+          <div class="success-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="success-title">提交成功</div>
+          <div class="success-desc" id="successDesc">预警信息已提交，农技人员将尽快处理</div>
+        </div>
+        <div class="dr-modal-footer">
+          <button class="btn btn-primary btn-block" onclick="closeSuccess()">确定</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 底部导航 -->
+    <div class="mb-tab-bar">
+      <div class="mb-tab-item" onclick="navigateTo('mb_home.html')">
+        <svg class="mb-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span>首页</span>
+      </div>
+      <div class="mb-tab-item active">
+        <svg class="mb-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        <span>监测</span>
+      </div>
+      <div class="mb-tab-item" onclick="navigateTo('mb_disease_knowledge.html')">
+        <svg class="mb-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><circle cx="12" cy="10" r="3"/></svg>
+        <span>病虫害</span>
+      </div>
+      <div class="mb-tab-item" onclick="navigateTo('mb_profile.html')">
+        <svg class="mb-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span>我的</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function goBack() { navigateTo('mb_data_input.html'); }
+
+    function showTypeSelect() { document.getElementById('typeModal').classList.add('show'); }
+
+    function selectType(type) {
+      var el = document.getElementById('diseaseType');
+      el.textContent = type;
+      el.classList.add('selected');
+      closeModal('typeModal');
+    }
+
+    function showLocationSelect() { document.getElementById('locationModal').classList.add('show'); }
+
+    function selectLocation(loc) {
+      var el = document.getElementById('diseaseLocation');
+      el.textContent = loc;
+      el.classList.add('selected');
+      closeModal('locationModal');
+    }
+
+    function selectLevel(level) {
+      ['light', 'medium', 'heavy'].forEach(function(l) {
+        document.getElementById('level-' + l).classList.remove('active');
+      });
+      document.getElementById('level-' + level).classList.add('active');
+    }
+
+    function selectDisposed(val) {
+      ['yes', 'no'].forEach(function(v) {
+        document.getElementById('disposed-' + v).classList.remove('active');
+      });
+      document.getElementById('disposed-' + val).classList.add('active');
+      var show = val === 'yes';
+      document.getElementById('disposalMethod').style.display = show ? 'block' : 'none';
+      document.getElementById('disposalNote').style.display = show ? 'block' : 'none';
+    }
+
+    function showMethodSelect() { document.getElementById('methodModal').classList.add('show'); }
+
+    function selectMethod(method) {
+      var el = document.getElementById('methodValue');
+      el.textContent = method;
+      el.classList.add('selected');
+      closeModal('methodModal');
+    }
+
+    function uploadPhoto() {
+      var grid = document.getElementById('photoGrid');
+      var photo = document.createElement('div');
+      photo.className = 'photo-item';
+      photo.style.background = 'linear-gradient(135deg, #ffebee, #ffcdd2)';
+      photo.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="#e57373" stroke-width="1.5" style="width:24px;height:24px;opacity:0.5;"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>';
+      grid.insertBefore(photo, grid.lastElementChild);
+    }
+
+    function selectPhoto() {
+      var grid = document.getElementById('photoGrid');
+      var photo = document.createElement('div');
+      photo.className = 'photo-item';
+      photo.style.background = 'linear-gradient(135deg, #fff3e0, #ffe0b2)';
+      photo.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="#ffb74d" stroke-width="1.5" style="width:24px;height:24px;opacity:0.5;"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>';
+      grid.insertBefore(photo, grid.lastElementChild);
+    }
+
+    function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+    function submitData() {
+      if (document.getElementById('diseaseType').textContent === '请选择') {
+        alert('请选择病虫害类型');
+        return;
+      }
+      document.getElementById('successModal').classList.add('show');
+    }
+
+    function closeSuccess() {
+      document.getElementById('successModal').classList.remove('show');
+      navigateTo('mb_data_input.html');
+    }
+
+    function navigateTo(url) { window.location.href = url; }
+
+    (function() {
+      var app = document.querySelector('.mb-app');
+      setTimeout(function() { app.classList.remove('loading'); }, 600);
+    })();
+  </script>
+</body>
+</html>

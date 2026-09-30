@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>蜜桔农业助手 - 农事记录上报</title>
+  <link rel="stylesheet" href="css/mobile-design-system.css">
+  <link rel="stylesheet" href="css/mobile-tokens.css">
+  <link rel="stylesheet" href="css/mobile-icons.css">
+  <link rel="stylesheet" href="css/mobile-components.css">
+  <link rel="stylesheet" href="css/mobile-ds-override.css">
+  <link rel="stylesheet" href="css/mobile-form.css">
+</head>
+<body>
+  <div class="mb-app loading">
+    <div class="skeleton-state">
+      <div class="page-header">
+        <div class="mb-skeleton" style="width:140px;height:24px;"></div>
+        <div class="mb-skeleton" style="width:200px;height:14px;margin-top:8px;"></div>
+      </div>
+      <div class="card">
+        <div class="mb-skeleton" style="width:80px;height:16px;margin-bottom:16px;"></div>
+        <div class="mb-skeleton" style="width:100%;height:44px;border-radius:var(--radius-lg);margin-bottom:16px;"></div>
+        <div class="mb-skeleton" style="width:100%;height:120px;border-radius:var(--radius-lg);margin-bottom:16px;"></div>
+        <div class="mb-skeleton" style="width:100%;height:44px;border-radius:var(--radius-lg);"></div>
+      </div>
+      <div class="submit-wrap">
+        <div class="mb-skeleton" style="width:100%;height:48px;border-radius:var(--radius-full);"></div>
+      </div>
+    </div>
+
+    <div class="real-content">
+      <div class="page-header">
+        <div class="header-back" onclick="goBack()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M15 18l-6-6 6-6"/>
+          </svg>
+        </div>
+        <div class="header-title">农事记录上报</div>
+        <div class="header-sub">记录果园农事操作执行情况</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+          </svg>
+          农事记录
+        </div>
+        <div class="dr-form-item" onclick="showPlotSelect()">
+          <div class="form-label">定位地块</div>
+          <div class="dr-form-select">
+            <span class="dr-form-value" id="plotValue">请选择</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </div>
+        </div>
+        <div class="form-item" style="margin-top: 16px;">
+          <label class="form-label">农事类型</label>
+          <div class="radio-group">
+            <div class="radio-item" onclick="selectRadio(this)"><div class="radio-label">施肥</div></div>
+            <div class="radio-item" onclick="selectRadio(this)"><div class="radio-label">灌溉</div></div>
+            <div class="radio-item" onclick="selectRadio(this)"><div class="radio-label">剪枝</div></div>
+            <div class="radio-item" onclick="selectRadio(this)"><div class="radio-label">疏果</div></div>
+            <div class="radio-item" onclick="selectRadio(this)"><div class="radio-label">喷药</div></div>
+            <div class="radio-item" onclick="selectRadio(this)"><div class="radio-label">其他</div></div>
+          </div>
+        </div>
+        <div class="form-item">
+          <label class="form-label">执行日期</label>
+          <input type="date" class="form-input" value="2026-08-10">
+        </div>
+        <div class="form-item">
+          <label class="form-label">备注说明</label>
+          <textarea class="form-input" rows="3" placeholder="请输入备注说明..." style="height: auto; padding: 12px 14px;"></textarea>
+        </div>
+      </div>
+
+      <div class="submit-wrap">
+        <button class="btn btn-primary btn-block" onclick="submitData()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;"><polyline points="20 6 9 17 4 12"/></svg>
+          提交数据
+        </button>
+      </div>
+    </div>
+
+    <!-- 地块选择 -->
+    <div class="modal-overlay" id="plotModal">
+      <div class="dr-modal-box">
+        <div class="dr-modal-header">
+          <div class="dr-modal-title">选择地块</div>
+          <div class="dr-modal-close" onclick="closeModal('plotModal')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </div>
+        </div>
+        <div class="dr-modal-body">
+          <div class="dr-modal-item" onclick="selectPlot('1号早熟蜜桔区')"><span>1号早熟蜜桔区</span></div>
+          <div class="dr-modal-item" onclick="selectPlot('2号中熟蜜桔区')"><span>2号中熟蜜桔区</span></div>
+          <div class="dr-modal-item" onclick="selectPlot('3号晚熟蜜桔区')"><span>3号晚熟蜜桔区</span></div>
+          <div class="dr-modal-item" onclick="selectPlot('4号试验田')"><span>4号试验田</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 提交成功 -->
+    <div class="modal-overlay" id="successModal">
+      <div class="dr-modal-box">
+        <div class="success-modal">
+          <div class="success-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="success-title">提交成功</div>
+          <div class="success-desc" id="successDesc">农事记录已提交，感谢您的记录</div>
+        </div>
+        <div class="dr-modal-footer">
+          <button class="btn btn-primary btn-block" onclick="closeSuccess()">确定</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 底部导航 -->
+    <div class="mb-tab-bar">
+      <div class="mb-tab-item" onclick="navigateTo('mb_home.html')">
+        <svg class="mb-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span>首页</span>
+      </div>
+      <div class="mb-tab-item active">
+        <svg class="mb-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        <span>监测</span>
+      </div>
+      <div class="mb-tab-item" onclick="navigateTo('mb_disease_knowledge.html')">
+        <svg class="mb-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><circle cx="12" cy="10" r="3"/></svg>
+        <span>病虫害</span>
+      </div>
+      <div class="mb-tab-item" onclick="navigateTo('mb_profile.html')">
+        <svg class="mb-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span>我的</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function goBack() { navigateTo('mb_data_input.html'); }
+
+    function showPlotSelect() {
+      document.getElementById('plotModal').classList.add('show');
+    }
+
+    function selectPlot(plot) {
+      var el = document.getElementById('plotValue');
+      el.textContent = plot;
+      el.classList.add('selected');
+      closeModal('plotModal');
+    }
+
+    function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+    function selectRadio(element) {
+      var container = element.closest('.card');
+      container.querySelectorAll('.radio-item').forEach(function(item) { item.classList.remove('active'); });
+      element.classList.add('active');
+    }
+
+    function submitData() {
+      document.getElementById('successModal').classList.add('show');
+    }
+
+    function closeSuccess() {
+      document.getElementById('successModal').classList.remove('show');
+      navigateTo('mb_data_input.html');
+    }
+
+    function navigateTo(url) { window.location.href = url; }
+
+    (function() {
+      var app = document.querySelector('.mb-app');
+      setTimeout(function() { app.classList.remove('loading'); }, 600);
+    })();
+  </script>
+</body>
+</html>
